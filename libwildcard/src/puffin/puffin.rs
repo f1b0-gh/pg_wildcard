@@ -13,6 +13,7 @@
 //! All reads are bounds-checked and size-limited: Puffin files come from
 //! object storage and must be treated as untrusted.
 
+use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::io::Read;
 
@@ -23,8 +24,36 @@ pub const MAGIC: [u8; 4] = *b"PFA1";
 /// Footer struct: payload size (4) + flags (4) + magic (4).
 const FOOTER_STRUCT: usize = 12;
 /// Upper bounds for untrusted input.
-pub const MAX_FOOTER_BYTES: usize = 64 << 20;
-pub const MAX_BLOB_BYTES: usize = 2 << 30;
+pub const MAX_FOOTER_BYTES: usize = 1 << 20;
+pub const MAX_BLOB_BYTES: usize = 64 << 20;
+/// Cap the Zstd frame window before decoding. Native context overhead is extra.
+pub const MAX_ZSTD_WINDOW_LOG: u32 = 23;
+
+/// Read at most the admitted output, with fallible growth in small chunks.
+/// LZ4 frames have a maximum 4 MiB block (8 MiB for the legacy variant accepted
+/// by the dependency). Its buffers are bounded by three maximum blocks plus a
+/// 64 KiB history window, separately from this output budget.
+fn bounded_output(mut reader: impl Read, max_bytes: usize) -> Result<Vec<u8>, PuffinError> {
+    let mut out = Vec::new();
+    let mut chunk = [0u8; 8192];
+    loop {
+        let count = reader.read(&mut chunk[..8192.min(max_bytes - out.len() + 1)])?;
+        if count == 0 {
+            return Ok(out);
+        }
+        if count > max_bytes - out.len() {
+            return Err(PuffinError::Format("decompressed payload too large".into()));
+        }
+        if out.len() + count > out.capacity() {
+            let target = (out.len() + count)
+                .max(out.capacity().saturating_mul(2))
+                .min(max_bytes);
+            out.try_reserve_exact(target - out.len())
+                .map_err(|_| PuffinError::Format("allocation failed".into()))?;
+        }
+        out.extend_from_slice(&chunk[..count]);
+    }
+}
 
 #[derive(Debug, Error)]
 pub enum PuffinError {
@@ -184,16 +213,12 @@ pub fn read_footer_limited(file: &[u8], max_bytes: usize) -> Result<FileMetadata
     }
     let payload = &file[start + 4..start + 4 + size];
     let json = if flags[0] & 1 == 1 {
-        let mut out = Vec::new();
-        lz4_flex::frame::FrameDecoder::new(payload)
-            .take(max_bytes as u64 + 1)
-            .read_to_end(&mut out)?;
-        if out.len() > max_bytes {
-            return Err(bad("decompressed footer too large"));
-        }
-        out
+        Cow::Owned(bounded_output(
+            lz4_flex::frame::FrameDecoder::new(payload),
+            max_bytes,
+        )?)
     } else {
-        payload.to_vec()
+        Cow::Borrowed(payload)
     };
     let meta: FileMetadata = serde_json::from_slice(&json)?;
     for b in &meta.blobs {
@@ -223,24 +248,15 @@ pub fn read_blob_limited(
     let end = start.checked_add(length).ok_or_else(bad)?;
     let raw = file.get(start..end).ok_or_else(bad)?;
     let max_bytes = max_bytes.min(MAX_BLOB_BYTES);
-    let limit = max_bytes as u64 + 1;
     let out = match b.compression_codec.as_deref() {
         None if raw.len() <= max_bytes => raw.to_vec(),
         None => return Err(PuffinError::Format("blob too large".into())),
         Some("zstd") => {
-            let mut out = Vec::new();
-            zstd::stream::read::Decoder::new(raw)?
-                .take(limit)
-                .read_to_end(&mut out)?;
-            out
+            let mut decoder = zstd::stream::read::Decoder::new(raw)?;
+            decoder.window_log_max(MAX_ZSTD_WINDOW_LOG)?;
+            bounded_output(decoder, max_bytes)?
         }
-        Some("lz4") => {
-            let mut out = Vec::new();
-            lz4_flex::frame::FrameDecoder::new(raw)
-                .take(limit)
-                .read_to_end(&mut out)?;
-            out
-        }
+        Some("lz4") => bounded_output(lz4_flex::frame::FrameDecoder::new(raw), max_bytes)?,
         Some(other) => return Err(PuffinError::Codec(other.to_string())),
     };
     if out.len() > max_bytes {
@@ -252,6 +268,58 @@ pub fn read_blob_limited(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn zstd_rejects_frame_window_even_when_output_is_empty() {
+        // Valid empty raw-block frames with unknown content size and explicit
+        // 8/16 MiB windows. The unbounded control validates the fixture itself.
+        for window_log in [23, 24] {
+            let frame = [0x28, 0xb5, 0x2f, 0xfd, 0, (window_log - 10) << 3, 1, 0, 0];
+            assert!(zstd::stream::decode_all(&frame[..]).unwrap().is_empty());
+            let metadata = BlobMetadata {
+                blob_type: "test".into(),
+                fields: vec![],
+                snapshot_id: 0,
+                sequence_number: 0,
+                offset: 0,
+                length: frame.len() as i64,
+                compression_codec: Some("zstd".into()),
+                properties: BTreeMap::new(),
+            };
+            let result = read_blob_limited(&frame, &metadata, 0);
+            if window_log == 23 {
+                assert_eq!(result.unwrap(), Vec::<u8>::new());
+            } else {
+                assert!(matches!(result, Err(PuffinError::Io(_))));
+            }
+        }
+    }
+
+    #[test]
+    fn decompressed_output_capacity_and_exact_limit_are_bounded() {
+        for size in [0, 1, 8191, 8192, 8193, 20_000] {
+            let source = vec![b'x'; size];
+            let output = bounded_output(source.as_slice(), size).unwrap();
+            assert_eq!(output, source);
+            assert!(output.capacity() <= size);
+            if size > 0 {
+                assert!(bounded_output(source.as_slice(), size - 1).is_err());
+            }
+        }
+    }
+
+    #[test]
+    fn rejects_large_footer_before_json_allocation() {
+        let file = PuffinWriter::new()
+            .finish(
+                BTreeMap::from([("large".into(), "x".repeat(1 << 20))]),
+                false,
+            )
+            .unwrap();
+        assert!(
+            matches!(read_footer(&file), Err(PuffinError::Format(message)) if message == "invalid footer payload size")
+        );
+    }
 
     #[test]
     fn caller_blob_limit_and_untrusted_offsets() {

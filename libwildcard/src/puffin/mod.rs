@@ -19,7 +19,7 @@ pub mod segments;
 
 use std::collections::BTreeMap;
 
-use ngram::{BLOB_TYPE, NgramError, NgramIndex};
+use ngram::{BLOB_TYPE, DecodeLimits, NgramError, NgramIndex};
 use puffin::{Blob, BlobMetadata, Codec, PuffinError, PuffinWriter};
 use serde_json::json;
 
@@ -72,13 +72,73 @@ pub fn write_index(index: &NgramIndex, info: &IndexInfo) -> Result<Vec<u8>, Erro
     )?)
 }
 
-/// Read every `wildcard-ngram-v1` blob of a Puffin file.
+pub const MAX_INDEX_FILE_BYTES: usize = 16 << 20;
+pub const MAX_INDEX_BLOB_BYTES: usize = 32 << 20;
+pub const MAX_INDEXES: usize = 16;
+pub const MAX_INDEX_HEAP_BYTES: usize = 128 << 20;
+
+fn index_limits(heap_bytes: usize) -> DecodeLimits {
+    DecodeLimits {
+        max_encoded_bytes: MAX_INDEX_BLOB_BYTES,
+        max_files: 128,
+        max_grams: 1_000_000,
+        max_postings: 1_000_000,
+        max_path_bytes: 65536,
+        max_heap_bytes: heap_bytes,
+    }
+}
+
+fn index_footer(file: &[u8]) -> Result<puffin::FileMetadata, Error> {
+    if file.len() > MAX_INDEX_FILE_BYTES {
+        return Err(PuffinError::Format("index file budget".into()).into());
+    }
+    Ok(puffin::read_footer(file)?)
+}
+
+/// Read the first matching index without decompressing later blobs. The file,
+/// payload and decoded collections use the same bounded legacy policy as the
+/// builder; a malformed first matching blob is an error, not skipped coverage.
+pub fn read_first_index(file: &[u8]) -> Result<Option<(BlobMetadata, NgramIndex)>, Error> {
+    let meta = index_footer(file)?;
+    let Some(blob) = meta.blobs.into_iter().find(|b| b.blob_type == BLOB_TYPE) else {
+        return Ok(None);
+    };
+    let data = puffin::read_blob_limited(file, &blob, MAX_INDEX_BLOB_BYTES)?;
+    let index = NgramIndex::decode_with_policy(&data, index_limits(MAX_INDEX_HEAP_BYTES))?;
+    Ok(Some((blob, index)))
+}
+
+/// Read every matching blob, bounded to 16 indexes and 128 MiB of aggregate
+/// decoded index backing. Input, one decompressed payload, footer metadata and
+/// native decoder workspace are separate owners outside that backing budget.
 pub fn read_indexes(file: &[u8]) -> Result<Vec<(BlobMetadata, NgramIndex)>, Error> {
-    let meta = puffin::read_footer(file)?;
+    read_indexes_limited(file, MAX_INDEXES, MAX_INDEX_HEAP_BYTES)
+}
+
+fn read_indexes_limited(
+    file: &[u8],
+    max_indexes: usize,
+    max_heap_bytes: usize,
+) -> Result<Vec<(BlobMetadata, NgramIndex)>, Error> {
+    let meta = index_footer(file)?;
+    if meta
+        .blobs
+        .iter()
+        .filter(|b| b.blob_type == BLOB_TYPE)
+        .count()
+        > max_indexes
+    {
+        return Err(PuffinError::Format("index count budget".into()).into());
+    }
+    let mut remaining = max_heap_bytes;
     let mut out = Vec::new();
     for b in meta.blobs.into_iter().filter(|b| b.blob_type == BLOB_TYPE) {
-        let data = puffin::read_blob(file, &b)?;
-        out.push((b, NgramIndex::decode(&data)?));
+        let data = puffin::read_blob_limited(file, &b, MAX_INDEX_BLOB_BYTES)?;
+        let index = NgramIndex::decode_with_policy(&data, index_limits(remaining))?;
+        remaining = remaining
+            .checked_sub(index.retained_heap_bytes())
+            .ok_or(NgramError::Corrupt("heap budget"))?;
+        out.push((b, index));
     }
     Ok(out)
 }
@@ -127,6 +187,59 @@ mod tests {
     use super::*;
     use crate::core::View;
     use ngram::NgramIndexBuilder;
+
+    fn multi_index(count: usize, invalid_last: bool) -> Vec<u8> {
+        let index = NgramIndexBuilder::new(&[View::Raw], 1024).finish();
+        let mut writer = PuffinWriter::new();
+        for i in 0..count {
+            writer
+                .add(
+                    Blob {
+                        blob_type: BLOB_TYPE.into(),
+                        fields: vec![1],
+                        snapshot_id: 1,
+                        sequence_number: 1,
+                        properties: BTreeMap::new(),
+                        data: if invalid_last && i + 1 == count {
+                            b"bad".to_vec()
+                        } else {
+                            index.encode()
+                        },
+                    },
+                    Codec::None,
+                )
+                .unwrap();
+        }
+        writer.finish(BTreeMap::new(), false).unwrap()
+    }
+
+    #[test]
+    fn first_index_skips_later_payloads_but_all_indexes_are_atomic() {
+        let file = multi_index(2, true);
+        assert!(read_first_index(&file).unwrap().is_some());
+        assert!(read_indexes(&file).is_err());
+        assert!(read_first_index(&multi_index(0, false)).unwrap().is_none());
+        assert!(read_first_index(&multi_index(1, true)).is_err());
+    }
+
+    #[test]
+    fn index_collection_limits_count_and_combined_backing() {
+        assert!(read_indexes(&multi_index(MAX_INDEXES, false)).is_ok());
+        assert!(
+            matches!(read_indexes(&multi_index(MAX_INDEXES + 1, false)), Err(Error::Puffin(PuffinError::Format(message))) if message == "index count budget")
+        );
+        let file = multi_index(2, false);
+        let one = read_first_index(&file)
+            .unwrap()
+            .unwrap()
+            .1
+            .retained_heap_bytes();
+        assert_eq!(read_indexes_limited(&file, 2, one * 2).unwrap().len(), 2);
+        assert!(matches!(
+            read_indexes_limited(&file, 2, one * 2 - 1),
+            Err(Error::Ngram(NgramError::Corrupt("heap budget")))
+        ));
+    }
 
     #[test]
     fn puffin_round_trip_and_statistics() {

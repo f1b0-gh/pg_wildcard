@@ -85,6 +85,35 @@ struct Header {
     groups: Vec<Group>,
     max_value_bytes: usize,
 }
+
+// Decode presence together with the typed fields. A JSON Value would duplicate
+// all paths and groups while the original payload and Header are still alive.
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ReadBinding {
+    table_uuid: String,
+    column: String,
+    guard: String,
+    column_field_id: i32,
+    guard_field_id: i32,
+    #[serde(default, deserialize_with = "present_guard_type")]
+    guard_type: Option<GuardType>,
+}
+
+fn present_guard_type<'de, D: serde::Deserializer<'de>>(
+    d: D,
+) -> Result<Option<GuardType>, D::Error> {
+    GuardType::deserialize(d).map(Some)
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ReadHeader {
+    binding: ReadBinding,
+    files: Vec<DataFile>,
+    groups: Vec<Group>,
+    max_value_bytes: usize,
+}
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct GroupIndex {
     header: Header,
@@ -413,17 +442,31 @@ impl GroupIndex {
             len <= MAX_HEADER_BYTES && len <= data.len() - 9,
             "header length",
         )?;
-        let header: Header =
+        let read_header: ReadHeader =
             serde_json::from_slice(&data[9..9 + len]).map_err(|_| Error::Invalid("header JSON"))?;
+        let ReadHeader {
+            binding: b,
+            files,
+            groups,
+            max_value_bytes,
+        } = read_header;
+        ensure(b.guard_type.is_some() == timestamp, "guard field/version")?;
+        let header = Header {
+            binding: Binding {
+                table_uuid: b.table_uuid,
+                column: b.column,
+                guard: b.guard,
+                column_field_id: b.column_field_id,
+                guard_field_id: b.guard_field_id,
+                guard_type: b.guard_type.unwrap_or_default(),
+            },
+            files,
+            groups,
+            max_value_bytes,
+        };
         ensure(
             (header.binding.guard_type == GuardType::TimestampUsUtc) == timestamp,
             "guard kind/version",
-        )?;
-        let shape: serde_json::Value =
-            serde_json::from_slice(&data[9..9 + len]).map_err(|_| Error::Invalid("header JSON"))?;
-        ensure(
-            shape["binding"].get("guard_type").is_some() == timestamp,
-            "guard field/version",
         )?;
         // Header coverage is bounded before decoding the larger gram payload.
         ensure(
@@ -431,9 +474,12 @@ impl GroupIndex {
             "coverage budget",
         )?;
         let encoded = &data[9 + len..];
-        let grams =
-            NgramIndex::decode_with_limits(encoded, MAX_GROUPS, MAX_POSTINGS, MAX_POSTINGS)?;
-        ensure(grams.encode() == encoded, "noncanonical gram payload")?;
+        let grams = NgramIndex::decode_canonical_with_limits(
+            encoded,
+            MAX_GROUPS,
+            MAX_POSTINGS,
+            MAX_POSTINGS,
+        )?;
         let result = Self { header, grams };
         result.validate()?;
         let b = result.binding();

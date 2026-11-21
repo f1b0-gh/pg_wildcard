@@ -86,6 +86,50 @@ migration where the engine treats these settings as immutable. Measure storage,
 ingestion, broad scans and selective queries before adopting it; smaller granules
 and blocks are not a universal improvement.
 
+## Puffin decoding and construction
+
+Wildcard readers select `wildcard-ngram-v1` blobs; other Puffin blob types remain
+separate. Decoding checks whether advertised counts can fit the remaining
+encoded records and grows collections as records are validated. It does not
+reserve an advertised maximum collection before reading its records.
+
+`NgramIndex::decode` applies `DecodeLimits::default()`;
+`decode_with_policy` accepts an explicit policy. The legacy container readers
+apply the stricter policy below:
+
+| Resource | Default n-gram decoder | `read_indexes` / `read_first_index` |
+| --- | --- | --- |
+| Encoded n-gram payload | 64 MiB | 32 MiB per decompressed blob |
+| File entries | 65,536 | 128 per index |
+| Distinct grams | 1,000,000 | 1,000,000 per index |
+| Posting entries | 8,000,000 | 1,000,000 per index |
+| Path bytes | 8 MiB | 64 KiB per index |
+| Decoded index backing | 128 MiB | 128 MiB across returned indexes |
+
+Both container readers reject files larger than 16 MiB. `read_indexes` returns
+at most 16 matching indexes, charging their retained vector and string
+capacities against the shared backing budget. `read_first_index` decodes only
+the first matching blob after validating the footer; a malformed first match
+is an error, not a reason to skip to a later index.
+
+Generic Puffin readers cap encoded and decoded footer JSON at 1 MiB and each
+decoded blob payload at 64 MiB; specialized readers may impose smaller limits.
+Zstd frames have an 8 MiB window limit. The backing budget covers decoded index
+collections, including spare capacity. Input files, footer metadata, a
+decompressed payload, native decoder workspace, allocator overhead and temporary
+reallocation overlap have separate lifetimes and are outside that budget.
+These limits are not a total heap or process RSS guarantee.
+
+`BoundedNgramIndexBuilder` admits at most 128 files, 64 KiB of paths, one million
+distinct grams, one million posting entries and at most 8192 bytes per indexed
+value. File/path admission failures return errors. Exhausting a gram or posting
+budget marks the affected file as always requiring an exact recheck, as do
+overlong values; it never silently drops that file from candidate results.
+These construction limits bound counts, not total allocator bytes. The
+compatibility `NgramIndexBuilder` remains a low-level builder for trusted
+callers supplying their own aggregate admission policy. See
+[lake indexing](lake.md) for file-read, Parquet and coverage requirements.
+
 ## PostgreSQL access
 
 The scan-only [wildcard_fdw](fdw.md) generates exact search predicates and uses

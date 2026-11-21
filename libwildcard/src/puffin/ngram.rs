@@ -31,6 +31,57 @@ use thiserror::Error;
 pub const BLOB_TYPE: &str = "wildcard-ngram-v1";
 const MAGIC: &[u8; 4] = b"WCNG";
 
+/// Decoder admission policy. Heap bytes cover requested vector/string backing,
+/// including spare capacity, not allocator metadata, input or decompressor memory.
+#[derive(Clone, Copy, Debug)]
+pub struct DecodeLimits {
+    pub max_encoded_bytes: usize,
+    pub max_files: usize,
+    pub max_grams: usize,
+    pub max_postings: usize,
+    pub max_path_bytes: usize,
+    pub max_heap_bytes: usize,
+}
+
+impl Default for DecodeLimits {
+    fn default() -> Self {
+        Self {
+            max_encoded_bytes: 64 << 20,
+            max_files: 65_536,
+            max_grams: 1_000_000,
+            max_postings: 8_000_000,
+            max_path_bytes: 8 << 20,
+            max_heap_bytes: 128 << 20,
+        }
+    }
+}
+
+fn charge(remaining: &mut usize, bytes: usize) -> Result<(), NgramError> {
+    *remaining = remaining
+        .checked_sub(bytes)
+        .ok_or(NgramError::Corrupt("heap budget"))?;
+    Ok(())
+}
+
+/// Grow only after validating a record, never directly from an advertised count.
+fn grow<T>(values: &mut Vec<T>, remaining: &mut usize) -> Result<(), NgramError> {
+    if values.len() == values.capacity() {
+        let additional = values
+            .capacity()
+            .max(1)
+            .min(*remaining / std::mem::size_of::<T>())
+            .max(1);
+        let bytes = additional
+            .checked_mul(std::mem::size_of::<T>())
+            .ok_or(NgramError::Corrupt("heap budget"))?;
+        charge(remaining, bytes)?;
+        values
+            .try_reserve_exact(additional)
+            .map_err(|_| NgramError::Corrupt("allocation failed"))?;
+    }
+    Ok(())
+}
+
 #[derive(Debug, Error)]
 pub enum NgramError {
     #[error("corrupt wildcard-ngram-v1 blob: {0}")]
@@ -131,7 +182,7 @@ impl NgramIndex {
     }
 
     pub fn decode(b: &[u8]) -> Result<Self, NgramError> {
-        Self::decode_with_limits(b, usize::MAX, usize::MAX, usize::MAX)
+        Self::decode_with_policy(b, DecodeLimits::default())
     }
 
     /// Reject cardinalities before allocating postings or entries.
@@ -141,7 +192,49 @@ impl NgramIndex {
         max_grams: usize,
         max_postings: usize,
     ) -> Result<Self, NgramError> {
-        let mut r = Reader { b, pos: 0 };
+        Self::decode_with_policy(
+            b,
+            DecodeLimits {
+                max_files,
+                max_grams,
+                max_postings,
+                ..DecodeLimits::default()
+            },
+        )
+    }
+
+    pub fn decode_with_policy(b: &[u8], limits: DecodeLimits) -> Result<Self, NgramError> {
+        Self::decode_inner(b, limits, false)
+    }
+
+    pub(crate) fn decode_canonical_with_limits(
+        b: &[u8],
+        max_files: usize,
+        max_grams: usize,
+        max_postings: usize,
+    ) -> Result<Self, NgramError> {
+        Self::decode_inner(
+            b,
+            DecodeLimits {
+                max_files,
+                max_grams,
+                max_postings,
+                ..DecodeLimits::default()
+            },
+            true,
+        )
+    }
+
+    fn decode_inner(b: &[u8], limits: DecodeLimits, canonical: bool) -> Result<Self, NgramError> {
+        if b.len() > limits.max_encoded_bytes {
+            return Err(NgramError::Corrupt("encoded byte budget"));
+        }
+        let mut remaining = limits.max_heap_bytes;
+        let mut r = Reader {
+            b,
+            pos: 0,
+            canonical,
+        };
         if r.take(4)? != MAGIC {
             return Err(NgramError::Corrupt("magic"));
         }
@@ -149,34 +242,59 @@ impl NgramIndex {
             return Err(NgramError::Corrupt("unsupported version"));
         }
         let mask = r.byte()?;
-        r.take(2)?;
+        let reserved = r.take(2)?;
+        if canonical
+            && (reserved != [0, 0]
+                || mask & !View::ALL.into_iter().fold(0u8, |m, v| m | 1 << v as u8) != 0)
+        {
+            return Err(NgramError::Corrupt("noncanonical header"));
+        }
         let views: Vec<View> = View::ALL
             .into_iter()
             .filter(|v| mask & (1 << (*v as u8)) != 0)
             .collect();
-        let n_files = r.count()?;
-        if n_files > max_files {
+        charge(
+            &mut remaining,
+            views.capacity() * std::mem::size_of::<View>(),
+        )?;
+        let n_files = r.records(3)?;
+        if n_files > limits.max_files || n_files > u32::MAX as usize {
             return Err(NgramError::Corrupt("file budget"));
         }
-        let mut files = Vec::with_capacity(n_files.min(1 << 20));
+        let mut files = Vec::new();
+        let mut path_bytes = 0usize;
         for _ in 0..n_files {
             let len = r.count()?;
-            let path = String::from_utf8(r.take(len)?.to_vec())
-                .map_err(|_| NgramError::Corrupt("path utf-8"))?;
+            path_bytes = path_bytes
+                .checked_add(len)
+                .filter(|n| *n <= limits.max_path_bytes)
+                .ok_or(NgramError::Corrupt("path budget"))?;
+            let raw_path =
+                std::str::from_utf8(r.take(len)?).map_err(|_| NgramError::Corrupt("path utf-8"))?;
             let record_count = r.varint()?;
-            let has_unindexed = r.byte()? & 1 == 1;
+            let flags = r.byte()?;
+            if canonical && flags > 1 {
+                return Err(NgramError::Corrupt("noncanonical flags"));
+            }
+            let has_unindexed = flags & 1 == 1;
+            grow(&mut files, &mut remaining)?;
+            charge(&mut remaining, len)?;
+            let mut path = String::new();
+            path.try_reserve_exact(len)
+                .map_err(|_| NgramError::Corrupt("allocation failed"))?;
+            path.push_str(raw_path);
             files.push(FileEntry {
                 path,
                 record_count,
                 has_unindexed,
             });
         }
-        let n_grams = r.count()?;
-        if n_grams > max_grams {
+        let n_grams = r.records(2)?;
+        if n_grams > limits.max_grams {
             return Err(NgramError::Corrupt("gram budget"));
         }
         let mut total_postings = 0usize;
-        let mut grams = Vec::with_capacity(n_grams.min(1 << 24));
+        let mut grams = Vec::new();
         let mut prev = 0u64;
         for i in 0..n_grams {
             let d = r.varint()?;
@@ -187,11 +305,14 @@ impl NgramIndex {
                 .checked_add(d)
                 .ok_or(NgramError::Corrupt("gram overflow"))?;
             let np = r.count()?;
+            if np > files.len() {
+                return Err(NgramError::Corrupt("posting count exceeds files"));
+            }
             total_postings = total_postings
                 .checked_add(np)
-                .filter(|n| *n <= max_postings)
+                .filter(|n| *n <= limits.max_postings)
                 .ok_or(NgramError::Corrupt("posting budget"))?;
-            let mut post = Vec::with_capacity(np.min(files.len()));
+            let mut post = Vec::new();
             let mut f = 0u64;
             for j in 0..np {
                 let d = r.varint()?;
@@ -207,8 +328,10 @@ impl NgramIndex {
                 if f >= files.len() as u64 {
                     return Err(NgramError::Corrupt("file ordinal out of range"));
                 }
+                grow(&mut post, &mut remaining)?;
                 post.push(f as u32);
             }
+            grow(&mut grams, &mut remaining)?;
             grams.push((prev, post));
         }
         if r.pos != b.len() {
@@ -219,6 +342,19 @@ impl NgramIndex {
             files,
             grams,
         })
+    }
+
+    /// Requested backing retained by this index; excludes allocator metadata.
+    pub fn retained_heap_bytes(&self) -> usize {
+        self.views.capacity() * std::mem::size_of::<View>()
+            + self.files.capacity() * std::mem::size_of::<FileEntry>()
+            + self.files.iter().map(|f| f.path.capacity()).sum::<usize>()
+            + self.grams.capacity() * std::mem::size_of::<(GramKey, Vec<u32>)>()
+            + self
+                .grams
+                .iter()
+                .map(|(_, p)| p.capacity() * std::mem::size_of::<u32>())
+                .sum::<usize>()
     }
 }
 
@@ -279,13 +415,145 @@ fn intersect_flat<'a>(
     Some(result)
 }
 
-/// Builds an index file by file.
+/// Compatibility builder for trusted callers that provide their own aggregate
+/// admission. Use `BoundedNgramIndexBuilder` for untrusted or large data sets.
 pub struct NgramIndexBuilder {
     views: Vec<View>,
     max_value_bytes: usize,
     files: Vec<FileEntry>,
     grams: BTreeMap<GramKey, Vec<u32>>,
     scratch: Vec<GramKey>,
+}
+
+/// Bounded legacy construction. At most 128 files, 64 KiB of paths, one million
+/// grams/postings and 8192 bytes per value. Counts bound BTree nodes and posting
+/// capacities; they are not a process RSS bound. Budget exhaustion in grams
+/// makes the current file always-recheck, preserving every possible match.
+pub struct BoundedNgramIndexBuilder {
+    inner: NgramIndexBuilder,
+    // Coverage flags also describe isolated overlong values. Only exhausted
+    // indexing budgets suppress later short values in the same file.
+    exhausted_files: [bool; 128],
+    path_bytes: usize,
+    postings: usize,
+    max_grams: usize,
+    max_postings: usize,
+}
+
+impl BoundedNgramIndexBuilder {
+    pub fn new(views: &[View], max_value_bytes: usize) -> Result<Self, NgramError> {
+        if views.is_empty()
+            || views.len() > View::ALL.len()
+            || max_value_bytes == 0
+            || max_value_bytes > 8192
+        {
+            return Err(NgramError::Corrupt("builder configuration"));
+        }
+        let mut inner = NgramIndexBuilder::new(views, max_value_bytes);
+        inner.views.sort_unstable_by_key(|v| *v as u8);
+        inner.views.dedup();
+        Ok(Self {
+            inner,
+            exhausted_files: [false; 128],
+            path_bytes: 0,
+            postings: 0,
+            max_grams: 1_000_000,
+            max_postings: 1_000_000,
+        })
+    }
+
+    pub fn try_add_file(&mut self, path: &str) -> Result<u32, NgramError> {
+        if self.inner.files.len() >= 128 {
+            return Err(NgramError::Corrupt("file budget"));
+        }
+        let path_bytes = self
+            .path_bytes
+            .checked_add(path.len())
+            .filter(|n| *n <= 65536)
+            .ok_or(NgramError::Corrupt("path budget"))?;
+        let mut owned = String::new();
+        owned
+            .try_reserve_exact(path.len())
+            .map_err(|_| NgramError::Corrupt("allocation failed"))?;
+        owned.push_str(path);
+        self.inner
+            .files
+            .try_reserve(1)
+            .map_err(|_| NgramError::Corrupt("allocation failed"))?;
+        let file = self.inner.files.len() as u32;
+        self.inner.files.push(FileEntry {
+            path: owned,
+            record_count: 0,
+            has_unindexed: false,
+        });
+        self.path_bytes = path_bytes;
+        Ok(file)
+    }
+
+    pub fn try_add_null(&mut self, file: u32) -> Result<(), NgramError> {
+        let f = self
+            .inner
+            .files
+            .get_mut(file as usize)
+            .ok_or(NgramError::Corrupt("file ordinal out of range"))?;
+        f.record_count = f
+            .record_count
+            .checked_add(1)
+            .ok_or(NgramError::Corrupt("record count overflow"))?;
+        Ok(())
+    }
+
+    pub fn try_add_value(&mut self, file: u32, value: &[u8]) -> Result<(), NgramError> {
+        self.try_add_null(file)?;
+        let f = &mut self.inner.files[file as usize];
+        if value.len() > self.inner.max_value_bytes {
+            f.has_unindexed = true;
+            return Ok(());
+        }
+        if self.exhausted_files[file as usize] {
+            return Ok(());
+        }
+        self.inner.scratch.clear();
+        for &view in &self.inner.views {
+            self.inner
+                .scratch
+                .extend(grams::value_grams(view, &view.apply(value)));
+        }
+        for &gram in &self.inner.scratch {
+            let found = self
+                .inner
+                .grams
+                .get(&gram)
+                .map(|post| post.binary_search(&file));
+            if matches!(found, Some(Ok(_))) {
+                continue;
+            }
+            if self.postings == self.max_postings
+                || (found.is_none() && self.inner.grams.len() == self.max_grams)
+            {
+                self.inner.files[file as usize].has_unindexed = true;
+                self.exhausted_files[file as usize] = true;
+                break;
+            }
+            let post = self.inner.grams.entry(gram).or_default();
+            if post.try_reserve(1).is_err() {
+                self.inner.files[file as usize].has_unindexed = true;
+                self.exhausted_files[file as usize] = true;
+                return Err(NgramError::Corrupt("allocation failed"));
+            }
+            let position = match found {
+                Some(Err(i)) => i,
+                _ => 0,
+            };
+            post.insert(position, file);
+            self.postings += 1;
+        }
+        Ok(())
+    }
+
+    pub fn finish(self) -> NgramIndex {
+        self.inner.finish()
+    }
 }
 
 impl NgramIndexBuilder {
@@ -353,6 +621,7 @@ fn put(out: &mut Vec<u8>, mut v: u64) {
 struct Reader<'a> {
     b: &'a [u8],
     pos: usize,
+    canonical: bool,
 }
 
 impl<'a> Reader<'a> {
@@ -378,6 +647,9 @@ impl<'a> Reader<'a> {
             }
             v |= u64::from(b & 0x7f) << shift;
             if b & 0x80 == 0 {
+                if self.canonical && shift > 0 && b == 0 {
+                    return Err(NgramError::Corrupt("noncanonical varint"));
+                }
                 return Ok(v);
             }
         }
@@ -390,6 +662,14 @@ impl<'a> Reader<'a> {
             return Err(NgramError::Corrupt("count larger than remaining data"));
         }
         Ok(v as usize)
+    }
+
+    fn records(&mut self, min_bytes: usize) -> Result<usize, NgramError> {
+        let count = self.count()?;
+        if count > (self.b.len() - self.pos) / min_bytes {
+            return Err(NgramError::Corrupt("record count exceeds remaining data"));
+        }
+        Ok(count)
     }
 }
 
@@ -416,10 +696,27 @@ mod tests {
     fn rejects_varint_tenth_byte_overflow() {
         let mut bytes = vec![0x80; 9];
         bytes.push(2);
-        assert!(Reader { b: &bytes, pos: 0 }.varint().is_err());
+        assert!(
+            Reader {
+                b: &bytes,
+                pos: 0,
+                canonical: false
+            }
+            .varint()
+            .is_err()
+        );
         bytes.clear();
         put(&mut bytes, u64::MAX);
-        assert_eq!(Reader { b: &bytes, pos: 0 }.varint().unwrap(), u64::MAX);
+        assert_eq!(
+            Reader {
+                b: &bytes,
+                pos: 0,
+                canonical: false
+            }
+            .varint()
+            .unwrap(),
+            u64::MAX
+        );
     }
 
     fn sample() -> NgramIndex {
@@ -475,6 +772,190 @@ mod tests {
 #[cfg(test)]
 mod bounded_decode_tests {
     use super::*;
+
+    #[test]
+    fn decoded_backing_and_paths_obey_explicit_budgets() {
+        let index = NgramIndex {
+            views: vec![View::Raw],
+            files: vec![FileEntry {
+                path: "path".into(),
+                record_count: 1,
+                has_unindexed: false,
+            }],
+            grams: vec![],
+        };
+        let data = index.encode();
+        let bytes = NgramIndex::decode(&data).unwrap().retained_heap_bytes();
+        let limits = DecodeLimits {
+            max_heap_bytes: bytes,
+            max_path_bytes: 4,
+            ..DecodeLimits::default()
+        };
+        assert_eq!(
+            NgramIndex::decode_with_policy(&data, limits).unwrap(),
+            index
+        );
+        assert!(matches!(
+            NgramIndex::decode_with_policy(
+                &data,
+                DecodeLimits {
+                    max_heap_bytes: bytes - 1,
+                    ..limits
+                }
+            ),
+            Err(NgramError::Corrupt("heap budget"))
+        ));
+        assert!(matches!(
+            NgramIndex::decode_with_policy(
+                &data,
+                DecodeLimits {
+                    max_path_bytes: 3,
+                    ..limits
+                }
+            ),
+            Err(NgramError::Corrupt("path budget"))
+        ));
+        assert!(matches!(
+            NgramIndex::decode_with_policy(
+                &data,
+                DecodeLimits {
+                    max_encoded_bytes: data.len() - 1,
+                    ..limits
+                }
+            ),
+            Err(NgramError::Corrupt("encoded byte budget"))
+        ));
+    }
+
+    #[test]
+    fn canonical_validation_rejects_alternate_encodings_without_reencoding() {
+        let index = NgramIndex {
+            views: vec![View::Raw],
+            files: vec![FileEntry {
+                path: "a".into(),
+                record_count: 0,
+                has_unindexed: false,
+            }],
+            grams: vec![],
+        };
+        let data = index.encode();
+        assert_eq!(
+            NgramIndex::decode_canonical_with_limits(&data, 1, 1, 1).unwrap(),
+            index
+        );
+        let mut reserved = data.clone();
+        reserved[6] = 1;
+        let mut flags = data.clone();
+        flags[12] = 2;
+        let mut nonminimal = data.clone();
+        nonminimal.splice(8..9, [0x81, 0]);
+        for modified in [reserved, flags, nonminimal] {
+            assert!(NgramIndex::decode(&modified).is_ok());
+            assert!(NgramIndex::decode_canonical_with_limits(&modified, 1, 1, 1).is_err());
+        }
+    }
+
+    #[test]
+    fn bounded_builder_matches_legacy_bytes_with_short_values_after_overlong_values() {
+        for long_position in 0..3 {
+            let mut bounded = BoundedNgramIndexBuilder::new(&View::ALL, 8).unwrap();
+            let mut legacy = NgramIndexBuilder::new(&View::ALL, 8);
+            let file = bounded.try_add_file("a").unwrap();
+            assert_eq!(legacy.add_file("a"), file);
+            for (position, short) in [b"ABC".as_slice(), b"%44%45", b"xyz\\a"]
+                .into_iter()
+                .enumerate()
+            {
+                if position == long_position {
+                    bounded.try_add_value(file, b"overlong value").unwrap();
+                    legacy.add_value(file, b"overlong value");
+                }
+                bounded.try_add_value(file, short).unwrap();
+                legacy.add_value(file, short);
+            }
+            bounded.try_add_null(file).unwrap();
+            legacy.add_null(file);
+            let actual = bounded.finish();
+            let expected = legacy.finish();
+            assert!(actual.files[0].has_unindexed);
+            assert_eq!(actual.files[0].record_count, 5);
+            assert_eq!(
+                actual.encode(),
+                expected.encode(),
+                "long position {long_position}"
+            );
+        }
+    }
+
+    #[test]
+    fn bounded_builder_keeps_budget_exhausted_and_overlong_files_as_candidates() {
+        for gram_limit in [true, false] {
+            let mut builder = BoundedNgramIndexBuilder::new(&[View::Raw], 8).unwrap();
+            if gram_limit {
+                builder.max_grams = 1;
+            } else {
+                builder.max_postings = 1;
+            }
+            let file = builder.try_add_file("a").unwrap();
+            builder.try_add_value(file, b"abcdef").unwrap();
+            builder.try_add_value(file, b"other").unwrap();
+            let overlong = builder.try_add_file("b").unwrap();
+            builder.try_add_value(overlong, b"overlong value").unwrap();
+            builder.try_add_null(overlong).unwrap();
+            let index = builder.finish();
+            assert_eq!(index.grams.len(), 1);
+            assert!(
+                index
+                    .files
+                    .iter()
+                    .all(|f| f.has_unindexed && f.record_count == 2)
+            );
+            assert_eq!(
+                index
+                    .candidates(Kind::Wildcard, "*missing*", View::Raw)
+                    .unwrap()
+                    .files
+                    .len(),
+                2
+            );
+        }
+    }
+
+    #[test]
+    fn bounded_builder_checks_metadata_and_revisiting_files_keeps_sorted_postings() {
+        assert!(BoundedNgramIndexBuilder::new(&[], 8).is_err());
+        assert!(BoundedNgramIndexBuilder::new(&[View::Raw], 8193).is_err());
+        let mut builder = BoundedNgramIndexBuilder::new(&[View::Raw], 8).unwrap();
+        let first = builder.try_add_file("a").unwrap();
+        let second = builder.try_add_file("b").unwrap();
+        for file in [second, first, second] {
+            builder.try_add_value(file, b"abc").unwrap();
+        }
+        assert!(builder.try_add_value(7, b"abc").is_err());
+        assert!(builder.try_add_file(&"x".repeat(65535)).is_err());
+        let index = builder.finish();
+        assert!(index.grams.iter().all(|(_, p)| p == &[first, second]));
+        let mut builder = BoundedNgramIndexBuilder::new(&[View::Raw], 8).unwrap();
+        for _ in 0..128 {
+            builder.try_add_file("").unwrap();
+        }
+        assert!(builder.try_add_file("").is_err());
+    }
+    #[test]
+    fn rejects_padded_impossible_record_counts_before_parsing_records() {
+        for files in [false, true] {
+            let mut data = b"WCNG\x01\x01\x00\x00".to_vec();
+            if !files {
+                put(&mut data, 0);
+            }
+            put(&mut data, 8);
+            data.extend_from_slice(&[0; 8]);
+            assert!(matches!(
+                NgramIndex::decode(&data),
+                Err(NgramError::Corrupt("record count exceeds remaining data"))
+            ));
+        }
+    }
     #[test]
     fn rejects_cardinality_before_decoding_untrusted_index() {
         let mut b = NgramIndexBuilder::new(&[View::Raw], 1024);
