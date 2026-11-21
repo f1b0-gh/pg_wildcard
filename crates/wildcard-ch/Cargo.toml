@@ -1,0 +1,19 @@
+[package]
+name = "wildcard-ch"
+description = "ClickHouse SQL generation for pg_wildcard: views, predicates, IOC sweeps, watchlist materialized views, lake queries."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+libwildcard = { workspace = true, features = ["hot"] }
+
+[dev-dependencies]
+wildcard-core.workspace = true
+serde_json.workspace = true
+
+[[example]]
+name = "difftest_gen"
+path = "examples/difftest_gen.rs"

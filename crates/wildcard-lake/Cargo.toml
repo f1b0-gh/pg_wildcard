@@ -1,0 +1,24 @@
+[package]
+name = "wildcard-lake"
+description = "wc-lake: build Puffin n-gram indexes for Iceberg/Parquet data and prune Antalya/ClickHouse lake queries."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+libwildcard = { workspace = true, features = ["cold"] }
+wildcard-core.workspace = true
+wildcard-ch.workspace = true
+wildcard-puffin.workspace = true
+thiserror.workspace = true
+serde_json.workspace = true
+parquet.workspace = true
+arrow-array.workspace = true
+arrow-schema.workspace = true
+
+# Build the canonical CLI while preserving the legacy package/command name.
+[[bin]]
+name = "wc-lake"
+path = "../../libwildcard/src/bin/wc-lake/main.rs"

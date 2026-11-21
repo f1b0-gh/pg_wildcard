@@ -1,0 +1,15 @@
+[package]
+name = "wildcard-puffin"
+description = "Iceberg Puffin reader/writer and the wildcard-ngram-v1 blob: file-level n-gram index for data lakes."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+libwildcard = { workspace = true, features = ["puffin"] }
+
+[dev-dependencies]
+wildcard-core.workspace = true
+thiserror.workspace = true

@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: Apache-2.0
+# Qualified test engines, all Apache-2.0. Other transitive versions are logged.
+# chdb-core pins the embedded engine as well as the Python front end.
+chdb==4.4.0
+chdb-core==26.9.0
+pyiceberg[sql-sqlite,pyarrow]==0.10.0
+pyarrow==26.0.1

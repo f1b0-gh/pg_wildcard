@@ -1,0 +1,26 @@
+# Private archives, reports, scratch work and credentials
+/.local/
+/.agents/
+/.codex/
+/.aws/
+/.work/
+/.superpowers/
+/.jj/
+.env
+.env.*
+!.env.example
+
+# Build and test output in any Cargo/Python workspace
+target/
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.log
+/test-results/
+/fuzz/artifacts/
+/fuzz/corpus/
+wc_iceberg_*/
+*.so
+.DS_Store

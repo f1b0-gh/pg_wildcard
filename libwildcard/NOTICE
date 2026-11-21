@@ -1,0 +1,7 @@
+libwildcard
+Copyright 2026 The pg_wildcard Authors
+
+This product is licensed under the Apache License, Version 2.0.
+It contains the canonical matching, query-generation and lake-indexing
+implementation used by pg_wildcard. Third-party dependencies retain their
+own licenses and notices.

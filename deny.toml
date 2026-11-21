@@ -1,0 +1,31 @@
+# cargo-deny configuration: `cargo deny check licenses`
+# Review dependency licenses before changing this allow-list.
+
+[licenses]
+allow = [
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "MIT",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "Zlib",
+  "PostgreSQL",
+  "Unicode-3.0",
+  "Unicode-DFS-2016",
+  "CC0-1.0",
+]
+confidence-threshold = 0.9
+
+# WebAssembly-only TLS roots in the cross-platform lockfile; Linux uses system roots.
+[[licenses.exceptions]]
+name = "webpki-root-certs"
+version = "=1.0.12"
+allow = ["CDLA-Permissive-2.0"]
+
+[bans]
+multiple-versions = "warn"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

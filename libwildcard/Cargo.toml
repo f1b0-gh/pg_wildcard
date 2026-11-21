@@ -1,0 +1,59 @@
+[package]
+name = "libwildcard"
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.99.1"
+license = "Apache-2.0"
+description = "Wildcard search for Antalya hot storage and Iceberg cold data"
+exclude = [".local/**", ".venv/**", "**/__pycache__/**", "*.log", "target/**", "wc_iceberg_*/**"]
+
+[features]
+default = []
+hot = ["dep:serde", "dep:serde_json"]
+puffin = ["dep:serde", "dep:serde_json", "dep:lz4_flex", "dep:zstd"]
+cold = ["hot", "puffin", "dep:parquet", "dep:arrow-array", "dep:arrow-schema"]
+
+[dependencies]
+thiserror = "2"
+regex = { version = "1.11", default-features = false, features = ["std", "perf", "unicode"] }
+regex-syntax = "0.8"
+idna = "1.1"
+serde = { version = "1", features = ["derive"], optional = true }
+serde_json = { version = "1", optional = true }
+lz4_flex = { version = "0.14", default-features = false, features = ["frame", "std"], optional = true }
+zstd = { version = "0.13", optional = true }
+parquet = { version = "=59.3.3", default-features = false, features = ["arrow", "snap", "zstd", "lz4"], optional = true }
+arrow-array = { version = "=59.3.3", optional = true }
+arrow-schema = { version = "=59.3.3", optional = true }
+
+[dev-dependencies]
+serde_json = "1"
+
+[[bin]]
+name = "wc-lake"
+path = "src/bin/wc-lake/main.rs"
+required-features = ["cold"]
+
+[[example]]
+name = "comparison_gen"
+required-features = ["hot"]
+
+[[example]]
+name = "difftest_gen"
+required-features = ["hot"]
+
+[[example]]
+name = "print_ddl"
+required-features = ["hot"]
+
+[[example]]
+name = "skip_profile"
+required-features = ["puffin"]
+
+# Remain buildable independently inside or outside the monorepo.
+[workspace]
+resolver = "3"
+
+[[example]]
+name = "candidate_profile"
+required-features = ["hot"]

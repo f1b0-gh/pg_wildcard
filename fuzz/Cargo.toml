@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: Apache-2.0
+[package]
+name = "wildcard-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+license = "Apache-2.0"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "=0.4.10"
+wildcard-puffin = { path = "../crates/wildcard-puffin" }
+
+[[bin]]
+name = "identity_codec"
+path = "fuzz_targets/identity_codec.rs"
+test = false
+doc = false
+bench = false
+
+[workspace]
+members = ["."]

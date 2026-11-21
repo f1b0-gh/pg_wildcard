@@ -1,0 +1,11 @@
+[package]
+name = "wildcard-core"
+description = "Engine-independent semantics for pg_wildcard: views, n-grams, pattern planning, RE2-portable verification, indicators."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+libwildcard = { workspace = true }

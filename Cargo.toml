@@ -1,0 +1,45 @@
+[workspace]
+resolver = "3"
+exclude = ["libwildcard"]
+members = [
+  "crates/wildcard-core",
+  "crates/wildcard-ch",
+  "crates/wildcard-puffin",
+  "crates/wildcard-lake",
+  "pg_wildcard",
+]
+
+[workspace.package]
+version = "0.2.0"
+edition = "2024"
+license = "Apache-2.0"
+rust-version = "1.99.1"
+
+[workspace.dependencies]
+libwildcard = { path = "libwildcard", version = "0.2.0", default-features = false }
+antalya-rs = { path = "../antalya-rs", features = ["tls"] }
+wildcard-core = { path = "crates/wildcard-core" }
+wildcard-ch = { path = "crates/wildcard-ch" }
+wildcard-puffin = { path = "crates/wildcard-puffin" }
+thiserror = "2"
+regex = { version = "1.11", default-features = false, features = ["std", "perf", "unicode"] }
+regex-syntax = "0.8"
+idna = "1.1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+lz4_flex = { version = "0.14", default-features = false, features = ["frame", "std"] }
+zstd = "0.13"
+# Shared with antalya-rs / lo-sqlcoord and clickhouse-ext-arrow 0.2.
+parquet = { version = "=59.3.3", default-features = false, features = ["arrow", "snap", "zstd", "lz4"] }
+arrow-array = "=59.3.3"
+arrow-schema = "=59.3.3"
+
+# pgrx requires unwinding so Rust panics become Postgres ERRORs.
+[profile.dev]
+panic = "unwind"
+
+[profile.release]
+panic = "unwind"
+opt-level = 3
+lto = "fat"
+codegen-units = 1

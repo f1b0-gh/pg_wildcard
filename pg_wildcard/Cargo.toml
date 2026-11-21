@@ -1,0 +1,35 @@
+[package]
+name = "pg_wildcard"
+description = "Security string search control plane: patterns, indicators, ClickHouse SQL generation and lake pruning, inside Postgres."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+default = ["pg18"]
+pg14 = ["pgrx/pg14", "pgrx-tests/pg14"]
+pg15 = ["pgrx/pg15", "pgrx-tests/pg15"]
+pg16 = ["pgrx/pg16", "pgrx-tests/pg16"]
+pg17 = ["pgrx/pg17", "pgrx-tests/pg17"]
+pg18 = ["pgrx/pg18", "pgrx-tests/pg18"]
+pg_test = []
+
+[dependencies]
+wildcard-core.workspace = true
+wildcard-ch.workspace = true
+antalya-rs.workspace = true
+arrow-array.workspace = true
+arrow-schema.workspace = true
+tokio = { version = "1.54.1", features = ["rt-multi-thread", "sync", "time"] }
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", default-features = false, features = ["std"] }
+# Keep pgrx aligned with cargo-pgrx and verify supported PostgreSQL versions.
+pgrx = "=0.19.4"
+
+[dev-dependencies]
+pgrx-tests = "=0.19.4"
+arrow-ipc = "=59.3.3"

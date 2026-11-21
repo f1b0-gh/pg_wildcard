@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+[package]
+name = "wildcard-fdw-transport-tests"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+publish = false
+[workspace]
+[dependencies]
+antalya-rs = { path = "../../../../antalya-rs" }
+arrow-array = "=59.3.3"
+arrow-schema = "=59.3.3"
+chrono = { version = "0.4", default-features = false, features = ["std"] }
+tokio = { version = "1.54.1", features = ["rt-multi-thread", "sync", "time"] }
+uuid = { version = "1", features = ["v4"] }
+wildcard-ch = { path = "../../../crates/wildcard-ch" }
+
+[dev-dependencies]
+arrow-ipc = "=59.3.3"

@@ -1,0 +1,6 @@
+comment = 'pg_wildcard: security string search control plane (patterns, indicators, ClickHouse SQL, lake pruning)'
+default_version = '@CARGO_VERSION@'
+module_pathname = 'pg_wildcard'
+relocatable = false
+superuser = true
+trusted = false

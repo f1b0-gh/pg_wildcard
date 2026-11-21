@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: Apache-2.0
+name: PostgreSQL qualification
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: postgres-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_BUILD_JOBS: '2'
+  CARGO_INCREMENTAL: '0'
+  CARGO_PROFILE_DEV_DEBUG: '0'
+  CARGO_PROFILE_TEST_DEBUG: '0'
+
+defaults:
+  run:
+    shell: bash
+    working-directory: pg_wildcard
+
+jobs:
+  extension:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      CLIENT_REPOSITORY: ${{ vars.ANTALYA_RS_REPOSITORY || 'f1b0-gh/antalya-rs' }}
+      CLIENT_REVISION: ${{ vars.ANTALYA_RS_REVISION || '6a0f8723df13ebdb305902ee8ff2f04706a26181' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        pg: [14, 15, 16, 17, 18]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { path: pg_wildcard, persist-credentials: false }
+      - name: Require the pinned companion client
+        run: |
+          test -n "$CLIENT_REPOSITORY" || { echo 'Set ANTALYA_RS_REPOSITORY to the companion owner/repository'; exit 1; }
+          [[ "$CLIENT_REVISION" =~ ^[0-9a-f]{40}$ ]] || { echo 'Set ANTALYA_RS_REVISION to its reviewed commit SHA'; exit 1; }
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.CLIENT_REPOSITORY }}
+          ref: ${{ env.CLIENT_REVISION }}
+          token: ${{ secrets.ANTALYA_RS_TOKEN || github.token }}
+          path: antalya-rs
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc
+        with: { toolchain: "1.99.1" }
+      - name: Verify the source pin and Arrow compatibility
+        run: |
+          test "$(git -C ../antalya-rs rev-parse HEAD)" = "$CLIENT_REVISION"
+          python3 tools/check_dependency_policy.py --companion ../antalya-rs
+      - name: Install PostgreSQL (18.6 target; other majors use available minors)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl ca-certificates clang libclang-dev
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update
+          if [[ '${{ matrix.pg }}' == 18 ]]; then
+            pg_package_version=$(apt-cache madison postgresql-18 | awk '$3 ~ /^18[.]6-/ {print $3; exit}')
+            test -n "$pg_package_version" || { echo 'PostgreSQL 18.6 is unavailable from this package source'; exit 1; }
+            sudo apt-get install -y "postgresql-18=$pg_package_version" "postgresql-server-dev-18=$pg_package_version"
+            /usr/lib/postgresql/18/bin/pg_config --version | grep -Eq '^PostgreSQL 18[.]6($| )'
+          else
+            sudo apt-get install -y postgresql-${{ matrix.pg }} postgresql-server-dev-${{ matrix.pg }}
+          fi
+          sudo chmod a+rwx "$(/usr/lib/postgresql/${{ matrix.pg }}/bin/pg_config --pkglibdir)" "$(/usr/lib/postgresql/${{ matrix.pg }}/bin/pg_config --sharedir)/extension"
+      - run: cargo install cargo-pgrx --version 0.19.4 --locked
+      - run: cargo pgrx init --pg${{ matrix.pg }} /usr/lib/postgresql/${{ matrix.pg }}/bin/pg_config
+      - run: cargo pgrx test pg${{ matrix.pg }} -p pg_wildcard --no-default-features --features pg${{ matrix.pg }} --cargo=--locked
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with: { python-version: "3.12" }
+      - name: FDW end-to-end (Postgres + wildcard_fdw + ClickHouse via chDB)
+        run: |
+          python3 -m pip install -r .github/requirements.txt
+          python3 -m pip freeze
+          cargo pgrx install -p pg_wildcard --no-default-features --features pg${{ matrix.pg }} --pg-config /usr/lib/postgresql/${{ matrix.pg }}/bin/pg_config --cargo=--locked
+          cargo build --locked --manifest-path libwildcard/Cargo.toml --features cold --bin wc-lake
+          PATH=/usr/lib/postgresql/${{ matrix.pg }}/bin:$PATH python3 tests/fdw/run.py libwildcard/target/debug/wc-lake
