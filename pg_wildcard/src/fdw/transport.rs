@@ -17,7 +17,7 @@ use std::{
 };
 use tokio::{
     runtime::Runtime,
-    sync::{Semaphore, mpsc},
+    sync::{OwnedSemaphorePermit, Semaphore, mpsc, oneshot},
     task::JoinHandle,
 };
 
@@ -104,6 +104,8 @@ impl Session {
             if cache.is_none() {
                 let runtime = tokio::runtime::Builder::new_multi_thread()
                     .worker_threads(1)
+                    // System DNS uses spawn_blocking; abort cannot stop a running lookup.
+                    .max_blocking_threads(4)
                     .enable_all()
                     .build()
                     .map_err(|_| "cannot create Antalya runtime")?;
@@ -163,11 +165,10 @@ impl Session {
             .try_acquire_owned()
             .map_err(|_| "at most four concurrent Antalya scans are supported per backend")?;
         let client = self.client.clone();
-        let (tx, rx) = mpsc::channel(1);
+        let (producer, rx, terminal) = Producer::channel(Some(permit));
         let metrics = Arc::new(Mutex::new(StreamMetrics::default()));
         let producer_metrics = metrics.clone();
         let task = self.runtime.spawn(async move {
-            let _permit = permit;
             // One wall-clock budget encloses plan probes, data, backpressure and proof.
             let result = complete_before(deadline, async {
                 let selected = if let Some(candidate) = candidate.as_deref() {
@@ -201,9 +202,7 @@ impl Session {
                     check_deadline(deadline)?;
                     if !schema_sent {
                         let schema = execution.schema().ok_or(antalya_rs::Error::InvalidIpc)?;
-                        if !send(&tx, Ok(Event::Schema(schema)), &producer_metrics).await {
-                            return Ok(());
-                        }
+                        send(&producer.tx, Ok(Event::Schema(schema)), &producer_metrics).await?;
                         schema_sent = true;
                     }
                     let Some(batch) = batch else {
@@ -212,9 +211,7 @@ impl Session {
                     if batch.charged_bytes() > MAX_BATCH_BYTES {
                         return Err(antalya_rs::Error::LimitExceeded);
                     }
-                    if !send(&tx, Ok(Event::Batch(batch)), &producer_metrics).await {
-                        return Ok(());
-                    }
+                    send(&producer.tx, Ok(Event::Batch(batch)), &producer_metrics).await?;
                 }
                 producer_metrics
                     .lock()
@@ -223,9 +220,14 @@ impl Session {
                 Ok(())
             })
             .await;
-            let _ = send(&tx, result.map(|()| Event::Complete), &producer_metrics).await;
+            producer.finish(result);
         });
-        Ok(Stream { rx, task, metrics })
+        Ok(Stream {
+            rx,
+            terminal,
+            task,
+            metrics,
+        })
     }
 }
 async fn complete_before(
@@ -373,9 +375,13 @@ async fn send(
     tx: &mpsc::Sender<Result<Event, antalya_rs::Error>>,
     event: Result<Event, antalya_rs::Error>,
     metrics: &Mutex<StreamMetrics>,
-) -> bool {
+) -> Result<(), antalya_rs::Error> {
     let start = Instant::now();
-    let sent = tx.send(event).await.is_ok();
+    // Receiver closure is cancellation, never proof of successful execution.
+    let sent = tx
+        .send(event)
+        .await
+        .map_err(|_| antalya_rs::Error::Unconfirmed);
     let mut m = metrics.lock().unwrap_or_else(|e| e.into_inner());
     m.producer_send_wait = m.producer_send_wait.saturating_add(start.elapsed());
     sent
@@ -391,8 +397,69 @@ impl Wake for BackendWake {
     }
 }
 
+type EventReceiver = Arc<Mutex<mpsc::Receiver<Result<Event, antalya_rs::Error>>>>;
+type TerminalReceiver = oneshot::Receiver<Result<(), antalya_rs::Error>>;
+
+/// The terminal receipt has its own slot and never waits for queue capacity.
+/// Shared receiver ownership lets a failed producer revoke unread provisional
+/// payloads even when PostgreSQL is not polling. No worker calls PostgreSQL.
+struct Producer {
+    tx: mpsc::Sender<Result<Event, antalya_rs::Error>>,
+    rx: EventReceiver,
+    terminal: Option<oneshot::Sender<Result<(), antalya_rs::Error>>>,
+    // Keep admission until payload cleanup and terminal publication finish.
+    _permit: Option<OwnedSemaphorePermit>,
+}
+impl Producer {
+    fn channel(permit: Option<OwnedSemaphorePermit>) -> (Self, EventReceiver, TerminalReceiver) {
+        let (tx, rx) = mpsc::channel(1);
+        let rx = Arc::new(Mutex::new(rx));
+        let (terminal, receipt) = oneshot::channel();
+        (
+            Self {
+                tx,
+                rx: rx.clone(),
+                terminal: Some(terminal),
+                _permit: permit,
+            },
+            rx,
+            receipt,
+        )
+    }
+    fn finish(mut self, result: Result<(), antalya_rs::Error>) {
+        self.publish(result);
+    }
+    fn publish(&mut self, result: Result<(), antalya_rs::Error>) {
+        // Preserve data ordering for ordinary confirmed errors. A timeout or
+        // lost producer revokes unread data so its backing cannot outlive cleanup.
+        let discard = matches!(
+            result,
+            Err(antalya_rs::Error::Timeout | antalya_rs::Error::Unconfirmed)
+        );
+        let mut rx = self.rx.lock().unwrap_or_else(|e| e.into_inner());
+        if discard {
+            rx.close();
+            while rx.try_recv().is_ok() {}
+        }
+        // Publish while holding the receive lock: a closed empty queue must
+        // never become visible before its exact terminal status is available.
+        if let Some(terminal) = self.terminal.take() {
+            let _ = terminal.send(result);
+        }
+    }
+}
+impl Drop for Producer {
+    fn drop(&mut self) {
+        if self.terminal.is_some() {
+            // Includes panic, runtime shutdown and abort before the first poll.
+            self.publish(Err(antalya_rs::Error::Unconfirmed));
+        }
+    }
+}
+
 pub struct Stream {
-    rx: mpsc::Receiver<Result<Event, antalya_rs::Error>>,
+    rx: EventReceiver,
+    terminal: TerminalReceiver,
     task: JoinHandle<()>,
     metrics: Arc<Mutex<StreamMetrics>>,
 }
@@ -412,6 +479,11 @@ impl Stream {
     /// Wait for local task destruction, not for server cancellation. A timeout
     /// leaves its permit owned by the old task until Tokio can destroy it.
     pub fn close(&mut self, mut check_interrupt: impl FnMut()) -> Result<(), &'static str> {
+        {
+            let mut rx = self.rx.lock().unwrap_or_else(|e| e.into_inner());
+            rx.close();
+            while rx.try_recv().is_ok() {}
+        }
         self.task.abort();
         let deadline = Instant::now() + Duration::from_secs(2);
         while !self.task.is_finished() {
@@ -454,11 +526,19 @@ impl Stream {
     }
     #[cfg(test)]
     pub fn poll(&mut self) -> Result<Poll, antalya_rs::Error> {
-        match self.rx.try_recv() {
+        let event = self.rx.lock().unwrap_or_else(|e| e.into_inner()).try_recv();
+        match event {
             Ok(event) => self.event(Some(event)),
             Err(mpsc::error::TryRecvError::Empty) => Ok(Poll::Pending),
-            Err(mpsc::error::TryRecvError::Disconnected) => self.event(None),
+            Err(mpsc::error::TryRecvError::Disconnected) => self.terminal_event(),
         }
+    }
+    fn terminal_event(&mut self) -> Result<Poll, antalya_rs::Error> {
+        let result = self
+            .terminal
+            .try_recv()
+            .unwrap_or(Err(antalya_rs::Error::Unconfirmed));
+        self.event(Some(result.map(|()| Event::Complete)))
     }
     /// Tokio registers a waker before returning Pending. unpark retains a token,
     /// so an arrival between poll_recv and park cannot be lost. No PostgreSQL
@@ -471,8 +551,14 @@ impl Stream {
         let mut cx = Context::from_waker(&waker);
         loop {
             check_interrupt();
-            match self.rx.poll_recv(&mut cx) {
-                TaskPoll::Ready(event) => return self.event(event),
+            let event = self
+                .rx
+                .lock()
+                .unwrap_or_else(|e| e.into_inner())
+                .poll_recv(&mut cx);
+            match event {
+                TaskPoll::Ready(Some(event)) => return self.event(Some(event)),
+                TaskPoll::Ready(None) => return self.terminal_event(),
                 TaskPoll::Pending => {
                     let start = Instant::now();
                     std::thread::park_timeout(Duration::from_millis(10));
@@ -493,6 +579,349 @@ impl Drop for Stream {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn deadline_reclaims_unread_queue_and_permit_without_consumer_polling() {
+        let session = Session::from_options(&HashMap::from([(
+            "bearer_token".into(),
+            "test-token".into(),
+        )]))
+        .unwrap();
+        let limiter = Arc::new(Semaphore::new(1));
+        let permit = limiter.clone().try_acquire_owned().unwrap();
+        let (producer, rx, terminal) = Producer::channel(Some(permit));
+        let metrics = Arc::new(Mutex::new(StreamMetrics::default()));
+        let producer_metrics = metrics.clone();
+        let schema = Arc::new(arrow_schema::Schema::empty());
+        let retained = Arc::downgrade(&schema);
+        let task = session.runtime.spawn(async move {
+            let deadline = tokio::time::Instant::now() + Duration::from_millis(30);
+            let result = complete_before(deadline, async {
+                assert!(
+                    send(&producer.tx, Ok(Event::Schema(schema)), &producer_metrics)
+                        .await
+                        .is_ok()
+                );
+                std::future::pending().await
+            })
+            .await;
+            producer.finish(result);
+        });
+        let mut stream = Stream {
+            rx,
+            terminal,
+            task,
+            metrics,
+        };
+        let deadline = Instant::now() + Duration::from_secs(2);
+        while !stream.task.is_finished() && Instant::now() < deadline {
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        assert!(
+            stream.task.is_finished(),
+            "terminal delivery must not hold the producer"
+        );
+        assert_eq!(limiter.available_permits(), 1);
+        assert!(
+            retained.upgrade().is_none(),
+            "timeout must discard unread payloads"
+        );
+        assert!(matches!(
+            stream.receive(|| {}),
+            Err(antalya_rs::Error::Timeout)
+        ));
+        assert!(matches!(
+            stream.receive(|| {}),
+            Err(antalya_rs::Error::Unconfirmed)
+        ));
+    }
+
+    #[test]
+    fn aborted_blocking_jobs_keep_their_four_runtime_slots_until_exit() {
+        let session = Session::from_options(&HashMap::from([(
+            "bearer_token".into(),
+            "test-token".into(),
+        )]))
+        .unwrap();
+        let (started_tx, started_rx) = std::sync::mpsc::channel();
+        let mut releases = Vec::new();
+        let mut jobs = Vec::new();
+        for _ in 0..4 {
+            let (release_tx, release_rx) = std::sync::mpsc::channel();
+            releases.push(release_tx);
+            let started = started_tx.clone();
+            jobs.push(session.runtime.spawn_blocking(move || {
+                started.send(()).unwrap();
+                let _ = release_rx.recv_timeout(Duration::from_secs(5));
+            }));
+        }
+        for _ in 0..4 {
+            started_rx.recv_timeout(Duration::from_secs(2)).unwrap();
+        }
+        for job in &jobs {
+            job.abort();
+        }
+        let (extra_tx, extra_rx) = std::sync::mpsc::channel();
+        let extra = session.runtime.spawn_blocking(move || {
+            let _ = extra_tx.send(());
+        });
+        let ran_while_occupied = extra_rx.recv_timeout(Duration::from_millis(100)).is_ok();
+        let (cancelled_tx, cancelled_rx) = std::sync::mpsc::channel();
+        let queued = session.runtime.spawn_blocking(move || {
+            let _ = cancelled_tx.send(());
+        });
+        queued.abort();
+        // Blocking-pool saturation must not stall the async worker itself.
+        assert_eq!(
+            session
+                .runtime
+                .block_on(session.runtime.spawn(async { 7 }))
+                .unwrap(),
+            7
+        );
+        // Release and join even on the RED path; blocking jobs cannot be aborted.
+        for release in releases {
+            let _ = release.send(());
+        }
+        for job in jobs {
+            session.runtime.block_on(job).unwrap();
+        }
+        session.runtime.block_on(extra).unwrap();
+        let queued_result = session.runtime.block_on(queued);
+        if !ran_while_occupied {
+            assert!(queued_result.unwrap_err().is_cancelled());
+            assert!(
+                cancelled_rx.try_recv().is_err(),
+                "cancelled queued work must never run"
+            );
+        }
+        assert!(
+            !ran_while_occupied,
+            "aborted running work must retain blocking-pool admission"
+        );
+    }
+
+    #[test]
+    fn full_queue_preserves_data_then_exact_terminal_without_holding_admission() {
+        for success in [true, false] {
+            let runtime = tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .unwrap();
+            let limiter = Arc::new(Semaphore::new(1));
+            let (producer, rx, terminal) =
+                Producer::channel(Some(limiter.clone().try_acquire_owned().unwrap()));
+            let metrics = Arc::new(Mutex::new(StreamMetrics::default()));
+            let producer_metrics = metrics.clone();
+            let schema = Arc::new(arrow_schema::Schema::empty());
+            let retained = Arc::downgrade(&schema);
+            let task = runtime.spawn(async move {
+                assert!(
+                    send(&producer.tx, Ok(Event::Schema(schema)), &producer_metrics)
+                        .await
+                        .is_ok()
+                );
+                producer.finish(if success {
+                    Ok(())
+                } else {
+                    Err(antalya_rs::Error::QueryFailed)
+                });
+            });
+            runtime.block_on(async {
+                while !task.is_finished() {
+                    tokio::task::yield_now().await;
+                }
+            });
+            assert_eq!(limiter.available_permits(), 1);
+            assert!(retained.upgrade().is_some());
+            let mut stream = Stream {
+                rx,
+                terminal,
+                task,
+                metrics,
+            };
+            assert!(matches!(stream.receive(|| {}), Ok(Poll::Schema(_))));
+            assert!(retained.upgrade().is_none());
+            if success {
+                assert!(matches!(stream.receive(|| {}), Ok(Poll::Complete)));
+            } else {
+                assert!(matches!(
+                    stream.receive(|| {}),
+                    Err(antalya_rs::Error::QueryFailed)
+                ));
+            }
+            assert!(matches!(
+                stream.receive(|| {}),
+                Err(antalya_rs::Error::Unconfirmed)
+            ));
+        }
+    }
+
+    #[test]
+    fn producer_panic_discards_queue_and_fails_closed() {
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        let limiter = Arc::new(Semaphore::new(1));
+        let (producer, rx, terminal) =
+            Producer::channel(Some(limiter.clone().try_acquire_owned().unwrap()));
+        let metrics = Arc::new(Mutex::new(StreamMetrics::default()));
+        let producer_metrics = metrics.clone();
+        let schema = Arc::new(arrow_schema::Schema::empty());
+        let retained = Arc::downgrade(&schema);
+        let task = runtime.spawn(async move {
+            assert!(
+                send(&producer.tx, Ok(Event::Schema(schema)), &producer_metrics)
+                    .await
+                    .is_ok()
+            );
+            panic!("injected producer panic");
+        });
+        runtime.block_on(async {
+            while !task.is_finished() {
+                tokio::task::yield_now().await;
+            }
+        });
+        assert_eq!(limiter.available_permits(), 1);
+        assert!(retained.upgrade().is_none());
+        let mut stream = Stream {
+            rx,
+            terminal,
+            task,
+            metrics,
+        };
+        assert!(matches!(
+            stream.receive(|| {}),
+            Err(antalya_rs::Error::Unconfirmed)
+        ));
+    }
+
+    #[test]
+    fn abort_before_first_poll_publishes_unconfirmed_and_releases_admission() {
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        let limiter = Arc::new(Semaphore::new(1));
+        let (producer, rx, terminal) =
+            Producer::channel(Some(limiter.clone().try_acquire_owned().unwrap()));
+        let task = runtime.spawn(async move {
+            std::future::pending::<()>().await;
+            producer.finish(Ok(()));
+        });
+        task.abort();
+        runtime.block_on(async {
+            while !task.is_finished() {
+                tokio::task::yield_now().await;
+            }
+        });
+        assert_eq!(limiter.available_permits(), 1);
+        let mut stream = Stream {
+            rx,
+            terminal,
+            task,
+            metrics: Arc::new(Mutex::new(StreamMetrics::default())),
+        };
+        assert!(matches!(
+            stream.receive(|| {}),
+            Err(antalya_rs::Error::Unconfirmed)
+        ));
+    }
+
+    #[test]
+    fn receiver_close_before_abort_cannot_confirm_a_blocked_send() {
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        let (producer, rx, terminal) = Producer::channel(None);
+        let schema = Arc::new(arrow_schema::Schema::empty());
+        assert!(
+            producer
+                .tx
+                .try_send(Ok(Event::Schema(schema.clone())))
+                .is_ok()
+        );
+        let metrics = Arc::new(Mutex::new(StreamMetrics::default()));
+        let producer_metrics = metrics.clone();
+        let task = runtime.spawn(async move {
+            let result = async {
+                send(&producer.tx, Ok(Event::Schema(schema)), &producer_metrics).await?;
+                std::future::pending().await
+            }
+            .await;
+            producer.finish(result);
+        });
+        runtime.block_on(tokio::task::yield_now());
+        assert!(!task.is_finished());
+        // Reproduce close's receive-side cleanup, then let the worker observe
+        // closure before abort is requested. No network or timing race is needed.
+        {
+            let mut rx = rx.lock().unwrap();
+            rx.close();
+            while rx.try_recv().is_ok() {}
+        }
+        runtime.block_on(async {
+            while !task.is_finished() {
+                tokio::task::yield_now().await;
+            }
+        });
+        let mut stream = Stream {
+            rx,
+            terminal,
+            task,
+            metrics,
+        };
+        assert!(matches!(
+            stream.receive(|| {}),
+            Err(antalya_rs::Error::Unconfirmed)
+        ));
+    }
+
+    #[test]
+    fn bounded_close_clears_queue_but_keeps_permit_until_task_destruction() {
+        // An undriven runtime makes delayed cancellation deterministic.
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        let limiter = Arc::new(Semaphore::new(1));
+        let (producer, rx, terminal) =
+            Producer::channel(Some(limiter.clone().try_acquire_owned().unwrap()));
+        let schema = Arc::new(arrow_schema::Schema::empty());
+        let retained = Arc::downgrade(&schema);
+        assert!(producer.tx.try_send(Ok(Event::Schema(schema))).is_ok());
+        let task = runtime.spawn(async move {
+            std::future::pending::<()>().await;
+            producer.finish(Ok(()));
+        });
+        let mut stream = Stream {
+            rx,
+            terminal,
+            task,
+            metrics: Arc::new(Mutex::new(StreamMetrics::default())),
+        };
+        let started = Instant::now();
+        assert!(stream.close(|| {}).is_err());
+        assert!(started.elapsed() < Duration::from_secs(5));
+        assert!(retained.upgrade().is_none());
+        assert_eq!(
+            limiter.available_permits(),
+            0,
+            "abort request is not destruction acknowledgement"
+        );
+        runtime.block_on(async {
+            while !stream.task.is_finished() {
+                tokio::task::yield_now().await;
+            }
+        });
+        assert_eq!(limiter.available_permits(), 1);
+        assert!(matches!(
+            stream.receive(|| {}),
+            Err(antalya_rs::Error::Unconfirmed)
+        ));
+    }
+
     #[test]
     fn notification_receive_does_not_hide_failure_after_provisional_batch() {
         let (options, fixture) = http_fixture(
@@ -518,13 +947,14 @@ mod tests {
             .enable_all()
             .build()
             .unwrap();
-        let (tx, rx) = mpsc::channel(1);
+        let (producer, rx, terminal) = Producer::channel(None);
         let task = runtime.spawn(async move {
             tokio::time::sleep(Duration::from_millis(20)).await;
-            tx.send(Ok(Event::Complete)).await.unwrap();
+            producer.finish(Ok(()));
         });
         let mut stream = Stream {
             rx,
+            terminal,
             task,
             metrics: Arc::new(Mutex::new(StreamMetrics::default())),
         };
@@ -633,7 +1063,7 @@ mod tests {
                 _ => panic!("schema must precede the provisional batch"),
             }
         }
-        while stream.rx.is_empty() {
+        while stream.rx.lock().unwrap().is_empty() {
             assert!(Instant::now() < deadline);
             std::thread::sleep(Duration::from_millis(2));
         }
@@ -697,9 +1127,10 @@ mod tests {
             gate_rx.recv().unwrap();
         });
         gated_rx.recv_timeout(Duration::from_secs(2)).unwrap();
-        let (_tx, rx) = mpsc::channel(1);
+        let (_producer, rx, terminal) = Producer::channel(None);
         let stream = Stream {
             rx,
+            terminal,
             task,
             metrics: Arc::new(Mutex::new(StreamMetrics::default())),
         };

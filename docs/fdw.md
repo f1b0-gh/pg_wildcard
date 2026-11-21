@@ -81,12 +81,19 @@ before enabling it.
 ## Arrow transport and completion
 
 Execution uses the shared `antalya-rs::AntalyaClient` and ClickHouse Arrow
-transport. Each backend has one runtime, a four-client identity cache and at
-most four active scans. Arrow batches pass through a channel of capacity one.
+transport. Each backend runtime has one asynchronous worker and at most four
+blocking workers, alongside a four-client identity cache and at most four active
+scan producers. Arrow batches pass through a channel of capacity one.
 PostgreSQL checks interrupts and converts values on its backend thread; workers
 do not call PostgreSQL APIs. Query dispatch starts at first tuple demand, so
 LIMIT 0 and unused branches do not execute remote queries. Rescans start a new
 query. Plain EXPLAIN performs no network I/O.
+
+The blocking-pool limit also covers system DNS work submitted through Tokio.
+Aborting a lookup does not interrupt an already-running system resolver call:
+that work can outlive the scan deadline and occupies its blocking worker until
+it exits. The pool limit bounds running blocking workers, not queued work, DNS
+duration, runtime shutdown time or all threads in the PostgreSQL process.
 
 HTTP EOF alone is not successful completion. The default terminal policy
 requires a fresh query-log observation bound to the query and a matching result
@@ -106,6 +113,21 @@ cancellation and error cleanup abort the scan.
 Rows received before terminal success are provisional: a later transport,
 engine, timeout or completion failure fails the SQL statement. Output already
 streamed to a client cannot be retracted.
+
+Terminal status has its own channel and never waits for space in the Arrow
+queue. A timeout or an unconfirmed producer exit discards unread provisional
+events before releasing scan admission, even if PostgreSQL is not polling.
+Confirmed success and other errors preserve queued data before delivering their
+terminal status; such queued batches can outlive the producer permit.
+Sending to a closed queue is an unconfirmed failure, not successful completion.
+
+Explicit cancellation clears the unread queue, aborts the local task and waits
+up to two seconds for task destruction while checking PostgreSQL interrupts.
+If destruction is delayed, cleanup reports that cancellation is still pending
+and the task keeps its scan permit until it is destroyed. This acknowledges
+local cleanup only; it does not prove that the remote query or a running DNS
+lookup has stopped. Deadline cleanup also depends on the runtime being able to
+poll and destroy the asynchronous task.
 
 ## Tuple boundary and budgets
 
@@ -136,6 +158,12 @@ is a requested block size, not a hard Arrow row cap or an increase to these
 budgets. The batch byte check occurs after upstream Arrow decoding, so it is
 not a preallocation defense against a malicious server. Configure trusted
 destinations. An active scan can hold a current, queued and pending-send batch.
+
+These limits cover different owners. The four-producer limit does not count
+completed streams retaining confirmed queued batches, and the client identity
+cache does not revoke clients still held by sessions. Client buffer leases,
+PostgreSQL tuple copies, native decoding and allocator overhead are separate
+from the per-batch check; the listed limits do not form a backend-wide RSS cap.
 
 ## Optional candidate staging and diagnostics
 
