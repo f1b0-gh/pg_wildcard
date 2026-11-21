@@ -37,7 +37,7 @@ use libwildcard::antalya::ViewColumns;
 use libwildcard::core::View;
 use libwildcard::core::verify::Kind;
 use libwildcard::lake::{DataFile, export_pg, index_parquet};
-use libwildcard::puffin::{IndexInfo, read_indexes, set_statistics_update, write_index};
+use libwildcard::puffin::{IndexInfo, read_first_index, set_statistics_update, write_index};
 
 fn usage() -> ExitCode {
     eprintln!(
@@ -97,12 +97,44 @@ fn load(
     ),
     String,
 > {
-    let bytes = std::fs::read(path).map_err(|e| format!("{path}: {e}"))?;
-    read_indexes(&bytes)
+    let bytes = read_index_file(path)?;
+    read_first_index(&bytes)
         .map_err(|e| e.to_string())?
-        .into_iter()
-        .next()
         .ok_or_else(|| format!("{path}: no wildcard-ngram-v1 blob"))
+}
+
+fn read_index_file(path: &str) -> Result<Vec<u8>, String> {
+    read_file_limited(path, 16 << 20)
+}
+
+fn read_file_limited(path: &str, limit: usize) -> Result<Vec<u8>, String> {
+    use std::io::Read;
+    let mut file = std::fs::File::open(path).map_err(|e| e.to_string())?;
+    if file.metadata().map_err(|e| e.to_string())?.len() > limit as u64 {
+        return Err(format!("Puffin file exceeds {limit} byte budget"));
+    }
+    let mut out = Vec::new();
+    let mut block = [0; 8192];
+    loop {
+        let take = block.len().min(limit - out.len() + 1);
+        let n = file.read(&mut block[..take]).map_err(|e| e.to_string())?;
+        if n == 0 {
+            return Ok(out);
+        }
+        if n > limit - out.len() {
+            return Err(format!("Puffin file exceeds {limit} byte budget"));
+        }
+        if out.len() + n > out.capacity() {
+            let capacity = out
+                .capacity()
+                .saturating_mul(2)
+                .max(out.len() + n)
+                .min(limit);
+            out.try_reserve_exact(capacity - out.len())
+                .map_err(|_| "Puffin input allocation failed")?;
+        }
+        out.extend_from_slice(&block[..n]);
+    }
 }
 
 fn group_binding(a: &Args) -> Result<libwildcard::puffin::rowgroup::Binding, String> {
@@ -183,15 +215,9 @@ fn run(cmd: &str, a: &Args) -> Result<(), String> {
             );
         }
         "plan-groups" => {
-            use libwildcard::puffin::rowgroup::{GroupIndex, MAX_FILE_BYTES, PlanBudget};
-            use std::io::Read;
+            use libwildcard::puffin::rowgroup::{GroupIndex, PlanBudget};
             let path = a.pos.first().ok_or("missing file")?;
-            let mut bytes = Vec::new();
-            std::fs::File::open(path)
-                .map_err(|e| e.to_string())?
-                .take(MAX_FILE_BYTES as u64 + 1)
-                .read_to_end(&mut bytes)
-                .map_err(|e| e.to_string())?;
+            let bytes = read_index_file(path)?;
             let idx = GroupIndex::read(&bytes).map_err(|e| e.to_string())?;
             let plan = idx
                 .plan(
@@ -319,7 +345,7 @@ fn run(cmd: &str, a: &Args) -> Result<(), String> {
         }
         "stats-json" => {
             let path = a.pos.first().ok_or("missing file")?;
-            let bytes = std::fs::read(path).map_err(|e| e.to_string())?;
+            let bytes = read_index_file(path)?;
             let v = set_statistics_update(a.get("statistics-path")?, &bytes)
                 .map_err(|e| e.to_string())?;
             println!(
@@ -355,5 +381,31 @@ fn main() -> ExitCode {
             eprintln!("wc-lake: {e}");
             ExitCode::from(1)
         }
+    }
+}
+
+#[cfg(test)]
+mod input_tests {
+    use super::*;
+
+    #[test]
+    fn input_limit_rejects_sparse_files_and_accepts_exact_boundary() {
+        let path = std::env::temp_dir().join(format!("wc-cli-input-{}", std::process::id()));
+        let file = std::fs::File::create(&path).unwrap();
+        file.set_len((16 << 20) + 1).unwrap();
+        let error = read_index_file(path.to_str().unwrap()).unwrap_err();
+        assert!(error.contains("byte budget"));
+        file.set_len(8193).unwrap();
+        let bytes = read_file_limited(path.to_str().unwrap(), 8193).unwrap();
+        assert_eq!(bytes, vec![0; 8193]);
+        assert_eq!(bytes.capacity(), 8193);
+        assert!(read_file_limited(path.to_str().unwrap(), 8192).is_err());
+        file.set_len(0).unwrap();
+        assert!(
+            read_file_limited(path.to_str().unwrap(), 0)
+                .unwrap()
+                .is_empty()
+        );
+        std::fs::remove_file(path).unwrap();
     }
 }

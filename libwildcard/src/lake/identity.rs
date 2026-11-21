@@ -8,7 +8,7 @@ use arrow_array::{
     StringViewArray,
 };
 use arrow_schema::DataType;
-use parquet::arrow::{ProjectionMask, arrow_reader::ParquetRecordBatchReaderBuilder};
+use parquet::arrow::ProjectionMask;
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error(transparent)]
@@ -57,10 +57,8 @@ pub fn index_identities(
     let mut b = Builder::new(binding.clone(), views, max_value_bytes)?;
     for f in files {
         b.start_file(&f.lake_path)?;
-        let reader = ParquetRecordBatchReaderBuilder::try_new(
-            std::fs::File::open(&f.local).map_err(LakeError::from)?,
-        )
-        .map_err(LakeError::from)?;
+        let prepared = super::input::Input::open(&f.local, &[&binding.column, &binding.guard])?;
+        let reader = prepared.reader()?;
         let schema = reader.schema();
         let message = schema
             .index_of(&binding.column)
@@ -94,13 +92,8 @@ pub fn index_identities(
         let mut count = 0u64;
         let expected = u64::try_from(reader.metadata().file_metadata().num_rows())
             .map_err(|_| Error::Invalid("row count"))?;
-        for batch in reader
-            .with_projection(mask)
-            .with_batch_size(8192)
-            .build()
-            .map_err(LakeError::from)?
-        {
-            let batch = batch.map_err(LakeError::from)?;
+        for batch in super::input::batches(reader.with_projection(mask).with_batch_size(8192))? {
+            let batch = batch?;
             let values = batch
                 .column_by_name(&binding.column)
                 .ok_or(Error::Invalid("projected message"))?;

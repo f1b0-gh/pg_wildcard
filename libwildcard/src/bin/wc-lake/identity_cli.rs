@@ -2,11 +2,8 @@
 //! Experimental CLI; never publishes into an active manifest or registers statistics.
 use crate::Args;
 use libwildcard::lake::DataFile;
-use libwildcard::puffin::identity::{Binding, IdentityIndex, MAX_FILE_BYTES};
-use std::{
-    collections::HashMap,
-    io::{Read, Write},
-};
+use libwildcard::puffin::identity::{Binding, IdentityIndex};
+use std::{collections::HashMap, io::Write};
 
 pub fn run(cmd: &str, argv: &[String]) -> Result<(), String> {
     let refresh = cmd == "refresh-identities";
@@ -91,12 +88,7 @@ pub fn run(cmd: &str, argv: &[String]) -> Result<(), String> {
             })
             .collect();
         let previous = if let Some(path) = a.opt.get("reuse-identities") {
-            let mut bytes = Vec::new();
-            std::fs::File::open(path)
-                .map_err(|e| e.to_string())?
-                .take(MAX_FILE_BYTES as u64 + 1)
-                .read_to_end(&mut bytes)
-                .map_err(|e| e.to_string())?;
+            let bytes = crate::read_index_file(path)?;
             Some(IdentityIndex::read(&bytes).map_err(|e| e.to_string())?)
         } else {
             None
@@ -155,12 +147,7 @@ pub fn run(cmd: &str, argv: &[String]) -> Result<(), String> {
             "on" => true,
             _ => return Err("--guard-sql must be on or off".into()),
         };
-        let mut bytes = Vec::new();
-        std::fs::File::open(&a.pos[0])
-            .map_err(|e| e.to_string())?
-            .take(MAX_FILE_BYTES as u64 + 1)
-            .read_to_end(&mut bytes)
-            .map_err(|e| e.to_string())?;
+        let bytes = crate::read_index_file(&a.pos[0])?;
         let index = IdentityIndex::read(&bytes).map_err(|e| e.to_string())?;
         let plan = index
             .plan(

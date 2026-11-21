@@ -10,15 +10,10 @@ use libwildcard::puffin::{
     rowgroup::{GroupIndex, MAX_FILE_BYTES},
     write_index,
 };
-use std::{collections::HashMap, fs, io::Read, path::Path};
+use std::{collections::HashMap, fs, path::Path};
 
 fn cached(path: &str) -> Result<(Vec<u8>, (i64, i64)), String> {
-    let mut bytes = Vec::new();
-    fs::File::open(path)
-        .map_err(|e| e.to_string())?
-        .take(MAX_FILE_BYTES as u64 + 1)
-        .read_to_end(&mut bytes)
-        .map_err(|e| e.to_string())?;
+    let bytes = crate::read_index_file(path)?;
     if bytes.len() > MAX_FILE_BYTES {
         return Err("reuse sidecar exceeds byte budget".into());
     }

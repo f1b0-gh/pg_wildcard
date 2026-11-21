@@ -5,6 +5,7 @@
 //! `wildcard-ngram-v1` index, and turn patterns into pruned lake queries.
 
 pub mod identity;
+mod input;
 pub mod rowgroup;
 pub mod shared;
 
@@ -13,17 +14,22 @@ use std::io::Write;
 use std::path::Path;
 
 use crate::core::View;
-use crate::puffin::ngram::{NgramIndex, NgramIndexBuilder};
+use crate::puffin::ngram::{BoundedNgramIndexBuilder, NgramIndex};
 use arrow_array::{
     Array, BinaryArray, BinaryViewArray, LargeBinaryArray, LargeStringArray, StringArray,
     StringViewArray,
 };
 use parquet::arrow::ProjectionMask;
-use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum LakeError {
+    #[error("lake resource limit: {0}")]
+    Limit(&'static str),
+    #[error("invalid lake input: {0}")]
+    Invalid(&'static str),
+    #[error(transparent)]
+    Index(#[from] crate::puffin::ngram::NgramError),
     #[error("parquet: {0}")]
     Parquet(#[from] parquet::errors::ParquetError),
     #[error("arrow: {0}")]
@@ -50,10 +56,38 @@ pub fn index_parquet(
     views: &[View],
     max_value_bytes: usize,
 ) -> Result<NgramIndex, LakeError> {
-    let mut b = NgramIndexBuilder::new(views, max_value_bytes);
+    if files.len() > 128
+        || files
+            .iter()
+            .try_fold(0_usize, |n, f| n.checked_add(f.lake_path.len()))
+            .is_none_or(|n| n > 65536)
+    {
+        return Err(LakeError::Limit("index file/path budget"));
+    }
+    let mut b = BoundedNgramIndexBuilder::new(views, max_value_bytes)?;
     for f in files {
-        let ord = b.add_file(&f.lake_path);
-        let builder = ParquetRecordBatchReaderBuilder::try_new(File::open(Path::new(&f.local))?)?;
+        let ord = b.try_add_file(&f.lake_path)?;
+        let prepared = input::Input::open(&f.local, &[column])?;
+        let builder = prepared.reader()?;
+        let field = builder
+            .schema()
+            .field_with_name(column)
+            .map_err(|_| LakeError::NoColumn(column.into(), f.local.clone()))?;
+        if !matches!(
+            field.data_type(),
+            arrow_schema::DataType::Utf8
+                | arrow_schema::DataType::LargeUtf8
+                | arrow_schema::DataType::Utf8View
+                | arrow_schema::DataType::Binary
+                | arrow_schema::DataType::LargeBinary
+                | arrow_schema::DataType::BinaryView
+        ) {
+            return Err(LakeError::BadType(
+                column.into(),
+                f.local.clone(),
+                field.data_type().to_string(),
+            ));
+        }
         let leaf = builder
             .parquet_schema()
             .columns()
@@ -61,11 +95,7 @@ pub fn index_parquet(
             .position(|c| c.path().string() == column)
             .ok_or_else(|| LakeError::NoColumn(column.into(), f.local.clone()))?;
         let mask = ProjectionMask::leaves(builder.parquet_schema(), [leaf]);
-        for batch in builder
-            .with_projection(mask)
-            .with_batch_size(8192)
-            .build()?
-        {
+        for batch in input::batches(builder.with_projection(mask).with_batch_size(8192))? {
             let batch = batch?;
             let col = batch.column(0);
             macro_rules! feed {
@@ -79,11 +109,11 @@ pub fn index_parquet(
                     })?;
                     for i in 0..a.len() {
                         if a.is_null(i) {
-                            b.add_null(ord);
+                            b.try_add_null(ord)?;
                         } else {
                             let v = a.value(i);
                             let bytes: &[u8] = v.as_ref();
-                            b.add_value(ord, bytes);
+                            b.try_add_value(ord, bytes)?;
                         }
                     }
                 }};
@@ -166,6 +196,45 @@ mod tests {
     use parquet::arrow::ArrowWriter;
 
     use super::*;
+
+    #[test]
+    fn legacy_configuration_budget_precedes_opening_files() {
+        let files: Vec<_> = (0..129)
+            .map(|i| DataFile {
+                local: format!("/absent/resource-test-{i}.parquet"),
+                lake_path: format!("s3://bucket/{i}"),
+            })
+            .collect();
+        let error = index_parquet(&files, "url", &[View::Raw], 8192).unwrap_err();
+        assert!(error.to_string().contains("resource limit"), "{error}");
+    }
+
+    #[test]
+    fn parquet_footer_budget_precedes_metadata_decode() {
+        use std::io::{Seek, SeekFrom};
+        let path =
+            std::env::temp_dir().join(format!("wc_footer_budget_{}.parquet", std::process::id()));
+        let mut file = File::create(&path).unwrap();
+        let metadata_bytes = 2_u32 << 20;
+        file.set_len(u64::from(metadata_bytes) + 12).unwrap();
+        file.write_all(b"PAR1").unwrap();
+        file.seek(SeekFrom::End(-8)).unwrap();
+        file.write_all(&metadata_bytes.to_le_bytes()).unwrap();
+        file.write_all(b"PAR1").unwrap();
+        drop(file);
+        let result = index_parquet(
+            &[DataFile {
+                local: path.to_string_lossy().into_owned(),
+                lake_path: "s3://bucket/oversized".into(),
+            }],
+            "url",
+            &[View::Raw],
+            8192,
+        );
+        std::fs::remove_file(path).unwrap();
+        let error = result.unwrap_err();
+        assert!(error.to_string().contains("resource limit"), "{error}");
+    }
 
     fn write(path: &Path, values: &[Option<&str>]) {
         let schema = Arc::new(Schema::new(vec![Field::new("url", DataType::Utf8, true)]));

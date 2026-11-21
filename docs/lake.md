@@ -55,6 +55,43 @@ COMMIT;
 The [SQL functions](sql-api.md) query these tables. A foreign table's `lake_index`
 option enables file-level pruning automatically for supported predicates.
 
+## Input and memory limits
+
+The file index builder accepts at most 128 files, 64 KiB of indexed paths,
+1 million distinct grams and 1 million postings. Values are limited to at most
+8192 bytes. An overlong value or exhausted gram/posting budget marks its file
+for unconditional rechecking; it must remain a candidate. Short values after an
+overlong value are still indexed. Invalid configuration and excess file/path
+counts are errors before Parquet inputs are opened.
+
+Parquet admission checks the footer and projected page headers before Arrow
+decoding. Limits are 1 MiB of footer metadata, 64 physical columns, 4096 row
+groups, 1 million rows per group, 65,536 projected pages per file, 64 KiB per
+page header and 16 MiB of compressed or uncompressed bytes per page. The
+projected columns in a group may total at most 64 MiB in each compressed and
+uncompressed representation. Compact metadata collections, schema children
+and nesting are checked before upstream allocation.
+
+Search and guard columns must be top-level fields. Supported projected codecs
+are uncompressed, Snappy, Zstd and LZ4_RAW. Data pages must use plain or
+dictionary encoding; legacy LZ4 and delta encodings are refused. External column
+files and encrypted files are also refused. A valid Parquet file outside this
+supported subset must be rewritten before indexing. These restrictions apply
+to file, group and identity construction.
+
+String and binary columns decode into Arrow view arrays, retaining shared
+dictionary backing instead of copying long dictionary values once per row.
+Decoder errors stop iteration. With panic unwinding enabled, an upstream decoder
+panic becomes a typed input error; a consumer built with `panic=abort` needs
+process isolation for hostile inputs. Inputs must remain immutable between
+admission and decoding.
+
+CLI sidecar reads are capped at 16 MiB before decoding, including refresh/reuse
+inputs. The segment command also enforces its remaining aggregate byte budget.
+These limits bound specific components and retained backing; they are not a
+process RSS limit. Native codec state, transient allocations, allocator overhead,
+concurrent callers and caller-owned inputs contribute additional memory.
+
 ## Coverage and snapshot rules
 
 The CLI `sql` command uses `lake_query_with_coverage`: it excludes only known

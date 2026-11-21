@@ -49,8 +49,8 @@ pub(crate) fn index_groups_shared(
         Array, BinaryArray, BinaryViewArray, Int64Array, LargeBinaryArray, LargeStringArray,
         StringArray, StringViewArray, TimestampMicrosecondArray,
     };
-    use parquet::arrow::{ProjectionMask, arrow_reader::ParquetRecordBatchReaderBuilder};
-    use std::{collections::BTreeMap, fs::File};
+    use parquet::arrow::ProjectionMask;
+    use std::collections::BTreeMap;
     if files.len() > MAX_FILES
         || files.iter().map(|f| f.lake_path.len()).sum::<usize>() > MAX_PATH_BYTES
     {
@@ -88,10 +88,12 @@ pub(crate) fn index_groups_shared(
             builder.start_file(&file.lake_path)?;
         }
         let mut file_rows = 0u64;
-        let reader = ParquetRecordBatchReaderBuilder::try_new(
-            File::open(&file.local).map_err(LakeError::from)?,
-        )
-        .map_err(LakeError::from)?;
+        let mut projected = vec![binding.column.as_str(), binding.guard.as_str()];
+        if let Some((binding, _)) = identities.as_ref() {
+            projected.push(binding.guard.as_str());
+        }
+        let prepared = super::input::Input::open(&file.local, &projected)?;
+        let reader = prepared.reader()?;
         let count = reader.metadata().num_row_groups();
         if count > MAX_GROUPS - groups.len() {
             return Err(Error::Invalid("group budget"));
@@ -162,17 +164,15 @@ pub(crate) fn index_groups_shared(
             };
             let mut bounds: Option<(i64, i64)> = None;
             let mut unknown_guard = guard.is_none();
-            let group_reader = ParquetRecordBatchReaderBuilder::try_new(
-                File::open(&file.local).map_err(LakeError::from)?,
-            )
-            .map_err(LakeError::from)?
-            .with_row_groups(vec![ordinal])
-            .with_projection(mask.clone())
-            .with_batch_size(8192)
-            .build()
-            .map_err(LakeError::from)?;
+            let group_reader = super::input::batches(
+                prepared
+                    .reader()?
+                    .with_row_groups(vec![ordinal])
+                    .with_projection(mask.clone())
+                    .with_batch_size(8192),
+            )?;
             for batch in group_reader {
-                let batch = batch.map_err(LakeError::from)?;
+                let batch = batch?;
                 let col = batch
                     .column_by_name(&binding.column)
                     .ok_or(Error::Invalid("projected message missing"))?;

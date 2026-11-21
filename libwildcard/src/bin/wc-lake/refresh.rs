@@ -9,11 +9,7 @@ use libwildcard::puffin::{
     rowgroup::{GroupIndex, MAX_FILE_BYTES},
     write_index,
 };
-use std::{
-    fs,
-    io::{Read, Write},
-    path::Path,
-};
+use std::{fs, io::Write, path::Path};
 
 pub(super) fn write_new(path: &Path, bytes: &[u8]) -> Result<(), String> {
     let mut file = fs::OpenOptions::new()
@@ -76,12 +72,7 @@ pub(super) fn run(a: &Args) -> Result<(), String> {
         })
         .collect();
     let previous = if let Some(path) = a.opt.get("reuse-groups") {
-        let mut bytes = Vec::new();
-        fs::File::open(path)
-            .map_err(|e| e.to_string())?
-            .take(MAX_FILE_BYTES as u64 + 1)
-            .read_to_end(&mut bytes)
-            .map_err(|e| e.to_string())?;
+        let bytes = crate::read_index_file(path)?;
         Some(GroupIndex::read(&bytes).map_err(|e| e.to_string())?)
     } else {
         None
