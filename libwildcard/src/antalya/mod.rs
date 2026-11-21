@@ -25,6 +25,8 @@ use crate::core::{View, re2};
 
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum ChError {
+    #[error(transparent)]
+    PatternTooLong(#[from] crate::core::pattern::PatternTooLong),
     #[error("invalid or oversized candidate range")]
     Range,
     #[error("invalid identifier '{0}'")]
@@ -178,7 +180,7 @@ pub fn predicate(
 ) -> Result<String, ChError> {
     Ok(match kind {
         Kind::Wildcard | Kind::Like => {
-            let pieces = verify::pieces_for(kind, pattern.as_bytes(), view);
+            let pieces = verify::pieces_for_checked(kind, pattern.as_bytes(), view)?;
             format!("like({value_expr}, {})", quote(&like_pattern(&pieces)))
         }
         Kind::Regex { case_insensitive } => {
@@ -436,6 +438,21 @@ pub fn lake_query_with_coverage(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn oversized_source_patterns_are_rejected_before_sql_generation() {
+        let pattern = "%".repeat(crate::core::pattern::MAX_PATTERN_BYTES + 1);
+        for kind in [
+            Kind::Like,
+            Kind::Wildcard,
+            Kind::Regex {
+                case_insensitive: false,
+            },
+        ] {
+            let error = predicate("message", kind, &pattern, View::Raw).unwrap_err();
+            assert!(error.to_string().contains("pattern exceeds"), "{error}");
+        }
+    }
 
     #[test]
     fn quoting() {

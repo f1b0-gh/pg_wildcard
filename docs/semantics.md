@@ -30,8 +30,45 @@ can occur on either side of them.
 The accepted regex syntax is a checked portable subset, not every construct an
 RE2 implementation might accept. Backreferences, look-around, class set
 operations, `(?x)` and `\Q...\E` are rejected. `wc_re2_check` returns portability
-issues. Compilation and DFA caches have separate 8 MiB limits; matching uses a
-linear-time engine.
+issues. Matching uses a linear-time engine; admission and memory settings are
+described below.
+
+## Pattern admission and matcher retention
+
+Source patterns are limited to **16 KiB of bytes**, checked before parsing or
+translation by `Matcher::new`, RE2 validation, the public regex planner and
+native predicate generation. Oversized patterns return an error. PostgreSQL's
+planner declines rewrites that would bypass this check. RE2 translation can
+expand an admitted source pattern beyond 16 KiB; the matcher plans that bounded
+translation without treating it as a new source pattern.
+
+Rust callers parsing untrusted patterns directly should use
+`pattern::parse_like_checked`, `pattern::parse_wildcard_checked` or
+`verify::pieces_for_checked`. The original infallible helpers remain available
+as low-level APIs and do not enforce the source-size limit themselves.
+
+The regex engine is configured with an **8 MiB NFA compilation limit** and an
+**8 MiB lazy-DFA cache capacity**. These settings do not bound all parser,
+compiler or search allocations. Each matcher owns one synchronized search
+cache. Its retained-scratch allowance is 16 times the engine's reported compiled
+size, clamped to **64 KiB–1 MiB**. A search may temporarily exceed that allowance;
+scratch exceeding it is dropped before the search returns. The allowance is a
+retention policy, not a prediction of search memory.
+
+The PostgreSQL backend cache admits at most **256 matchers** and **32 MiB of
+accounted state**. Its charge includes the engine's approximate compiled-memory
+report, gram-plan vector capacities, matcher storage, the scratch allowance,
+pattern-key bytes and an entry metadata allowance. Entries that exceed the
+budget still execute but are not cached. Cache eviction releases its own
+references; caller-held references can outlive eviction. A new compilation can
+overlap retained entries before its charge is known. This accounting excludes
+allocator overhead, caller-owned values and temporary work, and is not a
+process RSS limit.
+
+Direct `Matcher::is_match` calls do not impose a raw-value size limit. Callers
+must bound those values separately. The raw view borrows its input; transformed
+views allocate output proportional to the input. The decoded view lowercases
+its decoded buffer in place.
 
 ## Views
 

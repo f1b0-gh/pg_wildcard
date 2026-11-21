@@ -783,6 +783,7 @@ version = "0.2.0"
 dependencies = [
  "idna",
  "regex",
+ "regex-automata",
  "regex-syntax",
  "serde",
  "serde_json",

@@ -206,6 +206,7 @@ dependencies = [
  "idna",
  "lz4_flex",
  "regex",
+ "regex-automata",
  "regex-syntax",
  "serde",
  "serde_json",

@@ -3,8 +3,13 @@
 
 use std::fmt;
 use std::str::FromStr;
+use std::sync::Mutex;
 
-use regex::bytes::{Regex, RegexBuilder};
+use regex_automata::{
+    Input,
+    meta::{Cache, Regex},
+    util::syntax,
+};
 use thiserror::Error;
 
 use crate::core::pattern::{self, Piece};
@@ -17,8 +22,14 @@ use crate::core::views::View;
 pub const SIZE_LIMIT: usize = 8 << 20;
 pub const DFA_SIZE_LIMIT: usize = 8 << 20;
 
+/// Maximum engine-reported scratch bytes retained between searches. A search
+/// can temporarily exceed this allowance under the engine's separate limits.
+pub const RETAINED_SEARCH_BYTES: usize = 1 << 20;
+
 #[derive(Debug, Error)]
 pub enum MatchError {
+    #[error(transparent)]
+    TooLong(#[from] pattern::PatternTooLong),
     #[error(transparent)]
     Plan(#[from] PlanError),
     #[error(transparent)]
@@ -79,20 +90,32 @@ pub struct Matcher {
     pub view: View,
     pub plan: GramQuery,
     re: Regex,
+    scratch_limit: usize,
+    // One explicit cache preserves Send + Sync without hidden per-thread pools.
+    scratch: Mutex<Option<Cache>>,
 }
 
 fn build(re: &str, ci: bool) -> Result<Regex, MatchError> {
-    RegexBuilder::new(re)
-        .unicode(true)
-        .case_insensitive(ci)
-        .size_limit(SIZE_LIMIT)
-        .dfa_size_limit(DFA_SIZE_LIMIT)
-        .build()
+    Regex::builder()
+        .configure(
+            Regex::config()
+                .utf8_empty(false)
+                .nfa_size_limit(Some(SIZE_LIMIT))
+                .hybrid_cache_capacity(DFA_SIZE_LIMIT),
+        )
+        .syntax(
+            syntax::Config::new()
+                .utf8(false)
+                .unicode(true)
+                .case_insensitive(ci),
+        )
+        .build(re)
         .map_err(|e| MatchError::Compile(e.to_string()))
 }
 
 /// Parse a whole-value pattern into pieces, case-folding literals for views
 /// that fold case.
+/// Low-level, unbounded helper; use [`pieces_for_checked`] for untrusted input.
 pub fn pieces_for(kind: Kind, pattern: &[u8], view: View) -> Vec<Piece> {
     let pieces = match kind {
         Kind::Like => pattern::parse_like(pattern),
@@ -110,27 +133,55 @@ pub fn pieces_for(kind: Kind, pattern: &[u8], view: View) -> Vec<Piece> {
         .collect()
 }
 
+pub fn pieces_for_checked(
+    kind: Kind,
+    pattern: &[u8],
+    view: View,
+) -> Result<Vec<Piece>, pattern::PatternTooLong> {
+    pattern::check_pattern_len(pattern)?;
+    Ok(pieces_for(kind, pattern, view))
+}
+
 impl Matcher {
+    fn compiled(kind: Kind, view: View, plan: GramQuery, re: Regex) -> Self {
+        // This chooses a retention allowance, not an estimate or guarantee of
+        // future search memory. Small patterns can share the backend budget;
+        // searches exceeding their allowance release their scratch on return.
+        let scratch_limit = re
+            .memory_usage()
+            .saturating_mul(16)
+            .clamp(64 << 10, RETAINED_SEARCH_BYTES);
+        Self {
+            kind,
+            view,
+            plan,
+            re,
+            scratch_limit,
+            scratch: Mutex::new(None),
+        }
+    }
+
     pub fn new(kind: Kind, pattern: &str, view: View) -> Result<Self, MatchError> {
+        pattern::check_pattern_len(pattern.as_bytes())?;
         match kind {
             Kind::Wildcard | Kind::Like => {
                 let pieces = pieces_for(kind, pattern.as_bytes(), view);
-                Ok(Self {
+                Ok(Self::compiled(
                     kind,
                     view,
-                    plan: pattern::plan(&pieces, view),
-                    re: build(&pattern::to_regex(&pieces), false)?,
-                })
+                    pattern::plan(&pieces, view),
+                    build(&pattern::to_regex(&pieces), false)?,
+                ))
             }
             Kind::Regex { case_insensitive } => {
                 let rust = re2::to_rust(pattern)?;
-                let plan = regex_plan::plan_regex(&rust, view, case_insensitive)?;
-                Ok(Self {
+                let plan = regex_plan::plan_translated_regex(&rust, view, case_insensitive)?;
+                Ok(Self::compiled(
                     kind,
                     view,
                     plan,
-                    re: build(&rust, case_insensitive)?,
-                })
+                    build(&rust, case_insensitive)?,
+                ))
             }
         }
     }
@@ -149,7 +200,42 @@ impl Matcher {
 
     /// Exact check against the raw value (the view transform is applied here).
     pub fn is_match(&self, raw: &[u8]) -> bool {
-        self.re.is_match(&self.view.apply(raw))
+        let value = self.view.apply(raw);
+        let mut scratch = self
+            .scratch
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        let cache = scratch.get_or_insert_with(|| self.re.create_cache());
+        let matched = self
+            .re
+            .search_half_with(cache, &Input::new(value.as_ref()).earliest(true))
+            .is_some();
+        if cache.memory_usage() > self.scratch_limit {
+            *scratch = None;
+        }
+        matched
+    }
+
+    /// Charge for cache admission: engine-reported approximate compiled heap,
+    /// plan vector capacities, inline matcher and reserved retained scratch.
+    /// This is not allocator accounting or a process RSS bound. Compile/search
+    /// temporaries, caller-owned values and allocator overhead are excluded.
+    pub fn cache_charge(&self) -> usize {
+        fn plan_heap(plan: &GramQuery) -> usize {
+            match plan {
+                GramQuery::And(parts) | GramQuery::Or(parts) => parts.iter().fold(
+                    parts
+                        .capacity()
+                        .saturating_mul(std::mem::size_of::<GramQuery>()),
+                    |bytes, child| bytes.saturating_add(plan_heap(child)),
+                ),
+                _ => 0,
+            }
+        }
+        std::mem::size_of::<Self>()
+            .saturating_add(self.re.memory_usage())
+            .saturating_add(plan_heap(&self.plan))
+            .saturating_add(self.scratch_limit)
     }
 }
 
@@ -157,6 +243,119 @@ impl Matcher {
 mod tests {
     use super::*;
     use crate::core::grams::value_grams;
+
+    #[test]
+    fn oversized_patterns_are_rejected_before_parsing() {
+        let patterns = ["%".repeat(16_385), "a".repeat(16_385)];
+        for pattern in patterns {
+            for kind in [
+                Kind::Like,
+                Kind::Wildcard,
+                Kind::Regex {
+                    case_insensitive: false,
+                },
+            ] {
+                let error = Matcher::new(kind, &pattern, View::Raw).unwrap_err();
+                assert!(error.to_string().contains("pattern exceeds"), "{error}");
+            }
+            assert!(
+                re2::to_rust(&pattern)
+                    .unwrap_err()
+                    .to_string()
+                    .contains("pattern exceeds")
+            );
+            assert!(
+                regex_plan::plan_regex(&pattern, View::Raw, false)
+                    .unwrap_err()
+                    .to_string()
+                    .contains("pattern exceeds")
+            );
+        }
+    }
+
+    #[test]
+    fn admitted_source_may_expand_during_re2_translation() {
+        let source = r"\d".repeat(pattern::MAX_PATTERN_BYTES / 2);
+        assert!(re2::to_rust(&source).unwrap().len() > pattern::MAX_PATTERN_BYTES);
+        assert!(Matcher::regex(&source, View::Raw, false).is_ok());
+    }
+
+    #[test]
+    fn small_patterns_leave_room_for_256_cache_entries() {
+        for kind in [
+            Kind::Like,
+            Kind::Wildcard,
+            Kind::Regex {
+                case_insensitive: false,
+            },
+        ] {
+            let matcher = Matcher::new(kind, "event=login", View::Raw).unwrap();
+            assert!((matcher.cache_charge() + 256 + "event=login".len()) * 256 <= 32 << 20);
+        }
+    }
+
+    #[test]
+    fn explicit_scratch_preserves_send_sync_and_retention_policy() {
+        fn send_sync<T: Send + Sync>() {}
+        send_sync::<Matcher>();
+        let matcher = Matcher::regex("(a{1000}){8}b", View::Raw, false).unwrap();
+        let value = format!("{}b", "a".repeat(8000));
+        let charge = matcher.cache_charge();
+        assert!(matcher.is_match(value.as_bytes()));
+        assert!(
+            matcher
+                .scratch
+                .lock()
+                .unwrap()
+                .as_ref()
+                .is_none_or(|cache| cache.memory_usage() <= matcher.scratch_limit),
+            "retained scratch must stay within its reservation"
+        );
+        assert_eq!(matcher.cache_charge(), charge);
+        std::thread::scope(|scope| {
+            for _ in 0..2 {
+                scope.spawn(|| assert!(matcher.is_match(value.as_bytes())));
+            }
+        });
+    }
+
+    #[test]
+    fn explicit_engine_matches_regex_bytes_configuration() {
+        let patterns = [
+            "", "a.b", "(?i)k", r"\babc\b", "^", "$", "a{1000}b", "(a|ab)*b", "(?-s:.)",
+        ];
+        let values: &[&[u8]] = &[
+            b"",
+            b"\xff",
+            b"a\xffb",
+            b"a\nb",
+            b"abc",
+            b"\0abc\0",
+            "K".as_bytes(),
+            b"aab",
+            b"\n",
+        ];
+        for pattern in patterns {
+            for ci in [false, true] {
+                let rust = re2::to_rust(pattern).unwrap();
+                let reference = regex::bytes::RegexBuilder::new(&rust)
+                    .unicode(true)
+                    .case_insensitive(ci)
+                    .size_limit(SIZE_LIMIT)
+                    .dfa_size_limit(DFA_SIZE_LIMIT)
+                    .build()
+                    .unwrap();
+                let matcher = Matcher::regex(pattern, View::Raw, ci).unwrap();
+                for value in values {
+                    assert_eq!(
+                        matcher.is_match(value),
+                        reference.is_match(value),
+                        "{pattern:?}, {ci}, {value:?}"
+                    );
+                }
+            }
+        }
+    }
 
     /// Deterministic xorshift for property tests (no external crate).
     pub(crate) struct Rng(pub u64);

@@ -6,11 +6,14 @@ use std::hash::Hash;
 use std::rc::Rc;
 
 pub(crate) const CACHE_CAP: usize = 256;
+/// Accounted retained bytes, not process RSS or an allocator-exact heap bound.
+pub(crate) const CACHE_BYTES: usize = 32 << 20;
 
 pub(crate) struct MatcherCache<K, V> {
     entries: HashMap<K, HashMap<Rc<str>, Rc<V>>>,
     recent: Option<(K, Rc<str>, Rc<V>)>,
     len: usize,
+    charged_bytes: usize,
 }
 
 impl<K: Copy + Eq + Hash, V> Default for MatcherCache<K, V> {
@@ -19,6 +22,7 @@ impl<K: Copy + Eq + Hash, V> Default for MatcherCache<K, V> {
             entries: HashMap::new(),
             recent: None,
             len: 0,
+            charged_bytes: 0,
         }
     }
 }
@@ -29,6 +33,7 @@ impl<K: Copy + Eq + Hash, V> MatcherCache<K, V> {
         pattern: &str,
         key: K,
         compile: impl FnOnce() -> Result<V, E>,
+        charge: impl FnOnce(&V) -> usize,
     ) -> Result<Rc<V>, E> {
         if let Some((last_key, last_pattern, value)) = &self.recent
             && *last_key == key
@@ -44,11 +49,23 @@ impl<K: Copy + Eq + Hash, V> MatcherCache<K, V> {
             self.recent = Some((key, pattern.clone(), value.clone()));
             return Ok(value.clone());
         }
+        // Release a saturated cache before allocating the next compiled value.
+        // Otherwise one in-flight compilation may overlap the retained budget.
+        // Caller-held Rc aliases are outside this cache's ownership budget.
+        if self.len >= CACHE_CAP || self.charged_bytes >= CACHE_BYTES {
+            self.clear();
+        }
         let value = Rc::new(compile()?);
-        if self.len >= CACHE_CAP {
-            self.entries.clear();
-            self.recent = None;
-            self.len = 0;
+        // Include key bytes and a fixed per-entry metadata allowance. The
+        // value's charge documents its own scope (the regex engine is approximate).
+        let charged = charge(&value)
+            .saturating_add(pattern.len())
+            .saturating_add(256);
+        if charged > CACHE_BYTES {
+            return Ok(value); // Valid large patterns still execute, without retention.
+        }
+        if self.charged_bytes.saturating_add(charged) > CACHE_BYTES {
+            self.clear();
         }
         let pattern: Rc<str> = pattern.into();
         self.entries
@@ -57,7 +74,15 @@ impl<K: Copy + Eq + Hash, V> MatcherCache<K, V> {
             .insert(pattern.clone(), value.clone());
         self.recent = Some((key, pattern, value.clone()));
         self.len += 1;
+        self.charged_bytes += charged;
         Ok(value)
+    }
+
+    fn clear(&mut self) {
+        self.entries = HashMap::new();
+        self.recent = None;
+        self.len = 0;
+        self.charged_bytes = 0;
     }
 }
 
@@ -94,7 +119,7 @@ mod tests {
     static ALLOCATOR: CountingAllocator = CountingAllocator;
 
     fn get(c: &mut MatcherCache<(u8, u8), String>, p: &str, k: (u8, u8)) -> Rc<String> {
-        c.get_or_compile(p, k, || Ok::<_, ()>(format!("{p}:{k:?}")))
+        c.get_or_compile(p, k, || Ok::<_, ()>(format!("{p}:{k:?}")), |v| v.capacity())
             .unwrap()
     }
 
@@ -111,9 +136,12 @@ mod tests {
                 (1, 0)
             };
             let v = c
-                .get_or_compile("event=*", k, || -> Result<String, ()> {
-                    panic!("a cached pattern must not compile again")
-                })
+                .get_or_compile(
+                    "event=*",
+                    k,
+                    || -> Result<String, ()> { panic!("a cached pattern must not compile again") },
+                    |v| v.capacity(),
+                )
                 .unwrap();
             assert!(Rc::ptr_eq(&v, if k.0 == 0 { &a } else { &b }));
         }
@@ -132,7 +160,48 @@ mod tests {
     }
 
     #[test]
-    fn capacity_eviction_drops_cache_ownership_and_errors_do_not_replace_hits() {
+    fn byte_budget_evicts_before_entry_capacity_and_preserves_caller_aliases() {
+        let mut c = MatcherCache::<u8, ()>::default();
+        let mut get = |pattern: &str| {
+            c.get_or_compile(pattern, 0, || Ok::<_, ()>(()), |_| 12 << 20)
+                .unwrap()
+        };
+        let first = get("first");
+        let second = get("second");
+        let weak_second = Rc::downgrade(&second);
+        drop(second);
+        let third = get("third");
+        assert!(weak_second.upgrade().is_none());
+        assert_eq!(
+            Rc::strong_count(&first),
+            1,
+            "caller-held values survive eviction"
+        );
+        assert_eq!(c.len, 1);
+        assert!(c.charged_bytes <= CACHE_BYTES);
+        assert!(Rc::ptr_eq(
+            &third,
+            &c.get_or_compile("third", 0, || -> Result<(), ()> { panic!("hit") }, |_| 0)
+                .unwrap()
+        ));
+    }
+
+    #[test]
+    fn oversized_values_execute_without_cache_retention() {
+        let mut c = MatcherCache::<u8, ()>::default();
+        for size in [CACHE_BYTES, usize::MAX] {
+            let value = c
+                .get_or_compile("oversized", 0, || Ok::<_, ()>(()), |_| size)
+                .unwrap();
+            assert_eq!(Rc::strong_count(&value), 1);
+            assert_eq!(c.len, 0);
+            assert_eq!(c.charged_bytes, 0);
+            assert!(c.recent.is_none());
+        }
+    }
+
+    #[test]
+    fn full_cache_releases_ownership_before_compilation() {
         let mut c = MatcherCache::default();
         let first = get(&mut c, "first", (0, 0));
         let weak = Rc::downgrade(&first);
@@ -140,12 +209,42 @@ mod tests {
         for i in 1..CACHE_CAP {
             get(&mut c, &i.to_string(), (0, 0));
         }
+        c.get_or_compile(
+            "overflow",
+            (0, 0),
+            || {
+                assert!(
+                    weak.upgrade().is_none(),
+                    "old compiled state overlaps compilation"
+                );
+                Ok::<_, ()>(String::new())
+            },
+            |v| v.capacity(),
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn compile_errors_leave_cache_reusable() {
+        let mut c = MatcherCache::default();
+        let first = get(&mut c, "first", (0, 0));
+        let weak = Rc::downgrade(&first);
+        drop(first);
+        for i in 1..CACHE_CAP - 1 {
+            get(&mut c, &i.to_string(), (0, 0));
+        }
         get(&mut c, "first", (0, 0));
         assert!(
-            c.get_or_compile("invalid", (0, 0), || Err::<String, _>("bad"))
-                .is_err()
+            c.get_or_compile(
+                "invalid",
+                (0, 0),
+                || Err::<String, _>("bad"),
+                |v| v.capacity()
+            )
+            .is_err()
         );
         assert!(weak.upgrade().is_some());
+        get(&mut c, "last", (0, 0));
         get(&mut c, "overflow", (0, 0));
         assert!(
             weak.upgrade().is_none(),

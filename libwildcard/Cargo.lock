@@ -482,6 +482,7 @@ dependencies = [
  "lz4_flex",
  "parquet",
  "regex",
+ "regex-automata",
  "regex-syntax",
  "serde",
  "serde_json",

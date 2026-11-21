@@ -49,8 +49,13 @@ fn views_arg(list: &str) -> Vec<View> {
 fn matcher(pattern: &str, kind: Kind, view: View) -> Rc<Matcher> {
     CACHE.with(|c| {
         let mut c = c.borrow_mut();
-        c.get_or_compile(pattern, (kind, view), || Matcher::new(kind, pattern, view))
-            .unwrap_or_else(|e| error!("pg_wildcard: {e}"))
+        c.get_or_compile(
+            pattern,
+            (kind, view),
+            || Matcher::new(kind, pattern, view),
+            Matcher::cache_charge,
+        )
+        .unwrap_or_else(|e| error!("pg_wildcard: {e}"))
     })
 }
 

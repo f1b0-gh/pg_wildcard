@@ -208,8 +208,8 @@ unsafe fn simplify(req: *mut pg_sys::SupportRequestSimplify) -> Option<*mut pg_s
         };
         match kind {
             Kind::Wildcard | Kind::Like => {
-                let like =
-                    wildcard_ch::like_pattern(&verify::pieces_for(kind, pattern.as_bytes(), view));
+                let pieces = verify::pieces_for_checked(kind, pattern.as_bytes(), view).ok()?;
+                let like = wildcard_ch::like_pattern(&pieces);
                 let op = pg_sys::make_opclause(
                     pg_sys::Oid::from(TEXT_LIKE_OP),
                     pg_sys::BOOLOID,

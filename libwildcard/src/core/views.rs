@@ -39,7 +39,11 @@ impl View {
         match self {
             View::Raw => Cow::Borrowed(v),
             View::Lower => Cow::Owned(v.to_ascii_lowercase()),
-            View::Decoded => Cow::Owned(percent_decode(v).to_ascii_lowercase()),
+            View::Decoded => {
+                let mut decoded = percent_decode(v);
+                decoded.make_ascii_lowercase();
+                Cow::Owned(decoded)
+            }
             View::RevDomain => Cow::Owned(reverse_domain(v)),
             View::WinPath => Cow::Owned(
                 v.iter()

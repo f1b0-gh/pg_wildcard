@@ -18,6 +18,8 @@ use thiserror::Error;
 
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
 pub enum Re2Error {
+    #[error(transparent)]
+    TooLong(#[from] crate::core::pattern::PatternTooLong),
     #[error("invalid regex: {0}")]
     Syntax(String),
     #[error("not portable to RE2/ClickHouse: {0}")]
@@ -148,6 +150,7 @@ impl Collect<'_> {
 /// Validate an RE2-dialect pattern and return its Rust-regex equivalent
 /// (to be compiled with `unicode(true)` on bytes).
 pub fn to_rust(pattern: &str) -> Result<String, Re2Error> {
+    crate::core::pattern::check_pattern_len(pattern.as_bytes())?;
     if pattern.contains(r"\Q") || pattern.contains(r"\C") {
         return Err(Re2Error::NotPortable(
             r"\Q...\E and \C are not supported".into(),

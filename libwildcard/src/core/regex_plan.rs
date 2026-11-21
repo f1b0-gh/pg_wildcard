@@ -19,12 +19,24 @@ use crate::core::views::View;
 
 #[derive(Debug, Error)]
 pub enum PlanError {
+    #[error(transparent)]
+    TooLong(#[from] crate::core::pattern::PatternTooLong),
     #[error("invalid regex: {0}")]
     Syntax(String),
 }
 
 /// Plan a regex searched (unanchored, like Postgres `~`) in `view`.
 pub fn plan_regex(
+    pattern: &str,
+    view: View,
+    case_insensitive: bool,
+) -> Result<GramQuery, PlanError> {
+    crate::core::pattern::check_pattern_len(pattern.as_bytes())?;
+    plan_translated_regex(pattern, view, case_insensitive)
+}
+
+/// Only called with admitted source or the bounded expansion from `re2::to_rust`.
+pub(crate) fn plan_translated_regex(
     pattern: &str,
     view: View,
     case_insensitive: bool,

@@ -8,6 +8,21 @@ use crate::core::grams;
 use crate::core::query::GramQuery;
 use crate::core::views::View;
 
+/// Source-pattern admission limit, checked before parsing or translation.
+pub const MAX_PATTERN_BYTES: usize = 16 * 1024;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, thiserror::Error)]
+#[error("pattern exceeds {MAX_PATTERN_BYTES} bytes")]
+pub struct PatternTooLong;
+
+pub fn check_pattern_len(pattern: &[u8]) -> Result<(), PatternTooLong> {
+    if pattern.len() > MAX_PATTERN_BYTES {
+        Err(PatternTooLong)
+    } else {
+        Ok(())
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Piece {
     Lit(Vec<u8>),
@@ -49,13 +64,25 @@ fn parse(p: &[u8], one: u8, many: u8, escape: Option<u8>) -> Vec<Piece> {
 }
 
 /// SQL LIKE: `%` any run, `_` one, `\` escape (Postgres default).
+/// Low-level, unbounded parser; use [`parse_like_checked`] for untrusted input.
 pub fn parse_like(p: &[u8]) -> Vec<Piece> {
     parse(p, b'_', b'%', Some(b'\\'))
 }
 
 /// Elasticsearch wildcard: `*` any run, `?` one, `\` escape.
+/// Low-level, unbounded parser; use [`parse_wildcard_checked`] for untrusted input.
 pub fn parse_wildcard(p: &[u8]) -> Vec<Piece> {
     parse(p, b'?', b'*', Some(b'\\'))
+}
+
+pub fn parse_like_checked(p: &[u8]) -> Result<Vec<Piece>, PatternTooLong> {
+    check_pattern_len(p)?;
+    Ok(parse_like(p))
+}
+
+pub fn parse_wildcard_checked(p: &[u8]) -> Result<Vec<Piece>, PatternTooLong> {
+    check_pattern_len(p)?;
+    Ok(parse_wildcard(p))
 }
 
 /// Candidate filter for a whole-value pattern searched in `view`.
@@ -145,6 +172,19 @@ mod tests {
             parse_wildcard(b"*.evil.com"),
             vec![Piece::AnyMany, Piece::Lit(b".evil.com".to_vec())]
         );
+    }
+
+    #[test]
+    fn checked_parsers_admit_the_boundary_and_reject_before_allocating_pieces() {
+        let mut pattern = vec![b'_'; MAX_PATTERN_BYTES];
+        assert_eq!(parse_like_checked(&pattern).unwrap(), parse_like(&pattern));
+        assert_eq!(
+            parse_wildcard_checked(&pattern).unwrap(),
+            parse_wildcard(&pattern)
+        );
+        pattern.push(b'_');
+        assert_eq!(parse_like_checked(&pattern), Err(PatternTooLong));
+        assert_eq!(parse_wildcard_checked(&pattern), Err(PatternTooLong));
     }
 
     #[test]
