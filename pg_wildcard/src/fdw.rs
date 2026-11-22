@@ -22,13 +22,14 @@ use std::collections::{BTreeSet, HashMap};
 use std::ffi::{CStr, CString};
 mod datum;
 mod planning;
+mod predicates;
 mod transport;
 mod values;
 use antalya_rs::BudgetedBatch;
 
 use pgrx::pg_sys;
 use pgrx::prelude::*;
-use pgrx::{PgList, PgMemoryContexts};
+use pgrx::{FromDatum, PgList, PgMemoryContexts};
 use wildcard_ch::ViewColumns;
 use wildcard_core::View;
 use wildcard_core::verify::Kind;
@@ -154,6 +155,17 @@ unsafe fn const_text(n: *mut pg_sys::Node) -> Option<(String, pg_sys::Oid)> {
         if (*c).constisnull {
             return None;
         }
+        match (*c).consttype {
+            pg_sys::TIMESTAMPOID | pg_sys::TIMESTAMPTZOID => {
+                let micros = predicates::timestamp(i64::from_datum((*c).constvalue, false)?)?;
+                return Some((micros.to_string(), (*c).consttype));
+            }
+            pg_sys::DATEOID => {
+                let date = predicates::date(i32::from_datum((*c).constvalue, false)?)?;
+                return Some((date, (*c).consttype));
+            }
+            _ => {}
+        }
         let mut out_fn = pg_sys::InvalidOid;
         let mut varlena = false;
         pg_sys::getTypeOutputInfo((*c).consttype, &mut out_fn, &mut varlena);
@@ -183,10 +195,10 @@ fn ch_literal(text: &str, ty: pg_sys::Oid) -> Option<String> {
         }),
         pg_sys::TEXTOID | pg_sys::VARCHAROID | pg_sys::NAMEOID => Some(wildcard_ch::quote(text)),
         pg_sys::TIMESTAMPOID | pg_sys::TIMESTAMPTZOID => Some(format!(
-            "parseDateTime64BestEffort({}, 6)",
-            wildcard_ch::quote(text)
+            "fromUnixTimestamp64Micro({}, 'UTC')",
+            text.parse::<i64>().ok()?
         )),
-        pg_sys::DATEOID => Some(format!("toDate({})", wildcard_ch::quote(text))),
+        pg_sys::DATEOID => Some(format!("toDate32({})", wildcard_ch::quote(text))),
         _ => None,
     }
 }
@@ -270,6 +282,9 @@ unsafe fn like_call(
             .collect();
         let col = var_column(*args.first()?, relid, scanrelid)?;
         let (pattern, _) = const_text(*args.get(1)?)?;
+        // Candidate and lake pruning must not hide a local invalid-escape
+        // error after the exact deparser has declined this LIKE predicate.
+        predicates::like(&pattern)?;
         let view = if col == index_column {
             View::Raw
         } else {
@@ -355,11 +370,21 @@ unsafe fn deparse(
                 if ch_op.contains("LIKE") && !matches!(ty, pg_sys::TEXTOID | pg_sys::VARCHAROID) {
                     return None;
                 }
-                Some(format!(
-                    "{} {ch_op} {}",
-                    ch_ident(&col),
+                // PostgreSQL cross-type temporal comparisons can depend on the
+                // session timezone; only same-type comparisons have this mapping.
+                if matches!(
+                    ty,
+                    pg_sys::TIMESTAMPOID | pg_sys::TIMESTAMPTZOID | pg_sys::DATEOID
+                ) && pg_sys::exprType(args[0]) != ty
+                {
+                    return None;
+                }
+                let literal = if ch_op.contains("LIKE") {
+                    wildcard_ch::quote(&predicates::like(&text)?)
+                } else {
                     ch_literal(&text, ty)?
-                ))
+                };
+                Some(format!("{} {ch_op} {literal}", ch_ident(&col)))
             }
             pg_sys::NodeTag::T_NullTest => {
                 let t = n as *mut pg_sys::NullTest;
