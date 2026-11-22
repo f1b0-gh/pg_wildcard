@@ -5,6 +5,12 @@ import json
 
 
 def check(spec, q, rows, fail):
+    for prefer_columns in (0, 1):
+        check_mode(spec, q, rows, fail, prefer_columns)
+
+
+def check_mode(spec, q, rows, fail, prefer_columns):
+    settings = f" SETTINGS prefer_column_name_to_alias={prefer_columns}"
     q("CREATE TABLE jv (id UInt32, v String) ENGINE=Memory")
     q("INSERT INTO jv VALUES " + ", ".join(
         f"({i}, unhex('{h}'))" for i, h in enumerate(spec['values_hex'])))
@@ -14,7 +20,7 @@ def check(spec, q, rows, fail):
       "v_alt String MATERIALIZED concat(v, '!')) ENGINE=Memory")
     for case in spec['cases']:
         q(case['hits_ddl'])
-        q(case['mv'])
+        q(case['mv'] + settings)
         for phase in ('bound', 'stale_regex', 'stale_view', 'empty_metadata',
                       'updated', 'deactivated', 'empty_watchlist'):
             q('TRUNCATE TABLE jw')
@@ -48,13 +54,13 @@ def check(spec, q, rows, fail):
             # trigrams and multiple rules with identical regexes.
             source = "SELECT id, v, tuple(id + 10), 'kept0', 'kept1', 'kept2', 'kept3', id + 20 FROM jv"
             q('INSERT INTO js (id, v, nested, _wc0_value, _wc1_key, gram_key, regex, i) ' +
-              source + ' UNION ALL ' + source)
+              source + ' UNION ALL ' + source + settings)
             actual_result = json.loads(q('SELECT * FROM jh').data())
             exact_result = json.loads(q(case['oracle']).data())
             actual = Counter(tuple(row) for row in actual_result['data'])
             exact = Counter(tuple(row) for row in exact_result['data'])
             if actual != exact:
-                fail(f"join {case['name']} {phase}: multiset differs, "
+                fail(f"join {case['name']} {phase} prefer_columns={prefer_columns}: multiset differs, "
                      f"extra={list((actual-exact).items())[:3]}, missing={list((exact-actual).items())[:3]}")
             if actual_result['meta'] != exact_result['meta']:
                 fail(f"join {case['name']} {phase}: projected names/types differ")
@@ -65,6 +71,6 @@ def check(spec, q, rows, fail):
                     fail('join plain bound: Rust pair multiset differs')
         q('DROP VIEW join_mv')
         q('DROP TABLE jh')
-        print(f"watchlist join {case['name']}: seven lifecycle phases, exact multisets and projections")
+        print(f"watchlist join {case['name']} prefer_columns={prefer_columns}: seven lifecycle phases, exact multisets and projections")
     for table in ('js', 'jw', 'jv'):
         q(f'DROP TABLE {table}')

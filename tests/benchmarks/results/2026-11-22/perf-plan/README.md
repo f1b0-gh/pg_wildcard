@@ -16,7 +16,8 @@ An Elastic keyword layout appears only as a labeled historical storage control.
 | Regex engine replacement or specialization | No implementation selected | Existing match semantics and engines remain unchanged |
 
 See the [anchored-pattern evidence](anchored-watchlists/README.md),
-[watchlist join evidence](watchlist-join/README.md), and
+[watchlist join evidence](watchlist-join/README.md),
+[helper-alias correctness fix and transfer check](watchlist-alias-fix/README.md), and
 [rejected FDW conversion experiment](fdw-conversion/README.md). The latter includes
 eight real CPU flamegraphs. Failed/censored runs are preserved, not replaced by
 smaller workloads or included as completed latency samples. The watchlist join's
