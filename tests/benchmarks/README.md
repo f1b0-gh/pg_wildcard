@@ -206,3 +206,39 @@ use the index yet admit most rows. Inspect `EXPLAIN` actions for index-derived
 `PREWHERE` filters and use forced-index checks to establish index use; measure
 candidate counts separately. Logical `read_rows` and `read_bytes` alone do not
 establish physical disk reads or whether the text index was used.
+
+## FDW block size and terminal-policy controls
+
+`fdw_tuning.py` uses an owned native fixture and the labeled PostgreSQL review
+fixture to compare native HTTP Arrow, the persistent published Antalya client,
+PostgreSQL `EXPLAIN (ANALYZE, VERBOSE, TIMING OFF)`, and full PostgreSQL COPY.
+
+```sh
+python3 tests/benchmarks/fdw_tuning.py \
+  --state .local/perf/antalya.private.json --pg-container wildcard-review-pg18 \
+  --worker .local/review-pg/target/release/examples/fdw_warm \
+  --output .local/perf/block-controls \
+  --blocks 1024,4096,16384 --policies in_band \
+  --workloads narrow,smalltext,wide1k --repeats 5
+```
+
+Use a Python environment with PyArrow. The worker is built from
+`tests/transport` with its `production` feature. The runner creates and removes
+its own tables, schema and foreign servers. It excludes one full-value warmup
+per configuration and rotates the order of five measured rounds. Narrow and
+three-column cases contain one million rows; the wide case contains 32,768 rows
+with a 1 KiB field. `--rows` and `--repeats` permit smaller functional smoke runs.
+
+All routes explicitly request uncompressed Arrow. Actual QueryFinish records
+must confirm row counts, block settings and compression; COPY IDs are bound to
+the paired backend's selected SQL. Query-log diagnostics run after the entire
+cohort. Requested `max_block_size` is not a guarantee of delivered batch size.
+Full native/COPY values and direct warmup values are checked outside their
+request clocks. Measured direct requests consume every batch and require a
+confirmed successful outcome. Nested phase clocks overlap.
+
+`--routes native` supports an independent HTTP control; requesting `pg_copy`
+requires `pg_backend` for query correlation. Resource refusal or failed cleanup
+makes the run fail and retains raw/pending evidence. Such a partial run is not
+a complete performance cohort. Retained-batch budgets do not bound process RSS,
+and host activity and engine caches must be considered when interpreting timings.
