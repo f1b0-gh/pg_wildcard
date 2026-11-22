@@ -1,0 +1,53 @@
+{
+  "engine": "26.8.34.20001.altinityantalya",
+  "machine": {
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu_count": 12,
+    "cpu_model": "AMD Ryzen 5 PRO 4650U with Radeon Graphics",
+    "host_memory_bytes": 15942414336,
+    "python": "3.12.3"
+  },
+  "engine_cpus": 4,
+  "engine_memory_bytes": 8589934592,
+  "repeats": 5,
+  "policies": [
+    "flush_first",
+    "observe_first",
+    "observe_only",
+    "in_band"
+  ],
+  "query_log_flush_interval_ms": 1000,
+  "pg_cache_policy": "inherited; inspect ProfileEvents; native/direct disable result and condition caches",
+  "source_files": 8,
+  "source_rows": 1000000,
+  "selected_rows": 125,
+  "batch_bytes": 16777216,
+  "block_size": 1024,
+  "source_kind": "eight Parquet files via passthrough native view; genuine wc-lake Puffin import; not Iceberg metadata or delete-file timing",
+  "terminal_clocks": "published-client aggregate per-operation counters; not per-poll clocks; overlap with data/server/PG clocks",
+  "log_collection": "after entire cohort; no diagnostic flush between requests; policy-owned flushes are part of the measured operation",
+  "runner_sha256": "35bd3e93334bbcd62c87f89e12daf6ad7c763af0806e5b5a300c6fac625fb1b3",
+  "worker_sha256": "850028c1ef7b3300bedb1b2d9ca6e1ed018811c5b866769bbc4e479a199c79e1",
+  "cli_sha256": "a30a94859f5dfdaaf53e1359c58b0a4f6433f16a3ffa1aad28555ed3994e20d1",
+  "extension_sha256": "0a7baf46cfbf928f3e0001fc81d941a066a2caca3eab79e14da836c44c334ff7",
+  "native_paths": [
+    "/var/lib/clickhouse/user_files/benchmark/wc_terminal_186f9f8bbeff439fba1a861611ed475d/f0.parquet",
+    "/var/lib/clickhouse/user_files/benchmark/wc_terminal_186f9f8bbeff439fba1a861611ed475d/f1.parquet",
+    "/var/lib/clickhouse/user_files/benchmark/wc_terminal_186f9f8bbeff439fba1a861611ed475d/f2.parquet",
+    "/var/lib/clickhouse/user_files/benchmark/wc_terminal_186f9f8bbeff439fba1a861611ed475d/f3.parquet",
+    "/var/lib/clickhouse/user_files/benchmark/wc_terminal_186f9f8bbeff439fba1a861611ed475d/f4.parquet",
+    "/var/lib/clickhouse/user_files/benchmark/wc_terminal_186f9f8bbeff439fba1a861611ed475d/f5.parquet",
+    "/var/lib/clickhouse/user_files/benchmark/wc_terminal_186f9f8bbeff439fba1a861611ed475d/f6.parquet",
+    "/var/lib/clickhouse/user_files/benchmark/wc_terminal_186f9f8bbeff439fba1a861611ed475d/f7.parquet"
+  ],
+  "parquet_sha256": {
+    "f3.parquet": "5124afa1c0d70309a2d1b627f4e4367c0b082a8589faea1a61367a99ef16439d",
+    "f2.parquet": "1b2a92ea0454a649b5306d8de686bc6767b43d7e5d72d8113fc78770beb6cd64",
+    "f4.parquet": "03e23b761d025e50643a5121346639c1b2c0bf0c1af2f1c9b96317b425b3b7d9",
+    "f7.parquet": "ac3b970038175c070c7838659866bb904edc9ecfe6388da4c56703d9f5d5608b",
+    "f6.parquet": "510e3e5fee84cebc59fa47bfb90806c1c63463eddb357579b426f60ab444cf5b",
+    "f5.parquet": "29e03eda01aad1af1f1da86443d5e3ae479146b34b9a4f593cf9bb01894cefb6",
+    "f1.parquet": "8fe003e6c684592d508863fdcd28cceac703e4c2a11fcdb65810bf96210f6afa",
+    "f0.parquet": "0f9f4f99f54d7ea2a117df239ef25601f77e0f3115edd483030fd023c00bed01"
+  }
+}

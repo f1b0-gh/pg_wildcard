@@ -30,6 +30,10 @@ eight real CPU flamegraphs. Failed/censored runs are preserved, not replaced by
 smaller workloads or included as completed latency samples. The watchlist join's
 per-value extraction bound does not bound global row-by-rule fanout or join memory.
 
+The [FDW tuning follow-up](fdw-tuning/) adds repeated block-size controls,
+small/lake terminal-policy and log-cadence experiments, an insertion-TTL-preserving
+cache improvement, and a separately labelled opt-in upstream compression trial.
+
 ## Route and workload boundaries
 
 Native HTTP SQL measures the server-facing query route. Direct antalya-rs uses

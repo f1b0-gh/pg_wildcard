@@ -166,7 +166,7 @@ def main():
             runner_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
             worker_sha256=hashlib.sha256(a.worker.read_bytes()).hexdigest(),
             pg_cache_policy='inherited; inspect ProfileEvents',
-            clocks='warm persistent clients, full native Arrow body / all confirmed direct batches / backend TIMING OFF / full COPY; value verification and query-log collection outside clocks; overlapping diagnostics',
+            clocks='warm persistent clients, full native Arrow body / all confirmed direct batches / backend TIMING OFF / full COPY; native/COPY verification and query-log collection outside clocks; direct verification inside excluded warmups; overlapping diagnostics',
             log_collection='after all measurement requests; no diagnostic SYSTEM FLUSH between samples')
         admin.execute("SELECT current_setting('server_version');")
         settings['postgres']=admin.file.read_text().strip()

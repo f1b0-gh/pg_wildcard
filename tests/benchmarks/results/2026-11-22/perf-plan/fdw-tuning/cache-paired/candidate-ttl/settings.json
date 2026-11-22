@@ -1,0 +1,32 @@
+{
+  "engine": "26.8.34.20001.altinityantalya",
+  "machine": {
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu_count": 12,
+    "cpu_model": "AMD Ryzen 5 PRO 4650U with Radeon Graphics",
+    "host_memory_bytes": 15942414336,
+    "python": "3.12.3"
+  },
+  "engine_cpus": 4,
+  "engine_memory_bytes": 8589934592,
+  "rounds": 5,
+  "modes": [
+    "ttl"
+  ],
+  "patterns": [
+    "evil*",
+    "*evil*",
+    "*evil.test*",
+    "*test/power*",
+    "*powershell*",
+    "*shell*",
+    "*evil.test/powershell",
+    "evil.test/power*"
+  ],
+  "terminal_policy": "in_band",
+  "batch_bytes": 16777216,
+  "rows": 1000000,
+  "scope": "backend-local preferences only; native and OS caches uncontrolled; TIMING OFF, overlapping diagnostics",
+  "extension_sha256": "0a7baf46cfbf928f3e0001fc81d941a066a2caca3eab79e14da836c44c334ff7",
+  "runner_sha256": "031466f71df463cef21b5f914885928168fce5ae807fee478e553185c635bf99"
+}

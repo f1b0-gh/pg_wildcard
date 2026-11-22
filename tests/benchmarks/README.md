@@ -233,8 +233,8 @@ All routes explicitly request uncompressed Arrow. Actual QueryFinish records
 must confirm row counts, block settings and compression; COPY IDs are bound to
 the paired backend's selected SQL. Query-log diagnostics run after the entire
 cohort. Requested `max_block_size` is not a guarantee of delivered batch size.
-Full native/COPY values and direct warmup values are checked outside their
-request clocks. Measured direct requests consume every batch and require a
+Full native/COPY values are checked outside their request clocks. Direct values
+are checked inside excluded warmup clocks. Measured direct requests consume every batch and require a
 confirmed successful outcome. Nested phase clocks overlap.
 
 `--routes native` supports an independent HTTP control; requesting `pg_copy`

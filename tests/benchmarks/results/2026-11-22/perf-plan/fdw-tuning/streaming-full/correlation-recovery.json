@@ -1,0 +1,12 @@
+{
+  "original_exit": 1,
+  "replayed_measurements": false,
+  "requests": 288,
+  "verified": "unique COPY correlation, exact selected SQL, actual block settings and rows in genuine QueryFinish records",
+  "normalization": "trim outer whitespace and optional client FORMAT ArrowStream suffix only",
+  "defaults_observed_after_run": {
+    "enable_http_compression": "1",
+    "output_format_arrow_compression_method": "lz4_frame"
+  },
+  "native_format_caveat": "original HTTP route inherits compression; direct and PG force none; original raw/settings retained"
+}

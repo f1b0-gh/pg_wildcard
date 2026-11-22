@@ -1,0 +1,10 @@
+{
+  "sha256": "0a7baf46cfbf928f3e0001fc81d941a066a2caca3eab79e14da836c44c334ff7",
+  "build_log": "candidate-build.log",
+  "mode": "release --locked -p pg_wildcard --no-default-features --features pg18",
+  "jobs": 2,
+  "rustflags": null,
+  "source": "same dependencies and release settings as baseline; only cache recency promotion",
+  "binary_modified_at": "2026-11-22T21:42:08.829085+00:00",
+  "adaptive_source_sha256": "f8dacb6ebdcbd9a3b6fc7be4b27fd192583d053ac9d267231be47feb9f1bda00"
+}

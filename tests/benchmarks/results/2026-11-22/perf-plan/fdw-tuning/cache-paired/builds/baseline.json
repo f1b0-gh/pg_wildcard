@@ -1,0 +1,9 @@
+{
+  "sha256": "1d9bccd0e5ca90fa159e8f9cc4e36b7f3dbbf01e98a358415dec52a33561f5c4",
+  "build_log": "baseline-build-user.log",
+  "mode": "release --locked -p pg_wildcard --no-default-features --features pg18",
+  "jobs": 2,
+  "rustflags": null,
+  "source": "parent3b382ad2 plus test-only adaptive.rs additions; production FIFO unchanged",
+  "saved_at": "2026-11-22T21:39:59.857279+00:00"
+}

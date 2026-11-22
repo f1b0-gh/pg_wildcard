@@ -1,0 +1,30 @@
+{
+  "upstream_revision": "095fd14d0aa65d9ef4e48b0140d4891af8ac05d8",
+  "pending_reservation_bytes": {
+    "none": 16777216,
+    "zstd": 34078720
+  },
+  "shared_retained_bytes": 67108864,
+  "scope": "MODIFIED antalya-rs worktree only; paired none vs opt-in zstd; NOT published0.1.0 and NOT PostgreSQL",
+  "machine": {
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu_count": 12,
+    "cpu_model": "AMD Ryzen 5 PRO 4650U with Radeon Graphics",
+    "host_memory_bytes": 15942414336,
+    "python": "3.12.3"
+  },
+  "host_load": [
+    15.9833984375,
+    22.5927734375,
+    19.19775390625
+  ],
+  "repeats": 5,
+  "block": 4096,
+  "batch_bytes": 16777216,
+  "engine": "26.8.34.20001.altinityantalya",
+  "engine_cpus": 4,
+  "engine_memory_bytes": 8589934592,
+  "worker_sha256": "9c39f30e1a95242df76d016a04da37af34c4f196611b02e7719ac26cb1569a2f",
+  "script_sha256": "3e243929217c2a9e567d7801d781341821fbe85b730f5b2f6453340254b569ac",
+  "clocks": "all batches and confirmed outcome, complete values checked on excluded warmup; no query-log diagnostics within timed cohort"
+}

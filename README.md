@@ -166,6 +166,14 @@ for SQL, settings, raw profiles, corpus/result hashes, source provenance and an
 offline report verifier, or the [benchmark harness](tests/benchmarks/README.md)
 to run new measurements.
 
+Separate [FDW tuning results](tests/benchmarks/results/2026-11-22/perf-plan/fdw-tuning/)
+cover block sizes, selective lake completion and adaptive-cache churn. They keep
+direct published antalya-rs, backend execution and full COPY separate. The cache
+fix raised hot-preference hits from 80% to 100% in five interleaved hot/new-key
+trials, removing 16 repeated probes per round without extending expiry. The
+upstream Arrow Zstd experiment is an opt-in modified-client result, with both
+wins and regressions; it does not change the Elasticsearch comparison above.
+
 ## Documentation
 
 - [Build and installation](docs/build.md)
