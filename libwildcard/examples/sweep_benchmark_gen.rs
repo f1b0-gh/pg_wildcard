@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //! Reproducible exact, fixed-64 and AST-budgeted sweep/watchlist strategies.
+#[path = "sweep_benchmark_gen/comparison.rs"]
+mod comparison;
+
 use libwildcard::antalya::{
     GramFileCounts, SweepItem, SweepOptions, ViewColumns, candidate_predicate, predicate, quote,
     sweep_queries_with_options, watchlist_insert_sql, watchlist_insert_sql_with_frequencies,
@@ -33,6 +36,13 @@ fn main() {
     let rows: usize = value("--rows").unwrap_or("1000000").parse().unwrap();
     let count: usize = value("--indicators").unwrap_or("1000").parse().unwrap();
     assert!(rows > 0 && count > 0 && count <= 10_000);
+    if let Some(variant) = value("--comparison") {
+        println!(
+            "{}",
+            comparison::build(variant, count, rows).expect("valid bounded comparison fixture")
+        );
+        return;
+    }
     let frequencies: Option<GramFileCounts> = value("--frequencies").map(|path| {
         std::fs::read_to_string(path)
             .unwrap()

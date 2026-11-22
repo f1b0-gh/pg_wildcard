@@ -38,7 +38,9 @@ def literal(text):
     return "'" + text.replace('\\', '\\\\').replace("'", "\\'") + "'"
 
 class Engine:
-    def __init__(self, state=None):
+    def __init__(self, state=None, timeout_seconds=300):
+        if not 1 <= timeout_seconds <= 300: raise ValueError("invalid native timeout")
+        self.timeout_seconds = timeout_seconds
         self.database = 'wc_benchmark_' + uuid.uuid4().hex
         self.prefix = self.database + '_'
         self.state = json.loads(Path(state).read_text()) if state else None
@@ -59,11 +61,11 @@ class Engine:
             return json.loads(result)['data'] if result.strip() else []
         params = dict(self.settings, database=database or self.database, default_format='JSONCompact',
                       query_id=query_id or self.prefix + uuid.uuid4().hex,
-                      log_queries=int(logging), max_execution_time=300)
+                      log_queries=int(logging), max_execution_time=self.timeout_seconds)
         request = urllib.request.Request(self.state['url'] + '/?' + urllib.parse.urlencode(params),
                   data=sql.encode(), headers={'Authorization':'Bearer '+self.state['token']})
         try:
-            with self.opener.open(request, timeout=330) as response:
+            with self.opener.open(request, timeout=self.timeout_seconds+30) as response:
                 result = response.read(67108865)
                 if len(result)>67108864:
                     raise RuntimeError('benchmark response exceeds 64 MiB safety cap')
@@ -78,9 +80,15 @@ class Engine:
             raise RuntimeError('invalid/unfinished engine JSON response: '+detail) from None
     def profile(self, query_id):
         if not self.state:return None
-        self.query('SYSTEM FLUSH LOGS', logging=False)
         sql = "SELECT query_duration_ms,read_rows,read_bytes,result_rows,result_bytes,memory_usage,ProfileEvents,Settings FROM system.query_log WHERE type='QueryFinish' AND is_initial_query=1 AND query_id=" + literal(query_id) + ' ORDER BY event_time_microseconds DESC LIMIT 1'
-        rows = self.query(sql, logging=False)
+        # Complete HTTP output can precede publication of QueryFinish. A flush
+        # cannot expose a record that has not been queued yet. Retry control
+        # reads outside the measured clock; absent terminal evidence still fails.
+        for attempt in range(8):
+            if attempt:time.sleep(.1)
+            self.query('SYSTEM FLUSH LOGS', logging=False)
+            rows = self.query(sql, logging=False)
+            if rows:break
         if not rows:raise AssertionError('No QueryFinish for measured query '+query_id)
         return dict(zip(['query_duration_ms','read_rows','read_bytes','result_rows','result_bytes','memory_usage','profile_events','settings'],rows[0]))
     def close(self):

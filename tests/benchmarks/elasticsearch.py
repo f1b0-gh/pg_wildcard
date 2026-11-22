@@ -39,21 +39,24 @@ def checksum(pairs):
 
 
 class Client:
-    def __init__(self, state, timeout):
+    def __init__(self, state, timeout, opaque_id=None):
         self.base = state["url"].rstrip("/")
         self.timeout = timeout
+        self.opaque_id = opaque_id
         self.opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
     def request(self, method, path, body=None, ndjson=False):
         data = body.encode() if isinstance(body, str) else (json.dumps(body).encode() if body is not None else None)
         req = urllib.request.Request(self.base + path, data=data, method=method,
-                                     headers={"Content-Type": "application/x-ndjson" if ndjson else "application/json"})
+                                     headers={"Content-Type": "application/x-ndjson" if ndjson else "application/json", **({"X-Opaque-Id": self.opaque_id} if self.opaque_id else {})})
         try:
             with self.opener.open(req, timeout=self.timeout) as response:
-                return json.load(response)
+                raw = response.read((64 << 20) + 1)
+                if len(raw) > 64 << 20: raise ValueError("Elastic response exceeds 64 MiB")
+                return json.loads(raw)
         except urllib.error.HTTPError as error:
             # Response bodies contain useful engine errors; never include the URL.
-            message = error.read().decode(errors="replace").replace(self.base, "[private endpoint]")
+            message = error.read(65536).decode(errors="replace").replace(self.base, "[private endpoint]")
             raise RuntimeError(f"HTTP {error.code}: {message[:2000]}") from None
 
 
