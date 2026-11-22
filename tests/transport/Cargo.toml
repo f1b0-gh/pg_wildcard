@@ -39,3 +39,7 @@ flatbuffers = "25.12.19"
 [[bin]]
 name = "control-worker"
 path = "src/control_worker.rs"
+
+[[example]]
+name = "fdw_profile"
+required-features = ["production"]
