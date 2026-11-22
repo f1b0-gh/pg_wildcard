@@ -537,10 +537,14 @@ unsafe fn make_string(s: &str) -> *mut pg_sys::Node {
 }
 
 unsafe fn str_val(n: *mut pg_sys::Node) -> String {
+    // SAFETY: FDW private strings are allocated by make_string in PostgreSQL's
+    // memory context. PostgreSQL 14 stores String nodes in the Value union.
     unsafe {
-        CStr::from_ptr((*(n as *mut pg_sys::String)).sval)
-            .to_string_lossy()
-            .into_owned()
+        #[cfg(feature = "pg14")]
+        let value = (*(n as *mut pg_sys::Value)).val.str_;
+        #[cfg(not(feature = "pg14"))]
+        let value = (*(n as *mut pg_sys::String)).sval;
+        CStr::from_ptr(value).to_string_lossy().into_owned()
     }
 }
 
