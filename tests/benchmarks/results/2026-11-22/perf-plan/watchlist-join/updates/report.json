@@ -1,0 +1,278 @@
+[
+  {
+    "family": "domains",
+    "rules": 100,
+    "requested_block_rows": 1024,
+    "strategies": {
+      "staged_needles": {
+        "update_ms": {
+          "median": 69.19344901689328,
+          "min": 68.86168802157044,
+          "max": 70.22165600210428
+        },
+        "insert_ms": {
+          "median": 124.55875301384367,
+          "min": 108.51041798014194,
+          "max": 153.32646999740973
+        },
+        "update_cpu_ms": {
+          "median": 1.211,
+          "min": 0.951,
+          "max": 1.573
+        },
+        "insert_cpu_ms": {
+          "median": 122.049,
+          "min": 105.544,
+          "max": 149.843
+        },
+        "largest_update_query_bytes": 1142463,
+        "largest_insert_query_bytes": 56490807,
+        "insert_read_rows": [
+          20200,
+          20200,
+          20200,
+          20200,
+          20200
+        ]
+      },
+      "production_join": {
+        "update_ms": {
+          "median": 68.59006799641065,
+          "min": 58.846275991527364,
+          "max": 70.47603197861463
+        },
+        "insert_ms": {
+          "median": 73.83831599145196,
+          "min": 57.6725660066586,
+          "max": 76.19362298282795
+        },
+        "update_cpu_ms": {
+          "median": 0.99,
+          "min": 0.836,
+          "max": 1.314
+        },
+        "insert_cpu_ms": {
+          "median": 68.273,
+          "min": 54.445,
+          "max": 71.947
+        },
+        "largest_update_query_bytes": 1142463,
+        "largest_insert_query_bytes": 15676597,
+        "insert_read_rows": [
+          20400,
+          20400,
+          20400,
+          20400,
+          20400
+        ]
+      }
+    }
+  },
+  {
+    "family": "domains",
+    "rules": 100,
+    "requested_block_rows": 8192,
+    "strategies": {
+      "staged_needles": {
+        "update_ms": {
+          "median": 68.89747400418855,
+          "min": 59.153324022190645,
+          "max": 69.54171400866471
+        },
+        "insert_ms": {
+          "median": 135.53084997693077,
+          "min": 122.65237802057527,
+          "max": 161.50590498000383
+        },
+        "update_cpu_ms": {
+          "median": 1.15,
+          "min": 0.833,
+          "max": 1.568
+        },
+        "insert_cpu_ms": {
+          "median": 133.115,
+          "min": 120.105,
+          "max": 158.171
+        },
+        "largest_update_query_bytes": 1142463,
+        "largest_insert_query_bytes": 56490823,
+        "insert_read_rows": [
+          20200,
+          20200,
+          20200,
+          20200,
+          20200
+        ]
+      },
+      "production_join": {
+        "update_ms": {
+          "median": 69.07209497876465,
+          "min": 58.8276449998375,
+          "max": 70.24949198239483
+        },
+        "insert_ms": {
+          "median": 63.56289502582513,
+          "min": 53.25127998366952,
+          "max": 68.43281700275838
+        },
+        "update_cpu_ms": {
+          "median": 1.194,
+          "min": 0.929,
+          "max": 1.661
+        },
+        "insert_cpu_ms": {
+          "median": 60.399,
+          "min": 49.836,
+          "max": 64.725
+        },
+        "largest_update_query_bytes": 1142463,
+        "largest_insert_query_bytes": 15676613,
+        "insert_read_rows": [
+          20400,
+          20400,
+          20400,
+          20400,
+          20400
+        ]
+      }
+    }
+  },
+  {
+    "family": "shared",
+    "rules": 1000,
+    "requested_block_rows": 1024,
+    "strategies": {
+      "staged_needles": {
+        "update_ms": {
+          "median": 500.153140979819,
+          "min": 489.05375599861145,
+          "max": 560.1788590138312
+        },
+        "insert_ms": {
+          "median": 987.1943479811307,
+          "min": 934.4413409999106,
+          "max": 1021.78826299496
+        },
+        "update_cpu_ms": {
+          "median": 8.456999999999999,
+          "min": 7.886,
+          "max": 11.213000000000001
+        },
+        "insert_cpu_ms": {
+          "median": 983.837,
+          "min": 931.582,
+          "max": 1018.963
+        },
+        "largest_update_query_bytes": 1140703,
+        "largest_insert_query_bytes": 717284724,
+        "insert_read_rows": [
+          21000,
+          21000,
+          21000,
+          21000,
+          21000
+        ]
+      },
+      "production_join": {
+        "update_ms": {
+          "median": 520.2742559777107,
+          "min": 518.3932869986165,
+          "max": 543.2704729901161
+        },
+        "insert_ms": {
+          "median": 78.26225497410633,
+          "min": 76.30448599229567,
+          "max": 82.22817699424922
+        },
+        "update_cpu_ms": {
+          "median": 10.519,
+          "min": 9.498000000000001,
+          "max": 10.938
+        },
+        "insert_cpu_ms": {
+          "median": 74.277,
+          "min": 73.174,
+          "max": 78.239
+        },
+        "largest_update_query_bytes": 1140703,
+        "largest_insert_query_bytes": 22836595,
+        "insert_read_rows": [
+          22000,
+          22000,
+          22000,
+          22000,
+          22000
+        ]
+      }
+    }
+  },
+  {
+    "family": "shared",
+    "rules": 1000,
+    "requested_block_rows": 8192,
+    "strategies": {
+      "staged_needles": {
+        "update_ms": {
+          "median": 494.6930150035769,
+          "min": 489.7001429926604,
+          "max": 519.2386330163572
+        },
+        "insert_ms": {
+          "median": 1020.4662160249427,
+          "min": 968.0326380184852,
+          "max": 1166.1692030029371
+        },
+        "update_cpu_ms": {
+          "median": 9.636,
+          "min": 8.363,
+          "max": 12.82
+        },
+        "insert_cpu_ms": {
+          "median": 1013.72,
+          "min": 965.08,
+          "max": 1159.201
+        },
+        "largest_update_query_bytes": 1140703,
+        "largest_insert_query_bytes": 717284724,
+        "insert_read_rows": [
+          21000,
+          21000,
+          21000,
+          21000,
+          21000
+        ]
+      },
+      "production_join": {
+        "update_ms": {
+          "median": 512.8064619784709,
+          "min": 483.4536869893782,
+          "max": 541.526031011017
+        },
+        "insert_ms": {
+          "median": 82.60588100529276,
+          "min": 67.75069900322706,
+          "max": 92.71689399611205
+        },
+        "update_cpu_ms": {
+          "median": 9.618,
+          "min": 8.937,
+          "max": 10.225
+        },
+        "insert_cpu_ms": {
+          "median": 79.784,
+          "min": 64.862,
+          "max": 86.967
+        },
+        "largest_update_query_bytes": 1140703,
+        "largest_insert_query_bytes": 22836579,
+        "insert_read_rows": [
+          22000,
+          22000,
+          22000,
+          22000,
+          22000
+        ]
+      }
+    }
+  }
+]

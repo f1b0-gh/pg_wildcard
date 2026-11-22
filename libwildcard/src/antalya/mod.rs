@@ -21,6 +21,7 @@ pub use lake_filter::{
 mod prefilter;
 mod storage;
 mod sweep;
+mod watchlist;
 pub use adaptive::{CandidateDecision, PlanEstimate, choose_candidate, native_plan_estimate};
 pub use storage::MergeTreeSearchLayout;
 #[cfg(test)]
@@ -29,6 +30,7 @@ pub use sweep::{
     DEFAULT_SWEEP_MAX_AST_NODES, SweepOptions, SweepPlan, SweepStrategy, sweep_queries,
     sweep_queries_with_options,
 };
+pub use watchlist::{WatchlistFallback, WatchlistPlan, WatchlistStrategy, watchlist_plan};
 pub mod ranges;
 pub use prefilter::{
     GramFileCounts, candidate_predicate, watchlist_needles, watchlist_needles_with_frequencies,
@@ -49,6 +51,8 @@ pub enum ChError {
     SweepAstTooLarge(usize),
     #[error("sweep limits must be positive")]
     InvalidSweepOptions,
+    #[error("watchlist views must be nonempty and contain no duplicates")]
+    InvalidWatchlistViews,
     #[error("sweep SQL fragment cannot be conservatively budgeted")]
     UnbudgetableSweepSql,
     #[error("invalid identifier '{0}'")]

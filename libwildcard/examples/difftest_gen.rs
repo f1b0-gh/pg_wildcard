@@ -5,8 +5,9 @@
 //! compares. Usage: cargo run -p wildcard-ch --example difftest_gen [seed]
 
 use libwildcard::antalya::{
-    SweepItem, SweepOptions, ViewColumns, candidate_predicate, column_predicate, sweep_queries,
-    sweep_queries_with_options, watchlist_insert_sql, watchlist_mv, watchlist_table_ddl,
+    SweepItem, SweepOptions, ViewColumns, WatchlistStrategy, candidate_predicate, column_predicate,
+    sweep_queries, sweep_queries_with_options, watchlist_insert_sql, watchlist_mv, watchlist_plan,
+    watchlist_table_ddl,
 };
 use libwildcard::core::View;
 use libwildcard::core::indicator;
@@ -28,6 +29,98 @@ impl Rng {
 
 fn hex(b: &[u8]) -> String {
     b.iter().map(|x| format!("{x:02X}")).collect()
+}
+
+fn watchlist_join_cases(values: &[Vec<u8>], items: &[SweepItem]) -> serde_json::Value {
+    let mut values = values.to_vec();
+    values.extend([
+        b"aaaaaa".to_vec(),
+        b"abcabcabc".to_vec(),
+        [vec![b'x'; 253], b"xyz".to_vec()].concat(), // 256 bytes
+        [vec![b'x'; 254], b"xyz".to_vec()].concat(), // 257 bytes
+        [vec![b'x'; 100_000], b"xyz".to_vec()].concat(),
+        b"\xffabc\x00xyz\xfe".to_vec(),
+    ]);
+    let mut rules = items
+        .iter()
+        .filter(|i| i.view == View::Raw)
+        .cloned()
+        .collect::<Vec<_>>();
+    for (id, regex) in [
+        (900, "evil"),
+        (901, "abc"),
+        (902, "^aaa.*aaa$"),
+        (903, "(?i)é"),
+        (904, "xyz"),
+    ] {
+        rules.push(SweepItem {
+            id,
+            view: View::Raw,
+            regex: regex.into(),
+        });
+    }
+    let mut expected = Vec::new();
+    for rule in &rules {
+        let matcher = Matcher::regex(&rule.regex, View::Raw, false).unwrap();
+        for (id, value) in values.iter().enumerate() {
+            if matcher.is_match(value) {
+                expected.push(json!([id, rule.id, "raw"]));
+            }
+        }
+    }
+    let mut cases = Vec::new();
+    for (name, select, hit_columns, oracle_value) in [
+        ("plain", vec!["id"], "id UInt32", "js.v"),
+        (
+            "qualified",
+            vec!["js.id", "js.nested.value"],
+            "id UInt32, `nested.value` UInt32",
+            "js.v",
+        ),
+        (
+            "colliding_names",
+            vec!["id", "_wc0_value", "_wc1_key", "gram_key", "regex", "i"],
+            "id UInt32, _wc0_value String, _wc1_key String, gram_key String, regex String, i UInt32",
+            "js.v",
+        ),
+        ("empty_projection", vec![], "", "js.v"),
+        ("materialized_raw", vec!["id"], "id UInt32", "js.v_alt"),
+    ] {
+        let mut cols = ViewColumns::new("js.v").unwrap();
+        if name == "materialized_raw" {
+            cols.materialized.insert(View::Raw, "js.v_alt".into());
+        }
+        let plan = watchlist_plan(
+            "join_mv",
+            "js",
+            "jh",
+            "jw",
+            &select,
+            &cols,
+            &[View::Raw],
+            WatchlistStrategy::RuleAnchorJoin,
+        )
+        .unwrap();
+        assert_eq!(plan.strategy, WatchlistStrategy::RuleAnchorJoin);
+        let projection = if select.is_empty() {
+            String::new()
+        } else {
+            format!("{}, ", select.join(", "))
+        };
+        cases.push(json!({"name": name, "mv": plan.sql,
+            "hits_ddl": format!("CREATE TABLE jh ({}indicator_id Int64, view String) ENGINE=Memory",
+                                if hit_columns.is_empty() { String::new() } else { format!("{hit_columns}, ") }),
+            "oracle": format!("SELECT {projection}r.id AS indicator_id, 'raw' AS view FROM js CROSS JOIN \
+                               (SELECT * FROM jw FINAL WHERE active = 1 AND view = 'raw') r WHERE match({oracle_value}, r.regex)"),
+        }));
+    }
+    json!({
+        "values_hex": values.iter().map(|v| hex(v)).collect::<Vec<_>>(),
+        "expected": expected,
+        "table_ddl": watchlist_table_ddl("jw").unwrap(),
+        "inserts": rules.iter().map(|i| watchlist_insert_sql("jw", i).unwrap()).collect::<Vec<_>>(),
+        "cases": cases,
+    })
 }
 
 const SECURITY: &[&str] = &[
@@ -521,6 +614,7 @@ fn main() {
         "predicates": preds,
         "sweep": {"queries": sweeps, "expected": expected_hits},
         "shared_gate_cases": shared_gate_cases(&values),
+        "watchlist_join": watchlist_join_cases(&values, &items),
         "watchlist": {"table_ddl": watchlist_table_ddl("watch").unwrap(), "items": watch_items, "inserts": watch_inserts, "mv": mv},
     });
     println!("{out}");

@@ -35,6 +35,12 @@ separate operations, not equivalents of this insert-triggered watchlist.
 See [native sweep/ingest evidence](sweeps/README.md) and
 [Elasticsearch evidence and semantic probes](elastic/README.md).
 
+The later [raw-view watchlist candidate-join experiments](perf-plan/watchlist-join/README.md)
+separate prototype timings, production-renderer confirmation and actual
+post-update insertion controls. They include five-pair comparisons and preserve
+censored failures. Staged needles remain the default; these native percolation
+results have no equivalent Elastic percolator timing in this bundle.
+
 ## Direct Antalya versus PostgreSQL
 
 This is a separate paired FDW fixture, not the thousand-indicator sweep above.

@@ -11,7 +11,7 @@ Exit code 0 only if every view, predicate, sweep and watchlist result agrees.
 import argparse, json, sys
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--antalya-container', help='Owned soc-http-test-* fixture; creates and removes a private test database/user')
+parser.add_argument('--antalya-container', help='Owned fixture; benchmark/bearer fixtures also require ANTALYA_TEST_CONTAINER. Creates and removes a private database/user.')
 args = parser.parse_args()
 spec = json.load(sys.stdin)
 if args.antalya_container:
@@ -149,6 +149,10 @@ for label, projection in [
     if got_update != expected_update:
         fail(f"watchlist {label}: ch-only={sorted(got_update-expected_update)[:5]} exact-only={sorted(expected_update-got_update)[:5]}")
     print(f"watchlist {label}: {len(got_update)} hits, exact={len(expected_update)}")
+
+if "watchlist_join" in spec:
+    from watchlist_join import check as check_watchlist_join
+    check_watchlist_join(spec["watchlist_join"], q, rows, fail)
 
 print("RESULT:", "PASS" if failures == 0 else f"FAIL ({failures})")
 sys.exit(1 if failures else 0)

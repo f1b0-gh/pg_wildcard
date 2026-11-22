@@ -353,6 +353,56 @@ fn wc_ch_watchlist_ddl(
     SetOfIterator::new(vec![ch(wildcard_ch::watchlist_table_ddl(watch)), mv])
 }
 
+/// Watchlist DDL with explicit strategy selection and conservative fallback.
+#[pg_extern(immutable, parallel_safe)]
+#[allow(clippy::too_many_arguments, clippy::type_complexity)]
+fn wc_ch_watchlist_plan(
+    name: &str,
+    source: &str,
+    hits: &str,
+    watch: &str,
+    select_cols: Vec<String>,
+    col: &str,
+    views: default!(&str, "'raw,lower,decoded,revdomain'"),
+    requested_strategy: default!(&str, "'staged_needles'"),
+    materialized: default!(bool, false),
+) -> TableIterator<
+    'static,
+    (
+        name!(watchlist_ddl, String),
+        name!(mv_ddl, String),
+        name!(strategy, String),
+        name!(fallback, Option<String>),
+        name!(max_value_bytes, Option<i32>),
+        name!(max_source_keys, Option<i32>),
+    ),
+> {
+    let strategy = match requested_strategy {
+        "staged_needles" => wildcard_ch::WatchlistStrategy::StagedNeedles,
+        "rule_anchor_join" => wildcard_ch::WatchlistStrategy::RuleAnchorJoin,
+        _ => error!("pg_wildcard: unknown watchlist strategy"),
+    };
+    let sel: Vec<_> = select_cols.iter().map(String::as_str).collect();
+    let plan = ch(wildcard_ch::watchlist_plan(
+        name,
+        source,
+        hits,
+        watch,
+        &sel,
+        &cols_arg(col, materialized),
+        &views_arg(views),
+        strategy,
+    ));
+    TableIterator::new(std::iter::once((
+        ch(wildcard_ch::watchlist_table_ddl(watch)),
+        plan.sql,
+        plan.strategy.name().to_owned(),
+        plan.fallback.map(|f| f.name().to_owned()),
+        plan.max_value_bytes.map(|n| n as i32),
+        plan.max_source_keys.map(|n| n as i32),
+    )))
+}
+
 /// Insert a watchlist indicator with conservative needles bound to its source.
 #[pg_extern(immutable, parallel_safe, strict)]
 fn wc_ch_watchlist_insert(
@@ -712,6 +762,27 @@ mod tests {
         assert!(b(
             "SELECT bool_and(source_scans <= 2 AND estimated_ast_nodes <= 45000) FROM wc_ch_sweep_plan('logs', ARRAY['id'], 'url', ARRAY(SELECT n::bigint FROM generate_series(0,999) n), ARRAY(SELECT 'evil' || lpad(n::text,4,'0') || '\\.example' FROM generate_series(0,999) n), array_fill('raw'::text,ARRAY[1000]))"
         ));
+    }
+
+    #[pg_test]
+    fn watchlist_strategy_is_explicit_and_reports_fallback() {
+        assert!(b(
+            "SELECT strategy = 'staged_needles' AND fallback IS NULL AND max_source_keys IS NULL \
+                   FROM wc_ch_watchlist_plan('mv','logs','hits','watch',ARRAY['id'],'url')"
+        ));
+        assert!(b(
+            "SELECT strategy = 'rule_anchor_join' AND fallback IS NULL AND max_source_keys = 255 \
+                   FROM wc_ch_watchlist_plan('mv','logs','hits','watch',ARRAY['id'],'url','raw','rule_anchor_join')"
+        ));
+        assert!(b(
+            "SELECT strategy = 'staged_needles' AND fallback = 'requires_single_raw_view' \
+                   FROM wc_ch_watchlist_plan('mv','logs','hits','watch',ARRAY['id'],'url','raw,lower','rule_anchor_join')"
+        ));
+    }
+
+    #[pg_test(error = "pg_wildcard: unknown watchlist strategy")]
+    fn watchlist_strategy_rejects_typos() {
+        Spi::run("SELECT * FROM wc_ch_watchlist_plan('mv','logs','hits','watch',ARRAY['id'],'url','raw','join')").unwrap();
     }
 
     #[pg_test]

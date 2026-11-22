@@ -1,0 +1,38 @@
+[
+  {
+    "engine": "native",
+    "seed": 1,
+    "exit_status": 0,
+    "seconds": 111.94387177401222
+  },
+  {
+    "engine": "chdb",
+    "seed": 1,
+    "exit_status": 0,
+    "seconds": 66.04681640097988
+  },
+  {
+    "engine": "native",
+    "seed": 42,
+    "exit_status": 0,
+    "seconds": 112.61275122201187
+  },
+  {
+    "engine": "chdb",
+    "seed": 42,
+    "exit_status": 0,
+    "seconds": 73.81848942898796
+  },
+  {
+    "engine": "native",
+    "seed": 1234,
+    "exit_status": 0,
+    "seconds": 88.33448813101859
+  },
+  {
+    "engine": "chdb",
+    "seed": 1234,
+    "exit_status": 0,
+    "seconds": 52.37368469298235
+  }
+]

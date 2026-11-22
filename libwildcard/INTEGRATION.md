@@ -63,6 +63,31 @@ Empty slots and stale regex/view bindings safely widen matching. These stages
 avoid a nested array of needles and do not depend on AND short-circuit evaluation.
 They preserve index positions into the bound ID, regex and needle arrays.
 
+`antalya::watchlist_plan` adds explicit `WatchlistStrategy` selection and returns
+the materialized-view SQL, selected strategy, fallback reason and extraction
+bounds. `StagedNeedles` is the default and keeps the existing SQL. The opt-in
+`RuleAnchorJoin` currently requires exactly `[View::Raw]`; other view sets use
+staged needles with `RequiresSingleRawView`. Empty or duplicate view lists are
+errors. The existing `watchlist_mv` entry point is unchanged.
+The returned strategy describes generated DDL; `IF NOT EXISTS` does not change
+the definition of a materialized view that already exists.
+
+The join routes each source row's distinct byte trigrams to one required anchor
+per active rule, then checks its bound needles and exact regex. Values over 256
+bytes and rules without a usable anchor use fallback join keys. Extraction is
+bounded to 255 source keys per row independently of short-circuit settings.
+That cap does **not** bound the number of joined rules or total query memory:
+unselective watchlists still require engine memory/time limits and measurement.
+Only the first three needles participate, with the same regex/view bindings as
+the staged strategy. Source duplicates and different IDs sharing a pattern are
+preserved. Rule updates affect subsequent inserts, not historical hits.
+
+Qualified projections and materialized raw-column mappings remain supported.
+Internal names avoid referenced identifiers; exhaustion of the bounded alias
+namespace returns staged SQL with `InternalAliasConflict`. This indexes rules
+within each inserted block, not stored documents; it makes no physical file or
+granule-skipping claim. Callers still enforce wildcard-field eligibility.
+
 For corpus-aware ranking, pass `Some(&counts)` to
 `watchlist_needles_with_frequencies` or `watchlist_insert_sql_with_frequencies`.
 `GramFileCounts` is a `BTreeMap<core::grams::GramKey, u64>` of observed distinct-file

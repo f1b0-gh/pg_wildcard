@@ -84,6 +84,24 @@ The image digest and expected version are defined in
 That semantic fixture and the companion's framed-transport fixture test
 different contracts; one does not replace the other.
 
+The differential corpus also executes the opt-in watchlist candidate join as a
+real materialized view. It compares complete multisets through rule updates,
+deactivation, empty watchlists and stale needle bindings, including duplicate
+source rows, multiple IDs sharing a pattern, qualified/empty projections,
+internal-name collisions, materialized raw columns and values on both sides of
+the extraction limit. Unicode and invalid-byte controls stay in the corpus.
+
+For an already-owned `wildcard-benchmark-antalya-*` fixture, set
+`ANTALYA_TEST_CONTAINER` to the exact container name and pass that name to
+`tests/differential/run.py --antalya-container`. The helper checks the Docker
+ownership label and creates a private database/user; it removes only those test
+objects. Run qualification outside active timing measurements. Ownership
+rejections are checked with:
+
+```sh
+python3 -m unittest discover -s libwildcard/tests/differential -p 'test_*.py' -v
+```
+
 ## Consumer and transport tests
 
 These Cargo workspaces use the published `antalya-rs` 0.1.0 crate; no sibling

@@ -114,6 +114,7 @@ jobs:
           python3 -m pip freeze
           python3 -c 'import chdb; print(chdb.query("SELECT version()", "CSV"))'
       - run: python3 -m unittest discover -s libwildcard/tests/lake -v
+      - run: python3 -m unittest discover -s libwildcard/tests/differential -p 'test_*.py' -v
       - name: Differential tests (Rust vs ClickHouse)
         run: |
           set -euo pipefail
@@ -128,7 +129,7 @@ jobs:
           python3 tests/benchmarks/smoke.py .local/benchmark-smoke/spec.json --out .local/benchmark-smoke/results
           for distribution in shared unrelated common short mixed domains urls paths commands; do
             cargo run --locked -q --manifest-path libwildcard/Cargo.toml --features hot --example sweep_benchmark_gen -- --comparison "$distribution" --indicators 100 --rows 10000 > ".local/benchmark-smoke/comparison-$distribution.json"
-            python3 tests/benchmarks/comparison_smoke.py ".local/benchmark-smoke/comparison-$distribution.json" > ".local/benchmark-smoke/results/comparison-$distribution.log"
+            python3 tests/benchmarks/comparison_smoke.py ".local/benchmark-smoke/comparison-$distribution.json" --require-watchlist-plan > ".local/benchmark-smoke/results/comparison-$distribution.log"
           done
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
