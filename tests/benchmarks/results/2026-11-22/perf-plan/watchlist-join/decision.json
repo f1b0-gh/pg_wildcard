@@ -1,8 +1,7 @@
 {
   "implementation": "retain_opt_in_raw_rule_anchor_join",
   "default": "staged_needles",
-  "merge_ready": false,
-  "final_whole_stack_review": "pending",
+  "final_whole_stack_review": "completed at 94194e15; five findings addressed by focused regressions; integration CI tracked in the fix PRs",
   "production_source_sha256": "d6d96c037260695d23ba222b4ac8ed7b4523460e31e5077bd7d37ef9c205dced",
   "rationale": "Selective prototype workloads improve across six complete five-pair cases. Production transfer is separately qualified, retaining the original unrelated regression and the reverse-order repetition. Actual production update/block experiments improve subsequent insertion in two different distributions; rule-upsert time itself is not optimized.",
   "scope": "Only an explicitly configured single raw view selects the join. Other view sets use the existing staged strategy, with diagnostics. No regex engine, syntax, flags, translation or dependency change.",
@@ -14,5 +13,8 @@
     "full PostgreSQL delivery",
     "new-pattern compilation during updates"
   ],
-  "update_scope": "Existing regex/view/needle tuples rotated among stable IDs. Physical deletion and reinsertion also checked. Concurrent rule-update isolation was not measured."
+  "update_scope": "Existing regex/view/needle tuples rotated among stable IDs. Physical deletion and reinsertion also checked. Concurrent rule-update isolation was not measured.",
+  "post_review_source_sha256": "fc8b289338f7bf085fea73fb12e622d1e5445977517d2d3942082c438ef84025",
+  "post_review_qualification": "../watchlist-alias-fix/README.md",
+  "review_resolution": "../review-resolution.md"
 }

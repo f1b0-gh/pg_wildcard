@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import signal
 import time
 import threading
 import uuid
@@ -50,6 +51,79 @@ def redact(message):
     return message
 
 
+def bounded_process(command, *, data, timeout, sample=False, cancel=None):
+    """Own a process group and reap it and its sampler on every exit path."""
+    process=subprocess.Popen(command,stdin=subprocess.PIPE,stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE,text=True,start_new_session=True)
+    stopped=threading.Event();peak={};observer=None
+    def observe():
+        while not stopped.is_set() and process.poll() is None:
+            row=status(process.pid)
+            if row:
+                for key in ('rss_kib','hwm_kib','threads'):
+                    peak[key]=max(peak.get(key,0),row[key])
+            stopped.wait(.01)
+    try:
+        if sample:
+            observer=threading.Thread(target=observe,name=f'fdw-profile-observer-{process.pid}',daemon=True)
+            observer.start()
+        deadline=time.monotonic()+timeout
+        while True:
+            if cancel is not None and cancel.is_set():raise TimeoutError('profiling cancelled')
+            remaining=deadline-time.monotonic()
+            if remaining<=0:raise TimeoutError('profile worker deadline')
+            try:
+                stdout,stderr=process.communicate(data,timeout=min(.25,remaining))
+                break
+            except subprocess.TimeoutExpired:data=None
+        if process.returncode:raise RuntimeError(redact(stderr))
+        return stdout,peak
+    finally:
+        try:
+            if process.poll() is None:
+                try:os.killpg(process.pid,signal.SIGTERM)
+                except ProcessLookupError:pass
+                try:process.communicate(timeout=5)
+                except subprocess.TimeoutExpired:
+                    try:os.killpg(process.pid,signal.SIGKILL)
+                    except ProcessLookupError:pass
+                    process.communicate(timeout=5)
+        finally:
+            stopped.set()
+            if observer:
+                observer.join(timeout=2)
+                if observer.is_alive():raise RuntimeError('profile observer cleanup failed')
+
+
+def terminate_pg_session(container, tag):
+    """Cancel only the uniquely named session started by this invocation."""
+    predicate='application_name='+pg_literal(tag)+' AND pid<>pg_backend_pid()'
+    sql='SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE '+predicate+'; SELECT count(*) FROM pg_stat_activity WHERE '+predicate+';'
+    for _ in range(4):
+        result=subprocess.run(['docker','exec','-i','-e','PGOPTIONS=-c statement_timeout=5000 -c lock_timeout=2000',
+            container,'timeout','--signal=TERM','--kill-after=2s','8s',
+            'psql','-U','postgres','-XAtq','-v','ON_ERROR_STOP=1'],
+            input=sql,text=True,capture_output=True,timeout=10)
+        if result.returncode:raise RuntimeError('PG session cleanup failed; stop profiling')
+        if result.stdout.strip().splitlines()[-1:] == ['0']:return
+        time.sleep(.1)
+    raise RuntimeError('PG session cleanup unconfirmed; stop profiling')
+
+
+def pg_request(container, sql, *, timeout=315, statement_ms=300000, lock_ms=10000, cancel=None):
+    tag='wc_profile_'+uuid.uuid4().hex
+    command=['docker','exec','-i','-e','PGAPPNAME='+tag,
+             '-e',f'PGOPTIONS=-c statement_timeout={statement_ms} -c lock_timeout={lock_ms}',
+             container,'timeout','--signal=TERM','--kill-after=5s',f'{max(1,timeout-5)}s',
+             'psql','-U','postgres','-XAtq','-v','ON_ERROR_STOP=1']
+    try:
+        stdout,_=bounded_process(command,data=sql,timeout=timeout,cancel=cancel)
+        return stdout.strip()
+    except BaseException:
+        terminate_pg_session(container,tag)
+        raise
+
+
 def persist_cohort(out, cohort, flush_logs, querylog, expected):
     """Preserve measured results before any untimed control request can fail."""
     pending = out / ('pending-cohort-' + uuid.uuid4().hex + '.json')
@@ -80,6 +154,10 @@ def persist_cohort(out, cohort, flush_logs, querylog, expected):
     pending.unlink()
     if control_error is not None:
         raise RuntimeError('post-cohort control failed; measured records retained in raw.jsonl: '+control_error)
+    if any('error' in record for record in cohort):
+        # Process cleanup does not prove remote terminal completion. Never start
+        # another cohort after a failed/unknown operation; retain its evidence.
+        raise RuntimeError('failed cohort retained in raw.jsonl; stop profiling before further work')
 
 
 def main():
@@ -91,14 +169,13 @@ def main():
     args=ap.parse_args(); out=Path(args.output);out.mkdir(parents=True,exist_ok=True)
     token=os.environ['ANTALYA_TEST_TOKEN'];url=os.environ['ANTALYA_TEST_URL']
     pgurl=os.environ.get('FDW_ENGINE_URL',url)
+    cancel=threading.Event()
     opener=urllib.request.build_opener(urllib.request.ProxyHandler({}))
     def ch(sql):
         req=urllib.request.Request(url,data=sql.encode(),headers={'Authorization':'Bearer '+token})
         with opener.open(req,timeout=300) as r:return r.read().decode()
     def pg(sql):
-        p=subprocess.run(['docker','exec','-i',args.pg_container,'psql','-U','postgres','-XAtq','-v','ON_ERROR_STOP=1'],input=sql,text=True,capture_output=True)
-        if p.returncode:raise RuntimeError(redact(p.stderr))
-        return p.stdout.strip()
+        return pg_request(args.pg_container,sql,cancel=cancel)
     if args.setup:
         ch('CREATE DATABASE IF NOT EXISTS fdw_profile')
         ch('CREATE TABLE IF NOT EXISTS fdw_profile.events(id Int64,url String,extra String) ENGINE=MergeTree ORDER BY id')
@@ -158,18 +235,9 @@ def main():
                 record={'workload':workload,'policy':policy,'batch_bytes':budget,'concurrency':concurrency,'worker':i,'route':route,'remote_sql':remote}
                 try:
                     if route=='direct':
-                        process=subprocess.Popen([args.direct_worker],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
-                        peak={'rss_kib':0,'hwm_kib':0,'threads':0}
-                        def direct_samples():
-                            while process.poll() is None:
-                                row=status(process.pid)
-                                if row:
-                                    for key in peak:peak[key]=max(peak[key],row[key])
-                                time.sleep(.01)
-                        observer=threading.Thread(target=direct_samples);observer.start()
-                        stdout,stderr=process.communicate(json.dumps({'sql':remote,'policy':policy,'batch_bytes':budget})+'\n')
-                        observer.join()
-                        if process.returncode:raise RuntimeError(redact(stderr))
+                        stdout,peak=bounded_process([args.direct_worker],
+                            data=json.dumps({'sql':remote,'policy':policy,'batch_bytes':budget})+'\n',
+                            timeout=315,sample=True,cancel=cancel)
                         record.update(json.loads(stdout));record['process_peak']=peak
                     else:
                         result=pg('SELECT pg_backend_pid(); EXPLAIN(ANALYZE,VERBOSE,'+('TIMING OFF,' if args.timing_off else '')+'FORMAT JSON) '+sql)
@@ -182,7 +250,11 @@ def main():
                     record['process_wall_ms']=(time.monotonic()-start)*1000
                 except Exception as error:record['error']=redact(str(error))
                 return record
-              with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as pool:cohort=list(pool.map(run,range(concurrency)))
+              with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as pool:
+                try:cohort=list(pool.map(run,range(concurrency)))
+                except BaseException:
+                    cancel.set()
+                    raise
               def flush_logs():
                 if sampler.poll() is not None:
                     raise RuntimeError('process sampler exited before profiling completed')

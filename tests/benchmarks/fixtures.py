@@ -5,7 +5,7 @@
 Private state (including a synthetic JWT) belongs under .local/, never in results.
 No existing service is used and images are never pulled implicitly.
 """
-import argparse, base64, hashlib, hmac, json, os, secrets, subprocess, time
+import argparse, base64, hashlib, hmac, json, os, secrets, shutil, subprocess, tempfile, time
 from pathlib import Path
 import urllib.request
 
@@ -15,6 +15,7 @@ IMAGES = {
 }
 
 def command(*args, **kw):
+    kw.setdefault('timeout', 30)
     return subprocess.run(args, text=True, capture_output=True, check=True, **kw).stdout.strip()
 
 def token(key):
@@ -25,24 +26,33 @@ def token(key):
     return (body + b'.' + enc(hmac.new(key.encode(), body, hashlib.sha256).digest())).decode()
 
 def start(engine, state):
-    if state.exists():
+    if state.exists() or state.is_symlink():
         raise RuntimeError('State already exists; stop its owned fixture first')
-    state.parent.mkdir(parents=True, exist_ok=True)
-    state.parent.chmod(0o700)
     owner = secrets.token_hex(8)
     name = 'wildcard-benchmark-' + engine + '-' + owner
     network = name + '-net'
     data = {'engine': engine, 'name': name, 'network': network, 'owner': owner,
             'image': IMAGES[engine], 'cpus': 4, 'memory_bytes': 8 << 30 if engine == 'antalya' else 4 << 30}
     command('docker', 'image', 'inspect', data['image'])
+    state.parent.mkdir(parents=True, exist_ok=True)
+    # Only this new directory is ours. Never chmod the caller's parent or reuse
+    # sibling XML/shared paths, which may belong to another fixture or user.
+    artifacts=Path(tempfile.mkdtemp(prefix='._wildcard-benchmark-'+owner+'-',dir=state.parent)).resolve()
+    (artifacts/'owner').write_text(owner)
+    data['artifact_dir']=str(artifacts)
+    try:
+        fd=os.open(state,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+        with os.fdopen(fd,'w') as output:json.dump(data,output)
+    except BaseException:
+        shutil.rmtree(artifacts)
+        raise
+    # Save ownership before creating remote resources, including the network.
     command('docker', 'network', 'create', '--internal', '--label', 'wildcard.benchmark.owner=' + owner, network)
-    # Save ownership before startup so a failed startup can be cleaned safely.
-    state.write_text(json.dumps(data));state.chmod(0o600)
     args = ['docker', 'run', '-d', '--pull', 'never', '--name', name, '--label', 'wildcard.benchmark.owner=' + owner,
             '--network', network, '--cpus', '4', '--memory', str(data['memory_bytes'])]
     if engine == 'antalya':
         secret = secrets.token_hex(32)
-        config = state.with_suffix('.xml')
+        config = artifacts/'benchmark.xml'
         config.write_text(f'''<clickhouse>
 <enable_token_auth>1</enable_token_auth>
 <token_processors><benchmark><type>jwt_static_key</type><algo>HS256</algo><static_key>{secret}</static_key>
@@ -53,8 +63,8 @@ def start(engine, state):
 <background_distributed_schedule_pool_size>2</background_distributed_schedule_pool_size>
 <query_log><flush_interval_milliseconds>1000</flush_interval_milliseconds></query_log>
 </clickhouse>''')
-        config.chmod(0o644)  # parent .local directory controls access; daemon must read it.
-        share = state.parent / 'shared';share.mkdir(exist_ok=True);share.chmod(0o777)
+        config.chmod(0o644)  # Our private parent controls access; daemon must read it.
+        share = artifacts/'shared';share.mkdir(mode=0o777);share.chmod(0o777)
         args += ['-v', f'{config.resolve()}:/etc/clickhouse-server/config.d/benchmark.xml:ro',
                  '-v', f'{share.resolve()}:/var/lib/clickhouse/user_files/benchmark:rw']
         data['token'] = token(secret)
@@ -95,17 +105,36 @@ def start(engine, state):
 
 def stop(state):
     data = json.loads(state.read_text())
+    artifacts=None
+    if 'artifact_dir' in data:
+        artifacts=Path(data['artifact_dir'])
+        marker=artifacts/'owner'
+        if (artifacts.is_symlink() or artifacts.parent.resolve()!=state.parent.resolve()
+                or not artifacts.name.startswith('._wildcard-benchmark-'+data['owner']+'-')
+                or marker.is_symlink() or not marker.is_file() or marker.read_text()!=data['owner']):
+            raise RuntimeError('Artifact ownership mismatch; refusing cleanup')
+    owned=[]
     for kind, name in [('container', data['name']), ('network', data['network'])]:
-        probe = subprocess.run(['docker', kind, 'inspect', name], capture_output=True, text=True)
+        probe = subprocess.run(['docker', kind, 'inspect', name], capture_output=True, text=True,timeout=30)
         if probe.returncode:
-            continue
+            missing={f'Error: No such {kind}: {name}',
+                     f'Error response from daemon: No such {kind}: {name}',
+                     f'Error: No such object: {name}',
+                     f'Error response from daemon: No such object: {name}'}
+            if kind=='network':missing.add(f'Error response from daemon: network {name} not found')
+            if probe.stderr.strip() in missing:continue
+            raise RuntimeError('Docker inspect failed; ownership state retained')
         info = json.loads(probe.stdout)[0]
-        labels = info['Config']['Labels'] if kind == 'container' else info['Labels']
+        labels = (info['Config']['Labels'] if kind == 'container' else info['Labels']) or {}
         if labels.get('wildcard.benchmark.owner') != data['owner']:
             raise RuntimeError('Ownership mismatch; refusing cleanup')
+        owned.append((kind,name))
+    for kind,name in owned:
         if kind == 'container':command('docker', 'rm', '-fv', name)
         else:command('docker', 'network', 'rm', name)
-    state.unlink();state.with_suffix('.xml').unlink(missing_ok=True)
+    if artifacts:shutil.rmtree(artifacts)
+    # Legacy states did not bind sibling XML/shared paths; leave those untouched.
+    state.unlink()
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)

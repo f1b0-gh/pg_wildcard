@@ -3,6 +3,12 @@
 
 384 successful, terminal-confirmed operations correlate by query ID with genuine Antalya `system.query_log`. PostgreSQL 18.6 uses the published `antalya-rs =0.1.0` client and native Antalya 26.8.34.20001. Both Rust paths are release builds. The native endpoint is local Docker-bridge HTTP; this is not a WAN/TLS benchmark. The native server has 4 CPUs / 8 GiB; PostgreSQL has no container-specific CPU/RAM cap. Exact machine/build/binary metadata is in [environment.json](environment.json).
 
+Review correction: the summary CSV/JSON were regenerated from the unchanged raw
+records to preserve unavailable counters and resource peaks as missing. In 376
+of the 384 QueryFinish observations, both lake-specific ProfileEvents counters
+are absent; their former derived zeros were not measurements. `*_samples` columns
+now expose coverage. Recorded timings and observed nonmissing values are unchanged.
+
 ## Route comparison without per-row timing
 
 PostgreSQL numbers use `EXPLAIN ANALYZE TIMING OFF`, which consumes all rows, converts tuples and retains exact local quals, without transferring a million PostgreSQL protocol rows to an application. The direct client consumes/drops Arrow batches. Its wall clock starts at fetch; PostgreSQL execution time also includes FDW begin/client setup. Planning and process launch are separately recorded. These are useful route comparisons with different start boundaries.

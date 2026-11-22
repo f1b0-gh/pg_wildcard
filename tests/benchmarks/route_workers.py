@@ -109,11 +109,15 @@ class PgWorker:
         return elapsed
 
     def request(self, sql, backend=False):
+        command=('EXPLAIN(ANALYZE,VERBOSE,TIMING OFF,FORMAT JSON) '+sql+';' if backend
+                 else 'COPY ('+sql+') TO STDOUT (FORMAT binary);')
+        elapsed=self.execute(command)
+        # The server timeout does not include delivery of its completed result.
+        # Match the native/Elastic whole-sweep cutoff, including the last reply.
+        if elapsed>60000:raise TimeoutError('PG sweep completed after deadline')
         if backend:
-            elapsed=self.execute('EXPLAIN(ANALYZE,VERBOSE,TIMING OFF,FORMAT JSON) '+sql+';')
             plan=json.loads(self.file.read_bytes())[0]
             return {'request_ms':elapsed,'executor_ms':plan['Execution Time'],'planning_ms':plan['Planning Time'],'plan':plan,'backend_pid':self.pid}
-        elapsed=self.execute('COPY ('+sql+') TO STDOUT (FORMAT binary);')
         # Result file is fully written/closed before the completion marker.
         # Decode/hash only after the request-to-consumption timer has stopped.
         raw=self.file.read_bytes()
