@@ -3,7 +3,7 @@
 
 use std::fmt;
 use std::str::FromStr;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use regex_automata::{
     Input,
@@ -83,6 +83,27 @@ impl fmt::Display for Kind {
     }
 }
 
+/// Caller-owned search scratch for [`Matcher::is_match_with`].
+///
+/// Keep one cache per worker to search a shared matcher without locking its
+/// internal scratch. Reuse with another matcher is safe: its first search drops
+/// the previous engine state and rebinds the cache. The identity token does not
+/// retain the matcher or its compiled regex. Scratch is allocated lazily and
+/// discarded after searches that exceed the matcher's retention allowance.
+#[derive(Debug)]
+pub struct MatchCache {
+    owner: Arc<()>,
+    scratch: Option<Cache>,
+}
+
+impl MatchCache {
+    /// Engine-reported retained scratch bytes, excluding the inline wrapper,
+    /// identity token, allocator overhead and transient search allocations.
+    pub fn memory_usage(&self) -> usize {
+        self.scratch.as_ref().map_or(0, Cache::memory_usage)
+    }
+}
+
 /// A planned and compiled predicate: candidate filter + exact verifier.
 #[derive(Debug)]
 pub struct Matcher {
@@ -91,6 +112,7 @@ pub struct Matcher {
     pub plan: GramQuery,
     re: Regex,
     scratch_limit: usize,
+    identity: Arc<()>,
     // One explicit cache preserves Send + Sync without hidden per-thread pools.
     scratch: Mutex<Option<Cache>>,
 }
@@ -157,6 +179,7 @@ impl Matcher {
             plan,
             re,
             scratch_limit,
+            identity: Arc::new(()),
             scratch: Mutex::new(None),
         }
     }
@@ -205,10 +228,43 @@ impl Matcher {
             .scratch
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
+        self.search_with_scratch(&mut scratch, value.as_ref())
+    }
+
+    /// Create lazily allocated caller-owned scratch, independent of the mutex
+    /// used by [`Self::is_match`]. Each worker should keep its own cache.
+    pub fn create_cache(&self) -> MatchCache {
+        MatchCache {
+            owner: Arc::clone(&self.identity),
+            scratch: None,
+        }
+    }
+
+    /// Exact check using caller-owned scratch, without locking shared state.
+    /// Applies the view to the raw bytes exactly as [`Self::is_match`] does.
+    /// A cache from any matcher is accepted and safely rebound when necessary.
+    ///
+    /// ```
+    /// use libwildcard::core::{Matcher, View};
+    /// let matcher = Matcher::wildcard("*evil*", View::Lower)?;
+    /// let mut cache = matcher.create_cache();
+    /// assert!(matcher.is_match_with(&mut cache, b"EVIL.example"));
+    /// # Ok::<(), libwildcard::core::verify::MatchError>(())
+    /// ```
+    pub fn is_match_with(&self, cache: &mut MatchCache, raw: &[u8]) -> bool {
+        if !Arc::ptr_eq(&cache.owner, &self.identity) {
+            cache.scratch = None;
+            cache.owner = Arc::clone(&self.identity);
+        }
+        let value = self.view.apply(raw);
+        self.search_with_scratch(&mut cache.scratch, value.as_ref())
+    }
+
+    fn search_with_scratch(&self, scratch: &mut Option<Cache>, value: &[u8]) -> bool {
         let cache = scratch.get_or_insert_with(|| self.re.create_cache());
         let matched = self
             .re
-            .search_half_with(cache, &Input::new(value.as_ref()).earliest(true))
+            .search_half_with(cache, &Input::new(value).earliest(true))
             .is_some();
         if cache.memory_usage() > self.scratch_limit {
             *scratch = None;
@@ -220,6 +276,9 @@ impl Matcher {
     /// plan vector capacities, inline matcher and reserved retained scratch.
     /// This is not allocator accounting or a process RSS bound. Compile/search
     /// temporaries, caller-owned values and allocator overhead are excluded.
+    /// The allowance covers only the internal mutex's scratch. Every caller-owned
+    /// [`MatchCache`] has its own additional allowance (at most
+    /// [`RETAINED_SEARCH_BYTES`]); callers must bound their number of caches.
     pub fn cache_charge(&self) -> usize {
         fn plan_heap(plan: &GramQuery) -> usize {
             match plan {
@@ -233,6 +292,8 @@ impl Matcher {
             }
         }
         std::mem::size_of::<Self>()
+            // Arc identity's two reference counters; allocation overhead excluded.
+            .saturating_add(2 * std::mem::size_of::<usize>())
             .saturating_add(self.re.memory_usage())
             .saturating_add(plan_heap(&self.plan))
             .saturating_add(self.scratch_limit)
@@ -243,6 +304,87 @@ impl Matcher {
 mod tests {
     use super::*;
     use crate::core::grams::value_grams;
+
+    #[test]
+    fn caller_owned_cache_rebinds_across_matchers_and_views() {
+        let matchers = [
+            Matcher::regex("a{100}b", View::Raw, false).unwrap(),
+            Matcher::wildcard("*evil*", View::Lower).unwrap(),
+            Matcher::regex("(?i)k", View::Raw, false).unwrap(),
+            Matcher::like("a_b", View::Raw).unwrap(),
+        ];
+        let long = format!("{}b", "a".repeat(100));
+        let values: &[&[u8]] = &[
+            b"",
+            b"\xff",
+            b"\0",
+            b"EVIL",
+            long.as_bytes(),
+            "aéb".as_bytes(),
+            "K".as_bytes(),
+        ];
+        let mut cache = matchers[0].create_cache();
+        for _ in 0..3 {
+            for matcher in &matchers {
+                for value in values {
+                    assert_eq!(
+                        matcher.is_match_with(&mut cache, value),
+                        matcher.is_match(value)
+                    );
+                }
+            }
+        }
+        // The cache may outlive the matcher that created it. A new matcher must
+        // never interpret scratch left by a previous regex as its own state.
+        let mut cache = {
+            let matcher = Matcher::regex("a+", View::Raw, false).unwrap();
+            let mut cache = matcher.create_cache();
+            assert!(matcher.is_match_with(&mut cache, b"aaa"));
+            cache
+        };
+        let matcher = Matcher::regex("b+", View::Raw, false).unwrap();
+        assert!(!matcher.is_match_with(&mut cache, b"aaa"));
+        assert!(matcher.is_match_with(&mut cache, b"bbb"));
+    }
+
+    #[test]
+    fn caller_owned_cache_discards_scratch_over_retention_limit() {
+        let mut matcher = Matcher::regex("a{1000}b", View::Raw, false).unwrap();
+        matcher.scratch_limit = 0;
+        let mut cache = matcher.create_cache();
+        let value = format!("{}b", "a".repeat(1000));
+        assert!(matcher.is_match_with(&mut cache, value.as_bytes()));
+        assert!(cache.scratch.is_none());
+        assert_eq!(cache.memory_usage(), 0);
+        // Discarding scratch must not change subsequent results.
+        assert!(!matcher.is_match_with(&mut cache, b"aaa"));
+        assert!(cache.scratch.is_none());
+    }
+
+    #[test]
+    fn caller_owned_cache_has_bounded_retention_without_shared_scratch() {
+        let matcher = Matcher::regex("a{100}b", View::Raw, false).unwrap();
+        let value = format!("{}b", "a".repeat(100));
+        let charge = matcher.cache_charge();
+        let mut cache = matcher.create_cache();
+        assert!(matcher.is_match_with(&mut cache, value.as_bytes()));
+        assert!(cache.memory_usage() <= matcher.scratch_limit);
+        assert!(matcher.scratch.lock().unwrap().is_none());
+        assert_eq!(matcher.cache_charge(), charge);
+        std::thread::scope(|scope| {
+            for _ in 0..4 {
+                let matcher = &matcher;
+                let value = &value;
+                scope.spawn(move || {
+                    let mut cache = matcher.create_cache();
+                    for _ in 0..10 {
+                        assert!(matcher.is_match_with(&mut cache, value.as_bytes()));
+                    }
+                });
+            }
+        });
+        assert!(matcher.scratch.lock().unwrap().is_none());
+    }
 
     #[test]
     fn oversized_patterns_are_rejected_before_parsing() {

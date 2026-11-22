@@ -57,10 +57,20 @@ compiler or search allocations. Each matcher owns one synchronized search
 cache. Its retained-scratch allowance is 16 times the engine's reported compiled
 size, clamped to **64 KiB–1 MiB**. A search may temporarily exceed that allowance;
 scratch exceeding it is dropped before the search returns. The allowance is a
-retention policy, not a prediction of search memory.
+retention policy, not a prediction of search memory. Library callers can use
+`Matcher::create_cache()` and `is_match_with(&mut cache, raw)` to keep scratch
+per worker and avoid the shared mutex. Reusing a caller cache with another
+matcher resets it safely. Each caller cache has the same retention policy but
+is outside `Matcher::cache_charge()`; bound the number of worker caches too.
 
-The PostgreSQL backend cache admits at most **256 matchers** and **32 MiB of
-accounted state**. Its charge includes the engine's approximate compiled-memory
+The PostgreSQL backend cache defaults to **256 matchers** and **32 MiB of
+accounted state**. Random replacement evicts individual entries instead of
+clearing the cache, avoiding the clear-all cliff on cyclic watchlists. Tune
+`pg_wildcard.matcher_cache_entries` (0–65536) and
+`pg_wildcard.matcher_cache_kb` (0–1048576 KiB) per backend; zero in either disables
+retention. Limits apply on the next match or `wc_matcher_cache_stats()` call,
+which reports entries, charged bytes, hits, misses and evictions. These counters
+are backend-local and survive limit changes. Its charge includes the engine's approximate compiled-memory
 report, gram-plan vector capacities, matcher storage, the scratch allowance,
 pattern-key bytes and an entry metadata allowance. Entries that exceed the
 budget still execute but are not cached. Cache eviction releases its own

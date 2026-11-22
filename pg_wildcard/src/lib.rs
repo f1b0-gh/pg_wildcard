@@ -23,9 +23,15 @@ use wildcard_core::{Matcher, indicator, re2};
 
 mod fdw;
 mod matcher_cache;
+mod matcher_config;
 mod support;
 
 ::pgrx::pg_module_magic!(name, version);
+
+#[pg_guard]
+pub extern "C-unwind" fn _PG_init() {
+    matcher_config::init();
+}
 
 thread_local! {
     /// Per-backend cache of compiled patterns (a query reuses one pattern for many rows).
@@ -49,6 +55,7 @@ fn views_arg(list: &str) -> Vec<View> {
 fn matcher(pattern: &str, kind: Kind, view: View) -> Rc<Matcher> {
     CACHE.with(|c| {
         let mut c = c.borrow_mut();
+        matcher_config::configure(&mut c);
         c.get_or_compile(
             pattern,
             (kind, view),
