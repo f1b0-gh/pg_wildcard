@@ -33,7 +33,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { path: pg_wildcard, persist-credentials: false }
       - uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc
-        with: { toolchain: "1.99.1" }
+        with:
+          toolchain: "1.99.1"
+          components: rustfmt, clippy
       - name: Verify registry dependencies and Arrow compatibility
         run: |
           test ! -e ../antalya-rs
