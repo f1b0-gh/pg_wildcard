@@ -94,6 +94,78 @@ predicates down and preserves local rechecks. Its transport uses the companion
 client's completion contract; generic ClickHouse HTTP availability alone does
 not establish FDW compatibility. See the [FDW guide](docs/fdw.md).
 
+## Measured performance
+
+The latest indexed comparison (2026-11-22) searches **one million documents with
+1,000 case-sensitive wildcard rules**, returning the same **10,000 exact
+row/indicator/view pairs** on every route. These are substring searches in
+URL-shaped wildcard fields:
+
+- **Shared structure:** `*evil0000.example*`, `*evil0001.example*`, etc.
+- **Unrelated literals:** `*e220a8397b1dcdaf*`, `*6e789e6aa1b965f4*`, etc., matching
+  independent synthetic URL labels. These are not exact hash lookups.
+
+Median complete-request latency in milliseconds, with all results consumed:
+
+| Route | Shared structure (ms) | Unrelated literals (ms) |
+|---|---:|---:|
+| Native Antalya HTTP, refined byte index | 1,982.730 | 2,730.355 |
+| Direct published `antalya-rs` 0.1.0 | 2,657.454 | 3,672.923 |
+| PostgreSQL backend request through FDW | 2,742.254 | 3,702.678 |
+| Full PostgreSQL binary COPY through FDW | 3,119.934 | 3,458.408 |
+| Elasticsearch wildcard, `_msearch` concurrency 1 | 4,171.747 | 5,557.454 |
+| Elasticsearch wildcard, `_msearch` concurrency 4 | 1,478.538 | 2,126.603 |
+
+**Elasticsearch at concurrency four remains faster in both fixtures.** The native,
+direct-client and PostgreSQL routes measure different operations and must remain
+separate. These two synthetic workloads do not establish a general engine ranking.
+
+### Methodology and limits
+
+- **Engines and resources:** Antalya 26.8.34.20001 and Elasticsearch 9.5.6 each
+  have four CPUs and an 8 GiB container limit; Elasticsearch has a 4 GiB heap.
+  PostgreSQL 18.6 and the direct client add resources outside those engine limits.
+- **Matching and indexes:** identical raw documents and rules, with complete
+  result-pair checks. Native/direct/PG share the same byte-indexed source and
+  execute one source query per sweep. Both Elasticsearch routes use the same
+  `wildcard` field index, with 1,000 per-rule searches batched in `_msearch`.
+  This measures neither BM25 scoring nor percolation.
+- **Sampling:** one excluded warmup followed by five measured repetitions in
+  rotating route order, after ingestion and compaction. Shared-host activity
+  and filesystem caches were uncontrolled; these are warm observations.
+  [Shared](tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/routes/full-shared/report.md)
+  and [unrelated](tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/routes/full-unrelated/report.md)
+  reports retain ranges and individual observations.
+- **Route boundaries:** the direct route uses published `antalya-rs`, not raw
+  HTTP. PG backend timing uses `EXPLAIN ANALYZE` with per-row timing off; full
+  COPY includes delivery over TCP. These PG queries consume generated exact
+  pairs without additional local `wc_*` rechecks. Transport, server and backend
+  clocks overlap; subtracting route medians does not isolate overhead. Separate
+  [FDW profiles and flamegraphs](tests/benchmarks/results/2026-11-22/perf-plan/fdw-conversion/)
+  cover broad local rechecks and conversion.
+- **Query caches:** native/direct explicitly disable the condition cache;
+  Elasticsearch disables request/query caches. PG inherits the fixture policy:
+  its saved profiles record two condition-cache misses per query and no recorded
+  hits. The reports correct the original metadata's blanket cache-disable claim.
+- **Indexing cost:** the table excludes index construction and ingestion. Separate
+  [matched-fsync ingestion controls](tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/cost/report.md)
+  use identical 2,000-document batches, 900,000 initial plus 100,000 incremental
+  documents, and confirmed search visibility. They are single observations,
+  not throughput medians; earlier unequal-durability setup times cannot rank
+  ingestion speed.
+
+The byte-index strategy is opt-in. Requiring up to three necessary fragments
+together per rule reduced unrelated-case candidates from 921,471 to 13,407,
+preserving all 10,000 exact pairs. Forced-index checks and saved `PREWHERE` plans
+establish index use; logical `read_rows` alone does not measure physical I/O.
+The refined filter regressed on the small smoke fixture, so a speedup is not
+guaranteed. Keyword, typed and hash fields are outside this wildcard comparison.
+
+See the [full evidence and reproduction guide](tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/)
+for SQL, settings, raw profiles, corpus/result hashes, source provenance and an
+offline report verifier, or the [benchmark harness](tests/benchmarks/README.md)
+to run new measurements.
+
 ## Documentation
 
 - [Build and installation](docs/build.md)
