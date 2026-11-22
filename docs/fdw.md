@@ -95,8 +95,12 @@ scan producers. Arrow batches pass through a channel of capacity one.
 PostgreSQL checks interrupts and converts values on its backend thread; workers
 do not call PostgreSQL APIs. Runtime creation temporarily blocks asynchronous
 signals on the backend so its workers, including lazy DNS workers, inherit a
-blocked mask from birth. The backend's original mask is then restored; process
-control signals are handled on the backend thread. Query dispatch starts at
+blocked mask from birth. The backend's original mask is then restored. An
+`on_thread_start` hook also blocks asynchronous signals before any worker runs
+user tasks, including a lazy blocking worker submitted directly by a future
+backend caller. Such callers must still mask around thread creation if they
+need protection before the startup hook; current DNS submissions originate
+from already-masked workers. Process control stays on the backend thread. Query dispatch starts at
 first tuple demand, so LIMIT 0 and unused branches do not execute remote queries.
 Rescans start a new query. Plain EXPLAIN performs no network I/O.
 
