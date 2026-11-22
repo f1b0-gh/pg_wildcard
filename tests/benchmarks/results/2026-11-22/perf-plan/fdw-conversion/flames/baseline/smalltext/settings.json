@@ -1,0 +1,13 @@
+{
+  "workload": "smalltext",
+  "sql": "SELECT id,url,extra FROM wc_flame_fe334c37d19e445b9422a8572a12320b.events",
+  "value_control": {
+    "rows": 1000000,
+    "copy_bytes": 56000221,
+    "oracle": "every field and complete unique row-ID set"
+  },
+  "repetitions": 20,
+  "policy": "in_band",
+  "batch_bytes": 16777216,
+  "profile": "cycles:u 199Hz DWARF16384; sampled backend process only, inclusive attribution; clocks not comparable to unprofiled latency"
+}

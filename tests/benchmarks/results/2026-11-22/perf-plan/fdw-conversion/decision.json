@@ -1,0 +1,305 @@
+{
+  "status": "rejected",
+  "source_resolution": "removed_and_verified",
+  "candidate": "batch-scoped Arrow column preparation, pvkslvyz / 0faa5171b133d3d9f3171b27d1089ab3babd8834",
+  "gate": "Retain only repeatable targeted backend AND full COPY gains without unexplained material regressions in the other workloads.",
+  "rationale": "The five complete pairs do not meet the retention gate. Broad rechecks improve, but small-text and wide-row backend/COPY medians worsen; narrow COPY also has a worse ratio of medians. Paired ranges and unchanged direct-client variation are large. This is insufficient evidence to retain the extra conversion machinery, not proof that the prototype is universally slower.",
+  "scope": "Warm persistent clients on a shared host; in_band, unchanged 16 MiB individual batch allowance. Full projection/row counts preserved. Wide rows: 32768; other workloads: 1000000.",
+  "correctness": "All ten runners exited zero and cleaned up. Complete direct-value controls precede timings on each connection; measured direct runs consume all batches and check rows. Every measured COPY validates every field and the complete unique row-ID set after its timer. Backend scans check complete row counts.",
+  "limitations": [
+    "Direct-client timings are an unchanged control, not a normalization factor or a beneficiary of FDW changes.",
+    "The ratio of medians and median paired change answer different questions; both are retained.",
+    "Native, decode, terminal and backend clocks overlap; they cannot be summed into exclusive stages.",
+    "Module snapshots and binary hashes are preserved; full historical build-input attestation is unavailable.",
+    "The earlier flush_first refusal remains separate; these successful in_band trials do not establish flush_first reliability."
+  ],
+  "measurements": [
+    {
+      "workload": "narrow",
+      "route": "direct",
+      "pairs": 5,
+      "baseline_ms": {
+        "median": 322.201161,
+        "min": 308.145626,
+        "max": 512.123776
+      },
+      "prepared_ms": {
+        "median": 409.626559,
+        "min": 280.271451,
+        "max": 419.122627
+      },
+      "ratio_of_medians_percent": 27.13379359921051,
+      "paired_change_percent": {
+        "median": -9.015436155498158,
+        "min": -20.014149274725344,
+        "max": 30.08104182467548
+      },
+      "improved_pairs": 3
+    },
+    {
+      "workload": "narrow",
+      "route": "pg_backend",
+      "pairs": 5,
+      "baseline_ms": {
+        "median": 345.5269600090105,
+        "min": 297.94056701939553,
+        "max": 928.2920039840974
+      },
+      "prepared_ms": {
+        "median": 386.8447529966943,
+        "min": 298.2603150012437,
+        "max": 644.0759229881223
+      },
+      "ratio_of_medians_percent": 11.957907130200883,
+      "paired_change_percent": {
+        "median": 0.10731938421375542,
+        "min": -58.327255719492186,
+        "max": 65.07506027469623
+      },
+      "improved_pairs": 2
+    },
+    {
+      "workload": "narrow",
+      "route": "pg_copy",
+      "pairs": 5,
+      "baseline_ms": {
+        "median": 512.9069540125784,
+        "min": 404.93242000229657,
+        "max": 768.8199270050973
+      },
+      "prepared_ms": {
+        "median": 639.9364269746002,
+        "min": 383.7674600072205,
+        "max": 690.0707940221764
+      },
+      "ratio_of_medians_percent": 24.766572566085078,
+      "paired_change_percent": {
+        "median": -1.1553374136273886,
+        "min": -25.177957326386903,
+        "max": 70.41628675181471
+      },
+      "improved_pairs": 3
+    },
+    {
+      "workload": "smalltext",
+      "route": "direct",
+      "pairs": 5,
+      "baseline_ms": {
+        "median": 1150.350871,
+        "min": 1003.8740260000001,
+        "max": 1280.93725
+      },
+      "prepared_ms": {
+        "median": 1282.3363809999998,
+        "min": 1002.604056,
+        "max": 1385.274972
+      },
+      "ratio_of_medians_percent": 11.473500244778778,
+      "paired_change_percent": {
+        "median": 11.473500244778778,
+        "min": -5.102448929485015,
+        "max": 23.211902668162708
+      },
+      "improved_pairs": 2
+    },
+    {
+      "workload": "smalltext",
+      "route": "pg_backend",
+      "pairs": 5,
+      "baseline_ms": {
+        "median": 1340.948864002712,
+        "min": 942.8518979984801,
+        "max": 1594.3448359903414
+      },
+      "prepared_ms": {
+        "median": 1611.1398579960223,
+        "min": 966.8643939949106,
+        "max": 1949.4077030103654
+      },
+      "ratio_of_medians_percent": 20.149239187749046,
+      "paired_change_percent": {
+        "median": 11.86859953920132,
+        "min": -20.47307495738545,
+        "max": 25.870263907476176
+      },
+      "improved_pairs": 1
+    },
+    {
+      "workload": "smalltext",
+      "route": "pg_copy",
+      "pairs": 5,
+      "baseline_ms": {
+        "median": 1161.5326950268354,
+        "min": 1000.8125170134008,
+        "max": 1745.4661339870654
+      },
+      "prepared_ms": {
+        "median": 1627.7993949770462,
+        "min": 1034.7598060034215,
+        "max": 1806.5382530039642
+      },
+      "ratio_of_medians_percent": 40.14236550951657,
+      "paired_change_percent": {
+        "median": 16.24268314193198,
+        "min": -9.566820338786975,
+        "max": 51.978175521229296
+      },
+      "improved_pairs": 2
+    },
+    {
+      "workload": "wide1k",
+      "route": "direct",
+      "pairs": 5,
+      "baseline_ms": {
+        "median": 634.568604,
+        "min": 573.373814,
+        "max": 1137.181473
+      },
+      "prepared_ms": {
+        "median": 806.231037,
+        "min": 595.428751,
+        "max": 961.783235
+      },
+      "ratio_of_medians_percent": 27.05183205061308,
+      "paired_change_percent": {
+        "median": 3.2854074557460367,
+        "min": -29.10269326908037,
+        "max": 67.74104633247167
+      },
+      "improved_pairs": 2
+    },
+    {
+      "workload": "wide1k",
+      "route": "pg_backend",
+      "pairs": 5,
+      "baseline_ms": {
+        "median": 665.5404260091018,
+        "min": 607.0781580056064,
+        "max": 838.4752529964317
+      },
+      "prepared_ms": {
+        "median": 786.3233590032905,
+        "min": 594.6026260207873,
+        "max": 930.3730130195618
+      },
+      "ratio_of_medians_percent": 18.14809863894533,
+      "paired_change_percent": {
+        "median": 10.96010403344858,
+        "min": -10.658676350239372,
+        "max": 24.570943377178022
+      },
+      "improved_pairs": 2
+    },
+    {
+      "workload": "wide1k",
+      "route": "pg_copy",
+      "pairs": 5,
+      "baseline_ms": {
+        "median": 705.0621229864191,
+        "min": 615.694200998405,
+        "max": 967.9614850028884
+      },
+      "prepared_ms": {
+        "median": 847.9896640055813,
+        "min": 613.9853369968478,
+        "max": 1097.034580016043
+      },
+      "ratio_of_medians_percent": 20.271623784549163,
+      "paired_change_percent": {
+        "median": 24.20826417043267,
+        "min": -12.917554782803965,
+        "max": 25.475992750887656
+      },
+      "improved_pairs": 1
+    },
+    {
+      "workload": "broad_recheck",
+      "route": "direct",
+      "pairs": 5,
+      "baseline_ms": {
+        "median": 1151.169294,
+        "min": 924.280844,
+        "max": 1650.2950219999998
+      },
+      "prepared_ms": {
+        "median": 1021.6670889999999,
+        "min": 934.719111,
+        "max": 1591.225766
+      },
+      "ratio_of_medians_percent": -11.249622942079629,
+      "paired_change_percent": {
+        "median": 1.1293393201601498,
+        "min": -31.079858883559062,
+        "max": 15.773116075677152
+      },
+      "improved_pairs": 2
+    },
+    {
+      "workload": "broad_recheck",
+      "route": "pg_backend",
+      "pairs": 5,
+      "baseline_ms": {
+        "median": 1115.2135000156704,
+        "min": 737.7441019925755,
+        "max": 1416.1648599838372
+      },
+      "prepared_ms": {
+        "median": 884.2720480170101,
+        "min": 776.776496990351,
+        "max": 1251.196452009026
+      },
+      "ratio_of_medians_percent": -20.70827263079359,
+      "paired_change_percent": {
+        "median": -18.707790231266518,
+        "min": -29.009113952858932,
+        "max": 7.4698164117397825
+      },
+      "improved_pairs": 4
+    },
+    {
+      "workload": "broad_recheck",
+      "route": "pg_copy",
+      "pairs": 5,
+      "baseline_ms": {
+        "median": 2044.5116990013048,
+        "min": 1311.6957299935166,
+        "max": 2279.8516310285777
+      },
+      "prepared_ms": {
+        "median": 1544.005438016029,
+        "min": 1124.8738139984198,
+        "max": 1914.7509989852551
+      },
+      "ratio_of_medians_percent": -24.480479188735437,
+      "paired_change_percent": {
+        "median": -15.996271098559767,
+        "min": -34.21077973482579,
+        "max": 17.71063995334199
+      },
+      "improved_pairs": 4
+    }
+  ],
+  "restored_module_sha256": {
+    "pg_wildcard/src/fdw.rs": "33ea4a82b907cd6a04699495f101b9a78d8d2005835b89aebb4ec611f4a33fe0",
+    "pg_wildcard/src/fdw/values.rs": "62a32c21d99b73f80680e9ed1df47d1a61edcf333638d0330302bcc23c564245",
+    "pg_wildcard/src/fdw/datum.rs": "eff67c5a66eb9a3705df4b661db1bee162c10333fb61002e4d06bbe4540eaf58"
+  },
+  "verification": {
+    "postgresql18": {
+      "exit_status": 0,
+      "log_sha256": "d0b64dfd684671e027290898af17548490af0a1ec01c9839ae9ed842b3da7dde",
+      "result": "70 passed; 0 failed"
+    },
+    "fdw_harness": {
+      "exit_status": 0,
+      "log_sha256": "38a1ea8590177b355f57575cba29fb047aafcaf74cfa8df6f2d5b4fbf369ff81",
+      "result": "40 passed; 0 failed"
+    },
+    "strict_clippy": {
+      "exit_status": 0,
+      "log_sha256": "b9bf74687a30b9c7b2e2fa70309add40a5c81dd6e0dc1ae75800afb7400bc5c7",
+      "result": "Finished `dev` profile"
+    }
+  },
+  "prototype_patch_sha256": "05ae8634137709e845ff870563ef07b552afeda2d95fb1e74a90a67207051758"
+}

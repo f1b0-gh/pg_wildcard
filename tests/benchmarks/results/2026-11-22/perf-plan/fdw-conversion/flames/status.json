@@ -1,0 +1,14 @@
+[
+  {
+    "label": "baseline",
+    "exit_status": 0,
+    "seconds": 68.84186125098495,
+    "binary_sha256": "6c23575ef8e61df9fef3e257783714f706afb904e0f7daab77544f68c08ba036"
+  },
+  {
+    "label": "prepared",
+    "exit_status": 0,
+    "seconds": 66.93678108800668,
+    "binary_sha256": "4617fc1e3d8d83c4ceef05ee84b48efe36a5714b7ecc1dbb4a740222088be499"
+  }
+]

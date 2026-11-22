@@ -62,6 +62,11 @@ peaks were unavailable through the published API. Lake pruning skipped seven
 of eight files, while confirmation latency sometimes masked that saving.
 
 See the [full FDW report, stage tables and flame graph](fdw/README.md).
+The later [five-pair conversion experiment](perf-plan/fdw-conversion/README.md)
+uses warm persistent clients and includes eight resolved CPU flamegraphs. Its
+conversion prototype was rejected and removed: gains on broad rechecks did not
+extend consistently to the other workloads. Those clocks remain separate from
+the process-level measurements above.
 Follow-up issues cover [conversion](https://github.com/f1b0-gh/pg_wildcard/issues/17),
 [streaming attribution](https://github.com/f1b0-gh/pg_wildcard/issues/18),
 [terminal confirmation](https://github.com/f1b0-gh/pg_wildcard/issues/19), and
