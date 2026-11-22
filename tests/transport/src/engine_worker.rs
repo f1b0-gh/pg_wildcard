@@ -156,7 +156,13 @@ fn checked_digest_field(
             hash.update(text.as_bytes());
         }
     }
-    Ok((rows.len(), format!("{:x}", hash.finalize())))
+    Ok((
+        rows.len(),
+        hash.finalize()
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>(),
+    ))
 }
 
 #[tokio::main(flavor = "current_thread")]

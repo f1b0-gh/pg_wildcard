@@ -838,7 +838,14 @@ pub fn consume(decoded: &Decoded, count: bool, limits: Limits) -> Result<(usize,
             }
         }
     }
-    Ok((rows, format!("{:x}", hasher.finalize())))
+    Ok((
+        rows,
+        hasher
+            .finalize()
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect(),
+    ))
 }
 fn number(value: &Value) -> Option<u64> {
     value.as_u64().or_else(|| value.as_str()?.parse().ok())
@@ -847,7 +854,10 @@ fn fresh() -> String {
     Uuid::new_v4().to_string()
 }
 fn hex(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    Sha256::digest(bytes)
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
 }
 fn ms(start: Instant) -> f64 {
     start.elapsed().as_secs_f64() * 1000.0
@@ -862,6 +872,25 @@ fn cpu_delta(start: Option<f64>) -> Option<f64> {
 }
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn sha256_fingerprints_keep_lowercase_padded_hex() {
+        assert_eq!(
+            super::hex(b"abc"),
+            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+        );
+        let (rows, digest) = super::consume(
+            &super::Decoded::Json(Vec::new()),
+            false,
+            super::Limits::default(),
+        )
+        .unwrap();
+        assert_eq!(rows, 0);
+        assert_eq!(
+            digest,
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        );
+    }
+
     fn frame(builder: &flatbuffers::FlatBufferBuilder<'_>) -> Vec<u8> {
         let metadata = builder.finished_data();
         let padded = (metadata.len() + 7) & !7;
