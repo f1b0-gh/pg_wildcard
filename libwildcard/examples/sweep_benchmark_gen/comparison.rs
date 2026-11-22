@@ -11,6 +11,13 @@ use libwildcard::core::{
 };
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
+
+fn sha256_hex(value: &[u8]) -> String {
+    Sha256::digest(value)
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
+}
 #[path = "observables.rs"]
 mod observables;
 
@@ -242,7 +249,7 @@ pub fn build(variant: &str, count: usize, rows: usize) -> Result<Value, String> 
             "query_contract":if family.is_some() {"case_sensitive_wildcard"} else {"fixture_regex"},
             "observable_family":if family.is_some() {Some(variant)} else {None},
             "wildcard_row_predicates":wildcard_row_predicates,
-            "patterns":patterns,"pattern_sha256":format!("{:x}",Sha256::digest(&pattern_bytes)),
+            "patterns":patterns,"pattern_sha256":sha256_hex(&pattern_bytes),
             "elastic_supported":variant!="mixed","elastic_exclusion":if variant=="mixed" {Some("mixed views and RE2 alternation are native/Rust qualification only")} else {None},
             "queries":plan.queries,"indexed_queries":indexed.queries,"index_ddl":view_columns_ddl("bench","v",&views).map_err(|e|e.to_string())?,
             "diagnostics":{"source_queries":plan.source_scan_count,"estimated_ast":plan.estimated_ast,"exact_only_items":plan.exact_only_items},
@@ -256,6 +263,17 @@ pub fn build(variant: &str, count: usize, rows: usize) -> Result<Value, String> 
 }
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn pattern_hash_preserves_sha256_encoding() {
+        assert_eq!(
+            super::sha256_hex(b""),
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        );
+        assert_eq!(
+            super::sha256_hex(b"abc"),
+            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+        );
+    }
     use super::*;
     #[test]
     fn watchlist_comparison_reports_join_selection_and_mixed_view_fallback() {

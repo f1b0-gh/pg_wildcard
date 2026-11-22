@@ -51,7 +51,14 @@ pub fn lake_coverage_id(indexed: &[String]) -> String {
         hash.update((path.len() as u64).to_be_bytes());
         hash.update(path.as_bytes());
     }
-    format!("wc-lake-v1:{:x}", hash.finalize())
+    const HEX: &[u8; 16] = b"0123456789abcdef";
+    let mut id = String::with_capacity("wc-lake-v1:".len() + 64);
+    id.push_str("wc-lake-v1:");
+    for byte in hash.finalize() {
+        id.push(char::from(HEX[usize::from(byte >> 4)]));
+        id.push(char::from(HEX[usize::from(byte & 0x0f)]));
+    }
+    id
 }
 
 /// Append SQL literals without allocating an oversized intermediate string.
@@ -157,6 +164,28 @@ pub fn lake_path_filter(indexed: &[String], candidates: &[String]) -> Option<Str
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn coverage_ids_preserve_v1_encoding() {
+        // Independent SHA-256 vectors for the v1 domain and big-endian framing.
+        for (paths, expected) in [
+            (
+                vec![],
+                "wc-lake-v1:6810d3f4b967c72ed2dc748147b3c38665a5a83489ce674cffc36c76cd489998",
+            ),
+            (
+                vec!["a", "bc"],
+                "wc-lake-v1:40c6767d0aca133b2386a1b464ee9619c6746fcddb11fedc91387ebfecb2b469",
+            ),
+            (
+                vec!["s3://bucket/a.parquet", "s3://bucket/é.parquet"],
+                "wc-lake-v1:5092099bbfd2c151732961f8bfd0ecea376a439ec90bb901281996bcaaab1ece",
+            ),
+        ] {
+            let paths = paths.into_iter().map(str::to_owned).collect::<Vec<_>>();
+            assert_eq!(lake_coverage_id(&paths), expected);
+        }
+    }
 
     #[test]
     fn coverage_is_order_independent_and_length_framed() {
