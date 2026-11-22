@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
+import io
 import stat
 import subprocess
 import tempfile
@@ -11,6 +12,30 @@ import fixtures
 
 
 class FixtureOwnership(unittest.TestCase):
+    def test_elastic_resource_profiles_match_docker_and_private_state(self):
+        for gib in (4, 8):
+            with self.subTest(gib=gib), tempfile.TemporaryDirectory() as work:
+                state=Path(work)/'elastic.json'
+                class Opener:
+                    def open(self, request, **kwargs):
+                        return io.BytesIO(b'{"version":{"number":"test"}}')
+                with patch('fixtures.command',side_effect=self.command) as command, patch('builtins.print'), patch('fixtures.urllib.request.build_opener',return_value=Opener()):
+                    fixtures.start('elasticsearch',state,elastic_memory_gib=gib)
+                data=json.loads(state.read_text())
+                self.assertEqual(data['memory_bytes'],gib << 30)
+                self.assertEqual(data['heap_bytes'],(gib//2) << 30)
+                args=next(c.args for c in command.call_args_list if c.args[:2]==('docker','run'))
+                self.assertEqual(args[args.index('--memory')+1],str(gib << 30))
+                self.assertIn(f'ES_JAVA_OPTS=-Xms{gib//2}g -Xmx{gib//2}g',args)
+
+    def test_invalid_resource_profile_creates_nothing(self):
+        with tempfile.TemporaryDirectory() as work, patch('fixtures.command') as command:
+            state=Path(work)/'elastic.json'
+            with self.assertRaises(ValueError):
+                fixtures.start('elasticsearch',state,elastic_memory_gib=16)
+            command.assert_not_called()
+            self.assertEqual(list(Path(work).iterdir()),[])
+
     def command(self, *args, **kwargs):
         if args[:2] == ('docker', 'inspect'):
             name=args[2]
