@@ -1,0 +1,38 @@
+[
+  {
+    "case": "budget-1048576",
+    "policy": "in_band",
+    "batch_bytes": 1048576,
+    "classification": "direct value-control data resource refusal before measured samples",
+    "typed_error": "Context { phase: Data, cause: LimitExceeded }",
+    "private_log_sha256": "cdc2bfa8b85d0367c0e96e5cb91740b9a56cf944dc93ced9f3da0e9ca8cfd6c6",
+    "cleanup_confirmed": true
+  },
+  {
+    "case": "budget-4194304",
+    "policy": "in_band",
+    "batch_bytes": 4194304,
+    "classification": "direct value-control data resource refusal before measured samples",
+    "typed_error": "Context { phase: Data, cause: LimitExceeded }",
+    "private_log_sha256": "cdc2bfa8b85d0367c0e96e5cb91740b9a56cf944dc93ced9f3da0e9ca8cfd6c6",
+    "cleanup_confirmed": true
+  },
+  {
+    "case": "pg-budget-1048576",
+    "policy": "in_band",
+    "batch_bytes": 1048576,
+    "classification": "PG full-COPY precontrol data resource refusal before measured samples",
+    "typed_error": "wildcard_fdw: Antalya Data: configured resource limit exceeded",
+    "private_log_sha256": "ef1361eccb4dd9bb65f83abbcc64db6e014cc3c1063b14d7805c7799cc99ade9",
+    "cleanup_confirmed": true
+  },
+  {
+    "case": "pg-budget-4194304",
+    "policy": "in_band",
+    "batch_bytes": 4194304,
+    "classification": "PG full-COPY precontrol data resource refusal before measured samples",
+    "typed_error": "wildcard_fdw: Antalya Data: configured resource limit exceeded",
+    "private_log_sha256": "ef1361eccb4dd9bb65f83abbcc64db6e014cc3c1063b14d7805c7799cc99ade9",
+    "cleanup_confirmed": true
+  }
+]

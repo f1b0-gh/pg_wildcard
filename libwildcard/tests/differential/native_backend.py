@@ -23,8 +23,16 @@ class NativeSession:
             container == os.environ.get('ANTALYA_TEST_CONTAINER')
             and re.fullmatch(r'antalya-rs-[a-f0-9]{12}', container)
         )
-        if not (re.fullmatch(r'soc-http-test-[a-z0-9-]+-ch',container) or owned_bearer_fixture):
+        benchmark = re.fullmatch(r'wildcard-benchmark-antalya-([a-f0-9]{16})', container)
+        selected_benchmark = benchmark and container == os.environ.get('ANTALYA_TEST_CONTAINER')
+        if not (re.fullmatch(r'soc-http-test-[a-z0-9-]+-ch',container) or owned_bearer_fixture or selected_benchmark):
             raise ValueError('Only an explicitly selected owned fixture is supported')
+        if selected_benchmark:
+            labels = json.loads(subprocess.check_output([
+                'docker', 'inspect', container, '--format', '{{json .Config.Labels}}'
+            ], text=True))
+            if not isinstance(labels, dict) or labels.get('wildcard.benchmark.owner') != benchmark.group(1):
+                raise ValueError('Benchmark fixture ownership label does not match its name')
         self.container=container;self.database='wc_diff_'+uuid.uuid4().hex;self.user=self.database
         self.password=secrets.token_hex(24)
         address=subprocess.check_output(['docker','inspect',container,'--format','{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'],text=True).strip()

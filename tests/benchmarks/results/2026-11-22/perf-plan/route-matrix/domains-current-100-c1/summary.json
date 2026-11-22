@@ -1,0 +1,72 @@
+[
+  {
+    "route": "native",
+    "samples": 5,
+    "median_ms": 584.2105419997097,
+    "min_ms": 554.3346220001695,
+    "max_ms": 608.1784719990537,
+    "censored": false,
+    "observed_engine_peak": 1,
+    "sampler_errors": 0
+  },
+  {
+    "route": "indexed",
+    "samples": 5,
+    "median_ms": 639.0639379987988,
+    "min_ms": 559.8583790015255,
+    "max_ms": 939.5344349995867,
+    "censored": false,
+    "observed_engine_peak": 1,
+    "sampler_errors": 0
+  },
+  {
+    "route": "direct",
+    "samples": 5,
+    "median_ms": 644.490032,
+    "min_ms": 590.726317,
+    "max_ms": 1661.4953679999999,
+    "censored": false,
+    "observed_engine_peak": 1,
+    "sampler_errors": 0
+  },
+  {
+    "route": "pg_backend",
+    "samples": 5,
+    "median_ms": 1706.948385999567,
+    "min_ms": 617.4244779995206,
+    "max_ms": 1727.5256430002628,
+    "censored": false,
+    "observed_engine_peak": 1,
+    "sampler_errors": 0
+  },
+  {
+    "route": "pg_copy",
+    "samples": 5,
+    "median_ms": 1503.4664399991016,
+    "min_ms": 577.952114999789,
+    "max_ms": 1603.2730370006902,
+    "censored": false,
+    "observed_engine_peak": 1,
+    "sampler_errors": 0
+  },
+  {
+    "route": "elastic_wildcard",
+    "samples": 5,
+    "median_ms": 355.926101001387,
+    "min_ms": 315.7185580002988,
+    "max_ms": 426.0597519987641,
+    "censored": false,
+    "observed_engine_peak": 1,
+    "sampler_errors": 0
+  },
+  {
+    "route": "elastic_keyword",
+    "samples": 5,
+    "median_ms": 2707.365137999659,
+    "min_ms": 2497.718728000109,
+    "max_ms": 2756.20539099873,
+    "censored": false,
+    "observed_engine_peak": 1,
+    "sampler_errors": 0
+  }
+]

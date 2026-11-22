@@ -1,0 +1,1036 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 3K of event 'cycles:u'
+# Event count (approx.): 31503452472
+#
+# Children      Self  Command          Shared Object         Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+# ........  ........  ...............  ....................  ...........................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    58.87%     9.03%  postgres         pg_wildcard.so        [.] _RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+            |          
+             --57.80%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+                       |          
+                       |--43.21%--_RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_innersb_0EB1k_
+                       |          |          
+                       |          |--19.39%--_RNvXsb_NtNtCsl7UgMljjqkm_4pgrx5datum4intoRShNtB5_9IntoDatum10into_datum
+                       |          |          |          
+                       |          |          |--7.54%--0x7979a34c5b26
+                       |          |          |          
+                       |          |          |--7.16%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB16_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+                       |          |          |          |          
+                       |          |          |           --3.44%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB1t_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+                       |          |          |                     |          
+                       |          |          |                      --1.99%--AllocSetAlloc
+                       |          |          |          
+                       |          |           --1.47%--_RNvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules12thread_check19check_active_thread
+                       |          |          
+                       |          |--4.88%--_RNvNtNtCskADBYZwJmSU_4core3str8converts9from_utf8
+                       |          |          
+                       |           --4.65%--_RNvNtNtCskADBYZwJmSU_4core5slice6memchr14memchr_aligned
+                       |          
+                       |--3.14%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg1814TupleTableSlotNCNvB2i_21ExecStoreVirtualTuple0E0ECsluO35PC9wjJ_11pg_wildcard
+                       |          
+                        --1.03%--_RNvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB4_16PgMemoryContexts5value
+
+    43.21%    13.29%  postgres         pg_wildcard.so        [.] _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_innersb_0EB1k_
+            |          
+            |--29.92%--_RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_innersb_0EB1k_
+            |          |          
+            |          |--19.39%--_RNvXsb_NtNtCsl7UgMljjqkm_4pgrx5datum4intoRShNtB5_9IntoDatum10into_datum
+            |          |          |          
+            |          |          |--7.54%--0x7979a34c5b26
+            |          |          |          
+            |          |          |--7.16%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB16_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |          |          |          |          
+            |          |          |           --3.44%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB1t_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |          |          |                     |          
+            |          |          |                      --1.99%--AllocSetAlloc
+            |          |          |          
+            |          |           --1.47%--_RNvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules12thread_check19check_active_thread
+            |          |          
+            |          |--4.88%--_RNvNtNtCskADBYZwJmSU_4core3str8converts9from_utf8
+            |          |          
+            |           --4.65%--_RNvNtNtCskADBYZwJmSU_4core5slice6memchr14memchr_aligned
+            |          
+             --13.29%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+                       _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_innersb_0EB1k_
+
+    22.61%     0.14%  tokio-rt-worker  pg_wildcard.so        [.] _RNvXs_NtNtCskADBYZwJmSU_4core6future6futureINtNtB8_3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxNCNvMNtNtCsluO35PC9wjJ_11pg_wildcard3fdw9transportNtB1z_7Session14start_selecteds0_0EENtB4_6Future4pollB1D_
+            |          
+             --22.59%--_RNvXs_NtNtCskADBYZwJmSU_4core6future6futureINtNtB8_3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxNCNvMNtNtCsluO35PC9wjJ_11pg_wildcard3fdw9transportNtB1z_7Session14start_selecteds0_0EENtB4_6Future4pollB1D_
+                       |          
+                        --22.09%--_RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution10next_batch0CsluO35PC9wjJ_11pg_wildcard
+                                  |          
+                                   --22.02%--_RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution22next_provisional_batch0CsluO35PC9wjJ_11pg_wildcard
+                                             |          
+                                             |--8.97%--_RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource6packet
+                                             |          |          
+                                             |           --8.77%--_RINvNvNtNtCs5x96DMWOFQh_6base646engine6Engine6decode5innerNtNtB6_15general_purpose14GeneralPurposeECsg2A9CO0ZyIn_10antalya_rs
+                                             |                     |          
+                                             |                      --7.92%--_RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+                                             |                                _RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+                                             |          
+                                             |--7.54%--_RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource9take_line
+                                             |          
+                                              --3.11%--_RNvMs_NtNtCs9j4ESt4bG14_9arrow_ipc6reader6streamNtB4_13StreamDecoder6decode
+                                                        |          
+                                                         --2.34%--_RNvMs_NtCs9j4ESt4bG14_9arrow_ipc6readerNtB4_18RecordBatchDecoder17read_record_batch
+                                                                   |          
+                                                                    --2.09%--_RNvMNtCs9j4ESt4bG14_9arrow_ipc6readerNtB2_18RecordBatchDecoder12create_array
+                                                                              |          
+                                                                               --1.87%--_RNvMNtCs9j4ESt4bG14_9arrow_ipc6readerNtB2_18RecordBatchDecoder22create_primitive_array
+                                                                                         |          
+                                                                                          --1.18%--_RNvMs3_NtCsdD782mUTler_10arrow_data4dataNtB5_16ArrayDataBuilder5build
+
+    22.09%     0.02%  tokio-rt-worker  pg_wildcard.so        [.] _RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution10next_batch0CsluO35PC9wjJ_11pg_wildcard
+            |          
+             --22.07%--_RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution10next_batch0CsluO35PC9wjJ_11pg_wildcard
+                       |          
+                        --22.02%--_RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution22next_provisional_batch0CsluO35PC9wjJ_11pg_wildcard
+                                  |          
+                                  |--8.97%--_RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource6packet
+                                  |          |          
+                                  |           --8.77%--_RINvNvNtNtCs5x96DMWOFQh_6base646engine6Engine6decode5innerNtNtB6_15general_purpose14GeneralPurposeECsg2A9CO0ZyIn_10antalya_rs
+                                  |                     |          
+                                  |                      --7.92%--_RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+                                  |                                _RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+                                  |          
+                                  |--7.54%--_RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource9take_line
+                                  |          
+                                   --3.11%--_RNvMs_NtNtCs9j4ESt4bG14_9arrow_ipc6reader6streamNtB4_13StreamDecoder6decode
+                                             |          
+                                              --2.34%--_RNvMs_NtCs9j4ESt4bG14_9arrow_ipc6readerNtB4_18RecordBatchDecoder17read_record_batch
+                                                        |          
+                                                         --2.09%--_RNvMNtCs9j4ESt4bG14_9arrow_ipc6readerNtB2_18RecordBatchDecoder12create_array
+                                                                   |          
+                                                                    --1.87%--_RNvMNtCs9j4ESt4bG14_9arrow_ipc6readerNtB2_18RecordBatchDecoder22create_primitive_array
+                                                                              |          
+                                                                               --1.18%--_RNvMs3_NtCsdD782mUTler_10arrow_data4dataNtB5_16ArrayDataBuilder5build
+
+    22.02%     0.08%  tokio-rt-worker  pg_wildcard.so        [.] _RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution22next_provisional_batch0CsluO35PC9wjJ_11pg_wildcard
+            |          
+             --21.94%--_RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution22next_provisional_batch0CsluO35PC9wjJ_11pg_wildcard
+                       |          
+                       |--8.97%--_RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource6packet
+                       |          |          
+                       |           --8.77%--_RINvNvNtNtCs5x96DMWOFQh_6base646engine6Engine6decode5innerNtNtB6_15general_purpose14GeneralPurposeECsg2A9CO0ZyIn_10antalya_rs
+                       |                     |          
+                       |                      --7.92%--_RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+                       |                                _RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+                       |          
+                       |--7.54%--_RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource9take_line
+                       |          
+                        --3.11%--_RNvMs_NtNtCs9j4ESt4bG14_9arrow_ipc6reader6streamNtB4_13StreamDecoder6decode
+                                  |          
+                                   --2.34%--_RNvMs_NtCs9j4ESt4bG14_9arrow_ipc6readerNtB4_18RecordBatchDecoder17read_record_batch
+                                             |          
+                                              --2.09%--_RNvMNtCs9j4ESt4bG14_9arrow_ipc6readerNtB2_18RecordBatchDecoder12create_array
+                                                        |          
+                                                         --1.87%--_RNvMNtCs9j4ESt4bG14_9arrow_ipc6readerNtB2_18RecordBatchDecoder22create_primitive_array
+                                                                   |          
+                                                                    --1.18%--_RNvMs3_NtCsdD782mUTler_10arrow_data4dataNtB5_16ArrayDataBuilder5build
+
+    19.39%     2.29%  postgres         pg_wildcard.so        [.] _RNvXsb_NtNtCsl7UgMljjqkm_4pgrx5datum4intoRShNtB5_9IntoDatum10into_datum
+            |          
+            |--17.10%--_RNvXsb_NtNtCsl7UgMljjqkm_4pgrx5datum4intoRShNtB5_9IntoDatum10into_datum
+            |          |          
+            |          |--7.54%--0x7979a34c5b26
+            |          |          
+            |          |--7.16%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB16_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |          |          |          
+            |          |           --3.44%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB1t_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |          |                     |          
+            |          |                      --1.99%--AllocSetAlloc
+            |          |          
+            |           --1.47%--_RNvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules12thread_check19check_active_thread
+            |          
+             --2.29%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+                       _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_innersb_0EB1k_
+                       _RNvXsb_NtNtCsl7UgMljjqkm_4pgrx5datum4intoRShNtB5_9IntoDatum10into_datum
+
+    15.04%     0.00%  postgres         postgres              [.] postmaster_child_launch
+            |
+            ---postmaster_child_launch
+               BackendMain
+               PostgresMain
+               |          
+                --15.04%--0x5904bc194667
+                          PortalRun
+                          0x5904bc1985f6
+                          0x5904bc198230
+                          standard_ProcessUtility
+                          ExplainQuery
+                          0x5904bbf4aca0
+                          standard_ExplainOneQuery
+                          ExplainOnePlan
+                          standard_ExecutorRun
+                          |          
+                          |--9.05%--0x5904bbfc17cc
+                          |          |          
+                          |          |--4.99%--ExecScan
+                          |          |          |          
+                          |          |           --4.00%--MemoryContextReset
+                          |          |                     |          
+                          |          |                      --3.46%--AllocSetReset
+                          |          |          
+                          |           --2.30%--0x5904bbfd5812
+                          |                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                          |                     |          
+                          |                      --1.68%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+                          |                                |          
+                          |                                 --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+                          |          
+                          |--2.59%--0x5904bbfc17e7
+                          |          InstrStopNode
+                          |          |          
+                          |           --1.32%--BufferUsageAccumDiff
+                          |          
+                           --1.21%--0x5904bbfc17c6
+                                     InstrStartNode
+
+    15.04%     0.00%  postgres         postgres              [.] BackendMain
+            |
+            ---BackendMain
+               PostgresMain
+               |          
+                --15.04%--0x5904bc194667
+                          PortalRun
+                          0x5904bc1985f6
+                          0x5904bc198230
+                          standard_ProcessUtility
+                          ExplainQuery
+                          0x5904bbf4aca0
+                          standard_ExplainOneQuery
+                          ExplainOnePlan
+                          standard_ExecutorRun
+                          |          
+                          |--9.05%--0x5904bbfc17cc
+                          |          |          
+                          |          |--4.99%--ExecScan
+                          |          |          |          
+                          |          |           --4.00%--MemoryContextReset
+                          |          |                     |          
+                          |          |                      --3.46%--AllocSetReset
+                          |          |          
+                          |           --2.30%--0x5904bbfd5812
+                          |                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                          |                     |          
+                          |                      --1.68%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+                          |                                |          
+                          |                                 --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+                          |          
+                          |--2.59%--0x5904bbfc17e7
+                          |          InstrStopNode
+                          |          |          
+                          |           --1.32%--BufferUsageAccumDiff
+                          |          
+                           --1.21%--0x5904bbfc17c6
+                                     InstrStartNode
+
+    15.04%     0.00%  postgres         postgres              [.] PostgresMain
+            |
+            ---PostgresMain
+               |          
+                --15.04%--0x5904bc194667
+                          PortalRun
+                          0x5904bc1985f6
+                          0x5904bc198230
+                          standard_ProcessUtility
+                          ExplainQuery
+                          0x5904bbf4aca0
+                          standard_ExplainOneQuery
+                          ExplainOnePlan
+                          standard_ExecutorRun
+                          |          
+                          |--9.05%--0x5904bbfc17cc
+                          |          |          
+                          |          |--4.99%--ExecScan
+                          |          |          |          
+                          |          |           --4.00%--MemoryContextReset
+                          |          |                     |          
+                          |          |                      --3.46%--AllocSetReset
+                          |          |          
+                          |           --2.30%--0x5904bbfd5812
+                          |                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                          |                     |          
+                          |                      --1.68%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+                          |                                |          
+                          |                                 --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+                          |          
+                          |--2.59%--0x5904bbfc17e7
+                          |          InstrStopNode
+                          |          |          
+                          |           --1.32%--BufferUsageAccumDiff
+                          |          
+                           --1.21%--0x5904bbfc17c6
+                                     InstrStartNode
+
+    15.04%     0.00%  postgres         postgres              [.] 0x00005904bc194667
+            |
+            ---0x5904bc194667
+               PortalRun
+               0x5904bc1985f6
+               0x5904bc198230
+               standard_ProcessUtility
+               ExplainQuery
+               0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               |          
+               |--9.05%--0x5904bbfc17cc
+               |          |          
+               |          |--4.99%--ExecScan
+               |          |          |          
+               |          |           --4.00%--MemoryContextReset
+               |          |                     |          
+               |          |                      --3.46%--AllocSetReset
+               |          |          
+               |           --2.30%--0x5904bbfd5812
+               |                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+               |                     |          
+               |                      --1.68%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+               |                                |          
+               |                                 --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               |          
+               |--2.59%--0x5904bbfc17e7
+               |          InstrStopNode
+               |          |          
+               |           --1.32%--BufferUsageAccumDiff
+               |          
+                --1.21%--0x5904bbfc17c6
+                          InstrStartNode
+
+    15.04%     0.43%  postgres         postgres              [.] standard_ExecutorRun
+            |          
+             --14.61%--standard_ExecutorRun
+                       |          
+                       |--9.05%--0x5904bbfc17cc
+                       |          |          
+                       |          |--4.99%--ExecScan
+                       |          |          |          
+                       |          |           --4.00%--MemoryContextReset
+                       |          |                     |          
+                       |          |                      --3.46%--AllocSetReset
+                       |          |          
+                       |           --2.30%--0x5904bbfd5812
+                       |                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                       |                     |          
+                       |                      --1.68%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+                       |                                |          
+                       |                                 --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+                       |          
+                       |--2.59%--0x5904bbfc17e7
+                       |          InstrStopNode
+                       |          |          
+                       |           --1.32%--BufferUsageAccumDiff
+                       |          
+                        --1.21%--0x5904bbfc17c6
+                                  InstrStartNode
+
+    15.04%     0.00%  postgres         postgres              [.] PortalRun
+            |
+            ---PortalRun
+               0x5904bc1985f6
+               0x5904bc198230
+               standard_ProcessUtility
+               ExplainQuery
+               0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               |          
+               |--9.05%--0x5904bbfc17cc
+               |          |          
+               |          |--4.99%--ExecScan
+               |          |          |          
+               |          |           --4.00%--MemoryContextReset
+               |          |                     |          
+               |          |                      --3.46%--AllocSetReset
+               |          |          
+               |           --2.30%--0x5904bbfd5812
+               |                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+               |                     |          
+               |                      --1.68%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+               |                                |          
+               |                                 --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               |          
+               |--2.59%--0x5904bbfc17e7
+               |          InstrStopNode
+               |          |          
+               |           --1.32%--BufferUsageAccumDiff
+               |          
+                --1.21%--0x5904bbfc17c6
+                          InstrStartNode
+
+    15.04%     0.00%  postgres         postgres              [.] 0x00005904bc1985f6
+            |
+            ---0x5904bc1985f6
+               0x5904bc198230
+               standard_ProcessUtility
+               ExplainQuery
+               0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               |          
+               |--9.05%--0x5904bbfc17cc
+               |          |          
+               |          |--4.99%--ExecScan
+               |          |          |          
+               |          |           --4.00%--MemoryContextReset
+               |          |                     |          
+               |          |                      --3.46%--AllocSetReset
+               |          |          
+               |           --2.30%--0x5904bbfd5812
+               |                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+               |                     |          
+               |                      --1.68%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+               |                                |          
+               |                                 --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               |          
+               |--2.59%--0x5904bbfc17e7
+               |          InstrStopNode
+               |          |          
+               |           --1.32%--BufferUsageAccumDiff
+               |          
+                --1.21%--0x5904bbfc17c6
+                          InstrStartNode
+
+    15.04%     0.00%  postgres         postgres              [.] 0x00005904bc198230
+            |
+            ---0x5904bc198230
+               standard_ProcessUtility
+               ExplainQuery
+               0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               |          
+               |--9.05%--0x5904bbfc17cc
+               |          |          
+               |          |--4.99%--ExecScan
+               |          |          |          
+               |          |           --4.00%--MemoryContextReset
+               |          |                     |          
+               |          |                      --3.46%--AllocSetReset
+               |          |          
+               |           --2.30%--0x5904bbfd5812
+               |                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+               |                     |          
+               |                      --1.68%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+               |                                |          
+               |                                 --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               |          
+               |--2.59%--0x5904bbfc17e7
+               |          InstrStopNode
+               |          |          
+               |           --1.32%--BufferUsageAccumDiff
+               |          
+                --1.21%--0x5904bbfc17c6
+                          InstrStartNode
+
+    15.04%     0.00%  postgres         postgres              [.] standard_ProcessUtility
+            |
+            ---standard_ProcessUtility
+               ExplainQuery
+               0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               |          
+               |--9.05%--0x5904bbfc17cc
+               |          |          
+               |          |--4.99%--ExecScan
+               |          |          |          
+               |          |           --4.00%--MemoryContextReset
+               |          |                     |          
+               |          |                      --3.46%--AllocSetReset
+               |          |          
+               |           --2.30%--0x5904bbfd5812
+               |                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+               |                     |          
+               |                      --1.68%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+               |                                |          
+               |                                 --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               |          
+               |--2.59%--0x5904bbfc17e7
+               |          InstrStopNode
+               |          |          
+               |           --1.32%--BufferUsageAccumDiff
+               |          
+                --1.21%--0x5904bbfc17c6
+                          InstrStartNode
+
+    15.04%     0.00%  postgres         postgres              [.] ExplainQuery
+            |
+            ---ExplainQuery
+               0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               |          
+               |--9.05%--0x5904bbfc17cc
+               |          |          
+               |          |--4.99%--ExecScan
+               |          |          |          
+               |          |           --4.00%--MemoryContextReset
+               |          |                     |          
+               |          |                      --3.46%--AllocSetReset
+               |          |          
+               |           --2.30%--0x5904bbfd5812
+               |                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+               |                     |          
+               |                      --1.68%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+               |                                |          
+               |                                 --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               |          
+               |--2.59%--0x5904bbfc17e7
+               |          InstrStopNode
+               |          |          
+               |           --1.32%--BufferUsageAccumDiff
+               |          
+                --1.21%--0x5904bbfc17c6
+                          InstrStartNode
+
+    15.04%     0.00%  postgres         postgres              [.] 0x00005904bbf4aca0
+            |
+            ---0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               |          
+               |--9.05%--0x5904bbfc17cc
+               |          |          
+               |          |--4.99%--ExecScan
+               |          |          |          
+               |          |           --4.00%--MemoryContextReset
+               |          |                     |          
+               |          |                      --3.46%--AllocSetReset
+               |          |          
+               |           --2.30%--0x5904bbfd5812
+               |                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+               |                     |          
+               |                      --1.68%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+               |                                |          
+               |                                 --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               |          
+               |--2.59%--0x5904bbfc17e7
+               |          InstrStopNode
+               |          |          
+               |           --1.32%--BufferUsageAccumDiff
+               |          
+                --1.21%--0x5904bbfc17c6
+                          InstrStartNode
+
+    15.04%     0.00%  postgres         postgres              [.] standard_ExplainOneQuery
+            |
+            ---standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               |          
+               |--9.05%--0x5904bbfc17cc
+               |          |          
+               |          |--4.99%--ExecScan
+               |          |          |          
+               |          |           --4.00%--MemoryContextReset
+               |          |                     |          
+               |          |                      --3.46%--AllocSetReset
+               |          |          
+               |           --2.30%--0x5904bbfd5812
+               |                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+               |                     |          
+               |                      --1.68%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+               |                                |          
+               |                                 --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               |          
+               |--2.59%--0x5904bbfc17e7
+               |          InstrStopNode
+               |          |          
+               |           --1.32%--BufferUsageAccumDiff
+               |          
+                --1.21%--0x5904bbfc17c6
+                          InstrStartNode
+
+    15.04%     0.00%  postgres         postgres              [.] ExplainOnePlan
+            |
+            ---ExplainOnePlan
+               standard_ExecutorRun
+               |          
+               |--9.05%--0x5904bbfc17cc
+               |          |          
+               |          |--4.99%--ExecScan
+               |          |          |          
+               |          |           --4.00%--MemoryContextReset
+               |          |                     |          
+               |          |                      --3.46%--AllocSetReset
+               |          |          
+               |           --2.30%--0x5904bbfd5812
+               |                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+               |                     |          
+               |                      --1.68%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+               |                                |          
+               |                                 --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               |          
+               |--2.59%--0x5904bbfc17e7
+               |          InstrStopNode
+               |          |          
+               |           --1.32%--BufferUsageAccumDiff
+               |          
+                --1.21%--0x5904bbfc17c6
+                          InstrStartNode
+
+    14.96%     0.00%  postgres         postgres              [.] 0x00005904bc0f173e
+            |
+            ---0x5904bc0f173e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               |          
+                --14.96%--0x5904bc194667
+                          PortalRun
+                          0x5904bc1985f6
+                          0x5904bc198230
+                          standard_ProcessUtility
+                          ExplainQuery
+                          0x5904bbf4aca0
+                          standard_ExplainOneQuery
+                          ExplainOnePlan
+                          standard_ExecutorRun
+                          |          
+                          |--8.97%--0x5904bbfc17cc
+                          |          |          
+                          |          |--4.99%--ExecScan
+                          |          |          |          
+                          |          |           --4.00%--MemoryContextReset
+                          |          |                     |          
+                          |          |                      --3.46%--AllocSetReset
+                          |          |          
+                          |           --2.22%--0x5904bbfd5812
+                          |                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                          |                     |          
+                          |                      --1.60%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+                          |          
+                          |--2.59%--0x5904bbfc17e7
+                          |          InstrStopNode
+                          |          |          
+                          |           --1.32%--BufferUsageAccumDiff
+                          |          
+                           --1.21%--0x5904bbfc17c6
+                                     InstrStartNode
+
+     9.05%     0.00%  postgres         postgres              [.] 0x00005904bbfc17cc
+            |
+            ---0x5904bbfc17cc
+               |          
+               |--4.99%--ExecScan
+               |          |          
+               |           --4.00%--MemoryContextReset
+               |                     |          
+               |                      --3.46%--AllocSetReset
+               |          
+                --2.30%--0x5904bbfd5812
+                          _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                          |          
+                           --1.68%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+                                     |          
+                                      --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+
+     8.97%     0.01%  tokio-rt-worker  pg_wildcard.so        [.] _RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource6packet
+            |          
+             --8.95%--_RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource6packet
+                       |          
+                        --8.77%--_RINvNvNtNtCs5x96DMWOFQh_6base646engine6Engine6decode5innerNtNtB6_15general_purpose14GeneralPurposeECsg2A9CO0ZyIn_10antalya_rs
+                                  |          
+                                   --7.92%--_RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+                                             _RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+
+     8.77%     0.00%  tokio-rt-worker  pg_wildcard.so        [.] _RINvNvNtNtCs5x96DMWOFQh_6base646engine6Engine6decode5innerNtNtB6_15general_purpose14GeneralPurposeECsg2A9CO0ZyIn_10antalya_rs
+            |
+            ---_RINvNvNtNtCs5x96DMWOFQh_6base646engine6Engine6decode5innerNtNtB6_15general_purpose14GeneralPurposeECsg2A9CO0ZyIn_10antalya_rs
+               |          
+                --7.92%--_RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+                          _RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+
+     7.92%     7.92%  tokio-rt-worker  pg_wildcard.so        [.] _RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+            |
+            ---_RNvXs_NtNtCskADBYZwJmSU_4core6future6futureINtNtB8_3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxNCNvMNtNtCsluO35PC9wjJ_11pg_wildcard3fdw9transportNtB1z_7Session14start_selecteds0_0EENtB4_6Future4pollB1D_
+               _RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution10next_batch0CsluO35PC9wjJ_11pg_wildcard
+               _RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution22next_provisional_batch0CsluO35PC9wjJ_11pg_wildcard
+               _RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource6packet
+               _RINvNvNtNtCs5x96DMWOFQh_6base646engine6Engine6decode5innerNtNtB6_15general_purpose14GeneralPurposeECsg2A9CO0ZyIn_10antalya_rs
+               _RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+               _RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+
+     7.92%     0.00%  tokio-rt-worker  pg_wildcard.so        [.] _RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+            |
+            ---_RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+               _RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+
+     7.54%     7.54%  postgres         libc.so.6             [.] 0x0000000000162b26
+            |
+            ---_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_innersb_0EB1k_
+               _RNvXsb_NtNtCsl7UgMljjqkm_4pgrx5datum4intoRShNtB5_9IntoDatum10into_datum
+               0x7979a34c5b26
+
+     7.54%     0.00%  postgres         libc.so.6             [.] 0x00007979a34c5b26
+            |
+            ---0x7979a34c5b26
+
+     7.54%     6.87%  tokio-rt-worker  pg_wildcard.so        [.] _RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource9take_line
+            |          
+             --6.87%--_RNvXs_NtNtCskADBYZwJmSU_4core6future6futureINtNtB8_3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxNCNvMNtNtCsluO35PC9wjJ_11pg_wildcard3fdw9transportNtB1z_7Session14start_selecteds0_0EENtB4_6Future4pollB1D_
+                       _RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution10next_batch0CsluO35PC9wjJ_11pg_wildcard
+                       _RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution22next_provisional_batch0CsluO35PC9wjJ_11pg_wildcard
+                       _RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource9take_line
+
+     7.16%     1.56%  postgres         pg_wildcard.so        [.] _RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB16_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |          
+            |--5.60%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB16_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |          |          
+            |           --3.44%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB1t_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |                     |          
+            |                      --1.99%--AllocSetAlloc
+            |          
+             --1.56%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+                       _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_innersb_0EB1k_
+                       _RNvXsb_NtNtCsl7UgMljjqkm_4pgrx5datum4intoRShNtB5_9IntoDatum10into_datum
+                       _RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB16_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+
+     4.99%     0.99%  postgres         postgres              [.] ExecScan
+            |          
+             --4.00%--ExecScan
+                       MemoryContextReset
+                       |          
+                        --3.46%--AllocSetReset
+
+     4.88%     4.88%  postgres         pg_wildcard.so        [.] _RNvNtNtCskADBYZwJmSU_4core3str8converts9from_utf8
+            |
+            ---_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_innersb_0EB1k_
+               _RNvNtNtCskADBYZwJmSU_4core3str8converts9from_utf8
+
+     4.65%     4.65%  postgres         pg_wildcard.so        [.] _RNvNtNtCskADBYZwJmSU_4core5slice6memchr14memchr_aligned
+            |
+            ---_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_innersb_0EB1k_
+               _RNvNtNtCskADBYZwJmSU_4core5slice6memchr14memchr_aligned
+
+     4.05%     0.54%  postgres         postgres              [.] MemoryContextReset
+            |          
+             --3.51%--MemoryContextReset
+                       AllocSetReset
+
+     3.51%     3.51%  postgres         postgres              [.] AllocSetReset
+            |          
+             --3.46%--0x5904bc0f173e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x5904bc194667
+                       PortalRun
+                       0x5904bc1985f6
+                       0x5904bc198230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x5904bbf4aca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x5904bbfc17cc
+                       ExecScan
+                       MemoryContextReset
+                       AllocSetReset
+
+     3.44%     0.54%  postgres         pg_wildcard.so        [.] _RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB1t_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |          
+             --2.89%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB1t_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+                       |          
+                        --1.99%--AllocSetAlloc
+
+     3.14%     0.95%  postgres         pg_wildcard.so        [.] _RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg1814TupleTableSlotNCNvB2i_21ExecStoreVirtualTuple0E0ECsluO35PC9wjJ_11pg_wildcard
+            |          
+             --2.18%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg1814TupleTableSlotNCNvB2i_21ExecStoreVirtualTuple0E0ECsluO35PC9wjJ_11pg_wildcard
+
+     3.11%     0.04%  tokio-rt-worker  pg_wildcard.so        [.] _RNvMs_NtNtCs9j4ESt4bG14_9arrow_ipc6reader6streamNtB4_13StreamDecoder6decode
+            |          
+             --3.07%--_RNvMs_NtNtCs9j4ESt4bG14_9arrow_ipc6reader6streamNtB4_13StreamDecoder6decode
+                       |          
+                        --2.34%--_RNvMs_NtCs9j4ESt4bG14_9arrow_ipc6readerNtB4_18RecordBatchDecoder17read_record_batch
+                                  |          
+                                   --2.09%--_RNvMNtCs9j4ESt4bG14_9arrow_ipc6readerNtB2_18RecordBatchDecoder12create_array
+                                             |          
+                                              --1.87%--_RNvMNtCs9j4ESt4bG14_9arrow_ipc6readerNtB2_18RecordBatchDecoder22create_primitive_array
+                                                        |          
+                                                         --1.18%--_RNvMs3_NtCsdD782mUTler_10arrow_data4dataNtB5_16ArrayDataBuilder5build
+
+     2.67%     1.36%  postgres         postgres              [.] InstrStopNode
+            |          
+            |--1.32%--InstrStopNode
+            |          BufferUsageAccumDiff
+            |          
+             --1.27%--0x5904bc0f173e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x5904bc194667
+                       PortalRun
+                       0x5904bc1985f6
+                       0x5904bc198230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x5904bbf4aca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x5904bbfc17e7
+                       InstrStopNode
+
+     2.67%     0.00%  postgres         postgres              [.] 0x00005904bbfc17e7
+            |
+            ---0x5904bbfc17e7
+               InstrStopNode
+               |          
+                --1.32%--BufferUsageAccumDiff
+
+     2.57%     1.36%  postgres         pg_wildcard.so        [.] _RNvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules12thread_check19check_active_thread
+            |          
+            |--1.36%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+            |          
+             --1.21%--_RNvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules12thread_check19check_active_thread
+
+     2.34%     0.05%  tokio-rt-worker  pg_wildcard.so        [.] _RNvMs_NtCs9j4ESt4bG14_9arrow_ipc6readerNtB4_18RecordBatchDecoder17read_record_batch
+            |          
+             --2.29%--_RNvMs_NtCs9j4ESt4bG14_9arrow_ipc6readerNtB4_18RecordBatchDecoder17read_record_batch
+                       |          
+                        --2.09%--_RNvMNtCs9j4ESt4bG14_9arrow_ipc6readerNtB2_18RecordBatchDecoder12create_array
+                                  |          
+                                   --1.87%--_RNvMNtCs9j4ESt4bG14_9arrow_ipc6readerNtB2_18RecordBatchDecoder22create_primitive_array
+                                             |          
+                                              --1.18%--_RNvMs3_NtCsdD782mUTler_10arrow_data4dataNtB5_16ArrayDataBuilder5build
+
+     2.30%     0.62%  postgres         pg_wildcard.so        [.] _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+            |          
+             --1.68%--_RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                       _RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+                       |          
+                        --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+
+     2.30%     0.00%  postgres         postgres              [.] 0x00005904bbfd5812
+            |
+            ---0x5904bbfd5812
+               _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+               |          
+                --1.68%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+                          |          
+                           --1.06%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+
+     2.23%     0.00%  tokio-rt-worker  libc.so.6             [.] 0x00007979a34735af
+            |
+            ---0x7979a34735af
+               0x7979a33f58ba
+               _RNvNvMs0_NtNtNtCs8ZKwes1zzDd_3std3sys6thread4unixNtB7_6Thread3new12thread_start
+               _RNSNvYNCINvNtNtCs8ZKwes1zzDd_3std6thread9lifecycle15spawn_uncheckedNCNvMs5_NtNtNtCs550tTFJZ6fk_5tokio7runtime8blocking4poolNtB1b_7Spawner12spawn_thread0uEs_0INtNtNtCskADBYZwJmSU_4core3ops8function6FnOnceuE9call_once6vtableB1h_
+               _RINvNtNtCs8ZKwes1zzDd_3std3sys9backtrace28___rust_begin_short_backtraceNCNvMs5_NtNtNtCs550tTFJZ6fk_5tokio7runtime8blocking4poolNtB1f_7Spawner12spawn_thread0uEB1l_
+               _RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtNtB6_8blocking4task12BlockingTaskNCNCNvNtNtNtB6_9scheduler12multi_thread6worker18maybe_move_runtime00ENtNtBT_8schedule16BlockingScheduleEB8_
+               _RNvNtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6worker3run
+               |          
+                --1.62%--_RNvMs_NtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6workerNtB4_7Context8run_task
+                          |          
+                           --1.41%--_RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtCskADBYZwJmSU_4core3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxDNtNtNtBT_6future6future6Futurep6OutputuNtNtBT_6marker4SendEL_EEINtNtB1p_4sync3ArcNtNtNtNtB6_9scheduler12multi_thread6handle6HandleEECsaTLVLCrPOqn_7reqwest
+                                     |          
+                                      --1.34%--_RNvXsd_NtNtCs2sDFTpGyXpD_12futures_util6future6futureINtB5_3MapINtNtB7_10try_future6MapErrINtNtNtNtNtCsjumiKORlqF4_5hyper6client4conn5http18upgrades21UpgradeableConnectionNtNtNtCsaTLVLCrPOqn_7reqwest7connect6sealed4ConnNtNtNtB2P_10async_impl4body4BodyENCNCNCNCNvMs_NtNtNtCs3k4iGHFFMhl_10hyper_util6client6legacy6clientINtB4f_6ClientNtB2N_9ConnectorB3v_E10connect_to0s_000ENCB44_s_0ENtNtNtCskADBYZwJmSU_4core6future6future6Future4pollB2P_
+
+     2.23%     0.00%  tokio-rt-worker  libc.so.6             [.] 0x00007979a33f58ba
+            |
+            ---0x7979a33f58ba
+               _RNvNvMs0_NtNtNtCs8ZKwes1zzDd_3std3sys6thread4unixNtB7_6Thread3new12thread_start
+               _RNSNvYNCINvNtNtCs8ZKwes1zzDd_3std6thread9lifecycle15spawn_uncheckedNCNvMs5_NtNtNtCs550tTFJZ6fk_5tokio7runtime8blocking4poolNtB1b_7Spawner12spawn_thread0uEs_0INtNtNtCskADBYZwJmSU_4core3ops8function6FnOnceuE9call_once6vtableB1h_
+               _RINvNtNtCs8ZKwes1zzDd_3std3sys9backtrace28___rust_begin_short_backtraceNCNvMs5_NtNtNtCs550tTFJZ6fk_5tokio7runtime8blocking4poolNtB1f_7Spawner12spawn_thread0uEB1l_
+               _RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtNtB6_8blocking4task12BlockingTaskNCNCNvNtNtNtB6_9scheduler12multi_thread6worker18maybe_move_runtime00ENtNtBT_8schedule16BlockingScheduleEB8_
+               _RNvNtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6worker3run
+               |          
+                --1.62%--_RNvMs_NtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6workerNtB4_7Context8run_task
+                          |          
+                           --1.41%--_RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtCskADBYZwJmSU_4core3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxDNtNtNtBT_6future6future6Futurep6OutputuNtNtBT_6marker4SendEL_EEINtNtB1p_4sync3ArcNtNtNtNtB6_9scheduler12multi_thread6handle6HandleEECsaTLVLCrPOqn_7reqwest
+                                     |          
+                                      --1.34%--_RNvXsd_NtNtCs2sDFTpGyXpD_12futures_util6future6futureINtB5_3MapINtNtB7_10try_future6MapErrINtNtNtNtNtCsjumiKORlqF4_5hyper6client4conn5http18upgrades21UpgradeableConnectionNtNtNtCsaTLVLCrPOqn_7reqwest7connect6sealed4ConnNtNtNtB2P_10async_impl4body4BodyENCNCNCNCNvMs_NtNtNtCs3k4iGHFFMhl_10hyper_util6client6legacy6clientINtB4f_6ClientNtB2N_9ConnectorB3v_E10connect_to0s_000ENCB44_s_0ENtNtNtCskADBYZwJmSU_4core6future6future6Future4pollB2P_
+
+     2.23%     0.00%  tokio-rt-worker  pg_wildcard.so        [.] _RNvNvMs0_NtNtNtCs8ZKwes1zzDd_3std3sys6thread4unixNtB7_6Thread3new12thread_start
+            |
+            ---_RNvNvMs0_NtNtNtCs8ZKwes1zzDd_3std3sys6thread4unixNtB7_6Thread3new12thread_start
+               _RNSNvYNCINvNtNtCs8ZKwes1zzDd_3std6thread9lifecycle15spawn_uncheckedNCNvMs5_NtNtNtCs550tTFJZ6fk_5tokio7runtime8blocking4poolNtB1b_7Spawner12spawn_thread0uEs_0INtNtNtCskADBYZwJmSU_4core3ops8function6FnOnceuE9call_once6vtableB1h_
+               _RINvNtNtCs8ZKwes1zzDd_3std3sys9backtrace28___rust_begin_short_backtraceNCNvMs5_NtNtNtCs550tTFJZ6fk_5tokio7runtime8blocking4poolNtB1f_7Spawner12spawn_thread0uEB1l_
+               _RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtNtB6_8blocking4task12BlockingTaskNCNCNvNtNtNtB6_9scheduler12multi_thread6worker18maybe_move_runtime00ENtNtBT_8schedule16BlockingScheduleEB8_
+               _RNvNtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6worker3run
+               |          
+                --1.62%--_RNvMs_NtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6workerNtB4_7Context8run_task
+                          |          
+                           --1.41%--_RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtCskADBYZwJmSU_4core3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxDNtNtNtBT_6future6future6Futurep6OutputuNtNtBT_6marker4SendEL_EEINtNtB1p_4sync3ArcNtNtNtNtB6_9scheduler12multi_thread6handle6HandleEECsaTLVLCrPOqn_7reqwest
+                                     |          
+                                      --1.34%--_RNvXsd_NtNtCs2sDFTpGyXpD_12futures_util6future6futureINtB5_3MapINtNtB7_10try_future6MapErrINtNtNtNtNtCsjumiKORlqF4_5hyper6client4conn5http18upgrades21UpgradeableConnectionNtNtNtCsaTLVLCrPOqn_7reqwest7connect6sealed4ConnNtNtNtB2P_10async_impl4body4BodyENCNCNCNCNvMs_NtNtNtCs3k4iGHFFMhl_10hyper_util6client6legacy6clientINtB4f_6ClientNtB2N_9ConnectorB3v_E10connect_to0s_000ENCB44_s_0ENtNtNtCskADBYZwJmSU_4core6future6future6Future4pollB2P_
+
+     2.23%     0.00%  tokio-rt-worker  pg_wildcard.so        [.] _RNSNvYNCINvNtNtCs8ZKwes1zzDd_3std6thread9lifecycle15spawn_uncheckedNCNvMs5_NtNtNtCs550tTFJZ6fk_5tokio7runtime8blocking4poolNtB1b_7Spawner12spawn_thread0uEs_0INtNtNtCskADBYZwJmSU_4core3ops8function6FnOnceuE9call_once6vtableB1h_
+            |
+            ---_RNSNvYNCINvNtNtCs8ZKwes1zzDd_3std6thread9lifecycle15spawn_uncheckedNCNvMs5_NtNtNtCs550tTFJZ6fk_5tokio7runtime8blocking4poolNtB1b_7Spawner12spawn_thread0uEs_0INtNtNtCskADBYZwJmSU_4core3ops8function6FnOnceuE9call_once6vtableB1h_
+               _RINvNtNtCs8ZKwes1zzDd_3std3sys9backtrace28___rust_begin_short_backtraceNCNvMs5_NtNtNtCs550tTFJZ6fk_5tokio7runtime8blocking4poolNtB1f_7Spawner12spawn_thread0uEB1l_
+               _RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtNtB6_8blocking4task12BlockingTaskNCNCNvNtNtNtB6_9scheduler12multi_thread6worker18maybe_move_runtime00ENtNtBT_8schedule16BlockingScheduleEB8_
+               _RNvNtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6worker3run
+               |          
+                --1.62%--_RNvMs_NtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6workerNtB4_7Context8run_task
+                          |          
+                           --1.41%--_RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtCskADBYZwJmSU_4core3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxDNtNtNtBT_6future6future6Futurep6OutputuNtNtBT_6marker4SendEL_EEINtNtB1p_4sync3ArcNtNtNtNtB6_9scheduler12multi_thread6handle6HandleEECsaTLVLCrPOqn_7reqwest
+                                     |          
+                                      --1.34%--_RNvXsd_NtNtCs2sDFTpGyXpD_12futures_util6future6futureINtB5_3MapINtNtB7_10try_future6MapErrINtNtNtNtNtCsjumiKORlqF4_5hyper6client4conn5http18upgrades21UpgradeableConnectionNtNtNtCsaTLVLCrPOqn_7reqwest7connect6sealed4ConnNtNtNtB2P_10async_impl4body4BodyENCNCNCNCNvMs_NtNtNtCs3k4iGHFFMhl_10hyper_util6client6legacy6clientINtB4f_6ClientNtB2N_9ConnectorB3v_E10connect_to0s_000ENCB44_s_0ENtNtNtCskADBYZwJmSU_4core6future6future6Future4pollB2P_
+
+     2.23%     0.00%  tokio-rt-worker  pg_wildcard.so        [.] _RINvNtNtCs8ZKwes1zzDd_3std3sys9backtrace28___rust_begin_short_backtraceNCNvMs5_NtNtNtCs550tTFJZ6fk_5tokio7runtime8blocking4poolNtB1f_7Spawner12spawn_thread0uEB1l_
+            |
+            ---_RINvNtNtCs8ZKwes1zzDd_3std3sys9backtrace28___rust_begin_short_backtraceNCNvMs5_NtNtNtCs550tTFJZ6fk_5tokio7runtime8blocking4poolNtB1f_7Spawner12spawn_thread0uEB1l_
+               _RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtNtB6_8blocking4task12BlockingTaskNCNCNvNtNtNtB6_9scheduler12multi_thread6worker18maybe_move_runtime00ENtNtBT_8schedule16BlockingScheduleEB8_
+               _RNvNtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6worker3run
+               |          
+                --1.62%--_RNvMs_NtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6workerNtB4_7Context8run_task
+                          |          
+                           --1.41%--_RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtCskADBYZwJmSU_4core3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxDNtNtNtBT_6future6future6Futurep6OutputuNtNtBT_6marker4SendEL_EEINtNtB1p_4sync3ArcNtNtNtNtB6_9scheduler12multi_thread6handle6HandleEECsaTLVLCrPOqn_7reqwest
+                                     |          
+                                      --1.34%--_RNvXsd_NtNtCs2sDFTpGyXpD_12futures_util6future6futureINtB5_3MapINtNtB7_10try_future6MapErrINtNtNtNtNtCsjumiKORlqF4_5hyper6client4conn5http18upgrades21UpgradeableConnectionNtNtNtCsaTLVLCrPOqn_7reqwest7connect6sealed4ConnNtNtNtB2P_10async_impl4body4BodyENCNCNCNCNvMs_NtNtNtCs3k4iGHFFMhl_10hyper_util6client6legacy6clientINtB4f_6ClientNtB2N_9ConnectorB3v_E10connect_to0s_000ENCB44_s_0ENtNtNtCskADBYZwJmSU_4core6future6future6Future4pollB2P_
+
+     2.23%     0.00%  tokio-rt-worker  pg_wildcard.so        [.] _RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtNtB6_8blocking4task12BlockingTaskNCNCNvNtNtNtB6_9scheduler12multi_thread6worker18maybe_move_runtime00ENtNtBT_8schedule16BlockingScheduleEB8_
+            |
+            ---_RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtNtB6_8blocking4task12BlockingTaskNCNCNvNtNtNtB6_9scheduler12multi_thread6worker18maybe_move_runtime00ENtNtBT_8schedule16BlockingScheduleEB8_
+               _RNvNtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6worker3run
+               |          
+                --1.62%--_RNvMs_NtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6workerNtB4_7Context8run_task
+                          |          
+                           --1.41%--_RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtCskADBYZwJmSU_4core3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxDNtNtNtBT_6future6future6Futurep6OutputuNtNtBT_6marker4SendEL_EEINtNtB1p_4sync3ArcNtNtNtNtB6_9scheduler12multi_thread6handle6HandleEECsaTLVLCrPOqn_7reqwest
+                                     |          
+                                      --1.34%--_RNvXsd_NtNtCs2sDFTpGyXpD_12futures_util6future6futureINtB5_3MapINtNtB7_10try_future6MapErrINtNtNtNtNtCsjumiKORlqF4_5hyper6client4conn5http18upgrades21UpgradeableConnectionNtNtNtCsaTLVLCrPOqn_7reqwest7connect6sealed4ConnNtNtNtB2P_10async_impl4body4BodyENCNCNCNCNvMs_NtNtNtCs3k4iGHFFMhl_10hyper_util6client6legacy6clientINtB4f_6ClientNtB2N_9ConnectorB3v_E10connect_to0s_000ENCB44_s_0ENtNtNtCskADBYZwJmSU_4core6future6future6Future4pollB2P_
+
+     2.23%     0.06%  tokio-rt-worker  pg_wildcard.so        [.] _RNvNtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6worker3run
+            |          
+             --2.17%--_RNvNtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6worker3run
+                       |          
+                        --1.62%--_RNvMs_NtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6workerNtB4_7Context8run_task
+                                  |          
+                                   --1.41%--_RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtCskADBYZwJmSU_4core3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxDNtNtNtBT_6future6future6Futurep6OutputuNtNtBT_6marker4SendEL_EEINtNtB1p_4sync3ArcNtNtNtNtB6_9scheduler12multi_thread6handle6HandleEECsaTLVLCrPOqn_7reqwest
+                                             |          
+                                              --1.34%--_RNvXsd_NtNtCs2sDFTpGyXpD_12futures_util6future6futureINtB5_3MapINtNtB7_10try_future6MapErrINtNtNtNtNtCsjumiKORlqF4_5hyper6client4conn5http18upgrades21UpgradeableConnectionNtNtNtCsaTLVLCrPOqn_7reqwest7connect6sealed4ConnNtNtNtB2P_10async_impl4body4BodyENCNCNCNCNvMs_NtNtNtCs3k4iGHFFMhl_10hyper_util6client6legacy6clientINtB4f_6ClientNtB2N_9ConnectorB3v_E10connect_to0s_000ENCB44_s_0ENtNtNtCskADBYZwJmSU_4core6future6future6Future4pollB2P_
+
+     2.09%     0.16%  tokio-rt-worker  pg_wildcard.so        [.] _RNvMNtCs9j4ESt4bG14_9arrow_ipc6readerNtB2_18RecordBatchDecoder12create_array
+            |          
+             --1.93%--_RNvMNtCs9j4ESt4bG14_9arrow_ipc6readerNtB2_18RecordBatchDecoder12create_array
+                       |          
+                        --1.87%--_RNvMNtCs9j4ESt4bG14_9arrow_ipc6readerNtB2_18RecordBatchDecoder22create_primitive_array
+                                  |          
+                                   --1.18%--_RNvMs3_NtCsdD782mUTler_10arrow_data4dataNtB5_16ArrayDataBuilder5build
+
+     1.99%     1.99%  postgres         postgres              [.] AllocSetAlloc
+            |
+            ---_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_innersb_0EB1k_
+               _RNvXsb_NtNtCsl7UgMljjqkm_4pgrx5datum4intoRShNtB5_9IntoDatum10into_datum
+               _RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB16_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+               _RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB1t_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+               AllocSetAlloc
+
+     1.87%     0.01%  tokio-rt-worker  pg_wildcard.so        [.] _RNvMNtCs9j4ESt4bG14_9arrow_ipc6readerNtB2_18RecordBatchDecoder22create_primitive_array
+            |          
+             --1.86%--_RNvMNtCs9j4ESt4bG14_9arrow_ipc6readerNtB2_18RecordBatchDecoder22create_primitive_array
+                       |          
+                        --1.18%--_RNvMs3_NtCsdD782mUTler_10arrow_data4dataNtB5_16ArrayDataBuilder5build
+
+     1.68%     0.61%  postgres         pg_wildcard.so        [.] _RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+            |          
+             --1.06%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan0EONtNtNtB6_7include4pg1814TupleTableSlotEB29_
+                       _RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+
+     1.63%     0.00%  tokio-rt-worker  [vdso]                [.] 0x00007979a4824a49
+            |
+            ---0x7979a4824a49
+               |          
+                --1.30%--0xffffffff9ce0012b
+
+     1.62%     0.04%  tokio-rt-worker  pg_wildcard.so        [.] _RNvMs_NtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6workerNtB4_7Context8run_task
+            |          
+             --1.58%--_RNvMs_NtNtNtNtCs550tTFJZ6fk_5tokio7runtime9scheduler12multi_thread6workerNtB4_7Context8run_task
+                       |          
+                        --1.41%--_RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtCskADBYZwJmSU_4core3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxDNtNtNtBT_6future6future6Futurep6OutputuNtNtBT_6marker4SendEL_EEINtNtB1p_4sync3ArcNtNtNtNtB6_9scheduler12multi_thread6handle6HandleEECsaTLVLCrPOqn_7reqwest
+                                  |          
+                                   --1.34%--_RNvXsd_NtNtCs2sDFTpGyXpD_12futures_util6future6futureINtB5_3MapINtNtB7_10try_future6MapErrINtNtNtNtNtCsjumiKORlqF4_5hyper6client4conn5http18upgrades21UpgradeableConnectionNtNtNtCsaTLVLCrPOqn_7reqwest7connect6sealed4ConnNtNtNtB2P_10async_impl4body4BodyENCNCNCNCNvMs_NtNtNtCs3k4iGHFFMhl_10hyper_util6client6legacy6clientINtB4f_6ClientNtB2N_9ConnectorB3v_E10connect_to0s_000ENCB44_s_0ENtNtNtCskADBYZwJmSU_4core6future6future6Future4pollB2P_
+
+     1.51%     0.00%  tokio-rt-worker  [unknown]             [.] 0xffffffff9ce0012b
+            |
+            ---0xffffffff9ce0012b
+
+     1.41%     0.04%  tokio-rt-worker  pg_wildcard.so        [.] _RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtCskADBYZwJmSU_4core3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxDNtNtNtBT_6future6future6Futurep6OutputuNtNtBT_6marker4SendEL_EEINtNtB1p_4sync3ArcNtNtNtNtB6_9scheduler12multi_thread6handle6HandleEECsaTLVLCrPOqn_7reqwest
+            |          
+             --1.37%--_RINvNtNtNtCs550tTFJZ6fk_5tokio7runtime4task3raw4pollINtNtCskADBYZwJmSU_4core3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxDNtNtNtBT_6future6future6Futurep6OutputuNtNtBT_6marker4SendEL_EEINtNtB1p_4sync3ArcNtNtNtNtB6_9scheduler12multi_thread6handle6HandleEECsaTLVLCrPOqn_7reqwest
+                       |          
+                        --1.34%--_RNvXsd_NtNtCs2sDFTpGyXpD_12futures_util6future6futureINtB5_3MapINtNtB7_10try_future6MapErrINtNtNtNtNtCsjumiKORlqF4_5hyper6client4conn5http18upgrades21UpgradeableConnectionNtNtNtCsaTLVLCrPOqn_7reqwest7connect6sealed4ConnNtNtNtB2P_10async_impl4body4BodyENCNCNCNCNvMs_NtNtNtCs3k4iGHFFMhl_10hyper_util6client6legacy6clientINtB4f_6ClientNtB2N_9ConnectorB3v_E10connect_to0s_000ENCB44_s_0ENtNtNtCskADBYZwJmSU_4core6future6future6Future4pollB2P_
+
+     1.34%     0.07%  tokio-rt-worker  pg_wildcard.so        [.] _RNvXsd_NtNtCs2sDFTpGyXpD_12futures_util6future6futureINtB5_3MapINtNtB7_10try_future6MapErrINtNtNtNtNtCsjumiKORlqF4_5hyper6client4conn5http18upgrades21UpgradeableConnectionNtNtNtCsaTLVLCrPOqn_7reqwest7connect6sealed4ConnNtNtNtB2P_10async_impl4body4BodyENCNCNCNCNvMs_NtNtNtCs3k4iGHFFMhl_10hyper_util6client6legacy6clientINtB4f_6ClientNtB2N_9ConnectorB3v_E10connect_to0s_000ENCB44_s_0ENtNtNtCskADBYZwJmSU_4core6future6future6Future4pollB2P_
+            |          
+             --1.27%--_RNvXsd_NtNtCs2sDFTpGyXpD_12futures_util6future6futureINtB5_3MapINtNtB7_10try_future6MapErrINtNtNtNtNtCsjumiKORlqF4_5hyper6client4conn5http18upgrades21UpgradeableConnectionNtNtNtCsaTLVLCrPOqn_7reqwest7connect6sealed4ConnNtNtNtB2P_10async_impl4body4BodyENCNCNCNCNvMs_NtNtNtCs3k4iGHFFMhl_10hyper_util6client6legacy6clientINtB4f_6ClientNtB2N_9ConnectorB3v_E10connect_to0s_000ENCB44_s_0ENtNtNtCskADBYZwJmSU_4core6future6future6Future4pollB2P_
+
+     1.32%     1.32%  postgres         postgres              [.] BufferUsageAccumDiff
+            |
+            ---0x5904bc0f173e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               0x5904bc194667
+               PortalRun
+               0x5904bc1985f6
+               0x5904bc198230
+               standard_ProcessUtility
+               ExplainQuery
+               0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               0x5904bbfc17e7
+               InstrStopNode
+               BufferUsageAccumDiff
+
+     1.29%     1.29%  postgres         postgres              [.] InstrStartNode
+            |          
+             --1.21%--0x5904bc0f173e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x5904bc194667
+                       PortalRun
+                       0x5904bc1985f6
+                       0x5904bc198230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x5904bbf4aca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x5904bbfc17c6
+                       InstrStartNode
+
+     1.29%     0.00%  postgres         postgres              [.] 0x00005904bbfc17c6
+            |
+            ---0x5904bbfc17c6
+               InstrStartNode
+
+     1.20%     0.04%  tokio-rt-worker  pg_wildcard.so        [.] _RNvMs3_NtCsdD782mUTler_10arrow_data4dataNtB5_16ArrayDataBuilder5build
+            |          
+             --1.16%--_RNvMs3_NtCsdD782mUTler_10arrow_data4dataNtB5_16ArrayDataBuilder5build
+
+     1.03%     1.03%  postgres         pg_wildcard.so        [.] _RNvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB4_16PgMemoryContexts5value
+            |
+            ---_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               _RNvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB4_16PgMemoryContexts5value
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

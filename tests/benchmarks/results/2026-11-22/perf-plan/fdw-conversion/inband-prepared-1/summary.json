@@ -1,0 +1,110 @@
+[
+  {
+    "workload": "narrow",
+    "route": "direct",
+    "samples": 1,
+    "median_ms": 419.122627,
+    "min_ms": 419.122627,
+    "max_ms": 419.122627,
+    "executor_median_ms": null
+  },
+  {
+    "workload": "narrow",
+    "route": "pg_backend",
+    "samples": 1,
+    "median_ms": 454.73035000031814,
+    "min_ms": 454.73035000031814,
+    "max_ms": 454.73035000031814,
+    "executor_median_ms": 444.536
+  },
+  {
+    "workload": "narrow",
+    "route": "pg_copy",
+    "samples": 1,
+    "median_ms": 690.0707940221764,
+    "min_ms": 690.0707940221764,
+    "max_ms": 690.0707940221764,
+    "executor_median_ms": null
+  },
+  {
+    "workload": "smalltext",
+    "route": "direct",
+    "samples": 1,
+    "median_ms": 1385.274972,
+    "min_ms": 1385.274972,
+    "max_ms": 1385.274972,
+    "executor_median_ms": null
+  },
+  {
+    "workload": "smalltext",
+    "route": "pg_backend",
+    "samples": 1,
+    "median_ms": 1687.8558739845175,
+    "min_ms": 1687.8558739845175,
+    "max_ms": 1687.8558739845175,
+    "executor_median_ms": 1660.218
+  },
+  {
+    "workload": "smalltext",
+    "route": "pg_copy",
+    "samples": 1,
+    "median_ms": 1765.276197984349,
+    "min_ms": 1765.276197984349,
+    "max_ms": 1765.276197984349,
+    "executor_median_ms": null
+  },
+  {
+    "workload": "wide1k",
+    "route": "direct",
+    "samples": 1,
+    "median_ms": 961.783235,
+    "min_ms": 961.783235,
+    "max_ms": 961.783235,
+    "executor_median_ms": null
+  },
+  {
+    "workload": "wide1k",
+    "route": "pg_backend",
+    "samples": 1,
+    "median_ms": 786.5594489849173,
+    "min_ms": 786.5594489849173,
+    "max_ms": 786.5594489849173,
+    "executor_median_ms": 767.946
+  },
+  {
+    "workload": "wide1k",
+    "route": "pg_copy",
+    "samples": 1,
+    "median_ms": 847.9896640055813,
+    "min_ms": 847.9896640055813,
+    "max_ms": 847.9896640055813,
+    "executor_median_ms": null
+  },
+  {
+    "workload": "broad_recheck",
+    "route": "direct",
+    "samples": 1,
+    "median_ms": 1021.6670889999999,
+    "min_ms": 1021.6670889999999,
+    "max_ms": 1021.6670889999999,
+    "executor_median_ms": null
+  },
+  {
+    "workload": "broad_recheck",
+    "route": "pg_backend",
+    "samples": 1,
+    "median_ms": 884.2720480170101,
+    "min_ms": 884.2720480170101,
+    "max_ms": 884.2720480170101,
+    "executor_median_ms": 859.774
+  },
+  {
+    "workload": "broad_recheck",
+    "route": "pg_copy",
+    "samples": 1,
+    "median_ms": 1345.068305003224,
+    "min_ms": 1345.068305003224,
+    "max_ms": 1345.068305003224,
+    "executor_median_ms": null
+  }
+]

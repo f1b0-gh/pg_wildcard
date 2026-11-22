@@ -1,0 +1,44 @@
+{
+  "wildcard": {
+    "sweep_seconds": [
+      3.401828371002921,
+      1.5752623989974381,
+      1.2179886499943677
+    ],
+    "median_seconds": 1.5752623989974381,
+    "pair_count": 10000,
+    "pair_sha256": "d6dbb4eafa8437a4b276f6cf08e28010e025567ff60a31ba5ed14dbd91d1724c",
+    "per_repeat_sum_server_took_ms": [
+      11505,
+      5068,
+      3428
+    ],
+    "bool_union_seconds": 0.627348460999201,
+    "bool_union_server_took_ms": 618,
+    "bool_union_distinct_row_count": 10000,
+    "index_seconds": 39.17637448600726,
+    "primary_store_bytes": 67567646,
+    "segments_after_setup": 2
+  },
+  "keyword": {
+    "sweep_seconds": [
+      10.137870335995103,
+      7.297695206012577,
+      6.982422486995347
+    ],
+    "median_seconds": 7.297695206012577,
+    "pair_count": 10000,
+    "pair_sha256": "d6dbb4eafa8437a4b276f6cf08e28010e025567ff60a31ba5ed14dbd91d1724c",
+    "per_repeat_sum_server_took_ms": [
+      38920,
+      27820,
+      26618
+    ],
+    "bool_union_seconds": 10.900753498994163,
+    "bool_union_server_took_ms": 10894,
+    "bool_union_distinct_row_count": 10000,
+    "index_seconds": 35.993071660006535,
+    "primary_store_bytes": 25402822,
+    "segments_after_setup": 2
+  }
+}

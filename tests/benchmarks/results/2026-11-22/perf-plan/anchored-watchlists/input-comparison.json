@@ -1,0 +1,46 @@
+[
+  {
+    "family": "domains",
+    "old_spec_sha256": "e3c3b71c090546a41a01c1227a5cd9718806cd8047faa387048b2c6a27ea9c73",
+    "new_spec_sha256": "276ea079a226dfc68dfeda5540ae08fe6b0d3a35a38278085ddd92950229c4a3",
+    "queries_equal": false,
+    "indexed_queries_equal": false,
+    "old_needle_count": 0,
+    "new_needle_count": 100,
+    "watchlist_inserts_equal": false,
+    "watchlist_mv_equal": true
+  },
+  {
+    "family": "paths",
+    "old_spec_sha256": "fca55f9961406faeccabc969d8a62129c30763ea79b5aaf894dc7b9c0ac22a0f",
+    "new_spec_sha256": "1f55e92fdb1d73de3538fd1cdd81b287667c4be4d8da1013df590aa0c1a1d01e",
+    "queries_equal": true,
+    "indexed_queries_equal": true,
+    "old_needle_count": 0,
+    "new_needle_count": 100,
+    "watchlist_inserts_equal": false,
+    "watchlist_mv_equal": true
+  },
+  {
+    "family": "urls",
+    "old_spec_sha256": "44fc4b3ba4a08a8891572e8c5cfb0993404b50b9ff5aa36da682ee3f3646a8af",
+    "new_spec_sha256": "41a17df1888f1cb1293e3d7dc293c19dfb259f586947257d460b10bd5d1d8b4c",
+    "queries_equal": true,
+    "indexed_queries_equal": true,
+    "old_needle_count": 67,
+    "new_needle_count": 100,
+    "watchlist_inserts_equal": false,
+    "watchlist_mv_equal": true
+  },
+  {
+    "family": "commands",
+    "old_spec_sha256": "83733fd2656780ba95705739cc115531f0b44c8889ebc818bb3cd1c2a2ff39b3",
+    "new_spec_sha256": "69a4d950554bac7a74d600c6c366dfa96214f21242a8f3d718ece5235406016c",
+    "queries_equal": true,
+    "indexed_queries_equal": true,
+    "old_needle_count": 100,
+    "new_needle_count": 100,
+    "watchlist_inserts_equal": true,
+    "watchlist_mv_equal": true
+  }
+]

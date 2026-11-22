@@ -1,0 +1,1869 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 849  of event 'cycles:u'
+# Event count (approx.): 10907583462
+#
+# Children      Self  Command          Shared Object         Symbol
+# ........  ........  ...............  ....................  ..........................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    42.55%     0.15%  postgres         postgres              [.] standard_ExecutorRun
+            |
+             --42.40%--standard_ExecutorRun
+                       |
+                        --40.46%--0x59ad787c47cc
+                                  |
+                                   --40.18%--ExecScan
+                                             |
+                                             |--29.42%--0x59ad787b9194
+                                             |          wc_match_wrapper
+                                             |          |
+                                             |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                             |                     |
+                                             |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                             |                     |          |
+                                             |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                             |                     |                     |
+                                             |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                             |                     |                                |
+                                             |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                             |                     |
+                                             |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                             |                     |          |
+                                             |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                             |                     |                     |
+                                             |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                             |                     |                                |
+                                             |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                             |                     |                                |          |
+                                             |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                             |                     |                                |
+                                             |                     |                                 --1.19%--__sigsetjmp
+                                             |                     |
+                                             |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                             |                     |
+                                             |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                             |
+                                             |--2.11%--MemoryContextReset
+                                             |          |
+                                             |           --1.65%--AllocSetReset
+                                             |
+                                              --1.41%--0x59ad787d8812
+                                                        pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.47%     3.52%  postgres         pg_wildcard.so        [.] pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner
+            |
+             --41.88%--pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner
+                       |
+                       |--35.00%--<pgrx[f615e66467087050]::memcxt::PgMemoryContexts>::exec_in_context::<(), pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner::{closure#10}>
+                       |          |
+                       |          |--20.79%--pg_wildcard[fa6338fa92e591c1]::fdw::values::input
+                       |          |          |
+                       |          |          |--5.63%--<u8 as core[efd5e57aef94d71e]::slice::cmp::SliceContains>::slice_contains
+                       |          |          |          |
+                       |          |          |           --5.33%--core[efd5e57aef94d71e]::slice::memchr::memchr_aligned
+                       |          |          |
+                       |          |          |--3.01%--core[efd5e57aef94d71e]::str::converts::from_utf8
+                       |          |          |
+                       |          |           --2.24%--pg_wildcard[fa6338fa92e591c1]::fdw::values::integer
+                       |          |
+                       |           --6.59%--<&[u8] as pgrx[f615e66467087050]::datum::into::IntoDatum>::into_datum
+                       |                     |
+                       |                      --4.72%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}>::{closure#0}>
+                       |                                |
+                       |                                |--2.06%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}>::{closure#0}>
+                       |                                |          |
+                       |                                |           --1.47%--AllocSetAlloc
+                       |                                |
+                       |                                 --1.48%--__sigsetjmp
+                       |
+                       |--2.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::TupleTableSlot, pgrx_pg_sys[768ca042e806565a]::include::pg18::ExecStoreVirtualTuple::{closure#0}>::{closure#0}>
+                       |          |
+                       |           --1.02%--__sigsetjmp
+                       |
+                        --1.30%--<pgrx[f615e66467087050]::memcxt::PgMemoryContexts>::value
+
+    42.40%     0.00%  postgres         postgres              [.] _start
+            |
+            ---_start
+               __libc_start_main
+               0x7b696a425ca7
+               main
+               PostmasterMain
+               0x59ad788f473e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               |
+                --42.40%--0x59ad78997667
+                          PortalRun
+                          |
+                           --42.40%--0x59ad7899b5f6
+                                     0x59ad7899b230
+                                     standard_ProcessUtility
+                                     ExplainQuery
+                                     0x59ad7874dca0
+                                     standard_ExplainOneQuery
+                                     ExplainOnePlan
+                                     standard_ExecutorRun
+                                     |
+                                      --40.46%--0x59ad787c47cc
+                                                |
+                                                 --40.18%--ExecScan
+                                                           |
+                                                           |--29.42%--0x59ad787b9194
+                                                           |          wc_match_wrapper
+                                                           |          |
+                                                           |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                                           |                     |
+                                                           |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                                           |                     |          |
+                                                           |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                                           |                     |                     |
+                                                           |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                                           |                     |                                |
+                                                           |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                                           |                     |
+                                                           |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                                           |                     |          |
+                                                           |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                                           |                     |                     |
+                                                           |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |
+                                                           |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |          |
+                                                           |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                                           |                     |                                |
+                                                           |                     |                                 --1.19%--__sigsetjmp
+                                                           |                     |
+                                                           |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                                           |                     |
+                                                           |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                                           |
+                                                           |--2.11%--MemoryContextReset
+                                                           |          |
+                                                           |           --1.65%--AllocSetReset
+                                                           |
+                                                            --1.41%--0x59ad787d8812
+                                                                      pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         libc.so.6             [.] __libc_start_main
+            |
+            ---__libc_start_main
+               0x7b696a425ca7
+               main
+               PostmasterMain
+               0x59ad788f473e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               |
+                --42.40%--0x59ad78997667
+                          PortalRun
+                          |
+                           --42.40%--0x59ad7899b5f6
+                                     0x59ad7899b230
+                                     standard_ProcessUtility
+                                     ExplainQuery
+                                     0x59ad7874dca0
+                                     standard_ExplainOneQuery
+                                     ExplainOnePlan
+                                     standard_ExecutorRun
+                                     |
+                                      --40.46%--0x59ad787c47cc
+                                                |
+                                                 --40.18%--ExecScan
+                                                           |
+                                                           |--29.42%--0x59ad787b9194
+                                                           |          wc_match_wrapper
+                                                           |          |
+                                                           |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                                           |                     |
+                                                           |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                                           |                     |          |
+                                                           |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                                           |                     |                     |
+                                                           |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                                           |                     |                                |
+                                                           |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                                           |                     |
+                                                           |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                                           |                     |          |
+                                                           |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                                           |                     |                     |
+                                                           |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |
+                                                           |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |          |
+                                                           |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                                           |                     |                                |
+                                                           |                     |                                 --1.19%--__sigsetjmp
+                                                           |                     |
+                                                           |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                                           |                     |
+                                                           |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                                           |
+                                                           |--2.11%--MemoryContextReset
+                                                           |          |
+                                                           |           --1.65%--AllocSetReset
+                                                           |
+                                                            --1.41%--0x59ad787d8812
+                                                                      pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         libc.so.6             [.] 0x00007b696a425ca7
+            |
+            ---0x7b696a425ca7
+               main
+               PostmasterMain
+               0x59ad788f473e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               |
+                --42.40%--0x59ad78997667
+                          PortalRun
+                          |
+                           --42.40%--0x59ad7899b5f6
+                                     0x59ad7899b230
+                                     standard_ProcessUtility
+                                     ExplainQuery
+                                     0x59ad7874dca0
+                                     standard_ExplainOneQuery
+                                     ExplainOnePlan
+                                     standard_ExecutorRun
+                                     |
+                                      --40.46%--0x59ad787c47cc
+                                                |
+                                                 --40.18%--ExecScan
+                                                           |
+                                                           |--29.42%--0x59ad787b9194
+                                                           |          wc_match_wrapper
+                                                           |          |
+                                                           |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                                           |                     |
+                                                           |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                                           |                     |          |
+                                                           |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                                           |                     |                     |
+                                                           |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                                           |                     |                                |
+                                                           |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                                           |                     |
+                                                           |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                                           |                     |          |
+                                                           |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                                           |                     |                     |
+                                                           |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |
+                                                           |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |          |
+                                                           |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                                           |                     |                                |
+                                                           |                     |                                 --1.19%--__sigsetjmp
+                                                           |                     |
+                                                           |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                                           |                     |
+                                                           |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                                           |
+                                                           |--2.11%--MemoryContextReset
+                                                           |          |
+                                                           |           --1.65%--AllocSetReset
+                                                           |
+                                                            --1.41%--0x59ad787d8812
+                                                                      pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         postgres              [.] main
+            |
+            ---main
+               PostmasterMain
+               0x59ad788f473e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               |
+                --42.40%--0x59ad78997667
+                          PortalRun
+                          |
+                           --42.40%--0x59ad7899b5f6
+                                     0x59ad7899b230
+                                     standard_ProcessUtility
+                                     ExplainQuery
+                                     0x59ad7874dca0
+                                     standard_ExplainOneQuery
+                                     ExplainOnePlan
+                                     standard_ExecutorRun
+                                     |
+                                      --40.46%--0x59ad787c47cc
+                                                |
+                                                 --40.18%--ExecScan
+                                                           |
+                                                           |--29.42%--0x59ad787b9194
+                                                           |          wc_match_wrapper
+                                                           |          |
+                                                           |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                                           |                     |
+                                                           |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                                           |                     |          |
+                                                           |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                                           |                     |                     |
+                                                           |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                                           |                     |                                |
+                                                           |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                                           |                     |
+                                                           |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                                           |                     |          |
+                                                           |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                                           |                     |                     |
+                                                           |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |
+                                                           |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |          |
+                                                           |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                                           |                     |                                |
+                                                           |                     |                                 --1.19%--__sigsetjmp
+                                                           |                     |
+                                                           |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                                           |                     |
+                                                           |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                                           |
+                                                           |--2.11%--MemoryContextReset
+                                                           |          |
+                                                           |           --1.65%--AllocSetReset
+                                                           |
+                                                            --1.41%--0x59ad787d8812
+                                                                      pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         postgres              [.] PostmasterMain
+            |
+            ---PostmasterMain
+               0x59ad788f473e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               |
+                --42.40%--0x59ad78997667
+                          PortalRun
+                          |
+                           --42.40%--0x59ad7899b5f6
+                                     0x59ad7899b230
+                                     standard_ProcessUtility
+                                     ExplainQuery
+                                     0x59ad7874dca0
+                                     standard_ExplainOneQuery
+                                     ExplainOnePlan
+                                     standard_ExecutorRun
+                                     |
+                                      --40.46%--0x59ad787c47cc
+                                                |
+                                                 --40.18%--ExecScan
+                                                           |
+                                                           |--29.42%--0x59ad787b9194
+                                                           |          wc_match_wrapper
+                                                           |          |
+                                                           |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                                           |                     |
+                                                           |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                                           |                     |          |
+                                                           |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                                           |                     |                     |
+                                                           |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                                           |                     |                                |
+                                                           |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                                           |                     |
+                                                           |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                                           |                     |          |
+                                                           |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                                           |                     |                     |
+                                                           |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |
+                                                           |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |          |
+                                                           |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                                           |                     |                                |
+                                                           |                     |                                 --1.19%--__sigsetjmp
+                                                           |                     |
+                                                           |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                                           |                     |
+                                                           |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                                           |
+                                                           |--2.11%--MemoryContextReset
+                                                           |          |
+                                                           |           --1.65%--AllocSetReset
+                                                           |
+                                                            --1.41%--0x59ad787d8812
+                                                                      pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         postgres              [.] 0x000059ad788f473e
+            |
+            ---0x59ad788f473e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               |
+                --42.40%--0x59ad78997667
+                          PortalRun
+                          |
+                           --42.40%--0x59ad7899b5f6
+                                     0x59ad7899b230
+                                     standard_ProcessUtility
+                                     ExplainQuery
+                                     0x59ad7874dca0
+                                     standard_ExplainOneQuery
+                                     ExplainOnePlan
+                                     standard_ExecutorRun
+                                     |
+                                      --40.46%--0x59ad787c47cc
+                                                |
+                                                 --40.18%--ExecScan
+                                                           |
+                                                           |--29.42%--0x59ad787b9194
+                                                           |          wc_match_wrapper
+                                                           |          |
+                                                           |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                                           |                     |
+                                                           |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                                           |                     |          |
+                                                           |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                                           |                     |                     |
+                                                           |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                                           |                     |                                |
+                                                           |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                                           |                     |
+                                                           |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                                           |                     |          |
+                                                           |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                                           |                     |                     |
+                                                           |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |
+                                                           |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |          |
+                                                           |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                                           |                     |                                |
+                                                           |                     |                                 --1.19%--__sigsetjmp
+                                                           |                     |
+                                                           |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                                           |                     |
+                                                           |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                                           |
+                                                           |--2.11%--MemoryContextReset
+                                                           |          |
+                                                           |           --1.65%--AllocSetReset
+                                                           |
+                                                            --1.41%--0x59ad787d8812
+                                                                      pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         postgres              [.] postmaster_child_launch
+            |
+            ---postmaster_child_launch
+               BackendMain
+               PostgresMain
+               |
+                --42.40%--0x59ad78997667
+                          PortalRun
+                          |
+                           --42.40%--0x59ad7899b5f6
+                                     0x59ad7899b230
+                                     standard_ProcessUtility
+                                     ExplainQuery
+                                     0x59ad7874dca0
+                                     standard_ExplainOneQuery
+                                     ExplainOnePlan
+                                     standard_ExecutorRun
+                                     |
+                                      --40.46%--0x59ad787c47cc
+                                                |
+                                                 --40.18%--ExecScan
+                                                           |
+                                                           |--29.42%--0x59ad787b9194
+                                                           |          wc_match_wrapper
+                                                           |          |
+                                                           |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                                           |                     |
+                                                           |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                                           |                     |          |
+                                                           |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                                           |                     |                     |
+                                                           |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                                           |                     |                                |
+                                                           |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                                           |                     |
+                                                           |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                                           |                     |          |
+                                                           |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                                           |                     |                     |
+                                                           |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |
+                                                           |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |          |
+                                                           |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                                           |                     |                                |
+                                                           |                     |                                 --1.19%--__sigsetjmp
+                                                           |                     |
+                                                           |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                                           |                     |
+                                                           |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                                           |
+                                                           |--2.11%--MemoryContextReset
+                                                           |          |
+                                                           |           --1.65%--AllocSetReset
+                                                           |
+                                                            --1.41%--0x59ad787d8812
+                                                                      pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         postgres              [.] BackendMain
+            |
+            ---BackendMain
+               PostgresMain
+               |
+                --42.40%--0x59ad78997667
+                          PortalRun
+                          |
+                           --42.40%--0x59ad7899b5f6
+                                     0x59ad7899b230
+                                     standard_ProcessUtility
+                                     ExplainQuery
+                                     0x59ad7874dca0
+                                     standard_ExplainOneQuery
+                                     ExplainOnePlan
+                                     standard_ExecutorRun
+                                     |
+                                      --40.46%--0x59ad787c47cc
+                                                |
+                                                 --40.18%--ExecScan
+                                                           |
+                                                           |--29.42%--0x59ad787b9194
+                                                           |          wc_match_wrapper
+                                                           |          |
+                                                           |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                                           |                     |
+                                                           |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                                           |                     |          |
+                                                           |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                                           |                     |                     |
+                                                           |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                                           |                     |                                |
+                                                           |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                                           |                     |
+                                                           |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                                           |                     |          |
+                                                           |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                                           |                     |                     |
+                                                           |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |
+                                                           |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |          |
+                                                           |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                                           |                     |                                |
+                                                           |                     |                                 --1.19%--__sigsetjmp
+                                                           |                     |
+                                                           |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                                           |                     |
+                                                           |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                                           |
+                                                           |--2.11%--MemoryContextReset
+                                                           |          |
+                                                           |           --1.65%--AllocSetReset
+                                                           |
+                                                            --1.41%--0x59ad787d8812
+                                                                      pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         postgres              [.] PostgresMain
+            |
+            ---PostgresMain
+               |
+                --42.40%--0x59ad78997667
+                          PortalRun
+                          |
+                           --42.40%--0x59ad7899b5f6
+                                     0x59ad7899b230
+                                     standard_ProcessUtility
+                                     ExplainQuery
+                                     0x59ad7874dca0
+                                     standard_ExplainOneQuery
+                                     ExplainOnePlan
+                                     standard_ExecutorRun
+                                     |
+                                      --40.46%--0x59ad787c47cc
+                                                |
+                                                 --40.18%--ExecScan
+                                                           |
+                                                           |--29.42%--0x59ad787b9194
+                                                           |          wc_match_wrapper
+                                                           |          |
+                                                           |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                                           |                     |
+                                                           |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                                           |                     |          |
+                                                           |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                                           |                     |                     |
+                                                           |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                                           |                     |                                |
+                                                           |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                                           |                     |
+                                                           |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                                           |                     |          |
+                                                           |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                                           |                     |                     |
+                                                           |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |
+                                                           |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                           |                     |                                |          |
+                                                           |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                                           |                     |                                |
+                                                           |                     |                                 --1.19%--__sigsetjmp
+                                                           |                     |
+                                                           |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                                           |                     |
+                                                           |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                                           |
+                                                           |--2.11%--MemoryContextReset
+                                                           |          |
+                                                           |           --1.65%--AllocSetReset
+                                                           |
+                                                            --1.41%--0x59ad787d8812
+                                                                      pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         postgres              [.] 0x000059ad78997667
+            |
+            ---0x59ad78997667
+               PortalRun
+               |
+                --42.40%--0x59ad7899b5f6
+                          0x59ad7899b230
+                          standard_ProcessUtility
+                          ExplainQuery
+                          0x59ad7874dca0
+                          standard_ExplainOneQuery
+                          ExplainOnePlan
+                          standard_ExecutorRun
+                          |
+                           --40.46%--0x59ad787c47cc
+                                     |
+                                      --40.18%--ExecScan
+                                                |
+                                                |--29.42%--0x59ad787b9194
+                                                |          wc_match_wrapper
+                                                |          |
+                                                |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                                |                     |
+                                                |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                                |                     |          |
+                                                |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                                |                     |                     |
+                                                |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                                |                     |                                |
+                                                |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                                |                     |
+                                                |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                                |                     |          |
+                                                |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                                |                     |                     |
+                                                |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                |                     |                                |
+                                                |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                |                     |                                |          |
+                                                |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                                |                     |                                |
+                                                |                     |                                 --1.19%--__sigsetjmp
+                                                |                     |
+                                                |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                                |                     |
+                                                |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                                |
+                                                |--2.11%--MemoryContextReset
+                                                |          |
+                                                |           --1.65%--AllocSetReset
+                                                |
+                                                 --1.41%--0x59ad787d8812
+                                                           pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         postgres              [.] PortalRun
+            |
+            ---PortalRun
+               |
+                --42.40%--0x59ad7899b5f6
+                          0x59ad7899b230
+                          standard_ProcessUtility
+                          ExplainQuery
+                          0x59ad7874dca0
+                          standard_ExplainOneQuery
+                          ExplainOnePlan
+                          standard_ExecutorRun
+                          |
+                           --40.46%--0x59ad787c47cc
+                                     |
+                                      --40.18%--ExecScan
+                                                |
+                                                |--29.42%--0x59ad787b9194
+                                                |          wc_match_wrapper
+                                                |          |
+                                                |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                                |                     |
+                                                |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                                |                     |          |
+                                                |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                                |                     |                     |
+                                                |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                                |                     |                                |
+                                                |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                                |                     |
+                                                |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                                |                     |          |
+                                                |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                                |                     |                     |
+                                                |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                |                     |                                |
+                                                |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                |                     |                                |          |
+                                                |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                                |                     |                                |
+                                                |                     |                                 --1.19%--__sigsetjmp
+                                                |                     |
+                                                |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                                |                     |
+                                                |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                                |
+                                                |--2.11%--MemoryContextReset
+                                                |          |
+                                                |           --1.65%--AllocSetReset
+                                                |
+                                                 --1.41%--0x59ad787d8812
+                                                           pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         postgres              [.] 0x000059ad7899b230
+            |
+            ---0x59ad7899b230
+               standard_ProcessUtility
+               |
+                --42.40%--ExplainQuery
+                          0x59ad7874dca0
+                          standard_ExplainOneQuery
+                          ExplainOnePlan
+                          standard_ExecutorRun
+                          |
+                           --40.46%--0x59ad787c47cc
+                                     |
+                                      --40.18%--ExecScan
+                                                |
+                                                |--29.42%--0x59ad787b9194
+                                                |          wc_match_wrapper
+                                                |          |
+                                                |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                                |                     |
+                                                |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                                |                     |          |
+                                                |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                                |                     |                     |
+                                                |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                                |                     |                                |
+                                                |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                                |                     |
+                                                |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                                |                     |          |
+                                                |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                                |                     |                     |
+                                                |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                |                     |                                |
+                                                |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                |                     |                                |          |
+                                                |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                                |                     |                                |
+                                                |                     |                                 --1.19%--__sigsetjmp
+                                                |                     |
+                                                |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                                |                     |
+                                                |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                                |
+                                                |--2.11%--MemoryContextReset
+                                                |          |
+                                                |           --1.65%--AllocSetReset
+                                                |
+                                                 --1.41%--0x59ad787d8812
+                                                           pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         postgres              [.] standard_ProcessUtility
+            |
+            ---standard_ProcessUtility
+               |
+                --42.40%--ExplainQuery
+                          0x59ad7874dca0
+                          standard_ExplainOneQuery
+                          ExplainOnePlan
+                          standard_ExecutorRun
+                          |
+                           --40.46%--0x59ad787c47cc
+                                     |
+                                      --40.18%--ExecScan
+                                                |
+                                                |--29.42%--0x59ad787b9194
+                                                |          wc_match_wrapper
+                                                |          |
+                                                |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                                |                     |
+                                                |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                                |                     |          |
+                                                |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                                |                     |                     |
+                                                |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                                |                     |                                |
+                                                |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                                |                     |
+                                                |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                                |                     |          |
+                                                |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                                |                     |                     |
+                                                |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                |                     |                                |
+                                                |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                                |                     |                                |          |
+                                                |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                                |                     |                                |
+                                                |                     |                                 --1.19%--__sigsetjmp
+                                                |                     |
+                                                |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                                |                     |
+                                                |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                                |
+                                                |--2.11%--MemoryContextReset
+                                                |          |
+                                                |           --1.65%--AllocSetReset
+                                                |
+                                                 --1.41%--0x59ad787d8812
+                                                           pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         postgres              [.] 0x000059ad7899b5f6
+            |
+            ---0x59ad7899b5f6
+               0x59ad7899b230
+               standard_ProcessUtility
+               ExplainQuery
+               0x59ad7874dca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               |
+                --40.46%--0x59ad787c47cc
+                          |
+                           --40.18%--ExecScan
+                                     |
+                                     |--29.42%--0x59ad787b9194
+                                     |          wc_match_wrapper
+                                     |          |
+                                     |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                     |                     |
+                                     |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                     |                     |          |
+                                     |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                     |                     |                     |
+                                     |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                     |                     |                                |
+                                     |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                     |                     |
+                                     |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                     |                     |          |
+                                     |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                     |                     |                     |
+                                     |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                     |                     |                                |
+                                     |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                     |                     |                                |          |
+                                     |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                     |                     |                                |
+                                     |                     |                                 --1.19%--__sigsetjmp
+                                     |                     |
+                                     |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                     |                     |
+                                     |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                     |
+                                     |--2.11%--MemoryContextReset
+                                     |          |
+                                     |           --1.65%--AllocSetReset
+                                     |
+                                      --1.41%--0x59ad787d8812
+                                                pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         postgres              [.] ExplainQuery
+            |
+            ---ExplainQuery
+               0x59ad7874dca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               |
+                --40.46%--0x59ad787c47cc
+                          |
+                           --40.18%--ExecScan
+                                     |
+                                     |--29.42%--0x59ad787b9194
+                                     |          wc_match_wrapper
+                                     |          |
+                                     |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                     |                     |
+                                     |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                     |                     |          |
+                                     |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                     |                     |                     |
+                                     |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                     |                     |                                |
+                                     |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                     |                     |
+                                     |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                     |                     |          |
+                                     |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                     |                     |                     |
+                                     |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                     |                     |                                |
+                                     |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                     |                     |                                |          |
+                                     |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                     |                     |                                |
+                                     |                     |                                 --1.19%--__sigsetjmp
+                                     |                     |
+                                     |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                     |                     |
+                                     |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                     |
+                                     |--2.11%--MemoryContextReset
+                                     |          |
+                                     |           --1.65%--AllocSetReset
+                                     |
+                                      --1.41%--0x59ad787d8812
+                                                pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         postgres              [.] 0x000059ad7874dca0
+            |
+            ---0x59ad7874dca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               |
+                --40.46%--0x59ad787c47cc
+                          |
+                           --40.18%--ExecScan
+                                     |
+                                     |--29.42%--0x59ad787b9194
+                                     |          wc_match_wrapper
+                                     |          |
+                                     |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                     |                     |
+                                     |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                     |                     |          |
+                                     |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                     |                     |                     |
+                                     |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                     |                     |                                |
+                                     |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                     |                     |
+                                     |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                     |                     |          |
+                                     |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                     |                     |                     |
+                                     |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                     |                     |                                |
+                                     |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                     |                     |                                |          |
+                                     |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                     |                     |                                |
+                                     |                     |                                 --1.19%--__sigsetjmp
+                                     |                     |
+                                     |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                     |                     |
+                                     |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                     |
+                                     |--2.11%--MemoryContextReset
+                                     |          |
+                                     |           --1.65%--AllocSetReset
+                                     |
+                                      --1.41%--0x59ad787d8812
+                                                pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         postgres              [.] standard_ExplainOneQuery
+            |
+            ---standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               |
+                --40.46%--0x59ad787c47cc
+                          |
+                           --40.18%--ExecScan
+                                     |
+                                     |--29.42%--0x59ad787b9194
+                                     |          wc_match_wrapper
+                                     |          |
+                                     |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                     |                     |
+                                     |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                     |                     |          |
+                                     |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                     |                     |                     |
+                                     |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                     |                     |                                |
+                                     |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                     |                     |
+                                     |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                     |                     |          |
+                                     |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                     |                     |                     |
+                                     |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                     |                     |                                |
+                                     |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                     |                     |                                |          |
+                                     |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                     |                     |                                |
+                                     |                     |                                 --1.19%--__sigsetjmp
+                                     |                     |
+                                     |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                     |                     |
+                                     |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                     |
+                                     |--2.11%--MemoryContextReset
+                                     |          |
+                                     |           --1.65%--AllocSetReset
+                                     |
+                                      --1.41%--0x59ad787d8812
+                                                pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    42.40%     0.00%  postgres         postgres              [.] ExplainOnePlan
+            |
+            ---ExplainOnePlan
+               standard_ExecutorRun
+               |
+                --40.46%--0x59ad787c47cc
+                          |
+                           --40.18%--ExecScan
+                                     |
+                                     |--29.42%--0x59ad787b9194
+                                     |          wc_match_wrapper
+                                     |          |
+                                     |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                                     |                     |
+                                     |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                                     |                     |          |
+                                     |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                                     |                     |                     |
+                                     |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                                     |                     |                                |
+                                     |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                                     |                     |
+                                     |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                                     |                     |          |
+                                     |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                                     |                     |                     |
+                                     |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                     |                     |                                |
+                                     |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                                     |                     |                                |          |
+                                     |                     |                                |           --1.01%--pg_detoast_datum_packed
+                                     |                     |                                |
+                                     |                     |                                 --1.19%--__sigsetjmp
+                                     |                     |
+                                     |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                                     |                     |
+                                     |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                                     |
+                                     |--2.11%--MemoryContextReset
+                                     |          |
+                                     |           --1.65%--AllocSetReset
+                                     |
+                                      --1.41%--0x59ad787d8812
+                                                pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    40.46%     0.00%  postgres         postgres              [.] 0x000059ad787c47cc
+            |
+            ---0x59ad787c47cc
+               |
+                --40.18%--ExecScan
+                          |
+                          |--29.42%--0x59ad787b9194
+                          |          wc_match_wrapper
+                          |          |
+                          |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                          |                     |
+                          |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                          |                     |          |
+                          |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                          |                     |                     |
+                          |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                          |                     |                                |
+                          |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                          |                     |
+                          |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                          |                     |          |
+                          |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                          |                     |                     |
+                          |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                          |                     |                                |
+                          |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                          |                     |                                |          |
+                          |                     |                                |           --1.01%--pg_detoast_datum_packed
+                          |                     |                                |
+                          |                     |                                 --1.19%--__sigsetjmp
+                          |                     |
+                          |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                          |                     |
+                          |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+                          |
+                          |--2.11%--MemoryContextReset
+                          |          |
+                          |           --1.65%--AllocSetReset
+                          |
+                           --1.41%--0x59ad787d8812
+                                     pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+    40.18%     2.94%  postgres         postgres              [.] ExecScan
+            |
+            |--37.24%--ExecScan
+            |          |
+            |          |--29.42%--0x59ad787b9194
+            |          |          wc_match_wrapper
+            |          |          |
+            |          |           --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+            |          |                     |
+            |          |                     |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+            |          |                     |          |
+            |          |                     |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+            |          |                     |                     |
+            |          |                     |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+            |          |                     |                                |
+            |          |                     |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+            |          |                     |
+            |          |                     |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+            |          |                     |          |
+            |          |                     |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+            |          |                     |                     |
+            |          |                     |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+            |          |                     |                                |
+            |          |                     |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+            |          |                     |                                |          |
+            |          |                     |                                |           --1.01%--pg_detoast_datum_packed
+            |          |                     |                                |
+            |          |                     |                                 --1.19%--__sigsetjmp
+            |          |                     |
+            |          |                     |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+            |          |                     |
+            |          |                      --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+            |          |
+            |          |--2.11%--MemoryContextReset
+            |          |          |
+            |          |           --1.65%--AllocSetReset
+            |          |
+            |           --1.41%--0x59ad787d8812
+            |                     pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+            |
+             --2.94%--_start
+                       __libc_start_main
+                       0x7b696a425ca7
+                       main
+                       PostmasterMain
+                       0x59ad788f473e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x59ad78997667
+                       PortalRun
+                       0x59ad7899b5f6
+                       0x59ad7899b230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x59ad7874dca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x59ad787c47cc
+                       ExecScan
+
+    35.00%     7.63%  postgres         pg_wildcard.so        [.] <pgrx[f615e66467087050]::memcxt::PgMemoryContexts>::exec_in_context::<(), pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner::{closure#10}>
+            |
+            |--27.37%--<pgrx[f615e66467087050]::memcxt::PgMemoryContexts>::exec_in_context::<(), pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner::{closure#10}>
+            |          |
+            |          |--20.79%--pg_wildcard[fa6338fa92e591c1]::fdw::values::input
+            |          |          |
+            |          |          |--5.63%--<u8 as core[efd5e57aef94d71e]::slice::cmp::SliceContains>::slice_contains
+            |          |          |          |
+            |          |          |           --5.33%--core[efd5e57aef94d71e]::slice::memchr::memchr_aligned
+            |          |          |
+            |          |          |--3.01%--core[efd5e57aef94d71e]::str::converts::from_utf8
+            |          |          |
+            |          |           --2.24%--pg_wildcard[fa6338fa92e591c1]::fdw::values::integer
+            |          |
+            |           --6.59%--<&[u8] as pgrx[f615e66467087050]::datum::into::IntoDatum>::into_datum
+            |                     |
+            |                      --4.72%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}>::{closure#0}>
+            |                                |
+            |                                |--2.06%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}>::{closure#0}>
+            |                                |          |
+            |                                |           --1.47%--AllocSetAlloc
+            |                                |
+            |                                 --1.48%--__sigsetjmp
+            |
+             --7.63%--pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner
+                       <pgrx[f615e66467087050]::memcxt::PgMemoryContexts>::exec_in_context::<(), pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner::{closure#10}>
+
+    29.42%     0.46%  postgres         pg_wildcard.so        [.] wc_match_wrapper
+            |
+             --28.96%--wc_match_wrapper
+                       pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                       |
+                       |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                       |          |
+                       |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                       |                     |
+                       |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                       |                                |
+                       |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                       |
+                       |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                       |          |
+                       |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                       |                     |
+                       |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                       |                                |
+                       |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                       |                                |          |
+                       |                                |           --1.01%--pg_detoast_datum_packed
+                       |                                |
+                       |                                 --1.19%--__sigsetjmp
+                       |
+                       |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                       |
+                        --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+
+    29.42%     0.00%  postgres         postgres              [.] 0x000059ad787b9194
+            |
+            ---0x59ad787b9194
+               wc_match_wrapper
+               |
+                --28.96%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                          |
+                          |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                          |          |
+                          |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                          |                     |
+                          |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                          |                                |
+                          |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+                          |
+                          |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                          |          |
+                          |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                          |                     |
+                          |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                          |                                |
+                          |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                          |                                |          |
+                          |                                |           --1.01%--pg_detoast_datum_packed
+                          |                                |
+                          |                                 --1.19%--__sigsetjmp
+                          |
+                          |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+                          |
+                           --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+
+    28.96%     6.60%  postgres         pg_wildcard.so        [.] pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+            |
+            |--22.36%--pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+            |          |
+            |          |--8.71%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+            |          |          |
+            |          |           --7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+            |          |                     |
+            |          |                      --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+            |          |                                |
+            |          |                                 --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+            |          |
+            |          |--7.92%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+            |          |          |
+            |          |           --6.43%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+            |          |                     |
+            |          |                      --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+            |          |                                |
+            |          |                                |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+            |          |                                |          |
+            |          |                                |           --1.01%--pg_detoast_datum_packed
+            |          |                                |
+            |          |                                 --1.19%--__sigsetjmp
+            |          |
+            |          |--2.79%--pg_wildcard[fa6338fa92e591c1]::matcher
+            |          |
+            |           --1.31%--<pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+            |
+             --6.60%--_start
+                       __libc_start_main
+                       0x7b696a425ca7
+                       main
+                       PostmasterMain
+                       0x59ad788f473e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x59ad78997667
+                       PortalRun
+                       0x59ad7899b5f6
+                       0x59ad7899b230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x59ad7874dca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x59ad787c47cc
+                       ExecScan
+                       0x59ad787b9194
+                       wc_match_wrapper
+                       pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+
+    20.79%     6.77%  postgres         pg_wildcard.so        [.] pg_wildcard[fa6338fa92e591c1]::fdw::values::input
+            |
+            |--14.02%--pg_wildcard[fa6338fa92e591c1]::fdw::values::input
+            |          |
+            |          |--5.63%--<u8 as core[efd5e57aef94d71e]::slice::cmp::SliceContains>::slice_contains
+            |          |          |
+            |          |           --5.33%--core[efd5e57aef94d71e]::slice::memchr::memchr_aligned
+            |          |
+            |          |--3.01%--core[efd5e57aef94d71e]::str::converts::from_utf8
+            |          |
+            |           --2.24%--pg_wildcard[fa6338fa92e591c1]::fdw::values::integer
+            |
+             --6.77%--pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner
+                       <pgrx[f615e66467087050]::memcxt::PgMemoryContexts>::exec_in_context::<(), pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner::{closure#10}>
+                       pg_wildcard[fa6338fa92e591c1]::fdw::values::input
+
+    13.18%     0.05%  tokio-rt-worker  pg_wildcard.so        [.] <core[efd5e57aef94d71e]::pin::Pin<alloc[c23e483dde3f7cfb]::boxed::Box<<pg_wildcard[fa6338fa92e591c1]::fdw::transport::Session>::start_selected::{closure#2}>> as core[efd5e57aef94d71e]::future::future::Future>::poll
+            |
+            ---<core[efd5e57aef94d71e]::pin::Pin<alloc[c23e483dde3f7cfb]::boxed::Box<<pg_wildcard[fa6338fa92e591c1]::fdw::transport::Session>::start_selected::{closure#2}>> as core[efd5e57aef94d71e]::future::future::Future>::poll
+               |
+                --12.98%--<antalya_rs[bad8e0b89db77521]::execution::Execution>::next_batch::{closure#0}
+                          <antalya_rs[bad8e0b89db77521]::execution::Execution>::next_provisional_batch::{closure#0}
+                          |
+                          |--6.07%--<antalya_rs[bad8e0b89db77521]::execution::measured::framing::FramedSource>::take_line
+                          |
+                           --5.75%--<antalya_rs[bad8e0b89db77521]::execution::measured::framing::FramedSource>::packet
+                                     |
+                                      --5.41%--base64[407719190e31a81f]::engine::Engine::decode::inner::<base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose>
+                                                |
+                                                 --5.18%--<base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose as base64[407719190e31a81f]::engine::Engine>::internal_decode
+                                                           base64[407719190e31a81f]::engine::general_purpose::decode::decode_complete_quads
+
+    12.98%     0.00%  tokio-rt-worker  pg_wildcard.so        [.] <antalya_rs[bad8e0b89db77521]::execution::Execution>::next_batch::{closure#0}
+            |
+            ---<antalya_rs[bad8e0b89db77521]::execution::Execution>::next_batch::{closure#0}
+               <antalya_rs[bad8e0b89db77521]::execution::Execution>::next_provisional_batch::{closure#0}
+               |
+               |--6.07%--<antalya_rs[bad8e0b89db77521]::execution::measured::framing::FramedSource>::take_line
+               |
+                --5.75%--<antalya_rs[bad8e0b89db77521]::execution::measured::framing::FramedSource>::packet
+                          |
+                           --5.41%--base64[407719190e31a81f]::engine::Engine::decode::inner::<base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose>
+                                     |
+                                      --5.18%--<base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose as base64[407719190e31a81f]::engine::Engine>::internal_decode
+                                                base64[407719190e31a81f]::engine::general_purpose::decode::decode_complete_quads
+
+    12.98%     0.00%  tokio-rt-worker  pg_wildcard.so        [.] <antalya_rs[bad8e0b89db77521]::execution::Execution>::next_provisional_batch::{closure#0}
+            |
+            ---<antalya_rs[bad8e0b89db77521]::execution::Execution>::next_provisional_batch::{closure#0}
+               |
+               |--6.07%--<antalya_rs[bad8e0b89db77521]::execution::measured::framing::FramedSource>::take_line
+               |
+                --5.75%--<antalya_rs[bad8e0b89db77521]::execution::measured::framing::FramedSource>::packet
+                          |
+                           --5.41%--base64[407719190e31a81f]::engine::Engine::decode::inner::<base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose>
+                                     |
+                                      --5.18%--<base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose as base64[407719190e31a81f]::engine::Engine>::internal_decode
+                                                base64[407719190e31a81f]::engine::general_purpose::decode::decode_complete_quads
+
+     8.71%     1.18%  postgres         pg_wildcard.so        [.] <libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+            |
+            |--7.53%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+            |          <libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+            |          |
+            |           --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+            |                     |
+            |                      --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+            |
+             --1.18%--_start
+                       __libc_start_main
+                       0x7b696a425ca7
+                       main
+                       PostmasterMain
+                       0x59ad788f473e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x59ad78997667
+                       PortalRun
+                       0x59ad7899b5f6
+                       0x59ad7899b230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x59ad7874dca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x59ad787c47cc
+                       ExecScan
+                       0x59ad787b9194
+                       wc_match_wrapper
+                       pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                       <libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+
+     7.92%     1.49%  postgres         pg_wildcard.so        [.] <&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+            |
+            |--6.43%--<&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+            |          <pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+            |          |
+            |           --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+            |                     |
+            |                     |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+            |                     |          |
+            |                     |           --1.01%--pg_detoast_datum_packed
+            |                     |
+            |                      --1.19%--__sigsetjmp
+            |
+             --1.49%--_start
+                       __libc_start_main
+                       0x7b696a425ca7
+                       main
+                       PostmasterMain
+                       0x59ad788f473e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x59ad78997667
+                       PortalRun
+                       0x59ad7899b5f6
+                       0x59ad7899b230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x59ad7874dca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x59ad787c47cc
+                       ExecScan
+                       0x59ad787b9194
+                       wc_match_wrapper
+                       pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                       <&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+
+     7.53%     1.08%  postgres         pg_wildcard.so        [.] <libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+            |
+            |--6.45%--<libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+            |          |
+            |           --6.05%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+            |                     |
+            |                      --5.46%--memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+            |
+             --1.08%--_start
+                       __libc_start_main
+                       0x7b696a425ca7
+                       main
+                       PostmasterMain
+                       0x59ad788f473e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x59ad78997667
+                       PortalRun
+                       0x59ad7899b5f6
+                       0x59ad7899b230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x59ad7874dca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x59ad787c47cc
+                       ExecScan
+                       0x59ad787b9194
+                       wc_match_wrapper
+                       pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                       <libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                       <libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+
+     6.59%     0.72%  postgres         pg_wildcard.so        [.] <&[u8] as pgrx[f615e66467087050]::datum::into::IntoDatum>::into_datum
+            |
+             --5.87%--<&[u8] as pgrx[f615e66467087050]::datum::into::IntoDatum>::into_datum
+                       |
+                        --4.72%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}>::{closure#0}>
+                                  |
+                                  |--2.06%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}>::{closure#0}>
+                                  |          |
+                                  |           --1.47%--AllocSetAlloc
+                                  |
+                                   --1.48%--__sigsetjmp
+
+     6.43%     1.22%  postgres         pg_wildcard.so        [.] <pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+            |
+            |--5.22%--<pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+            |          |
+            |           --4.46%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+            |                     |
+            |                     |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+            |                     |          |
+            |                     |           --1.01%--pg_detoast_datum_packed
+            |                     |
+            |                      --1.19%--__sigsetjmp
+            |
+             --1.22%--_start
+                       __libc_start_main
+                       0x7b696a425ca7
+                       main
+                       PostmasterMain
+                       0x59ad788f473e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x59ad78997667
+                       PortalRun
+                       0x59ad7899b5f6
+                       0x59ad7899b230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x59ad7874dca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x59ad787c47cc
+                       ExecScan
+                       0x59ad787b9194
+                       wc_match_wrapper
+                       pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                       <&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                       <pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+
+     6.07%     5.24%  tokio-rt-worker  pg_wildcard.so        [.] <antalya_rs[bad8e0b89db77521]::execution::measured::framing::FramedSource>::take_line
+            |
+             --5.24%--<core[efd5e57aef94d71e]::pin::Pin<alloc[c23e483dde3f7cfb]::boxed::Box<<pg_wildcard[fa6338fa92e591c1]::fdw::transport::Session>::start_selected::{closure#2}>> as core[efd5e57aef94d71e]::future::future::Future>::poll
+                       <antalya_rs[bad8e0b89db77521]::execution::Execution>::next_batch::{closure#0}
+                       <antalya_rs[bad8e0b89db77521]::execution::Execution>::next_provisional_batch::{closure#0}
+                       <antalya_rs[bad8e0b89db77521]::execution::measured::framing::FramedSource>::take_line
+
+     6.05%     0.58%  postgres         pg_wildcard.so        [.] <regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+            |
+             --5.46%--<regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                       memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+
+     5.75%     0.00%  tokio-rt-worker  pg_wildcard.so        [.] <antalya_rs[bad8e0b89db77521]::execution::measured::framing::FramedSource>::packet
+            |
+            ---<antalya_rs[bad8e0b89db77521]::execution::measured::framing::FramedSource>::packet
+               |
+                --5.41%--base64[407719190e31a81f]::engine::Engine::decode::inner::<base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose>
+                          |
+                           --5.18%--<base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose as base64[407719190e31a81f]::engine::Engine>::internal_decode
+                                     base64[407719190e31a81f]::engine::general_purpose::decode::decode_complete_quads
+
+     5.63%     0.30%  postgres         pg_wildcard.so        [.] <u8 as core[efd5e57aef94d71e]::slice::cmp::SliceContains>::slice_contains
+            |
+             --5.33%--<u8 as core[efd5e57aef94d71e]::slice::cmp::SliceContains>::slice_contains
+                       core[efd5e57aef94d71e]::slice::memchr::memchr_aligned
+
+     5.46%     5.17%  postgres         pg_wildcard.so        [.] memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+            |
+             --5.17%--_start
+                       __libc_start_main
+                       0x7b696a425ca7
+                       main
+                       PostmasterMain
+                       0x59ad788f473e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x59ad78997667
+                       PortalRun
+                       0x59ad7899b5f6
+                       0x59ad7899b230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x59ad7874dca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x59ad787c47cc
+                       ExecScan
+                       0x59ad787b9194
+                       wc_match_wrapper
+                       pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                       <libwildcard[531aef06d2b70d10]::core::verify::Matcher>::is_match
+                       <libwildcard[531aef06d2b70d10]::core::verify::Matcher>::search_with_scratch
+                       <regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Pre<regex_automata[5b3d36fa3ef3e8c8]::util::prefilter::memmem::Memmem> as regex_automata[5b3d36fa3ef3e8c8]::meta::strategy::Strategy>::search_half
+                       memchr[114f60c27291ad0a]::memmem::searcher::searcher_kind_avx2
+
+     5.41%     0.00%  tokio-rt-worker  pg_wildcard.so        [.] base64[407719190e31a81f]::engine::Engine::decode::inner::<base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose>
+            |
+            ---base64[407719190e31a81f]::engine::Engine::decode::inner::<base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose>
+               |
+                --5.18%--<base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose as base64[407719190e31a81f]::engine::Engine>::internal_decode
+                          base64[407719190e31a81f]::engine::general_purpose::decode::decode_complete_quads
+
+     5.33%     5.33%  postgres         pg_wildcard.so        [.] core[efd5e57aef94d71e]::slice::memchr::memchr_aligned
+            |
+            ---pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner
+               <pgrx[f615e66467087050]::memcxt::PgMemoryContexts>::exec_in_context::<(), pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner::{closure#10}>
+               pg_wildcard[fa6338fa92e591c1]::fdw::values::input
+               <u8 as core[efd5e57aef94d71e]::slice::cmp::SliceContains>::slice_contains
+               core[efd5e57aef94d71e]::slice::memchr::memchr_aligned
+
+     5.18%     5.18%  tokio-rt-worker  pg_wildcard.so        [.] base64[407719190e31a81f]::engine::general_purpose::decode::decode_complete_quads
+            |
+            ---<core[efd5e57aef94d71e]::pin::Pin<alloc[c23e483dde3f7cfb]::boxed::Box<<pg_wildcard[fa6338fa92e591c1]::fdw::transport::Session>::start_selected::{closure#2}>> as core[efd5e57aef94d71e]::future::future::Future>::poll
+               <antalya_rs[bad8e0b89db77521]::execution::Execution>::next_batch::{closure#0}
+               <antalya_rs[bad8e0b89db77521]::execution::Execution>::next_provisional_batch::{closure#0}
+               <antalya_rs[bad8e0b89db77521]::execution::measured::framing::FramedSource>::packet
+               base64[407719190e31a81f]::engine::Engine::decode::inner::<base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose>
+               <base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose as base64[407719190e31a81f]::engine::Engine>::internal_decode
+               base64[407719190e31a81f]::engine::general_purpose::decode::decode_complete_quads
+
+     5.18%     0.00%  tokio-rt-worker  pg_wildcard.so        [.] <base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose as base64[407719190e31a81f]::engine::Engine>::internal_decode
+            |
+            ---<base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose as base64[407719190e31a81f]::engine::Engine>::internal_decode
+               base64[407719190e31a81f]::engine::general_purpose::decode::decode_complete_quads
+
+     4.72%     1.01%  postgres         pg_wildcard.so        [.] cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}>::{closure#0}>
+            |
+            |--3.70%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}>::{closure#0}>
+            |          |
+            |          |--2.06%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}>::{closure#0}>
+            |          |          |
+            |          |           --1.47%--AllocSetAlloc
+            |          |
+            |           --1.48%--__sigsetjmp
+            |
+             --1.01%--pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner
+                       <pgrx[f615e66467087050]::memcxt::PgMemoryContexts>::exec_in_context::<(), pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner::{closure#10}>
+                       <&[u8] as pgrx[f615e66467087050]::datum::into::IntoDatum>::into_datum
+                       cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}>::{closure#0}>
+
+     4.46%     1.62%  postgres         pg_wildcard.so        [.] cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+            |
+            |--2.84%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+            |          |
+            |          |--1.51%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+            |          |          |
+            |          |           --1.01%--pg_detoast_datum_packed
+            |          |
+            |           --1.19%--__sigsetjmp
+            |
+             --1.62%--_start
+                       __libc_start_main
+                       0x7b696a425ca7
+                       main
+                       PostmasterMain
+                       0x59ad788f473e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x59ad78997667
+                       PortalRun
+                       0x59ad7899b5f6
+                       0x59ad7899b230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x59ad7874dca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x59ad787c47cc
+                       ExecScan
+                       0x59ad787b9194
+                       wc_match_wrapper
+                       pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                       <&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                       <pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                       cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+
+     3.69%     3.69%  postgres         libc.so.6             [.] __sigsetjmp
+            |
+            |--2.50%--pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner
+            |          |
+            |          |--1.48%--<pgrx[f615e66467087050]::memcxt::PgMemoryContexts>::exec_in_context::<(), pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner::{closure#10}>
+            |          |          <&[u8] as pgrx[f615e66467087050]::datum::into::IntoDatum>::into_datum
+            |          |          cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}>::{closure#0}>
+            |          |          __sigsetjmp
+            |          |
+            |           --1.02%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::TupleTableSlot, pgrx_pg_sys[768ca042e806565a]::include::pg18::ExecStoreVirtualTuple::{closure#0}>::{closure#0}>
+            |                     __sigsetjmp
+            |
+             --1.19%--_start
+                       __libc_start_main
+                       0x7b696a425ca7
+                       main
+                       PostmasterMain
+                       0x59ad788f473e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x59ad78997667
+                       PortalRun
+                       0x59ad7899b5f6
+                       0x59ad7899b230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x59ad7874dca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x59ad787c47cc
+                       ExecScan
+                       0x59ad787b9194
+                       wc_match_wrapper
+                       pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+                       <&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+                       <pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+                       cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                       __sigsetjmp
+
+     3.01%     3.01%  postgres         pg_wildcard.so        [.] core[efd5e57aef94d71e]::str::converts::from_utf8
+            |
+            ---pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner
+               <pgrx[f615e66467087050]::memcxt::PgMemoryContexts>::exec_in_context::<(), pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner::{closure#10}>
+               pg_wildcard[fa6338fa92e591c1]::fdw::values::input
+               core[efd5e57aef94d71e]::str::converts::from_utf8
+
+     2.79%     0.60%  postgres         pg_wildcard.so        [.] pg_wildcard[fa6338fa92e591c1]::matcher
+            |
+             --2.19%--pg_wildcard[fa6338fa92e591c1]::matcher
+
+     2.51%     0.86%  postgres         pg_wildcard.so        [.] cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::TupleTableSlot, pgrx_pg_sys[768ca042e806565a]::include::pg18::ExecStoreVirtualTuple::{closure#0}>::{closure#0}>
+            |
+             --1.65%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::TupleTableSlot, pgrx_pg_sys[768ca042e806565a]::include::pg18::ExecStoreVirtualTuple::{closure#0}>::{closure#0}>
+                       |
+                        --1.02%--__sigsetjmp
+
+     2.24%     1.18%  postgres         pg_wildcard.so        [.] pg_wildcard[fa6338fa92e591c1]::fdw::values::integer
+            |
+            |--1.18%--pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner
+            |          <pgrx[f615e66467087050]::memcxt::PgMemoryContexts>::exec_in_context::<(), pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner::{closure#10}>
+            |          pg_wildcard[fa6338fa92e591c1]::fdw::values::input
+            |          pg_wildcard[fa6338fa92e591c1]::fdw::values::integer
+            |
+             --1.05%--pg_wildcard[fa6338fa92e591c1]::fdw::values::integer
+
+     2.17%     2.17%  postgres         pg_wildcard.so        [.] <pgrx[f615e66467087050]::memcxt::PgMemoryContexts>::value
+            |
+             --1.30%--pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner
+                       <pgrx[f615e66467087050]::memcxt::PgMemoryContexts>::value
+
+     2.11%     0.46%  postgres         postgres              [.] MemoryContextReset
+            |
+             --1.65%--MemoryContextReset
+                       AllocSetReset
+
+     2.06%     0.15%  postgres         pg_wildcard.so        [.] cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}>::{closure#0}>
+            |
+             --1.92%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}>::{closure#0}>
+                       |
+                        --1.47%--AllocSetAlloc
+
+     1.65%     1.65%  postgres         postgres              [.] AllocSetReset
+            |
+            ---_start
+               __libc_start_main
+               0x7b696a425ca7
+               main
+               PostmasterMain
+               0x59ad788f473e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               0x59ad78997667
+               PortalRun
+               0x59ad7899b5f6
+               0x59ad7899b230
+               standard_ProcessUtility
+               ExplainQuery
+               0x59ad7874dca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               0x59ad787c47cc
+               ExecScan
+               MemoryContextReset
+               AllocSetReset
+
+     1.51%     0.50%  postgres         pg_wildcard.so        [.] cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+            |
+             --1.01%--cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+                       pg_detoast_datum_packed
+
+     1.47%     1.47%  postgres         postgres              [.] AllocSetAlloc
+            |
+            ---pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner
+               <pgrx[f615e66467087050]::memcxt::PgMemoryContexts>::exec_in_context::<(), pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner::{closure#10}>
+               <&[u8] as pgrx[f615e66467087050]::datum::into::IntoDatum>::into_datum
+               cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}>::{closure#0}>
+               cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}>::{closure#0}>
+               AllocSetAlloc
+
+     1.41%     0.53%  postgres         pg_wildcard.so        [.] pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+     1.41%     0.00%  postgres         postgres              [.] 0x000059ad787d8812
+            |
+            ---0x59ad787d8812
+               pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan
+
+     1.31%     1.31%  postgres         pg_wildcard.so        [.] <pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+            |
+            ---_start
+               __libc_start_main
+               0x7b696a425ca7
+               main
+               PostmasterMain
+               0x59ad788f473e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               0x59ad78997667
+               PortalRun
+               0x59ad7899b5f6
+               0x59ad7899b230
+               standard_ProcessUtility
+               ExplainQuery
+               0x59ad7874dca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               0x59ad787c47cc
+               ExecScan
+               0x59ad787b9194
+               wc_match_wrapper
+               pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+               <pgrx[f615e66467087050]::callconv::Args as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator>::next
+
+     1.01%     1.01%  postgres         postgres              [.] pg_detoast_datum_packed
+            |
+            ---_start
+               __libc_start_main
+               0x7b696a425ca7
+               main
+               PostmasterMain
+               0x59ad788f473e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               0x59ad78997667
+               PortalRun
+               0x59ad7899b5f6
+               0x59ad7899b230
+               standard_ProcessUtility
+               ExplainQuery
+               0x59ad7874dca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               0x59ad787c47cc
+               ExecScan
+               0x59ad787b9194
+               wc_match_wrapper
+               pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::<core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe<pg_wildcard[fa6338fa92e591c1]::wc_match_wrapper::{closure#0}>, pgrx[f615e66467087050]::datum::Datum>
+               <&str as pgrx[f615e66467087050]::callconv::ArgAbi>::unbox_arg_unchecked
+               <pgrx[f615e66467087050]::callconv::Arg>::unbox_arg_using_from_datum::<&str>
+               cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+               cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::<pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl<*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::varlena, pgrx_pg_sys[768ca042e806565a]::include::pg18::pg_detoast_datum_packed::{closure#0}>::{closure#0}>
+               pg_detoast_datum_packed
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

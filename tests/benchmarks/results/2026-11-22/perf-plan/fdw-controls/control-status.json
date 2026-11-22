@@ -1,0 +1,51 @@
+[
+  {
+    "step": "fdw-c8",
+    "exit_status": 0,
+    "seconds": 154.6722063359921
+  },
+  {
+    "step": "fdw-c32",
+    "exit_status": 0,
+    "seconds": 625.486927231,
+    "boot_id": "6a938263-727a-480e-9594-d94516a2a6a0"
+  },
+  {
+    "step": "fdw-flush_first",
+    "exit_status": 0,
+    "seconds": 32.52421063599991,
+    "boot_id": "6a938263-727a-480e-9594-d94516a2a6a0"
+  },
+  {
+    "step": "fdw-observe_first",
+    "exit_status": 0,
+    "seconds": 75.44348692900007,
+    "boot_id": "6a938263-727a-480e-9594-d94516a2a6a0"
+  },
+  {
+    "step": "fdw-observe_only",
+    "exit_status": 0,
+    "seconds": 82.67918830199983,
+    "boot_id": "6a938263-727a-480e-9594-d94516a2a6a0"
+  },
+  {
+    "step": "fdw-in_band",
+    "exit_status": 0,
+    "seconds": 31.620178286000055,
+    "boot_id": "6a938263-727a-480e-9594-d94516a2a6a0"
+  },
+  {
+    "step": "fdw-budget-1048576",
+    "exit_status": 1,
+    "seconds": 1.5732077569998637,
+    "boot_id": "6a938263-727a-480e-9594-d94516a2a6a0",
+    "classification": "expected_data_resource_refusal; no completed latency sample"
+  },
+  {
+    "step": "fdw-budget-4194304",
+    "exit_status": 1,
+    "seconds": 1.671407582000029,
+    "boot_id": "6a938263-727a-480e-9594-d94516a2a6a0",
+    "classification": "expected_data_resource_refusal; no completed latency sample"
+  }
+]

@@ -14,6 +14,7 @@ PostgreSQL and registry-client prerequisites.
 | HTTP/Arrow transport regressions | `tests/transport` | Rust |
 | FDW transport and value decoders | `tests/fdw/harness` | Rust; no PostgreSQL server |
 | Extension and FDW integration | `pg_wildcard`, `tests/fdw` | PostgreSQL, pgrx; chDB or owned Antalya fixture |
+| Performance correctness smoke and route profiling | `tests/benchmarks` | chDB for CI; isolated native engine, PostgreSQL and Elasticsearch for full measurements |
 | Operations tooling | `tests/operations` | Python 3 standard library; native checks also need an owned Antalya fixture |
 
 ## Standalone library
@@ -83,6 +84,24 @@ The image digest and expected version are defined in
 That semantic fixture and the companion's framed-transport fixture test
 different contracts; one does not replace the other.
 
+The differential corpus also executes the opt-in watchlist candidate join as a
+real materialized view. It compares complete multisets through rule updates,
+deactivation, empty watchlists and stale needle bindings, including duplicate
+source rows, multiple IDs sharing a pattern, qualified/empty projections,
+internal-name collisions, materialized raw columns and values on both sides of
+the extraction limit. Unicode and invalid-byte controls stay in the corpus.
+
+For an already-owned `wildcard-benchmark-antalya-*` fixture, set
+`ANTALYA_TEST_CONTAINER` to the exact container name and pass that name to
+`tests/differential/run.py --antalya-container`. The helper checks the Docker
+ownership label and creates a private database/user; it removes only those test
+objects. Run qualification outside active timing measurements. Ownership
+rejections are checked with:
+
+```sh
+python3 -m unittest discover -s libwildcard/tests/differential -p 'test_*.py' -v
+```
+
 ## Consumer and transport tests
 
 These Cargo workspaces use the published `antalya-rs` 0.1.0 crate; no sibling
@@ -131,7 +150,9 @@ Native operations checks use the companion's owned framed fixture; see
 The automatic [CI workflow](../.github/workflows/ci.yml) runs on pushes and pull
 requests. Standalone default/all-feature tests, formatting, Clippy, package
 verification, license checks, seeded ClickHouse parity and the Iceberg/Puffin
-end-to-end test run without an Antalya checkout. The backend matcher-cache tests
+end-to-end test run without an Antalya checkout. The parity job also runs a
+1% sweep/ingest correctness benchmark and uploads timings without performance
+thresholds; see [measurement contracts and reproduction](../tests/benchmarks/README.md). The backend matcher-cache tests
 also run directly with `rustc --test`, without PostgreSQL or a companion.
 The separate consumer job resolves the published Antalya client and runs
 compatibility crates, HTTP/Arrow transport and the PostgreSQL-independent FDW

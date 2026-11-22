@@ -1,0 +1,1534 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 3K of event 'cycles:u'
+# Event count (approx.): 46259954764
+#
+# Children      Self  Command          Shared Object         Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+# ........  ........  ...............  ....................  ..........................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    42.41%     0.00%  postgres         postgres              [.] PostgresMain
+            |
+            ---PostgresMain
+               |          
+                --42.41%--0x5904bc194667
+                          PortalRun
+                          0x5904bc1985f6
+                          |          
+                           --42.38%--0x5904bc198230
+                                     standard_ProcessUtility
+                                     ExplainQuery
+                                     0x5904bbf4aca0
+                                     standard_ExplainOneQuery
+                                     ExplainOnePlan
+                                     |          
+                                      --42.35%--standard_ExecutorRun
+                                                |          
+                                                |--37.52%--0x5904bbfc17cc
+                                                |          |          
+                                                |           --36.93%--ExecScan
+                                                |                     |          
+                                                |                     |--26.99%--0x5904bbfb6194
+                                                |                     |          wc_match_wrapper
+                                                |                     |          |          
+                                                |                     |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                                                |                     |                     |          
+                                                |                     |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                                                |                     |                     |          |          
+                                                |                     |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                                                |                     |                     |                     |          
+                                                |                     |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                                                |                     |                     |                                |          
+                                                |                     |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                                                |                     |                     |          
+                                                |                     |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                                                |                     |                     |          |          
+                                                |                     |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                                                |                     |                     |                     |          
+                                                |                     |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                                                |                     |                     |                     |          |          
+                                                |                     |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                                                |                     |                     |                     |          
+                                                |                     |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                                                |                     |                     |          
+                                                |                     |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                                                |                     |                     |          
+                                                |                     |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+                                                |                     |          
+                                                |                     |--3.15%--MemoryContextReset
+                                                |                     |          |          
+                                                |                     |           --2.70%--AllocSetReset
+                                                |                     |          
+                                                |                      --1.38%--0x5904bbfd5812
+                                                |                                _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                                                |          
+                                                 --1.95%--0x5904bbfc17e7
+                                                           InstrStopNode
+                                                           |          
+                                                            --1.44%--BufferUsageAccumDiff
+
+    42.41%     0.00%  postgres         postgres              [.] 0x00005904bc194667
+            |
+            ---0x5904bc194667
+               PortalRun
+               0x5904bc1985f6
+               |          
+                --42.38%--0x5904bc198230
+                          standard_ProcessUtility
+                          ExplainQuery
+                          0x5904bbf4aca0
+                          standard_ExplainOneQuery
+                          ExplainOnePlan
+                          |          
+                           --42.35%--standard_ExecutorRun
+                                     |          
+                                     |--37.52%--0x5904bbfc17cc
+                                     |          |          
+                                     |           --36.93%--ExecScan
+                                     |                     |          
+                                     |                     |--26.99%--0x5904bbfb6194
+                                     |                     |          wc_match_wrapper
+                                     |                     |          |          
+                                     |                     |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                                     |                     |                     |          
+                                     |                     |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                                     |                     |                     |          |          
+                                     |                     |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                                     |                     |                     |                     |          
+                                     |                     |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                                     |                     |                     |                                |          
+                                     |                     |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                                     |                     |                     |          
+                                     |                     |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                                     |                     |                     |          |          
+                                     |                     |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                                     |                     |                     |                     |          
+                                     |                     |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                                     |                     |                     |                     |          |          
+                                     |                     |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                                     |                     |                     |                     |          
+                                     |                     |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                                     |                     |                     |          
+                                     |                     |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                                     |                     |                     |          
+                                     |                     |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+                                     |                     |          
+                                     |                     |--3.15%--MemoryContextReset
+                                     |                     |          |          
+                                     |                     |           --2.70%--AllocSetReset
+                                     |                     |          
+                                     |                      --1.38%--0x5904bbfd5812
+                                     |                                _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                                     |          
+                                      --1.95%--0x5904bbfc17e7
+                                                InstrStopNode
+                                                |          
+                                                 --1.44%--BufferUsageAccumDiff
+
+    42.41%     0.00%  postgres         postgres              [.] PortalRun
+            |
+            ---PortalRun
+               0x5904bc1985f6
+               |          
+                --42.38%--0x5904bc198230
+                          standard_ProcessUtility
+                          ExplainQuery
+                          0x5904bbf4aca0
+                          standard_ExplainOneQuery
+                          ExplainOnePlan
+                          |          
+                           --42.35%--standard_ExecutorRun
+                                     |          
+                                     |--37.52%--0x5904bbfc17cc
+                                     |          |          
+                                     |           --36.93%--ExecScan
+                                     |                     |          
+                                     |                     |--26.99%--0x5904bbfb6194
+                                     |                     |          wc_match_wrapper
+                                     |                     |          |          
+                                     |                     |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                                     |                     |                     |          
+                                     |                     |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                                     |                     |                     |          |          
+                                     |                     |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                                     |                     |                     |                     |          
+                                     |                     |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                                     |                     |                     |                                |          
+                                     |                     |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                                     |                     |                     |          
+                                     |                     |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                                     |                     |                     |          |          
+                                     |                     |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                                     |                     |                     |                     |          
+                                     |                     |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                                     |                     |                     |                     |          |          
+                                     |                     |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                                     |                     |                     |                     |          
+                                     |                     |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                                     |                     |                     |          
+                                     |                     |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                                     |                     |                     |          
+                                     |                     |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+                                     |                     |          
+                                     |                     |--3.15%--MemoryContextReset
+                                     |                     |          |          
+                                     |                     |           --2.70%--AllocSetReset
+                                     |                     |          
+                                     |                      --1.38%--0x5904bbfd5812
+                                     |                                _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                                     |          
+                                      --1.95%--0x5904bbfc17e7
+                                                InstrStopNode
+                                                |          
+                                                 --1.44%--BufferUsageAccumDiff
+
+    42.41%     0.00%  postgres         postgres              [.] 0x00005904bc1985f6
+            |
+            ---0x5904bc1985f6
+               |          
+                --42.38%--0x5904bc198230
+                          standard_ProcessUtility
+                          ExplainQuery
+                          0x5904bbf4aca0
+                          standard_ExplainOneQuery
+                          ExplainOnePlan
+                          |          
+                           --42.35%--standard_ExecutorRun
+                                     |          
+                                     |--37.52%--0x5904bbfc17cc
+                                     |          |          
+                                     |           --36.93%--ExecScan
+                                     |                     |          
+                                     |                     |--26.99%--0x5904bbfb6194
+                                     |                     |          wc_match_wrapper
+                                     |                     |          |          
+                                     |                     |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                                     |                     |                     |          
+                                     |                     |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                                     |                     |                     |          |          
+                                     |                     |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                                     |                     |                     |                     |          
+                                     |                     |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                                     |                     |                     |                                |          
+                                     |                     |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                                     |                     |                     |          
+                                     |                     |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                                     |                     |                     |          |          
+                                     |                     |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                                     |                     |                     |                     |          
+                                     |                     |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                                     |                     |                     |                     |          |          
+                                     |                     |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                                     |                     |                     |                     |          
+                                     |                     |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                                     |                     |                     |          
+                                     |                     |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                                     |                     |                     |          
+                                     |                     |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+                                     |                     |          
+                                     |                     |--3.15%--MemoryContextReset
+                                     |                     |          |          
+                                     |                     |           --2.70%--AllocSetReset
+                                     |                     |          
+                                     |                      --1.38%--0x5904bbfd5812
+                                     |                                _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                                     |          
+                                      --1.95%--0x5904bbfc17e7
+                                                InstrStopNode
+                                                |          
+                                                 --1.44%--BufferUsageAccumDiff
+
+    42.38%     0.00%  postgres         postgres              [.] 0x00005904bc198230
+            |
+            ---0x5904bc198230
+               standard_ProcessUtility
+               ExplainQuery
+               0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               |          
+                --42.35%--standard_ExecutorRun
+                          |          
+                          |--37.52%--0x5904bbfc17cc
+                          |          |          
+                          |           --36.93%--ExecScan
+                          |                     |          
+                          |                     |--26.99%--0x5904bbfb6194
+                          |                     |          wc_match_wrapper
+                          |                     |          |          
+                          |                     |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                          |                     |                     |          
+                          |                     |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                          |                     |                     |          |          
+                          |                     |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                          |                     |                     |                     |          
+                          |                     |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                          |                     |                     |                                |          
+                          |                     |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                          |                     |                     |          
+                          |                     |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                          |                     |                     |          |          
+                          |                     |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                          |                     |                     |                     |          
+                          |                     |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |                     |                     |          |          
+                          |                     |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |                     |                     |          
+                          |                     |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                          |                     |                     |          
+                          |                     |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                          |                     |                     |          
+                          |                     |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+                          |                     |          
+                          |                     |--3.15%--MemoryContextReset
+                          |                     |          |          
+                          |                     |           --2.70%--AllocSetReset
+                          |                     |          
+                          |                      --1.38%--0x5904bbfd5812
+                          |                                _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                          |          
+                           --1.95%--0x5904bbfc17e7
+                                     InstrStopNode
+                                     |          
+                                      --1.44%--BufferUsageAccumDiff
+
+    42.38%     0.00%  postgres         postgres              [.] standard_ProcessUtility
+            |
+            ---standard_ProcessUtility
+               ExplainQuery
+               0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               |          
+                --42.35%--standard_ExecutorRun
+                          |          
+                          |--37.52%--0x5904bbfc17cc
+                          |          |          
+                          |           --36.93%--ExecScan
+                          |                     |          
+                          |                     |--26.99%--0x5904bbfb6194
+                          |                     |          wc_match_wrapper
+                          |                     |          |          
+                          |                     |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                          |                     |                     |          
+                          |                     |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                          |                     |                     |          |          
+                          |                     |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                          |                     |                     |                     |          
+                          |                     |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                          |                     |                     |                                |          
+                          |                     |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                          |                     |                     |          
+                          |                     |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                          |                     |                     |          |          
+                          |                     |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                          |                     |                     |                     |          
+                          |                     |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |                     |                     |          |          
+                          |                     |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |                     |                     |          
+                          |                     |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                          |                     |                     |          
+                          |                     |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                          |                     |                     |          
+                          |                     |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+                          |                     |          
+                          |                     |--3.15%--MemoryContextReset
+                          |                     |          |          
+                          |                     |           --2.70%--AllocSetReset
+                          |                     |          
+                          |                      --1.38%--0x5904bbfd5812
+                          |                                _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                          |          
+                           --1.95%--0x5904bbfc17e7
+                                     InstrStopNode
+                                     |          
+                                      --1.44%--BufferUsageAccumDiff
+
+    42.38%     0.00%  postgres         postgres              [.] ExplainQuery
+            |
+            ---ExplainQuery
+               0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               |          
+                --42.35%--standard_ExecutorRun
+                          |          
+                          |--37.52%--0x5904bbfc17cc
+                          |          |          
+                          |           --36.93%--ExecScan
+                          |                     |          
+                          |                     |--26.99%--0x5904bbfb6194
+                          |                     |          wc_match_wrapper
+                          |                     |          |          
+                          |                     |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                          |                     |                     |          
+                          |                     |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                          |                     |                     |          |          
+                          |                     |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                          |                     |                     |                     |          
+                          |                     |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                          |                     |                     |                                |          
+                          |                     |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                          |                     |                     |          
+                          |                     |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                          |                     |                     |          |          
+                          |                     |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                          |                     |                     |                     |          
+                          |                     |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |                     |                     |          |          
+                          |                     |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |                     |                     |          
+                          |                     |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                          |                     |                     |          
+                          |                     |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                          |                     |                     |          
+                          |                     |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+                          |                     |          
+                          |                     |--3.15%--MemoryContextReset
+                          |                     |          |          
+                          |                     |           --2.70%--AllocSetReset
+                          |                     |          
+                          |                      --1.38%--0x5904bbfd5812
+                          |                                _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                          |          
+                           --1.95%--0x5904bbfc17e7
+                                     InstrStopNode
+                                     |          
+                                      --1.44%--BufferUsageAccumDiff
+
+    42.38%     0.00%  postgres         postgres              [.] 0x00005904bbf4aca0
+            |
+            ---0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               |          
+                --42.35%--standard_ExecutorRun
+                          |          
+                          |--37.52%--0x5904bbfc17cc
+                          |          |          
+                          |           --36.93%--ExecScan
+                          |                     |          
+                          |                     |--26.99%--0x5904bbfb6194
+                          |                     |          wc_match_wrapper
+                          |                     |          |          
+                          |                     |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                          |                     |                     |          
+                          |                     |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                          |                     |                     |          |          
+                          |                     |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                          |                     |                     |                     |          
+                          |                     |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                          |                     |                     |                                |          
+                          |                     |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                          |                     |                     |          
+                          |                     |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                          |                     |                     |          |          
+                          |                     |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                          |                     |                     |                     |          
+                          |                     |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |                     |                     |          |          
+                          |                     |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |                     |                     |          
+                          |                     |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                          |                     |                     |          
+                          |                     |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                          |                     |                     |          
+                          |                     |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+                          |                     |          
+                          |                     |--3.15%--MemoryContextReset
+                          |                     |          |          
+                          |                     |           --2.70%--AllocSetReset
+                          |                     |          
+                          |                      --1.38%--0x5904bbfd5812
+                          |                                _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                          |          
+                           --1.95%--0x5904bbfc17e7
+                                     InstrStopNode
+                                     |          
+                                      --1.44%--BufferUsageAccumDiff
+
+    42.38%     0.00%  postgres         postgres              [.] standard_ExplainOneQuery
+            |
+            ---standard_ExplainOneQuery
+               ExplainOnePlan
+               |          
+                --42.35%--standard_ExecutorRun
+                          |          
+                          |--37.52%--0x5904bbfc17cc
+                          |          |          
+                          |           --36.93%--ExecScan
+                          |                     |          
+                          |                     |--26.99%--0x5904bbfb6194
+                          |                     |          wc_match_wrapper
+                          |                     |          |          
+                          |                     |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                          |                     |                     |          
+                          |                     |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                          |                     |                     |          |          
+                          |                     |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                          |                     |                     |                     |          
+                          |                     |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                          |                     |                     |                                |          
+                          |                     |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                          |                     |                     |          
+                          |                     |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                          |                     |                     |          |          
+                          |                     |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                          |                     |                     |                     |          
+                          |                     |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |                     |                     |          |          
+                          |                     |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |                     |                     |          
+                          |                     |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                          |                     |                     |          
+                          |                     |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                          |                     |                     |          
+                          |                     |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+                          |                     |          
+                          |                     |--3.15%--MemoryContextReset
+                          |                     |          |          
+                          |                     |           --2.70%--AllocSetReset
+                          |                     |          
+                          |                      --1.38%--0x5904bbfd5812
+                          |                                _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                          |          
+                           --1.95%--0x5904bbfc17e7
+                                     InstrStopNode
+                                     |          
+                                      --1.44%--BufferUsageAccumDiff
+
+    42.38%     0.00%  postgres         postgres              [.] ExplainOnePlan
+            |
+            ---ExplainOnePlan
+               |          
+                --42.35%--standard_ExecutorRun
+                          |          
+                          |--37.52%--0x5904bbfc17cc
+                          |          |          
+                          |           --36.93%--ExecScan
+                          |                     |          
+                          |                     |--26.99%--0x5904bbfb6194
+                          |                     |          wc_match_wrapper
+                          |                     |          |          
+                          |                     |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                          |                     |                     |          
+                          |                     |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                          |                     |                     |          |          
+                          |                     |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                          |                     |                     |                     |          
+                          |                     |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                          |                     |                     |                                |          
+                          |                     |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                          |                     |                     |          
+                          |                     |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                          |                     |                     |          |          
+                          |                     |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                          |                     |                     |                     |          
+                          |                     |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |                     |                     |          |          
+                          |                     |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |                     |                     |          
+                          |                     |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                          |                     |                     |          
+                          |                     |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                          |                     |                     |          
+                          |                     |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+                          |                     |          
+                          |                     |--3.15%--MemoryContextReset
+                          |                     |          |          
+                          |                     |           --2.70%--AllocSetReset
+                          |                     |          
+                          |                      --1.38%--0x5904bbfd5812
+                          |                                _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                          |          
+                           --1.95%--0x5904bbfc17e7
+                                     InstrStopNode
+                                     |          
+                                      --1.44%--BufferUsageAccumDiff
+
+    42.35%     0.61%  postgres         postgres              [.] standard_ExecutorRun
+            |          
+             --41.74%--standard_ExecutorRun
+                       |          
+                       |--37.52%--0x5904bbfc17cc
+                       |          |          
+                       |           --36.93%--ExecScan
+                       |                     |          
+                       |                     |--26.99%--0x5904bbfb6194
+                       |                     |          wc_match_wrapper
+                       |                     |          |          
+                       |                     |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                       |                     |                     |          
+                       |                     |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                       |                     |                     |          |          
+                       |                     |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                       |                     |                     |                     |          
+                       |                     |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                       |                     |                     |                                |          
+                       |                     |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                       |                     |                     |          
+                       |                     |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                       |                     |                     |          |          
+                       |                     |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                       |                     |                     |                     |          
+                       |                     |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                       |                     |                     |                     |          |          
+                       |                     |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                       |                     |                     |                     |          
+                       |                     |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                       |                     |                     |          
+                       |                     |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                       |                     |                     |          
+                       |                     |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+                       |                     |          
+                       |                     |--3.15%--MemoryContextReset
+                       |                     |          |          
+                       |                     |           --2.70%--AllocSetReset
+                       |                     |          
+                       |                      --1.38%--0x5904bbfd5812
+                       |                                _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                       |          
+                        --1.95%--0x5904bbfc17e7
+                                  InstrStopNode
+                                  |          
+                                   --1.44%--BufferUsageAccumDiff
+
+    42.33%     0.00%  postgres         postgres              [.] 0x00005904bc0f173e
+            |
+            ---0x5904bc0f173e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               |          
+                --42.33%--0x5904bc194667
+                          PortalRun
+                          0x5904bc1985f6
+                          |          
+                           --42.30%--0x5904bc198230
+                                     standard_ProcessUtility
+                                     ExplainQuery
+                                     0x5904bbf4aca0
+                                     standard_ExplainOneQuery
+                                     ExplainOnePlan
+                                     |          
+                                      --42.27%--standard_ExecutorRun
+                                                |          
+                                                |--37.44%--0x5904bbfc17cc
+                                                |          |          
+                                                |           --36.84%--ExecScan
+                                                |                     |          
+                                                |                     |--26.99%--0x5904bbfb6194
+                                                |                     |          wc_match_wrapper
+                                                |                     |          |          
+                                                |                     |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                                                |                     |                     |          
+                                                |                     |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                                                |                     |                     |          |          
+                                                |                     |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                                                |                     |                     |                     |          
+                                                |                     |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                                                |                     |                     |                                |          
+                                                |                     |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                                                |                     |                     |          
+                                                |                     |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                                                |                     |                     |          |          
+                                                |                     |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                                                |                     |                     |                     |          
+                                                |                     |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                                                |                     |                     |                     |          |          
+                                                |                     |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                                                |                     |                     |                     |          
+                                                |                     |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                                                |                     |                     |          
+                                                |                     |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                                                |                     |                     |          
+                                                |                     |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+                                                |                     |          
+                                                |                     |--3.15%--MemoryContextReset
+                                                |                     |          |          
+                                                |                     |           --2.70%--AllocSetReset
+                                                |                     |          
+                                                |                      --1.30%--0x5904bbfd5812
+                                                |                                _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                                                |          
+                                                 --1.95%--0x5904bbfc17e7
+                                                           InstrStopNode
+                                                           |          
+                                                            --1.44%--BufferUsageAccumDiff
+
+    42.33%     0.00%  postgres         postgres              [.] postmaster_child_launch
+            |
+            ---postmaster_child_launch
+               BackendMain
+               PostgresMain
+               |          
+                --42.33%--0x5904bc194667
+                          PortalRun
+                          0x5904bc1985f6
+                          |          
+                           --42.30%--0x5904bc198230
+                                     standard_ProcessUtility
+                                     ExplainQuery
+                                     0x5904bbf4aca0
+                                     standard_ExplainOneQuery
+                                     ExplainOnePlan
+                                     |          
+                                      --42.27%--standard_ExecutorRun
+                                                |          
+                                                |--37.44%--0x5904bbfc17cc
+                                                |          |          
+                                                |           --36.84%--ExecScan
+                                                |                     |          
+                                                |                     |--26.99%--0x5904bbfb6194
+                                                |                     |          wc_match_wrapper
+                                                |                     |          |          
+                                                |                     |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                                                |                     |                     |          
+                                                |                     |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                                                |                     |                     |          |          
+                                                |                     |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                                                |                     |                     |                     |          
+                                                |                     |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                                                |                     |                     |                                |          
+                                                |                     |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                                                |                     |                     |          
+                                                |                     |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                                                |                     |                     |          |          
+                                                |                     |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                                                |                     |                     |                     |          
+                                                |                     |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                                                |                     |                     |                     |          |          
+                                                |                     |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                                                |                     |                     |                     |          
+                                                |                     |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                                                |                     |                     |          
+                                                |                     |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                                                |                     |                     |          
+                                                |                     |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+                                                |                     |          
+                                                |                     |--3.15%--MemoryContextReset
+                                                |                     |          |          
+                                                |                     |           --2.70%--AllocSetReset
+                                                |                     |          
+                                                |                      --1.30%--0x5904bbfd5812
+                                                |                                _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                                                |          
+                                                 --1.95%--0x5904bbfc17e7
+                                                           InstrStopNode
+                                                           |          
+                                                            --1.44%--BufferUsageAccumDiff
+
+    42.33%     0.00%  postgres         postgres              [.] BackendMain
+            |
+            ---BackendMain
+               PostgresMain
+               |          
+                --42.33%--0x5904bc194667
+                          PortalRun
+                          0x5904bc1985f6
+                          |          
+                           --42.30%--0x5904bc198230
+                                     standard_ProcessUtility
+                                     ExplainQuery
+                                     0x5904bbf4aca0
+                                     standard_ExplainOneQuery
+                                     ExplainOnePlan
+                                     |          
+                                      --42.27%--standard_ExecutorRun
+                                                |          
+                                                |--37.44%--0x5904bbfc17cc
+                                                |          |          
+                                                |           --36.84%--ExecScan
+                                                |                     |          
+                                                |                     |--26.99%--0x5904bbfb6194
+                                                |                     |          wc_match_wrapper
+                                                |                     |          |          
+                                                |                     |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                                                |                     |                     |          
+                                                |                     |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                                                |                     |                     |          |          
+                                                |                     |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                                                |                     |                     |                     |          
+                                                |                     |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                                                |                     |                     |                                |          
+                                                |                     |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                                                |                     |                     |          
+                                                |                     |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                                                |                     |                     |          |          
+                                                |                     |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                                                |                     |                     |                     |          
+                                                |                     |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                                                |                     |                     |                     |          |          
+                                                |                     |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                                                |                     |                     |                     |          
+                                                |                     |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                                                |                     |                     |          
+                                                |                     |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                                                |                     |                     |          
+                                                |                     |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+                                                |                     |          
+                                                |                     |--3.15%--MemoryContextReset
+                                                |                     |          |          
+                                                |                     |           --2.70%--AllocSetReset
+                                                |                     |          
+                                                |                      --1.30%--0x5904bbfd5812
+                                                |                                _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+                                                |          
+                                                 --1.95%--0x5904bbfc17e7
+                                                           InstrStopNode
+                                                           |          
+                                                            --1.44%--BufferUsageAccumDiff
+
+    42.31%     3.05%  postgres         pg_wildcard.so        [.] _RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+            |          
+             --41.85%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+                       |          
+                       |--36.06%--_RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inners8_0EB1k_
+                       |          |          
+                       |          |--20.81%--_RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values5input
+                       |          |          |          
+                       |          |          |--4.42%--_RNvXsg_NtNtCskADBYZwJmSU_4core5slice3cmphNtB5_13SliceContains14slice_containsCsluO35PC9wjJ_11pg_wildcard
+                       |          |          |          |          
+                       |          |          |           --4.22%--_RNvNtNtCskADBYZwJmSU_4core5slice6memchr14memchr_aligned
+                       |          |          |          
+                       |          |          |--3.36%--_RNvNtNtCskADBYZwJmSU_4core3str8converts9from_utf8
+                       |          |          |          
+                       |          |          |--1.35%--_RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values7integer
+                       |          |          |          
+                       |          |           --1.09%--_RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values9supported
+                       |          |          
+                       |           --7.51%--_RNvXsb_NtNtCsl7UgMljjqkm_4pgrx5datum4intoRShNtB5_9IntoDatum10into_datum
+                       |                     |          
+                       |                     |--4.32%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB16_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+                       |                     |          |          
+                       |                     |           --2.22%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB1t_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+                       |                     |                     |          
+                       |                     |                      --1.39%--AllocSetAlloc
+                       |                     |          
+                       |                      --1.08%--_RNvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules12thread_check19check_active_thread
+                       |          
+                        --1.75%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg1814TupleTableSlotNCNvB2i_21ExecStoreVirtualTuple0E0ECsluO35PC9wjJ_11pg_wildcard
+
+    37.52%     0.00%  postgres         postgres              [.] 0x00005904bbfc17cc
+            |
+            ---0x5904bbfc17cc
+               |          
+                --36.93%--ExecScan
+                          |          
+                          |--26.99%--0x5904bbfb6194
+                          |          wc_match_wrapper
+                          |          |          
+                          |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                          |                     |          
+                          |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                          |                     |          |          
+                          |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                          |                     |                     |          
+                          |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                          |                     |                                |          
+                          |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                          |                     |          
+                          |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                          |                     |          |          
+                          |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                          |                     |                     |          
+                          |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |                     |          |          
+                          |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |                     |          
+                          |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                          |                     |          
+                          |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                          |                     |          
+                          |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+                          |          
+                          |--3.15%--MemoryContextReset
+                          |          |          
+                          |           --2.70%--AllocSetReset
+                          |          
+                           --1.38%--0x5904bbfd5812
+                                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+
+    36.93%     1.56%  postgres         postgres              [.] ExecScan
+            |          
+            |--35.36%--ExecScan
+            |          |          
+            |          |--26.99%--0x5904bbfb6194
+            |          |          wc_match_wrapper
+            |          |          |          
+            |          |           --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+            |          |                     |          
+            |          |                     |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+            |          |                     |          |          
+            |          |                     |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+            |          |                     |                     |          
+            |          |                     |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+            |          |                     |                                |          
+            |          |                     |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+            |          |                     |          
+            |          |                     |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+            |          |                     |          |          
+            |          |                     |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+            |          |                     |                     |          
+            |          |                     |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+            |          |                     |                     |          |          
+            |          |                     |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+            |          |                     |                     |          
+            |          |                     |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+            |          |                     |          
+            |          |                     |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+            |          |                     |          
+            |          |                      --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+            |          |          
+            |          |--3.15%--MemoryContextReset
+            |          |          |          
+            |          |           --2.70%--AllocSetReset
+            |          |          
+            |           --1.38%--0x5904bbfd5812
+            |                     _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+            |          
+             --1.56%--0x5904bc0f173e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x5904bc194667
+                       PortalRun
+                       0x5904bc1985f6
+                       0x5904bc198230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x5904bbf4aca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x5904bbfc17cc
+                       ExecScan
+
+    36.06%     7.74%  postgres         pg_wildcard.so        [.] _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inners8_0EB1k_
+            |          
+            |--28.32%--_RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inners8_0EB1k_
+            |          |          
+            |          |--20.81%--_RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values5input
+            |          |          |          
+            |          |          |--4.42%--_RNvXsg_NtNtCskADBYZwJmSU_4core5slice3cmphNtB5_13SliceContains14slice_containsCsluO35PC9wjJ_11pg_wildcard
+            |          |          |          |          
+            |          |          |           --4.22%--_RNvNtNtCskADBYZwJmSU_4core5slice6memchr14memchr_aligned
+            |          |          |          
+            |          |          |--3.36%--_RNvNtNtCskADBYZwJmSU_4core3str8converts9from_utf8
+            |          |          |          
+            |          |          |--1.35%--_RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values7integer
+            |          |          |          
+            |          |           --1.09%--_RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values9supported
+            |          |          
+            |           --7.51%--_RNvXsb_NtNtCsl7UgMljjqkm_4pgrx5datum4intoRShNtB5_9IntoDatum10into_datum
+            |                     |          
+            |                     |--4.32%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB16_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |                     |          |          
+            |                     |           --2.22%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB1t_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |                     |                     |          
+            |                     |                      --1.39%--AllocSetAlloc
+            |                     |          
+            |                      --1.08%--_RNvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules12thread_check19check_active_thread
+            |          
+             --7.74%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+                       _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inners8_0EB1k_
+
+    26.99%     0.50%  postgres         pg_wildcard.so        [.] wc_match_wrapper
+            |          
+             --26.49%--wc_match_wrapper
+                       _RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                       |          
+                       |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                       |          |          
+                       |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                       |                     |          
+                       |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                       |                                |          
+                       |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                       |          
+                       |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                       |          |          
+                       |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                       |                     |          
+                       |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                       |                     |          |          
+                       |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                       |                     |          
+                       |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                       |          
+                       |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                       |          
+                        --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+
+    26.99%     0.00%  postgres         postgres              [.] 0x00005904bbfb6194
+            |
+            ---0x5904bbfb6194
+               wc_match_wrapper
+               |          
+                --26.49%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                          |          
+                          |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                          |          |          
+                          |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                          |                     |          
+                          |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                          |                                |          
+                          |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+                          |          
+                          |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                          |          |          
+                          |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                          |                     |          
+                          |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |          |          
+                          |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                          |                     |          
+                          |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+                          |          
+                          |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+                          |          
+                           --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+
+    26.49%     5.39%  postgres         pg_wildcard.so        [.] _RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+            |          
+            |--21.10%--_RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+            |          |          
+            |          |--7.54%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+            |          |          |          
+            |          |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+            |          |                     |          
+            |          |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+            |          |                                |          
+            |          |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+            |          |          
+            |          |--7.17%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+            |          |          |          
+            |          |           --6.28%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+            |          |                     |          
+            |          |                     |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+            |          |                     |          |          
+            |          |                     |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+            |          |                     |          
+            |          |                      --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+            |          |          
+            |          |--3.29%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+            |          |          
+            |           --1.83%--_RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+            |          
+             --5.39%--0x5904bc0f173e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x5904bc194667
+                       PortalRun
+                       0x5904bc1985f6
+                       0x5904bc198230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x5904bbf4aca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x5904bbfc17cc
+                       ExecScan
+                       0x5904bbfb6194
+                       wc_match_wrapper
+                       _RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+
+    20.81%     7.96%  postgres         pg_wildcard.so        [.] _RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values5input
+            |          
+            |--12.85%--_RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values5input
+            |          |          
+            |          |--4.42%--_RNvXsg_NtNtCskADBYZwJmSU_4core5slice3cmphNtB5_13SliceContains14slice_containsCsluO35PC9wjJ_11pg_wildcard
+            |          |          |          
+            |          |           --4.22%--_RNvNtNtCskADBYZwJmSU_4core5slice6memchr14memchr_aligned
+            |          |          
+            |          |--3.36%--_RNvNtNtCskADBYZwJmSU_4core3str8converts9from_utf8
+            |          |          
+            |          |--1.35%--_RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values7integer
+            |          |          
+            |           --1.09%--_RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values9supported
+            |          
+             --7.96%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+                       _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inners8_0EB1k_
+                       _RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values5input
+
+    14.37%     0.02%  tokio-rt-worker  pg_wildcard.so        [.] _RNvXs_NtNtCskADBYZwJmSU_4core6future6futureINtNtB8_3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxNCNvMNtNtCsluO35PC9wjJ_11pg_wildcard3fdw9transportNtB1z_7Session14start_selecteds0_0EENtB4_6Future4pollB1D_
+            |
+            ---_RNvXs_NtNtCskADBYZwJmSU_4core6future6futureINtNtB8_3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxNCNvMNtNtCsluO35PC9wjJ_11pg_wildcard3fdw9transportNtB1z_7Session14start_selecteds0_0EENtB4_6Future4pollB1D_
+               |          
+                --14.30%--_RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution10next_batch0CsluO35PC9wjJ_11pg_wildcard
+                          |          
+                           --14.28%--_RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution22next_provisional_batch0CsluO35PC9wjJ_11pg_wildcard
+                                     |          
+                                     |--6.89%--_RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource6packet
+                                     |          |          
+                                     |           --6.74%--_RINvNvNtNtCs5x96DMWOFQh_6base646engine6Engine6decode5innerNtNtB6_15general_purpose14GeneralPurposeECsg2A9CO0ZyIn_10antalya_rs
+                                     |                     |          
+                                     |                      --6.22%--_RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+                                     |                                |          
+                                     |                                 --6.21%--_RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+                                     |          
+                                      --5.98%--_RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource9take_line
+
+    14.30%     0.00%  tokio-rt-worker  pg_wildcard.so        [.] _RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution10next_batch0CsluO35PC9wjJ_11pg_wildcard
+            |          
+             --14.30%--_RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution10next_batch0CsluO35PC9wjJ_11pg_wildcard
+                       |          
+                        --14.28%--_RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution22next_provisional_batch0CsluO35PC9wjJ_11pg_wildcard
+                                  |          
+                                  |--6.89%--_RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource6packet
+                                  |          |          
+                                  |           --6.74%--_RINvNvNtNtCs5x96DMWOFQh_6base646engine6Engine6decode5innerNtNtB6_15general_purpose14GeneralPurposeECsg2A9CO0ZyIn_10antalya_rs
+                                  |                     |          
+                                  |                      --6.22%--_RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+                                  |                                |          
+                                  |                                 --6.21%--_RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+                                  |          
+                                   --5.98%--_RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource9take_line
+
+    14.28%     0.06%  tokio-rt-worker  pg_wildcard.so        [.] _RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution22next_provisional_batch0CsluO35PC9wjJ_11pg_wildcard
+            |          
+             --14.22%--_RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution22next_provisional_batch0CsluO35PC9wjJ_11pg_wildcard
+                       |          
+                       |--6.89%--_RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource6packet
+                       |          |          
+                       |           --6.74%--_RINvNvNtNtCs5x96DMWOFQh_6base646engine6Engine6decode5innerNtNtB6_15general_purpose14GeneralPurposeECsg2A9CO0ZyIn_10antalya_rs
+                       |                     |          
+                       |                      --6.22%--_RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+                       |                                |          
+                       |                                 --6.21%--_RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+                       |          
+                        --5.98%--_RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource9take_line
+
+     7.54%     1.35%  postgres         pg_wildcard.so        [.] _RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+            |          
+            |--6.18%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+            |          |          
+            |           --5.92%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+            |                     |          
+            |                      --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+            |                                |          
+            |                                 --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+            |          
+             --1.35%--0x5904bc0f173e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x5904bc194667
+                       PortalRun
+                       0x5904bc1985f6
+                       0x5904bc198230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x5904bbf4aca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x5904bbfc17cc
+                       ExecScan
+                       0x5904bbfb6194
+                       wc_match_wrapper
+                       _RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                       _RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+
+     7.51%     1.63%  postgres         pg_wildcard.so        [.] _RNvXsb_NtNtCsl7UgMljjqkm_4pgrx5datum4intoRShNtB5_9IntoDatum10into_datum
+            |          
+            |--5.88%--_RNvXsb_NtNtCsl7UgMljjqkm_4pgrx5datum4intoRShNtB5_9IntoDatum10into_datum
+            |          |          
+            |          |--4.32%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB16_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |          |          |          
+            |          |           --2.22%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB1t_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |          |                     |          
+            |          |                      --1.39%--AllocSetAlloc
+            |          |          
+            |           --1.08%--_RNvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules12thread_check19check_active_thread
+            |          
+             --1.63%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+                       _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inners8_0EB1k_
+                       _RNvXsb_NtNtCsl7UgMljjqkm_4pgrx5datum4intoRShNtB5_9IntoDatum10into_datum
+
+     7.17%     0.89%  postgres         pg_wildcard.so        [.] _RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+            |          
+             --6.28%--_RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                       _RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                       |          
+                       |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                       |          |          
+                       |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+                       |          
+                        --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+
+     6.89%     0.00%  tokio-rt-worker  pg_wildcard.so        [.] _RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource6packet
+            |
+            ---_RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource6packet
+               |          
+                --6.74%--_RINvNvNtNtCs5x96DMWOFQh_6base646engine6Engine6decode5innerNtNtB6_15general_purpose14GeneralPurposeECsg2A9CO0ZyIn_10antalya_rs
+                          |          
+                           --6.22%--_RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+                                     |          
+                                      --6.21%--_RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+
+     6.74%     0.00%  tokio-rt-worker  pg_wildcard.so        [.] _RINvNvNtNtCs5x96DMWOFQh_6base646engine6Engine6decode5innerNtNtB6_15general_purpose14GeneralPurposeECsg2A9CO0ZyIn_10antalya_rs
+            |
+            ---_RINvNvNtNtCs5x96DMWOFQh_6base646engine6Engine6decode5innerNtNtB6_15general_purpose14GeneralPurposeECsg2A9CO0ZyIn_10antalya_rs
+               |          
+                --6.22%--_RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+                          |          
+                           --6.21%--_RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+
+     6.28%     1.50%  postgres         pg_wildcard.so        [.] _RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+            |          
+            |--4.78%--_RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+            |          |          
+            |          |--3.00%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+            |          |          |          
+            |          |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+            |          |          
+            |           --1.22%--_RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+            |          
+             --1.50%--0x5904bc0f173e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x5904bc194667
+                       PortalRun
+                       0x5904bc1985f6
+                       0x5904bc198230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x5904bbf4aca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x5904bbfc17cc
+                       ExecScan
+                       0x5904bbfb6194
+                       wc_match_wrapper
+                       _RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                       _RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                       _RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+
+     6.22%     0.00%  tokio-rt-worker  pg_wildcard.so        [.] _RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+            |
+            ---_RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+               |          
+                --6.21%--_RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+
+     6.21%     6.21%  tokio-rt-worker  pg_wildcard.so        [.] _RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+            |
+            ---_RNvXs_NtNtCskADBYZwJmSU_4core6future6futureINtNtB8_3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxNCNvMNtNtCsluO35PC9wjJ_11pg_wildcard3fdw9transportNtB1z_7Session14start_selecteds0_0EENtB4_6Future4pollB1D_
+               _RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution10next_batch0CsluO35PC9wjJ_11pg_wildcard
+               _RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution22next_provisional_batch0CsluO35PC9wjJ_11pg_wildcard
+               _RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource6packet
+               _RINvNvNtNtCs5x96DMWOFQh_6base646engine6Engine6decode5innerNtNtB6_15general_purpose14GeneralPurposeECsg2A9CO0ZyIn_10antalya_rs
+               _RNvXs_NtNtCs5x96DMWOFQh_6base646engine15general_purposeNtB4_14GeneralPurposeNtB6_6Engine15internal_decode
+               _RNvNtNtNtCs5x96DMWOFQh_6base646engine15general_purpose6decode21decode_complete_quads
+
+     5.98%     5.01%  tokio-rt-worker  pg_wildcard.so        [.] _RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource9take_line
+            |          
+             --5.01%--_RNvXs_NtNtCskADBYZwJmSU_4core6future6futureINtNtB8_3pin3PinINtNtCsgFX3jaOk65H_5alloc5boxed3BoxNCNvMNtNtCsluO35PC9wjJ_11pg_wildcard3fdw9transportNtB1z_7Session14start_selecteds0_0EENtB4_6Future4pollB1D_
+                       _RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution10next_batch0CsluO35PC9wjJ_11pg_wildcard
+                       _RNCNvMs6_NtCsg2A9CO0ZyIn_10antalya_rs9executionNtB7_9Execution22next_provisional_batch0CsluO35PC9wjJ_11pg_wildcard
+                       _RNvMNtNtNtCsg2A9CO0ZyIn_10antalya_rs9execution8measured7framingNtB2_12FramedSource9take_line
+
+     5.92%     1.30%  postgres         pg_wildcard.so        [.] _RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+            |          
+            |--4.62%--_RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+            |          |          
+            |           --4.00%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+            |                     |          
+            |                      --3.51%--_RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+            |          
+             --1.30%--0x5904bc0f173e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x5904bc194667
+                       PortalRun
+                       0x5904bc1985f6
+                       0x5904bc198230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x5904bbf4aca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x5904bbfc17cc
+                       ExecScan
+                       0x5904bbfb6194
+                       wc_match_wrapper
+                       _RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                       _RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                       _RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+
+     4.42%     0.20%  postgres         pg_wildcard.so        [.] _RNvXsg_NtNtCskADBYZwJmSU_4core5slice3cmphNtB5_13SliceContains14slice_containsCsluO35PC9wjJ_11pg_wildcard
+            |          
+             --4.22%--_RNvXsg_NtNtCskADBYZwJmSU_4core5slice3cmphNtB5_13SliceContains14slice_containsCsluO35PC9wjJ_11pg_wildcard
+                       _RNvNtNtCskADBYZwJmSU_4core5slice6memchr14memchr_aligned
+
+     4.32%     1.28%  postgres         pg_wildcard.so        [.] _RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB16_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |          
+            |--3.05%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB16_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |          |          
+            |           --2.22%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB1t_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |                     |          
+            |                      --1.39%--AllocSetAlloc
+            |          
+             --1.28%--_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+                       _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inners8_0EB1k_
+                       _RNvXsb_NtNtCsl7UgMljjqkm_4pgrx5datum4intoRShNtB5_9IntoDatum10into_datum
+                       _RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB16_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+
+     4.22%     4.22%  postgres         pg_wildcard.so        [.] _RNvNtNtCskADBYZwJmSU_4core5slice6memchr14memchr_aligned
+            |
+            ---_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inners8_0EB1k_
+               _RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values5input
+               _RNvXsg_NtNtCskADBYZwJmSU_4core5slice3cmphNtB5_13SliceContains14slice_containsCsluO35PC9wjJ_11pg_wildcard
+               _RNvNtNtCskADBYZwJmSU_4core5slice6memchr14memchr_aligned
+
+     4.00%     0.48%  postgres         pg_wildcard.so        [.] _RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+            |          
+             --3.51%--_RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                       _RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+
+     3.51%     3.25%  postgres         pg_wildcard.so        [.] _RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+            |          
+             --3.25%--0x5904bc0f173e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x5904bc194667
+                       PortalRun
+                       0x5904bc1985f6
+                       0x5904bc198230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x5904bbf4aca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x5904bbfc17cc
+                       ExecScan
+                       0x5904bbfb6194
+                       wc_match_wrapper
+                       _RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                       _RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher8is_match
+                       _RNvMs1_NtNtCs78mL3Nc0HTM_11libwildcard4core6verifyNtB5_7Matcher19search_with_scratch
+                       _RNvXs0_NtNtCs7PF9feU6y1M_14regex_automata4meta8strategyINtB5_3PreNtNtNtNtB9_4util9prefilter6memmem6MemmemENtB5_8Strategy11search_halfB9_
+                       _RNvNtNtCs1u8KnsH6WXm_6memchr6memmem8searcher18searcher_kind_avx2
+
+     3.36%     3.36%  postgres         pg_wildcard.so        [.] _RNvNtNtCskADBYZwJmSU_4core3str8converts9from_utf8
+            |
+            ---_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inners8_0EB1k_
+               _RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values5input
+               _RNvNtNtCskADBYZwJmSU_4core3str8converts9from_utf8
+
+     3.29%     1.27%  postgres         pg_wildcard.so        [.] _RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+            |          
+            |--2.03%--_RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+            |          
+             --1.27%--0x5904bc0f173e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x5904bc194667
+                       PortalRun
+                       0x5904bc1985f6
+                       0x5904bc198230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x5904bbf4aca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x5904bbfc17cc
+                       ExecScan
+                       0x5904bbfb6194
+                       wc_match_wrapper
+                       _RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                       _RNvCsluO35PC9wjJ_11pg_wildcard7matcher
+
+     3.15%     0.45%  postgres         postgres              [.] MemoryContextReset
+            |          
+             --2.70%--MemoryContextReset
+                       AllocSetReset
+
+     3.00%     1.11%  postgres         pg_wildcard.so        [.] _RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+            |          
+            |--1.90%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+            |          |          
+            |           --1.06%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+            |          
+             --1.11%--0x5904bc0f173e
+                       postmaster_child_launch
+                       BackendMain
+                       PostgresMain
+                       0x5904bc194667
+                       PortalRun
+                       0x5904bc1985f6
+                       0x5904bc198230
+                       standard_ProcessUtility
+                       ExplainQuery
+                       0x5904bbf4aca0
+                       standard_ExplainOneQuery
+                       ExplainOnePlan
+                       standard_ExecutorRun
+                       0x5904bbfc17cc
+                       ExecScan
+                       0x5904bbfb6194
+                       wc_match_wrapper
+                       _RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+                       _RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+                       _RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+                       _RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg187varlenaNCNvB2i_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+
+     2.96%     1.34%  postgres         pg_wildcard.so        [.] _RNvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules12thread_check19check_active_thread
+            |          
+             --1.63%--_RNvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules12thread_check19check_active_thread
+
+     2.70%     2.70%  postgres         postgres              [.] AllocSetReset
+            |
+            ---0x5904bc0f173e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               0x5904bc194667
+               PortalRun
+               0x5904bc1985f6
+               0x5904bc198230
+               standard_ProcessUtility
+               ExplainQuery
+               0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               0x5904bbfc17cc
+               ExecScan
+               MemoryContextReset
+               AllocSetReset
+
+     2.22%     0.21%  postgres         pg_wildcard.so        [.] _RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB1t_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+            |          
+             --2.01%--_RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB1t_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+                       |          
+                        --1.39%--AllocSetAlloc
+
+     1.95%     0.51%  postgres         postgres              [.] InstrStopNode
+            |          
+             --1.44%--InstrStopNode
+                       BufferUsageAccumDiff
+
+     1.95%     0.00%  postgres         postgres              [.] 0x00005904bbfc17e7
+            |
+            ---0x5904bbfc17e7
+               InstrStopNode
+               |          
+                --1.44%--BufferUsageAccumDiff
+
+     1.83%     1.83%  postgres         pg_wildcard.so        [.] _RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+            |
+            ---0x5904bc0f173e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               0x5904bc194667
+               PortalRun
+               0x5904bc1985f6
+               0x5904bc198230
+               standard_ProcessUtility
+               ExplainQuery
+               0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               0x5904bbfc17cc
+               ExecScan
+               0x5904bbfb6194
+               wc_match_wrapper
+               _RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+               _RNvXss_NtCsl7UgMljjqkm_4pgrx8callconvNtB5_4ArgsNtNtNtNtCskADBYZwJmSU_4core4iter6traits8iterator8Iterator4next
+
+     1.75%     0.67%  postgres         pg_wildcard.so        [.] _RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg1814TupleTableSlotNCNvB2i_21ExecStoreVirtualTuple0E0ECsluO35PC9wjJ_11pg_wildcard
+            |          
+             --1.07%--_RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB16_7include4pg1814TupleTableSlotNCNvB2i_21ExecStoreVirtualTuple0E0ECsluO35PC9wjJ_11pg_wildcard
+
+     1.44%     1.44%  postgres         postgres              [.] BufferUsageAccumDiff
+            |
+            ---0x5904bc0f173e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               0x5904bc194667
+               PortalRun
+               0x5904bc1985f6
+               0x5904bc198230
+               standard_ProcessUtility
+               ExplainQuery
+               0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               0x5904bbfc17e7
+               InstrStopNode
+               BufferUsageAccumDiff
+
+     1.39%     1.39%  postgres         postgres              [.] AllocSetAlloc
+            |
+            ---_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inners8_0EB1k_
+               _RNvXsb_NtNtCsl7UgMljjqkm_4pgrx5datum4intoRShNtB5_9IntoDatum10into_datum
+               _RINvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmpNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB16_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+               _RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtCskADBYZwJmSU_4core3ffi6c_voidNCNvNtNtB1t_7include4pg186palloc0E0ECsl7UgMljjqkm_4pgrx
+               AllocSetAlloc
+
+     1.38%     0.69%  postgres         pg_wildcard.so        [.] _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+     1.38%     0.00%  postgres         postgres              [.] 0x00005904bbfd5812
+            |
+            ---0x5904bbfd5812
+               _RNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan
+
+     1.35%     0.75%  postgres         pg_wildcard.so        [.] _RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values7integer
+     1.22%     1.22%  postgres         pg_wildcard.so        [.] _RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+            |
+            ---0x5904bc0f173e
+               postmaster_child_launch
+               BackendMain
+               PostgresMain
+               0x5904bc194667
+               PortalRun
+               0x5904bc1985f6
+               0x5904bc198230
+               standard_ProcessUtility
+               ExplainQuery
+               0x5904bbf4aca0
+               standard_ExplainOneQuery
+               ExplainOnePlan
+               standard_ExecutorRun
+               0x5904bbfc17cc
+               ExecScan
+               0x5904bbfb6194
+               wc_match_wrapper
+               _RINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules5panic11run_guardedINtNtNtCskADBYZwJmSU_4core5panic11unwind_safe16AssertUnwindSafeNCNvCsluO35PC9wjJ_11pg_wildcard16wc_match_wrapper0ENtNtCsl7UgMljjqkm_4pgrx5datum5DatumEB27_
+               _RNvXs14_NtCsl7UgMljjqkm_4pgrx8callconvReNtB6_6ArgAbi19unbox_arg_unchecked
+               _RINvMsr_NtCsl7UgMljjqkm_4pgrx8callconvNtB6_3Arg26unbox_arg_using_from_datumReEB8_
+               _RNvNtNtCsl7UgMljjqkm_4pgrx5datum4from31convert_varlena_to_str_memoized
+
+     1.09%     1.09%  postgres         pg_wildcard.so        [.] _RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values9supported
+            |
+            ---_RNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inner
+               _RINvMs_NtCsl7UgMljjqkm_4pgrx6memcxtNtB5_16PgMemoryContexts15exec_in_contextuNCNvNvNtCsluO35PC9wjJ_11pg_wildcard3fdw20iterate_foreign_scan26iterate_foreign_scan_inners8_0EB1k_
+               _RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values5input
+               _RNvNtNtCsluO35PC9wjJ_11pg_wildcard3fdw6values9supported
+
+     1.06%     0.25%  postgres         pg_wildcard.so        [.] _RINvNvNtCseEqSwr7idQ9_9cee_scape9asm_based19call_with_sigsetjmp19call_from_c_to_rustNCINvNtNtCsab2bve9nYxi_11pgrx_pg_sys10submodules3ffi26pg_guard_ffi_boundary_implONtNtNtB1t_7include4pg187varlenaNCNvB2F_23pg_detoast_datum_packed0E0ECsl7UgMljjqkm_4pgrx
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

@@ -1,0 +1,50 @@
+{
+  "canonical_hash_contract": "SHA256 of Python json.dumps(spec,sort_keys=True).encode(); file_sha256 hashes original uncompressed bytes",
+  "specs": {
+    "47cbf529a8321d8d1af3f3169823e9934e372b89c340162076023268e4c4621b": {
+      "file": "47cbf529a8321d8d.json.gz",
+      "file_sha256": "4f74e2a7808f5f8b7475ad3235ce920ca371acc5663d14303cc8b400de3545b9",
+      "measurement_logs": [
+        "candidates-all.jsonl",
+        "ingest-exhaustive_exact.jsonl",
+        "ingest-frequency_needles.jsonl",
+        "ingest-legacy_lexical.jsonl",
+        "ingest-original_hyperscan.jsonl",
+        "ingest-ranked_needles.jsonl",
+        "sweeps-constant_candidates.jsonl",
+        "sweeps-exhaustive_exact.jsonl",
+        "sweeps-fixed64_candidates.jsonl",
+        "sweeps-original_hyperscan.jsonl"
+      ]
+    },
+    "b1dbe8766814171927add3a17cdb037354ff1b1984fada273d069f7df7e83fd8": {
+      "file": "b1dbe87668141719.json.gz",
+      "file_sha256": "403bdc728a0d8d72637aa9798fd9e701e561c8d66ed6c5659a3a154da1714fd3",
+      "measurement_logs": [
+        "sweeps-common_gram_gate-prototype.jsonl"
+      ]
+    },
+    "92cb69989e3cc927ed07221dbf20ed3cb2a4f3c5e7c7a186821ecf0a8733e30c": {
+      "file": "92cb69989e3cc927.json.gz",
+      "file_sha256": "e940aca1943c2e71a960d5228ec6a39f088ed579973269ea2fc7af54f49866c2",
+      "measurement_logs": [
+        "sweeps-sparse_candidates-prototype.jsonl"
+      ]
+    },
+    "63b8b51ee18b59fdfed543ea9d6fed4c65551dab467bca55463e9fca9bcc0809": {
+      "file": "63b8b51ee18b59fd.json.gz",
+      "file_sha256": "8db1c778fa6d7e69fc06ca8e6691a88ac075042d16d34b8398d72b29299221c6",
+      "measurement_logs": [
+        "sweeps-grouped64_candidates-prototype-pilot.jsonl"
+      ]
+    },
+    "00449be02b3b3c1ab221763370db0a576f1a20ce8088a24165f6ab0bb825747f": {
+      "file": "00449be02b3b3c1a.json.gz",
+      "file_sha256": "004a2675e9b3ccb4d28026fcb9d52f8f5ee11ad504da67d99d058350a6e83d39",
+      "measurement_logs": [
+        "ingest-staged_perneedle_frequency_needles-prototype.jsonl",
+        "ingest-staged_perneedle_ranked_needles-prototype.jsonl"
+      ]
+    }
+  }
+}

@@ -1,0 +1,56 @@
+[
+  {
+    "workload": "narrow",
+    "route": "direct",
+    "samples": 8,
+    "median_ms": 932.2962365,
+    "min_ms": 841.8878050000001,
+    "max_ms": 992.436612,
+    "executor_median_ms": null
+  },
+  {
+    "workload": "narrow",
+    "route": "pg_backend",
+    "samples": 8,
+    "median_ms": 1085.9065810072934,
+    "min_ms": 804.3251100170892,
+    "max_ms": 1234.0695729944855,
+    "executor_median_ms": 1071.2269999999999
+  },
+  {
+    "workload": "narrow",
+    "route": "pg_copy",
+    "samples": 8,
+    "median_ms": 1921.9641259987839,
+    "min_ms": 1641.8945410114247,
+    "max_ms": 2008.2889150071424,
+    "executor_median_ms": null
+  },
+  {
+    "workload": "wide1k",
+    "route": "direct",
+    "samples": 8,
+    "median_ms": 1991.5375085,
+    "min_ms": 1794.225747,
+    "max_ms": 2091.440117,
+    "executor_median_ms": null
+  },
+  {
+    "workload": "wide1k",
+    "route": "pg_backend",
+    "samples": 8,
+    "median_ms": 2224.960238483618,
+    "min_ms": 1475.9596819931176,
+    "max_ms": 2511.298886005534,
+    "executor_median_ms": 2200.1035
+  },
+  {
+    "workload": "wide1k",
+    "route": "pg_copy",
+    "samples": 8,
+    "median_ms": 2835.557845508447,
+    "min_ms": 2033.584774006158,
+    "max_ms": 3041.334621986607,
+    "executor_median_ms": null
+  }
+]

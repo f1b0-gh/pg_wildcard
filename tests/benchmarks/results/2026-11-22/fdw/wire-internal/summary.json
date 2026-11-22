@@ -1,0 +1,24 @@
+[
+  {
+    "workload": "narrow",
+    "samples": 3,
+    "rows": 1000000,
+    "copy_bytes": 14000021,
+    "process_wall_ms": 693.3424150047358,
+    "rows_per_second": 1442288.8003947798,
+    "first_copy_header_ms": 113.07433899492025,
+    "server_ms": 189,
+    "outer_docker_process_wall_ms": 989.301259003696
+  },
+  {
+    "workload": "broad_recheck",
+    "samples": 3,
+    "rows": 1000000,
+    "copy_bytes": 56000221,
+    "process_wall_ms": 1812.9898269980913,
+    "rows_per_second": 551575.0751099238,
+    "first_copy_header_ms": 128.27454799844418,
+    "server_ms": 1543,
+    "outer_docker_process_wall_ms": 2052.6430350000737
+  }
+]

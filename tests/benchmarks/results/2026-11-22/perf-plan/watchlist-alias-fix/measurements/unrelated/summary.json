@@ -1,0 +1,14 @@
+{
+  "before_alias_fix": {
+    "samples": 5,
+    "median_ms": 4743.550188999507,
+    "min_ms": 4439.621482000803,
+    "max_ms": 5257.04920499993
+  },
+  "isolated_projection": {
+    "samples": 5,
+    "median_ms": 4754.20731200029,
+    "min_ms": 4620.622311000261,
+    "max_ms": 4939.349222999226
+  }
+}

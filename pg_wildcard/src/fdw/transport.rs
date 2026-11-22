@@ -32,6 +32,7 @@ struct Identity {
     database: String,
     timeout: u64,
     terminal: antalya_rs::TerminalStrategy,
+    batch_bytes: usize,
 }
 pub struct Session {
     runtime: Arc<Runtime>,
@@ -79,6 +80,7 @@ impl Session {
                 "in_band" => antalya_rs::TerminalStrategy::InBand,
                 _ => return Err("invalid terminal_policy"),
             },
+            batch_bytes: batch_bytes(o)?,
             timeout: o
                 .get("timeout_ms")
                 .map(|s| s.parse::<u64>())
@@ -96,6 +98,10 @@ impl Session {
         )
         .database(&id.database)
         .map_err(|_| "invalid database")?
+        .execution_limits(antalya_rs::ExecutionLimits {
+            max_batch_bytes: id.batch_bytes,
+            ..Default::default()
+        })
         .timeout(Duration::from_millis(id.timeout))
         .terminal_policy(antalya_rs::TerminalPolicy {
             strategy: id.terminal,
@@ -192,6 +198,11 @@ impl Session {
                     query
                 };
                 let mut execution = client.fetch_arrow(query).await?;
+                {
+                    let mut m = producer_metrics.lock().unwrap_or_else(|e| e.into_inner());
+                    m.last_query_id = execution.query_id().to_owned();
+                    m.executions = 1;
+                }
                 let mut schema_sent = false;
                 loop {
                     let batch = execution.next_batch().await?;
@@ -206,6 +217,10 @@ impl Session {
                     };
                     if batch.charged_bytes() > MAX_BATCH_BYTES {
                         return Err(antalya_rs::Error::LimitExceeded);
+                    }
+                    {
+                        let mut m = producer_metrics.lock().unwrap_or_else(|e| e.into_inner());
+                        m.peak_batch_bytes = m.peak_batch_bytes.max(batch.charged_bytes() as u64);
                     }
                     send(&producer.tx, Ok(Event::Batch(batch)), &producer_metrics).await?;
                 }
@@ -325,8 +340,24 @@ fn make_query(sql: &str, settings: Option<&str>) -> Result<Query, &'static str> 
     }
     Ok(query)
 }
+fn batch_bytes(o: &HashMap<String, String>) -> Result<usize, &'static str> {
+    let bytes = o
+        .get("batch_bytes")
+        .map(|s| s.parse::<usize>())
+        .transpose()
+        .map_err(|_| "invalid batch_bytes")?
+        .unwrap_or(MAX_BATCH_BYTES);
+    if !(65536..=MAX_BATCH_BYTES).contains(&bytes) {
+        return Err("batch_bytes must be between 65536 and 16777216");
+    }
+    Ok(bytes)
+}
+
 #[derive(Clone, Default)]
 pub struct StreamMetrics {
+    pub last_query_id: String,
+    pub executions: u64,
+    pub peak_batch_bytes: u64,
     pub preparation: adaptive::Preparation,
     pub consumer_wait: Duration,
     pub consumer_waits: u64,
@@ -341,6 +372,16 @@ impl StreamMetrics {
     /// Accumulate across rescans. Only phase totals of `execution` are retained;
     /// absolute first-batch/EOF offsets cannot be combined across executions.
     pub fn accumulate(&mut self, other: &Self) {
+        if other.executions > 0 {
+            self.last_query_id.clone_from(&other.last_query_id);
+        }
+        self.executions = self.executions.saturating_add(other.executions);
+        if self.executions != 1
+            && let Some(execution) = &mut self.execution
+        {
+            execution.first_batch = None;
+        }
+        self.peak_batch_bytes = self.peak_batch_bytes.max(other.peak_batch_bytes);
         self.preparation.accumulate(&other.preparation);
         self.consumer_wait = self.consumer_wait.saturating_add(other.consumer_wait);
         self.producer_send_wait = self
@@ -352,6 +393,11 @@ impl StreamMetrics {
         self.charged_bytes = self.charged_bytes.saturating_add(other.charged_bytes);
         if let Some(next) = &other.execution {
             let total = self.execution.get_or_insert_with(Default::default);
+            total.first_batch = if self.executions == 1 {
+                next.first_batch
+            } else {
+                None
+            };
             total.terminal = total.terminal.saturating_add(next.terminal);
             total.data_poll = total.data_poll.saturating_add(next.data_poll);
             if let Some(t) = next.transfer {
@@ -1310,5 +1356,69 @@ mod tests {
             }
         }
         fixture.join().unwrap();
+    }
+}
+
+#[cfg(test)]
+mod profile_tests {
+    use super::*;
+    #[test]
+    fn bounded_batch_configuration() {
+        let mut options = HashMap::new();
+        assert_eq!(batch_bytes(&options), Ok(MAX_BATCH_BYTES));
+        for bad in ["0", "65535", "16777217", "-1", "garbage"] {
+            options.insert("batch_bytes".into(), bad.into());
+            assert!(batch_bytes(&options).is_err());
+        }
+        options.insert("batch_bytes".into(), "1048576".into());
+        assert_eq!(batch_bytes(&options), Ok(1048576));
+    }
+    #[test]
+    fn rescan_offsets_are_not_summed_and_peak_is_maximum() {
+        let one = StreamMetrics {
+            executions: 1,
+            last_query_id: "one".into(),
+            peak_batch_bytes: 12,
+            execution: Some(antalya_rs::ExecutionMetrics {
+                first_batch: Some(Duration::from_millis(3)),
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+        let mut total = StreamMetrics::default();
+        total.accumulate(&one);
+        assert_eq!(
+            total.execution.as_ref().unwrap().first_batch,
+            Some(Duration::from_millis(3))
+        );
+        total.accumulate(&StreamMetrics {
+            last_query_id: "two".into(),
+            peak_batch_bytes: 8,
+            ..one
+        });
+        assert_eq!(total.peak_batch_bytes, 12);
+        assert_eq!(total.last_query_id, "two");
+        assert_eq!(total.executions, 2);
+        assert!(total.execution.unwrap().first_batch.is_none());
+    }
+    #[test]
+    fn unfinished_rescan_clears_first_batch_offset() {
+        let mut total = StreamMetrics::default();
+        total.accumulate(&StreamMetrics {
+            executions: 1,
+            execution: Some(antalya_rs::ExecutionMetrics {
+                first_batch: Some(Duration::from_millis(3)),
+                ..Default::default()
+            }),
+            ..Default::default()
+        });
+        total.accumulate(&StreamMetrics {
+            executions: 1,
+            last_query_id: "started-but-incomplete".into(),
+            ..Default::default()
+        });
+        assert_eq!(total.executions, 2);
+        assert_eq!(total.last_query_id, "started-but-incomplete");
+        assert!(total.execution.unwrap().first_batch.is_none());
     }
 }

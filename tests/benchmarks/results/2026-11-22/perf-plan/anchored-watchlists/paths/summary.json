@@ -1,0 +1,16 @@
+{
+  "baseline": {
+    "samples": 5,
+    "median_ms": 158663.28837399487,
+    "min_ms": 154264.81394300936,
+    "max_ms": 162629.73908198182,
+    "indicators_with_needles": 0
+  },
+  "interior_grams": {
+    "samples": 5,
+    "median_ms": 14247.198589000618,
+    "min_ms": 13659.861127001932,
+    "max_ms": 14312.93374300003,
+    "indicators_with_needles": 100
+  }
+}

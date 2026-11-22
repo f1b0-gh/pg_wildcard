@@ -27,6 +27,13 @@ matching uses Unicode case folding, unlike the ASCII-only `lower` view.
 Character matching does not consume invalid UTF-8 bytes, but literal matches
 can occur on either side of them.
 
+Literal NUL bytes inside regex **patterns** are not portable across native
+engine versions. Antalya 26.6.8.20004 qualification treated a literal-NUL pattern
+as empty, while chDB/ClickHouse 26.11.1 preserved it. Use the regex escape `\x00`
+to match a NUL byte across these versions. NUL bytes in input values remain
+preserved and covered by the differential tests; this limitation concerns the
+pattern, and the SQL helpers do not normalize it.
+
 The accepted regex syntax is a checked portable subset, not every construct an
 RE2 implementation might accept. Backreferences, look-around, class set
 operations, `(?x)` and `\Q...\E` are rejected. Unicode properties are limited

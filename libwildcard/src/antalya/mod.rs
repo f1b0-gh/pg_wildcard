@@ -20,10 +20,21 @@ pub use lake_filter::{
 };
 mod prefilter;
 mod storage;
+mod sweep;
+mod watchlist;
 pub use adaptive::{CandidateDecision, PlanEstimate, choose_candidate, native_plan_estimate};
 pub use storage::MergeTreeSearchLayout;
+#[cfg(test)]
+use sweep::sweep_sql;
+pub use sweep::{
+    DEFAULT_SWEEP_MAX_AST_NODES, SweepOptions, SweepPlan, SweepStrategy, sweep_queries,
+    sweep_queries_with_options,
+};
+pub use watchlist::{WatchlistFallback, WatchlistPlan, WatchlistStrategy, watchlist_plan};
 pub mod ranges;
-pub use prefilter::{candidate_predicate, watchlist_needles};
+pub use prefilter::{
+    GramFileCounts, candidate_predicate, watchlist_needles, watchlist_needles_with_frequencies,
+};
 
 use crate::core::verify::{self, Kind};
 use crate::core::{View, re2};
@@ -36,6 +47,14 @@ pub enum ChError {
     Range,
     #[error("a sweep query cannot fit within {0} bytes")]
     QueryTooLarge(usize),
+    #[error("a sweep query cannot fit within {0} estimated AST nodes")]
+    SweepAstTooLarge(usize),
+    #[error("sweep limits must be positive")]
+    InvalidSweepOptions,
+    #[error("watchlist views must be nonempty and contain no duplicates")]
+    InvalidWatchlistViews,
+    #[error("sweep SQL fragment cannot be conservatively budgeted")]
+    UnbudgetableSweepSql,
     #[error("invalid identifier '{0}'")]
     Identifier(String),
     #[error(transparent)]
@@ -220,6 +239,11 @@ pub struct SweepItem {
     pub regex: String,
 }
 
+/// Historical batching limit, retained for source compatibility only.
+/// Sweeps now use [`SweepOptions`] byte and AST budgets; this is not an active cap.
+#[deprecated(note = "use SweepOptions byte and AST budgets; this is only the legacy limit")]
+pub const MAX_SWEEP_ITEMS: usize = 64;
+
 /// DDL: materialized view columns plus n-gram text indexes.
 pub fn view_columns_ddl(table: &str, col: &str, views: &[View]) -> Result<Vec<String>, ChError> {
     let (table, col) = (ident(table)?, ident(col)?);
@@ -245,92 +269,6 @@ pub fn view_columns_ddl(table: &str, col: &str, views: &[View]) -> Result<Vec<St
     Ok(out)
 }
 
-/// Maximum indicators per generated query, bounding the generated AST as well
-/// as SQL bytes. Caller-supplied SQL expressions remain the caller's budget.
-pub const MAX_SWEEP_ITEMS: usize = 64;
-
-/// IOC sweep queries with constant per-indicator regexes and conservative
-/// candidate predicates. Every candidate is rechecked with `match()`.
-/// Batches bound both rendered SQL bytes and generated expression count.
-/// An item that cannot fit returns `QueryTooLarge`.
-///
-/// AND evaluation order and short-circuiting depend on engine settings; this
-/// shape permits constant-regex optimization but makes no speed guarantee.
-pub fn sweep_queries(
-    source: &str,
-    select: &[&str],
-    cols: &ViewColumns,
-    items: &[SweepItem],
-    filter: Option<&str>,
-    max_bytes: usize,
-) -> Result<Vec<String>, ChError> {
-    let source = ident(source)?;
-    let select: Vec<String> = select.iter().map(|c| ident(c)).collect::<Result<_, _>>()?;
-    let base_bytes = sweep_sql(&source, &select, &[], filter).len();
-    let mut size = base_bytes;
-    let mut batch = Vec::new();
-    let mut out = Vec::new();
-    for item in items {
-        let value = cols.expr(item.view);
-        let kind = Kind::Regex {
-            case_insensitive: false,
-        };
-        let exact = predicate(&value, kind, &item.regex, item.view)?;
-        let condition = match candidate_predicate(&value, kind, &item.regex, item.view)? {
-            Some(candidate) => format!("({candidate}) AND ({exact})"),
-            None => exact.clone(),
-        };
-        let mut expression = format!(
-            "(toInt64({}), '{}', ({condition}))",
-            item.id,
-            item.view.name()
-        );
-        // Optional prechecks must not make an otherwise fitting exact item fail.
-        if base_bytes
-            .checked_add(expression.len())
-            .is_none_or(|n| n > max_bytes)
-        {
-            expression = format!("(toInt64({}), '{}', ({exact}))", item.id, item.view.name());
-        }
-        let cost = expression.len() + if batch.is_empty() { 0 } else { 2 };
-        if batch.len() == MAX_SWEEP_ITEMS || size.checked_add(cost).is_none_or(|n| n > max_bytes) {
-            if !batch.is_empty() {
-                out.push(sweep_sql(&source, &select, &batch, filter));
-                batch.clear();
-            }
-            size = base_bytes;
-        }
-        size = size
-            .checked_add(expression.len() + if batch.is_empty() { 0 } else { 2 })
-            .filter(|&n| n <= max_bytes)
-            .ok_or(ChError::QueryTooLarge(max_bytes))?;
-        batch.push(expression);
-    }
-    if !batch.is_empty() {
-        out.push(sweep_sql(&source, &select, &batch, filter));
-    }
-    debug_assert!(out.iter().all(|sql| sql.len() <= max_bytes));
-    Ok(out)
-}
-
-fn sweep_sql(
-    source: &str,
-    select: &[String],
-    expressions: &[String],
-    filter: Option<&str>,
-) -> String {
-    let mut sql = format!(
-        "SELECT {}{}tupleElement(wc_hit, 1) AS indicator_id, tupleElement(wc_hit, 2) AS view\nFROM {source}\nARRAY JOIN arrayMap(x -> (tupleElement(x, 1), tupleElement(x, 2)), arrayFilter(x -> tupleElement(x, 3), [{}])) AS wc_hit",
-        select.join(", "),
-        if select.is_empty() { "" } else { ", " },
-        expressions.join(", ")
-    );
-    if let Some(f) = filter {
-        sql.push_str(&format!("\nWHERE {f}"));
-    }
-    sql
-}
-
 /// DDL for the watchlist table in ClickHouse (filled from Postgres).
 pub fn watchlist_table_ddl(watch: &str) -> Result<String, ChError> {
     Ok(format!(
@@ -346,7 +284,17 @@ pub fn watchlist_table_ddl(watch: &str) -> Result<String, ChError> {
 /// writers must use this helper or leave needles empty; bindings detect stale
 /// metadata, not maliciously fabricated matching bindings.
 pub fn watchlist_insert_sql(watch: &str, item: &SweepItem) -> Result<String, ChError> {
-    let needles = watchlist_needles(&item.regex, item.view)?;
+    watchlist_insert_sql_with_frequencies(watch, item, None)
+}
+
+/// Insert required needles selected using optional observed file counts.
+/// Statistics affect selection only; regex/view bindings protect stale metadata.
+pub fn watchlist_insert_sql_with_frequencies(
+    watch: &str,
+    item: &SweepItem,
+    frequencies: Option<&GramFileCounts>,
+) -> Result<String, ChError> {
+    let needles = watchlist_needles_with_frequencies(&item.regex, item.view, frequencies)?;
     Ok(format!(
         "INSERT INTO {} (id, view, regex, needles, needles_regex, needles_view) VALUES ({}, {}, {}, [{}], {}, {})",
         ident(watch)?,
@@ -381,12 +329,23 @@ pub fn watchlist_mv(
     let mut arrays = Vec::new();
     for &view in views {
         let n = view.name();
+        // Three scalar slots avoid row × indicator × needle array expansion.
+        // Missing/stale slots become empty strings; position(value, '') = 1.
+        let slots = (1..=3).map(|slot| format!(
+            "groupArray(if(needles_regex = regex AND needles_view = view, arrayElement(needles, {slot}), ''))"
+        )).collect::<Vec<_>>().join(", ");
         with.push(format!(
-            "(SELECT (groupArray(id), groupArray(regex), groupArray(if(needles_regex = regex AND needles_view = view, arrayElement(needles, 1), ''))) FROM (SELECT id, regex, view, needles, needles_regex, needles_view FROM {watch} FINAL WHERE active = 1 AND view = '{n}' ORDER BY id)) AS wc_w_{n}"
+            "(SELECT (groupArray(id), groupArray(regex), {slots}) FROM (SELECT id, regex, view, needles, needles_regex, needles_view FROM {watch} FINAL WHERE active = 1 AND view = '{n}' ORDER BY id)) AS wc_w_{n}"
         ));
         let value = cols.expr(view);
+        let mut candidates = format!("arrayEnumerate(tupleElement(wc_w_{n}, 2))");
+        for slot in 3..=5 {
+            candidates = format!(
+                "arrayFilter(i -> position({value}, arrayElement(tupleElement(wc_w_{n}, {slot}), i)) > 0, {candidates})"
+            );
+        }
         arrays.push(format!(
-            "arrayMap(i -> (arrayElement(tupleElement(wc_w_{n}, 1), i), '{n}'), arrayFilter(i -> position({value}, arrayElement(tupleElement(wc_w_{n}, 3), i)) > 0 AND match({value}, arrayElement(tupleElement(wc_w_{n}, 2), i)), arrayEnumerate(tupleElement(wc_w_{n}, 2))))"
+            "arrayMap(i -> (arrayElement(tupleElement(wc_w_{n}, 1), i), '{n}'), arrayFilter(i -> match({value}, arrayElement(tupleElement(wc_w_{n}, 2), i)), {candidates}))"
         ));
     }
     Ok(format!(
@@ -534,32 +493,13 @@ mod tests {
     }
 
     #[test]
-    fn sweep_bounds_ast_and_keeps_regex_constant() {
-        let items = vec![
-            SweepItem {
-                id: -1,
-                view: View::Raw,
-                regex: "abc".into()
-            };
-            MAX_SWEEP_ITEMS + 1
-        ];
-        let queries = sweep_queries(
-            "logs",
-            &["id"],
-            &ViewColumns::new("v").unwrap(),
-            &items,
-            None,
-            usize::MAX,
-        )
-        .unwrap();
-        assert_eq!(queries.len(), 2);
-        assert_eq!(
-            queries[0].matches("match(v, 'abc')").count(),
-            MAX_SWEEP_ITEMS
-        );
-        assert!(queries[0].contains("like(v, '%abc%')"));
-        assert!(!queries[0].contains("multiMatch"));
-        let insert = watchlist_insert_sql("watch", &items[0]).unwrap();
+    fn watchlist_uses_three_bound_scalar_needles() {
+        let item = SweepItem {
+            id: 1,
+            view: View::Raw,
+            regex: "abc".into(),
+        };
+        let insert = watchlist_insert_sql("watch", &item).unwrap();
         assert!(insert.contains("needles_regex, needles_view"));
         assert!(insert.contains("['abc'], 'abc', 'raw'"));
         let ddl = watchlist_table_ddl("watch").unwrap();
@@ -576,8 +516,14 @@ mod tests {
         .unwrap();
         assert!(mv.contains("needles_regex = regex AND needles_view = view"));
         assert!(mv.contains("position(v, arrayElement(tupleElement(wc_w_raw, 3), i)) > 0"));
-        assert!(mv.contains("arrayElement(needles, 1)"));
+        for slot in 1..=3 {
+            assert!(mv.contains(&format!("arrayElement(needles, {slot})")));
+            assert!(mv.contains(&format!("tupleElement(wc_w_raw, {})", slot + 2)));
+        }
         assert!(!mv.contains("arrayAll"));
+        assert_eq!(mv.matches("arrayFilter(").count(), 4);
+        assert_eq!(mv.matches("arrayEnumerate(").count(), 1);
+        assert!(mv.contains("arrayFilter(i -> match(v, arrayElement(tupleElement(wc_w_raw, 2), i)), arrayFilter(i -> position"));
     }
 
     #[test]
@@ -603,6 +549,27 @@ mod tests {
         )
         .unwrap();
         assert_eq!(queries, vec![exact]);
+    }
+
+    #[test]
+    fn sweep_thousand_small_indicators_use_at_most_two_scans() {
+        let items: Vec<_> = (0..1000)
+            .map(|id| SweepItem {
+                id,
+                view: View::Raw,
+                regex: format!("evil{id:04}\\.example"),
+            })
+            .collect();
+        let queries = sweep_queries(
+            "bench",
+            &["id"],
+            &ViewColumns::new("v").unwrap(),
+            &items,
+            None,
+            200_000,
+        )
+        .unwrap();
+        assert!(queries.len() <= 2, "{} source scans", queries.len());
     }
 
     #[test]

@@ -1,0 +1,120 @@
+{
+  "original": {
+    "pairs": 5,
+    "seconds": {
+      "prototype_join": {
+        "median": 5.963897315989016,
+        "min": 5.414707059011562,
+        "max": 7.170391161023872
+      },
+      "production_join": {
+        "median": 6.670404835982481,
+        "min": 5.574580078013241,
+        "max": 7.353516025003046
+      }
+    },
+    "median_ratio_percent": 11.846406511717467,
+    "paired_change_percent": {
+      "median": 2.952570051515657,
+      "min": -1.2684724344641296,
+      "max": 11.846406511717467
+    },
+    "cpu_seconds": {
+      "prototype_join": {
+        "median": 5.876857,
+        "min": 5.341121,
+        "max": 7.007896
+      },
+      "production_join": {
+        "median": 6.360543,
+        "min": 5.496873,
+        "max": 7.060513
+      }
+    },
+    "max_query_bytes": {
+      "prototype_join": 49509669,
+      "production_join": 49504613
+    }
+  },
+  "reverse": {
+    "pairs": 5,
+    "seconds": {
+      "prototype_join": {
+        "median": 5.011075157002779,
+        "min": 4.615804160013795,
+        "max": 5.582324041024549
+      },
+      "production_join": {
+        "median": 4.885079271014547,
+        "min": 4.610403574013617,
+        "max": 5.253262497979449
+      }
+    },
+    "median_ratio_percent": -2.5143483591970828,
+    "paired_change_percent": {
+      "median": -2.5143483591970828,
+      "min": -7.247997590674693,
+      "max": 2.1764380489369906
+    },
+    "cpu_seconds": {
+      "prototype_join": {
+        "median": 4.954683,
+        "min": 4.567938,
+        "max": 5.478998
+      },
+      "production_join": {
+        "median": 4.806446,
+        "min": 4.561993,
+        "max": 5.173045
+      }
+    },
+    "max_query_bytes": {
+      "prototype_join": 49513637,
+      "production_join": 49521173
+    }
+  },
+  "all_samples": {
+    "pairs": 10,
+    "seconds": {
+      "prototype_join": {
+        "median": 5.498515550018055,
+        "min": 4.615804160013795,
+        "max": 7.170391161023872
+      },
+      "production_join": {
+        "median": 5.413921287996345,
+        "min": 4.610403574013617,
+        "max": 7.353516025003046
+      }
+    },
+    "median_ratio_percent": -1.538492730486729,
+    "paired_change_percent": {
+      "median": 1.7443918813332848,
+      "min": -7.247997590674693,
+      "max": 11.846406511717467
+    },
+    "cpu_seconds": {
+      "prototype_join": {
+        "median": 5.4100595,
+        "min": 4.567938,
+        "max": 7.007896
+      },
+      "production_join": {
+        "median": 5.334959,
+        "min": 4.561993,
+        "max": 7.060513
+      }
+    },
+    "max_query_bytes": {
+      "prototype_join": 49513637,
+      "production_join": 49521173
+    }
+  },
+  "investigation_required": false,
+  "source_directories": [
+    ".local/perf/percolator/production-confirmation-1000/unrelated",
+    ".local/perf/percolator/production-confirmation-unrelated-reverse/unrelated"
+  ],
+  "pairs_per_insertion": 10000,
+  "pair_sha256": "d6dbb4eafa8437a4b276f6cf08e28010e025567ff60a31ba5ed14dbd91d1724c"
+}

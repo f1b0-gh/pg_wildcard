@@ -5,8 +5,9 @@
 //! compares. Usage: cargo run -p wildcard-ch --example difftest_gen [seed]
 
 use libwildcard::antalya::{
-    SweepItem, ViewColumns, candidate_predicate, column_predicate, sweep_queries,
-    watchlist_insert_sql, watchlist_mv, watchlist_table_ddl,
+    SweepItem, SweepOptions, ViewColumns, WatchlistStrategy, candidate_predicate, column_predicate,
+    sweep_queries, sweep_queries_with_options, watchlist_insert_sql, watchlist_mv, watchlist_plan,
+    watchlist_table_ddl,
 };
 use libwildcard::core::View;
 use libwildcard::core::indicator;
@@ -30,6 +31,98 @@ fn hex(b: &[u8]) -> String {
     b.iter().map(|x| format!("{x:02X}")).collect()
 }
 
+fn watchlist_join_cases(values: &[Vec<u8>], items: &[SweepItem]) -> serde_json::Value {
+    let mut values = values.to_vec();
+    values.extend([
+        b"aaaaaa".to_vec(),
+        b"abcabcabc".to_vec(),
+        [vec![b'x'; 253], b"xyz".to_vec()].concat(), // 256 bytes
+        [vec![b'x'; 254], b"xyz".to_vec()].concat(), // 257 bytes
+        [vec![b'x'; 100_000], b"xyz".to_vec()].concat(),
+        b"\xffabc\x00xyz\xfe".to_vec(),
+    ]);
+    let mut rules = items
+        .iter()
+        .filter(|i| i.view == View::Raw)
+        .cloned()
+        .collect::<Vec<_>>();
+    for (id, regex) in [
+        (900, "evil"),
+        (901, "abc"),
+        (902, "^aaa.*aaa$"),
+        (903, "(?i)é"),
+        (904, "xyz"),
+    ] {
+        rules.push(SweepItem {
+            id,
+            view: View::Raw,
+            regex: regex.into(),
+        });
+    }
+    let mut expected = Vec::new();
+    for rule in &rules {
+        let matcher = Matcher::regex(&rule.regex, View::Raw, false).unwrap();
+        for (id, value) in values.iter().enumerate() {
+            if matcher.is_match(value) {
+                expected.push(json!([id, rule.id, "raw"]));
+            }
+        }
+    }
+    let mut cases = Vec::new();
+    for (name, select, hit_columns, oracle_value) in [
+        ("plain", vec!["id"], "id UInt32", "js.v"),
+        (
+            "qualified",
+            vec!["js.id", "js.nested.value"],
+            "id UInt32, `nested.value` UInt32",
+            "js.v",
+        ),
+        (
+            "colliding_names",
+            vec!["id", "_wc0_value", "_wc1_key", "gram_key", "regex", "i"],
+            "id UInt32, _wc0_value String, _wc1_key String, gram_key String, regex String, i UInt32",
+            "js.v",
+        ),
+        ("empty_projection", vec![], "", "js.v"),
+        ("materialized_raw", vec!["id"], "id UInt32", "js.v_alt"),
+    ] {
+        let mut cols = ViewColumns::new("js.v").unwrap();
+        if name == "materialized_raw" {
+            cols.materialized.insert(View::Raw, "js.v_alt".into());
+        }
+        let plan = watchlist_plan(
+            "join_mv",
+            "js",
+            "jh",
+            "jw",
+            &select,
+            &cols,
+            &[View::Raw],
+            WatchlistStrategy::RuleAnchorJoin,
+        )
+        .unwrap();
+        assert_eq!(plan.strategy, WatchlistStrategy::RuleAnchorJoin);
+        let projection = if select.is_empty() {
+            String::new()
+        } else {
+            format!("{}, ", select.join(", "))
+        };
+        cases.push(json!({"name": name, "mv": plan.sql,
+            "hits_ddl": format!("CREATE TABLE jh ({}indicator_id Int64, view String) ENGINE=Memory",
+                                if hit_columns.is_empty() { String::new() } else { format!("{hit_columns}, ") }),
+            "oracle": format!("SELECT {projection}r.id AS indicator_id, 'raw' AS view FROM js CROSS JOIN \
+                               (SELECT * FROM jw FINAL WHERE active = 1 AND view = 'raw') r WHERE match({oracle_value}, r.regex)"),
+        }));
+    }
+    json!({
+        "values_hex": values.iter().map(|v| hex(v)).collect::<Vec<_>>(),
+        "expected": expected,
+        "table_ddl": watchlist_table_ddl("jw").unwrap(),
+        "inserts": rules.iter().map(|i| watchlist_insert_sql("jw", i).unwrap()).collect::<Vec<_>>(),
+        "cases": cases,
+    })
+}
+
 const SECURITY: &[&str] = &[
     "Ა",
     "ꭰ",
@@ -37,6 +130,10 @@ const SECURITY: &[&str] = &[
     r"C:\Windows\System32\cmd.exe",
     r"\\Server\Share\Tools\Tool.EXE",
     r"C:\Temp\..\Windows\notepad.exe",
+    "abc",
+    "abcx",
+    "abcy",
+    "abc\0def",
     "https://login.evil.com/wp-admin/setup.php",
     "http://LOGIN.EVIL.COM.:8080/%77p-ADMIN/x.PHP?a=1#f",
     "https://user:pass@sub.evil.com:443/path",
@@ -79,6 +176,170 @@ const SECURITY: &[&str] = &[
     "abababc",
 ];
 
+// Explicitly exercise the optional gate; mixed IOC sweeps normally disable it.
+fn shared_gate_cases(values: &[Vec<u8>]) -> Vec<serde_json::Value> {
+    let mut cases = Vec::new();
+    for (name, patterns, views, filtered, budget) in [
+        (
+            "ascii",
+            vec!["abc.*x", "abc.*y"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
+            "anchored",
+            vec![r"\Aabc.*x\z", r"\Aabc.*y\z"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
+            "quote",
+            vec!["a'b.*x", "a'b.*y"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
+            "percent",
+            vec!["a%b.*x", "a%b.*y"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
+            "underscore",
+            vec!["a_b.*x", "a_b.*y"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
+            "backslash",
+            vec![r"a\\b.*x", r"a\\b.*y"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
+            "lower_binary",
+            vec!["abc.*x", "abc.*y"],
+            vec![View::Lower, View::Lower],
+            false,
+            0,
+        ),
+        (
+            "decoded_binary",
+            vec!["abc.*x", "abc.*y"],
+            vec![View::Decoded, View::Decoded],
+            false,
+            0,
+        ),
+        (
+            "unsupported_or",
+            vec!["abc|def", "abc.*x"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
+            "empty",
+            vec!["", "abc.*x"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
+            "mixed",
+            vec!["abc.*x", "abc.*x"],
+            vec![View::Raw, View::Lower],
+            false,
+            0,
+        ),
+        (
+            "filter_or",
+            vec!["abc.*x", "abc.*y"],
+            vec![View::Raw, View::Raw],
+            true,
+            0,
+        ),
+        (
+            "byte_fallback",
+            vec!["abc.*x", "abc.*y"],
+            vec![View::Raw, View::Raw],
+            false,
+            1,
+        ),
+        (
+            "ast_fallback",
+            vec!["abc.*x", "abc.*y"],
+            vec![View::Raw, View::Raw],
+            false,
+            2,
+        ),
+    ] {
+        let items: Vec<_> = patterns
+            .iter()
+            .zip(views)
+            .enumerate()
+            .map(|(id, (p, view))| SweepItem {
+                id: id as i64,
+                view,
+                regex: (*p).into(),
+            })
+            .collect();
+        let filter = filtered.then_some("id%2=0 OR id%3=0 -- trailing comment");
+        let cols = ViewColumns::new("v").unwrap();
+        let mut options = SweepOptions::default();
+        let default =
+            sweep_queries_with_options("t", &["id"], &cols, &items, filter, options).unwrap();
+        let dense = default.queries[0]
+            .split("\nWHERE")
+            .next()
+            .unwrap()
+            .to_string();
+        if budget == 1 {
+            options.max_bytes = dense.len();
+        }
+        if budget == 2 {
+            options.max_ast_nodes = 200;
+        }
+        let plan =
+            sweep_queries_with_options("t", &["id"], &cols, &items, filter, options).unwrap();
+        if budget != 0 {
+            assert_eq!(plan.queries, vec![dense]);
+            assert_eq!(plan.source_scan_count, 1);
+        }
+        let expect_gate = !matches!(
+            name,
+            "unsupported_or" | "empty" | "mixed" | "byte_fallback" | "ast_fallback"
+        );
+        let actual_gate = plan
+            .queries
+            .iter()
+            .any(|q| q.contains("\nWHERE like(") || q.contains("\nWHERE (like("));
+        assert_eq!(actual_gate, expect_gate, "{name}");
+        let mut expected = Vec::new();
+        for (row, value) in values.iter().enumerate() {
+            if filtered && row % 2 != 0 && row % 3 != 0 {
+                continue;
+            }
+            for item in &items {
+                if Matcher::regex(&item.regex, item.view, false)
+                    .unwrap()
+                    .is_match(value)
+                {
+                    expected.push(json!([row, item.id, item.view.name()]));
+                }
+            }
+        }
+        cases.push(json!({"name":name,"queries":plan.queries,"expected":expected,"gate_expected":expect_gate,
+            "estimated_ast":plan.estimated_ast,"max_ast_nodes":options.max_ast_nodes,"max_bytes":options.max_bytes}));
+    }
+    cases
+}
+
 fn main() {
     let seed: u64 = std::env::args()
         .nth(1)
@@ -113,6 +374,27 @@ fn main() {
     ];
     let mut values: Vec<Vec<u8>> = SECURITY.iter().map(|s| s.as_bytes().to_vec()).collect();
     values.extend([vec![0xc0, b'a'], vec![b'0', 0x80]]);
+    values.extend([
+        b"a%b123x".to_vec(),
+        b"a_b456y".to_vec(),
+        b"\xff\0a%b123x".to_vec(),
+        b"\xff\0a_b456y".to_vec(),
+        b"aXb123x".to_vec(),
+        b"a'b123x".to_vec(),
+        b"a'b456y".to_vec(),
+        b"a\\b123x".to_vec(),
+        b"a\\b456y".to_vec(),
+        b"\xff\0a'b123x".to_vec(),
+        b"\xff\0a\\b456y".to_vec(),
+        b"ABC123X".to_vec(),
+        b"AbC456Y".to_vec(),
+        b"\xff\0AbC77X".to_vec(),
+        b"%61%62%63%31x".to_vec(),
+        b"%41BC%00X".to_vec(),
+        b"abc123x".to_vec(),
+        b"abc456y".to_vec(),
+        b"abc\nxxx".to_vec(),
+    ]);
     for _ in 0..300 {
         let n = (r.next() % 10) as usize;
         values.push((0..n).flat_map(|_| r.pick(tokens).to_vec()).collect());
@@ -296,7 +578,12 @@ fn main() {
         (204, r"\p{L}"),
         (205, "evil"),
         (206, "evil|cmd"),
-        (207, "\0"),
+        // Literal NUL patterns are truncated by older native engines; the
+        // escaped spelling keeps this binary-value test portable.
+        (207, r"\x00"),
+        (208, r"\Aabc\z"),
+        (209, r"\AC:\\Windows\\System32\\cmd\.exe\z"),
+        (210, r"^abc.*def$"),
     ] {
         let m = Matcher::regex(regex, View::Raw, false).unwrap();
         for (row, value) in values.iter().enumerate() {
@@ -326,6 +613,8 @@ fn main() {
         "views": views,
         "predicates": preds,
         "sweep": {"queries": sweeps, "expected": expected_hits},
+        "shared_gate_cases": shared_gate_cases(&values),
+        "watchlist_join": watchlist_join_cases(&values, &items),
         "watchlist": {"table_ddl": watchlist_table_ddl("watch").unwrap(), "items": watch_items, "inserts": watch_inserts, "mv": mv},
     });
     println!("{out}");
