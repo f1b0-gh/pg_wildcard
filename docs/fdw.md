@@ -34,6 +34,7 @@ identity includes the token. Protect catalog access to mapping credentials.
 | Server | `database` | `default` |
 | Server | `timeout_ms` | `60000`; integer 1–300000 |
 | Server | `terminal_policy` | `flush_first`; also `observe_first`, `observe_only`, `in_band` |
+| Server | `batch_bytes` | `16777216`; integer 65536–16777216, per-batch retained charge / pending-read reservation, not backend RSS |
 | Server or table | `settings` | Allowlisted comma-separated `key=value` pairs; table value overrides server value |
 | Mapping | `bearer_token` | Required, nonempty |
 | Table | `table` | Remote source |
@@ -205,3 +206,25 @@ must not be added as independent components of ordinary query latency.
 
 See [testing](testing.md) for native and chDB checks and [operations](operations.md)
 for deployment requirements.
+
+For controlled profiling, the server option `batch_bytes` lowers the published
+client's per-execution retained Arrow batch limit (65536–16777216 bytes, default
+16777216). It is part of the cached client identity. It also controls the
+pre-read reservation; it does not change the client's shared 64 MiB retention
+budget, server result limits, string limit or PostgreSQL memory allocation.
+`FDW peak individual batch bytes` is the maximum charge of one returned batch,
+not the simultaneous sum of current/queued/pending batches and not backend RSS.
+
+`FDW last query ID` correlates the last execution with native `system.query_log`;
+`FDW executions` identifies rescans. `FDW first batch` is the published client's
+offset to the first decoded batch, including admission and identity work. It is
+omitted for multiple executions and must not be called HTTP time-to-first-byte.
+Body wait includes server execution and scheduling. Decode, polling, queue wait,
+terminal confirmation and PostgreSQL executor clocks overlap; they cannot be
+summed into exclusive stages. Local recheck rows remain visible in the PostgreSQL
+plan, but local recheck CPU time is not separately instrumented.
+
+The paired native profiler is `tests/benchmarks/fdw_profile.py`; its direct path
+uses `tests/transport/examples/fdw_profile.rs` with the same SQL, projection and
+query settings. Build both the extension and direct worker with release settings
+for performance comparisons. Results retain raw EXPLAIN and query-log rows.
