@@ -86,6 +86,8 @@ wc_ch_watchlist_ddl(name text, source text, hits text, watch text,
                     select_cols text[], col text,
                     views text = 'raw,lower,decoded,revdomain',
                     materialized boolean = false) → SETOF text
+wc_ch_watchlist_insert(watch text, id bigint, regex text,
+                       view text = 'raw') → text
 ```
 
 These functions return statements or expressions; the caller executes them on
@@ -95,14 +97,43 @@ index materialization statements. Its default list does **not** include
 `winpath`; request it explicitly when needed.
 
 Sweep arrays must have equal lengths. Each generated query returns the selected
-columns plus `indicator_id` and `view`; batching groups indicators by view.
+columns plus `indicator_id` and `view`. Each indicator uses a constant regex and
+a conservative candidate predicate before its exact `match` check. Batches count
+the complete escaped SQL against their byte budget and cap expression count;
+a single indicator that cannot fit returns an error. Short-circuit execution
+depends on ClickHouse settings and expression evaluation; candidates do not
+guarantee that every rejected row avoids regex work.
+
 Watchlist DDL creates the indicator table and an insert-time materialized view
 writing to the caller-provided hits table. It does not backfill existing source
-rows or replay them when a watchlist changes. Each pattern is checked with exact
-`match` semantics; Hyperscan candidate filtering is not used because its Unicode
-and invalid-byte behavior can miss RE2 matches. This trades multi-pattern
-acceleration for complete results. Sweep batches count the complete escaped SQL
-against their byte budget; a single indicator that cannot fit returns an error.
+rows or replay them when a watchlist changes. `wc_ch_watchlist_insert` returns an
+INSERT with at most one conservative substring needle and its regex/view binding.
+Only supported AND plans supply a needle; other plans use exact matching alone.
+The view uses the first stored needle to avoid nested row/indicator/needle arrays;
+selection is deterministic and does not estimate corpus frequency. Empty
+or stale metadata bypasses the substring pre-check. Writers must use the helper
+or compute equally sound metadata; bindings detect stale values, not deliberately
+fabricated needles. The dynamic view still checks each indicator for each row;
+benchmark ingestion with your data before enabling a large watchlist.
+
+Hyperscan is not used because its Unicode and invalid-byte behavior can miss RE2
+matches. See the [benchmark harness](../libwildcard/tests/benchmarks/README.md)
+for comparisons with the previous implementations.
+
+Existing watchlist tables need the new columns before executing new INSERT or
+materialized-view SQL; `CREATE TABLE IF NOT EXISTS` does not migrate them:
+
+```sql
+ALTER TABLE watchlist ADD COLUMN IF NOT EXISTS needles Array(String) DEFAULT [];
+ALTER TABLE watchlist ADD COLUMN IF NOT EXISTS needles_regex String DEFAULT '';
+ALTER TABLE watchlist ADD COLUMN IF NOT EXISTS needles_view String DEFAULT '';
+```
+
+Use your actual ClickHouse table name, then recreate the existing materialized
+view with the newly generated definition while coordinating source ingestion.
+Existing rows receive empty metadata and retain exact results. Replacing a view
+does not replay inserts made while the view was absent; pause ingestion or
+arrange a replay if complete hit capture is required during migration.
 
 Column/table identifiers and pattern literals pass through the SQL builders.
 `filter` is a caller-owned SQL expression, not an escaped data value. Only pass

@@ -58,3 +58,7 @@ resolver = "3"
 [[example]]
 name = "candidate_profile"
 required-features = ["hot"]
+
+[[example]]
+name = "sweep_benchmark_gen"
+required-features = ["hot"]
