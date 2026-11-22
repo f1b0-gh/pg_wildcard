@@ -15,6 +15,16 @@ def payload(rows):
 
 
 class FdwValuesTests(unittest.TestCase):
+    def test_selective_fixture_checks_sparse_ids_and_every_value(self):
+        rows=[(struct.pack('!q',i*1000),b'evil.test/powershell',b'x'*16) for i in range(3)]
+        self.assertEqual(verify_copy(payload(rows[::-1]),'selective',3)['rows'],3)
+        for identifier in [1,999,3000,-1000]:
+            bad=[(struct.pack('!q',identifier),rows[0][1],rows[0][2])]+rows[1:]
+            with self.assertRaises(ValueError):verify_copy(payload(bad),'selective',3)
+        for bad in [rows[:2], [rows[0],rows[0],rows[2]],
+                    [rows[0],(rows[1][0],b'benign.test/normal',rows[1][2]),rows[2]]]:
+            with self.assertRaises(ValueError):verify_copy(payload(bad),'selective',3)
+
     def test_exact_values_and_complete_id_set_ignore_arrival_order(self):
         for workload in ('narrow','smalltext','wide1k','broad_recheck'):
             rows=[expected_row(workload,i) for i in range(5)]

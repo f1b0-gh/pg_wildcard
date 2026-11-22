@@ -18,9 +18,17 @@ struct ValueOracle {
 }
 impl ValueOracle {
     fn new(workload: &str, rows: usize) -> Result<Self, &'static str> {
-        if !["narrow", "smalltext", "wide1k", "broad_recheck"].contains(&workload)
+        if ![
+            "narrow",
+            "smalltext",
+            "wide1k",
+            "broad_recheck",
+            "selective",
+        ]
+        .contains(&workload)
             || rows == 0
             || rows > 1_000_000
+            || (workload == "selective" && rows > 1000)
         {
             return Err("invalid fixture bounds");
         }
@@ -57,11 +65,19 @@ impl ValueOracle {
                 return Err("null fixture ID");
             }
             let id = usize::try_from(ids.value(row)).map_err(|_| "negative fixture ID")?;
-            if id >= self.seen.len() || self.seen[id] {
+            let stride = if self.workload == "selective" {
+                1000
+            } else {
+                1
+            };
+            let ordinal = id / stride;
+            if id % stride != 0 || ordinal >= self.seen.len() || self.seen[ordinal] {
                 return Err("duplicate/out-of-range fixture ID");
             }
             if columns == 3 {
-                let url = if self.workload == "wide1k" || id % 10000 != 0 {
+                let url = if self.workload == "selective" {
+                    b"evil.test/powershell".as_slice()
+                } else if self.workload == "wide1k" || id % 10000 != 0 {
                     b"benign.test/normal".as_slice()
                 } else {
                     b"evil.test/powershell".as_slice()
@@ -75,7 +91,7 @@ impl ValueOracle {
                     return Err("extra value differs");
                 }
             }
-            self.seen[id] = true;
+            self.seen[ordinal] = true;
             self.count += 1;
         }
         Ok(())
@@ -88,7 +104,17 @@ impl ValueOracle {
         }
     }
 }
+fn block_size(cmd: &Value) -> Result<u64, &'static str> {
+    match cmd.get("block_size") {
+        None => Ok(1024),
+        Some(value) => value
+            .as_u64()
+            .filter(|n| (1..=16384).contains(n))
+            .ok_or("block size must be an integer between 1 and 16384"),
+    }
+}
 async fn run(client: &AntalyaClient, cmd: &Value) -> Result<Value, Box<dyn std::error::Error>> {
+    let block_size = block_size(cmd)?;
     let sql = cmd["sql"].as_str().ok_or("SQL")?;
     if sql.len() > 16384 {
         return Err("SQL bound".into());
@@ -114,6 +140,7 @@ async fn run(client: &AntalyaClient, cmd: &Value) -> Result<Value, Box<dyn std::
     ] {
         query = query.setting(k, v)?;
     }
+    query = query.setting("max_block_size", block_size.to_string())?;
     let start = Instant::now();
     let mut execution = client.fetch_arrow(query).await?;
     let (mut rows, mut peak, mut charged) = (0usize, 0usize, 0usize);
@@ -138,13 +165,27 @@ async fn run(client: &AntalyaClient, cmd: &Value) -> Result<Value, Box<dyn std::
     let m = execution.metrics();
     let ms = |d: Duration| d.as_secs_f64() * 1000.;
     Ok(
-        json!({"route":"direct_antalya_rs","query_id":execution.query_id(),"rows":rows,
+        json!({"route":"direct_antalya_rs","query_id":execution.query_id(),"rows":rows,"block_size":block_size,
         "request_ms":elapsed,"value_control":verify,"peak_individual_batch_bytes":peak,
         "charged_batch_bytes":charged,"first_batch_ms":m.first_batch.map(ms),"http_body_wait_ms":m.transfer.map(ms),
         "arrow_decode_ms":m.decode.map(ms),"framing_decode_ms":ms(m.framing),"terminal_ms":ms(m.terminal),
         "data_poll_ms":ms(m.data_poll),"http_body_bytes":m.wire_bytes,"control_requests":m.control_requests,
-        "flush_ms":ms(m.flush_time),"observe_ms":ms(m.observe_time),"poll_wait_ms":ms(m.poll_wait)}),
+        "flush_ms":ms(m.flush_time),"observe_ms":ms(m.observe_time),"poll_wait_ms":ms(m.poll_wait),
+        "flush_attempts":m.flush_attempts,"flush_failures":m.flush_failures,"polls":m.polls,
+        "poll_sleeps":m.poll_sleeps,"stream_end_ms":m.stream_end.map(ms),
+        "identity_ms":ms(m.identity),"queued_ms":ms(m.queued),"total_ms":ms(m.total)}),
     )
+}
+fn failure(error: &(dyn std::error::Error + 'static)) -> Value {
+    let mut value =
+        json!({"error":"direct FDW run failed; inspect private worker and correlated native logs"});
+    if let Some(error) = error.downcast_ref::<antalya_rs::Error>() {
+        value["error_kind"] = json!(format!("{:?}", error.kind()));
+        if let Some(phase) = error.phase() {
+            value["error_phase"] = json!(format!("{phase:?}"));
+        }
+    }
+    value
 }
 #[tokio::main(flavor = "multi_thread", worker_threads = 1)]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -217,7 +258,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 // The harness redirects stderr to a private mode-0600 log.
                 // Keep detailed transport errors out of the public protocol.
                 eprintln!("direct FDW run error: {error:?}");
-                json!({"error":"direct FDW run failed; inspect private worker and correlated native logs"})
+                failure(error.as_ref())
             }
             Err(_) => json!({"error":"direct FDW worker exceeded its 65-second deadline"}),
         };
@@ -231,6 +272,60 @@ mod tests {
     use super::*;
     use arrow_array::{ArrayRef, BinaryArray, Int64Array, RecordBatch};
     use std::sync::Arc;
+    #[test]
+    fn resource_refusals_remain_typed_without_exposing_other_error_text() {
+        let limit =
+            antalya_rs::Error::at(antalya_rs::Phase::Data, antalya_rs::Cause::LimitExceeded);
+        let value = failure(&limit);
+        assert_eq!(value["error_kind"], "LimitExceeded");
+        assert_eq!(value["error_phase"], "Data");
+        let sensitive = std::io::Error::other("private-url-and-token");
+        let value = failure(&sensitive);
+        assert!(!value.to_string().contains("private-url"));
+        assert!(value.get("error_kind").is_none());
+        assert_ne!(
+            failure(&antalya_rs::Error::Unconfirmed)["error_kind"],
+            "LimitExceeded"
+        );
+    }
+    #[test]
+    fn block_size_is_bounded_and_defaults_to_historical_setting() {
+        assert_eq!(block_size(&json!({})).unwrap(), 1024);
+        for n in [1, 1024, 4096, 16384] {
+            assert_eq!(block_size(&json!({"block_size": n})).unwrap(), n);
+        }
+        for value in [
+            json!(0),
+            json!(16385),
+            json!(-1),
+            json!(1.5),
+            json!("4096"),
+            json!(null),
+        ] {
+            assert!(block_size(&json!({"block_size": value})).is_err());
+        }
+    }
+    #[test]
+    fn selective_control_checks_sparse_ids_and_values() {
+        let mut oracle = ValueOracle::new("selective", 3).unwrap();
+        oracle
+            .check(&batch(vec![2000, 0], vec![b"evil.test/powershell"; 2]))
+            .unwrap();
+        assert!(oracle.finish().is_err());
+        oracle
+            .check(&batch(vec![1000], vec![b"evil.test/powershell"]))
+            .unwrap();
+        oracle.finish().unwrap();
+        for id in [1, 999, 3000, -1000] {
+            assert!(
+                ValueOracle::new("selective", 3)
+                    .unwrap()
+                    .check(&batch(vec![id], vec![b"evil.test/powershell"]))
+                    .is_err()
+            );
+        }
+        assert!(ValueOracle::new("selective", 1001).is_err());
+    }
     fn batch(ids: Vec<i64>, urls: Vec<&[u8]>) -> RecordBatch {
         let n = ids.len();
         RecordBatch::try_from_iter(vec![
