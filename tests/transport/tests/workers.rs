@@ -173,7 +173,7 @@ fn request_and_result(
     hash.update([1]);
     hash.update((text.len() as u64).to_le_bytes());
     hash.update(text.as_bytes());
-    let input = serde_json::json!({"engine":"elastic","mode":"page","body":{"query":{"match_all":{}},"size":1,"_source":true},"expected_rows":1,"expected_total":1,"expected_digest":format!("{:x}",hash.finalize()),"index":"foreign","authorization":"wrong"});
+    let input = serde_json::json!({"engine":"elastic","mode":"page","body":{"query":{"match_all":{}},"size":1,"_source":true},"expected_rows":1,"expected_total":1,"expected_digest":hash.finalize().iter().map(|byte| format!("{byte:02x}")).collect::<String>(),"index":"foreign","authorization":"wrong"});
     let mut child = cmd.spawn().unwrap();
     writeln!(child.stdin.take().unwrap(), "{input}").unwrap();
     let out = child.wait_with_output().unwrap();

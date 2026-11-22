@@ -150,7 +150,14 @@ impl ArrowDigest {
         if self.count && self.rows != 1 {
             return Err(Error::Values);
         }
-        Ok((self.rows, format!("{:x}", self.hash.finalize())))
+        Ok((
+            self.rows,
+            self.hash
+                .finalize()
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>(),
+        ))
     }
 }
 
