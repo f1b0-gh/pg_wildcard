@@ -14,6 +14,13 @@ An Elastic keyword layout appears only as a labeled historical storage control.
 | Batch-scoped Arrow conversion preparation | Rejected and removed | Five paired release-binary rounds did not demonstrate consistent backend and full-delivery gains |
 | Bounded raw byte-array index | Private experiment; no automatic production migration or dispatch API | Query observations and write/storage costs describe an explicit extra index layout |
 | Regex engine replacement or specialization | No implementation selected | Existing match semantics and engines remain unchanged |
+| Bounded hex-fragment index and raw-rule dispatch | Retained as opt-in; default sweeps unchanged | Required-fragment conjunctions, index-lifecycle qualification, equally resourced Elastic comparison and configured-fsync ingestion controls |
+
+The [indexed dispatch follow-up](byte-dispatch/README.md) adds a later layout and
+new measurements. It reduces unrelated-case candidates to 13,407 of one million
+rows while retaining all 10,000 exact pairs. Elastic with four concurrent searches
+still leads in the new comparable query runs. The historical matrix and rejected
+experiments below remain separate; their numbers are not replaced by the follow-up.
 
 See the [anchored-pattern evidence](anchored-watchlists/README.md),
 [watchlist join evidence](watchlist-join/README.md),

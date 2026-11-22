@@ -1,0 +1,9 @@
+{
+  "scope": "pre-timing configuration check; not a benchmark result",
+  "attempt": "explicit use_query_cache=0,use_query_condition_cache=0 FDW server settings",
+  "outcome": "rejected: wildcard_fdw: unsupported FDW setting",
+  "exit_status": 1,
+  "measurement_cohorts": 0,
+  "cleanup": "collector finally completed; no cleanup_failure emitted",
+  "resolution": "preserve supported FDW settings; record inherited PG cache policy and observed per-query counters"
+}

@@ -1,0 +1,12 @@
+{
+  "byte_dispatch": {
+    "candidate_rows": 100,
+    "source_rows": 10000,
+    "forced_index": true
+  },
+  "byte_dispatch_coarse": {
+    "candidate_rows": 991,
+    "source_rows": 10000,
+    "forced_index": true
+  }
+}

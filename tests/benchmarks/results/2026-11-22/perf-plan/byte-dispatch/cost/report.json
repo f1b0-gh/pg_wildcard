@@ -1,0 +1,98 @@
+{
+  "observations": [
+    {
+      "family": "shared",
+      "engine": "native",
+      "phase": "initial",
+      "documents": 900000,
+      "requests": 450,
+      "wire_bytes": 49250542,
+      "client_prepare_seconds": 8.42833016700024,
+      "upload_ack_seconds": 64.08786528999917,
+      "searchable_seconds": 64.14707148199886
+    },
+    {
+      "family": "shared",
+      "engine": "native",
+      "phase": "incremental",
+      "documents": 100000,
+      "requests": 50,
+      "wire_bytes": 5496850,
+      "client_prepare_seconds": 0.8445363560022088,
+      "upload_ack_seconds": 7.679590622999967,
+      "searchable_seconds": 7.698960093999631
+    },
+    {
+      "family": "shared",
+      "engine": "elastic",
+      "phase": "initial",
+      "documents": 900000,
+      "requests": 450,
+      "wire_bytes": 73422782,
+      "client_prepare_seconds": 29.785233159997006,
+      "upload_ack_seconds": 74.08879184499892,
+      "searchable_seconds": 76.9902750350011
+    },
+    {
+      "family": "shared",
+      "engine": "elastic",
+      "phase": "incremental",
+      "documents": 100000,
+      "requests": 50,
+      "wire_bytes": 8195000,
+      "client_prepare_seconds": 2.985470999003155,
+      "upload_ack_seconds": 7.780278369998996,
+      "searchable_seconds": 8.319956167000782
+    },
+    {
+      "family": "unrelated",
+      "engine": "native",
+      "phase": "initial",
+      "documents": 900000,
+      "requests": 450,
+      "wire_bytes": 49295542,
+      "client_prepare_seconds": 10.01197279200278,
+      "upload_ack_seconds": 84.84542163600054,
+      "searchable_seconds": 85.05952096599867
+    },
+    {
+      "family": "unrelated",
+      "engine": "native",
+      "phase": "incremental",
+      "documents": 100000,
+      "requests": 50,
+      "wire_bytes": 5501850,
+      "client_prepare_seconds": 1.6193603239989898,
+      "upload_ack_seconds": 7.271355987999414,
+      "searchable_seconds": 7.280122228999971
+    },
+    {
+      "family": "unrelated",
+      "engine": "elastic",
+      "phase": "initial",
+      "documents": 900000,
+      "requests": 450,
+      "wire_bytes": 73467782,
+      "client_prepare_seconds": 25.16083075699862,
+      "upload_ack_seconds": 58.14654553899891,
+      "searchable_seconds": 59.06428548199983
+    },
+    {
+      "family": "unrelated",
+      "engine": "elastic",
+      "phase": "incremental",
+      "documents": 100000,
+      "requests": 50,
+      "wire_bytes": 8200000,
+      "client_prepare_seconds": 1.4129820140005904,
+      "upload_ack_seconds": 5.542199491002975,
+      "searchable_seconds": 5.910821800000122
+    }
+  ],
+  "raw_sha256": {
+    "shared": "221a78716d13d26c5221b944a218218a950f2450e3ff010e6e933fb038afade4",
+    "unrelated": "01ed516f40be4ae67a651aae1f467816c91753be13f76ea8e3f6503fc38316a6"
+  },
+  "repetitions_per_case": 1,
+  "contract": "configured fsync acknowledgment and count-confirmed visibility; no hardware/crash test"
+}

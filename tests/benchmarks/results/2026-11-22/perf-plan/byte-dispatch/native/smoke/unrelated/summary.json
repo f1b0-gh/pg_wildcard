@@ -1,0 +1,38 @@
+{
+  "constant_candidates": {
+    "samples": 1,
+    "median_ms": 4339.626876000693,
+    "min_ms": 4339.626876000693,
+    "max_ms": 4339.626876000693,
+    "read_rows": [
+      20000
+    ],
+    "read_bytes": [
+      858204
+    ]
+  },
+  "byte_dispatch": {
+    "samples": 1,
+    "median_ms": 819.1869459988084,
+    "min_ms": 819.1869459988084,
+    "max_ms": 819.1869459988084,
+    "read_rows": [
+      10000
+    ],
+    "read_bytes": [
+      10439102
+    ]
+  },
+  "byte_dispatch_coarse": {
+    "samples": 1,
+    "median_ms": 339.11449700099183,
+    "min_ms": 339.11449700099183,
+    "max_ms": 339.11449700099183,
+    "read_rows": [
+      10000
+    ],
+    "read_bytes": [
+      439102
+    ]
+  }
+}

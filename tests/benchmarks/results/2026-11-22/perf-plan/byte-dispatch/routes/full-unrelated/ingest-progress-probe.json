@@ -1,0 +1,26 @@
+{
+  "timestamp_utc": "2026-11-22T19:34:25.735457+00:00",
+  "elapsed_ms": 18.243804002850084,
+  "indexing": {
+    "index_total": 358000,
+    "index_time_in_millis": 38758,
+    "index_current": 0,
+    "index_failed": 0,
+    "index_failed_due_to_version_conflict": 0,
+    "delete_total": 0,
+    "delete_time_in_millis": 0,
+    "delete_current": 0,
+    "noop_update_total": 0,
+    "is_throttled": false,
+    "throttle_time_in_millis": 0,
+    "write_load": 0.1359835076546477,
+    "recent_write_load": 0.12617763953662822,
+    "peak_write_load": 0.12617763953662822
+  },
+  "docs": {
+    "count": 246000,
+    "deleted": 0,
+    "total_size_in_bytes": 17020965
+  },
+  "scope": "one read-only progress probe during unrelated initial ingestion; no search timing overlap"
+}
