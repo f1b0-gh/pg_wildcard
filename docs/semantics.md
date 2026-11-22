@@ -29,9 +29,13 @@ can occur on either side of them.
 
 The accepted regex syntax is a checked portable subset, not every construct an
 RE2 implementation might accept. Backreferences, look-around, class set
-operations, `(?x)` and `\Q...\E` are rejected. `wc_re2_check` returns portability
-issues. Matching uses a linear-time engine; admission and memory settings are
-described below.
+operations, `(?x)` and `\Q...\E` are rejected. Unicode properties are limited
+to RE2's [documented general categories and script names](https://github.com/google/re2/wiki/Syntax)
+(plus `Any`); Rust-only
+aliases/binary properties and `\u`/`\U` escapes are rejected. Counted repeats,
+including the product of nested counts, cannot exceed 1000. `wc_re2_check`
+returns portability issues. Matching uses a linear-time engine; admission and
+memory settings are described below.
 
 ## Pattern admission and matcher retention
 
