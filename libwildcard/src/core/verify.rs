@@ -298,7 +298,8 @@ mod tests {
     fn explicit_scratch_preserves_send_sync_and_retention_policy() {
         fn send_sync<T: Send + Sync>() {}
         send_sync::<Matcher>();
-        let matcher = Matcher::regex("(a{1000}){8}b", View::Raw, false).unwrap();
+        let pattern = format!("{}b", "a{1000}".repeat(8));
+        let matcher = Matcher::regex(&pattern, View::Raw, false).unwrap();
         let value = format!("{}b", "a".repeat(8000));
         let charge = matcher.cache_charge();
         assert!(matcher.is_match(value.as_bytes()));
