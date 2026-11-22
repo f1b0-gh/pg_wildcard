@@ -5,8 +5,8 @@
 //! compares. Usage: cargo run -p wildcard-ch --example difftest_gen [seed]
 
 use libwildcard::antalya::{
-    SweepItem, ViewColumns, candidate_predicate, column_predicate, sweep_queries,
-    watchlist_insert_sql, watchlist_mv, watchlist_table_ddl,
+    SweepItem, SweepOptions, ViewColumns, candidate_predicate, column_predicate, sweep_queries,
+    sweep_queries_with_options, watchlist_insert_sql, watchlist_mv, watchlist_table_ddl,
 };
 use libwildcard::core::View;
 use libwildcard::core::indicator;
@@ -79,6 +79,142 @@ const SECURITY: &[&str] = &[
     "abababc",
 ];
 
+// Explicitly exercise the optional gate; mixed IOC sweeps normally disable it.
+fn shared_gate_cases(values: &[Vec<u8>]) -> Vec<serde_json::Value> {
+    let mut cases = Vec::new();
+    for (name, patterns, views, filtered, budget) in [
+        (
+            "quote",
+            vec!["a'b.*x", "a'b.*y"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
+            "backslash",
+            vec![r"a\\b.*x", r"a\\b.*y"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
+            "lower_binary",
+            vec!["abc.*x", "abc.*y"],
+            vec![View::Lower, View::Lower],
+            false,
+            0,
+        ),
+        (
+            "decoded_binary",
+            vec!["abc.*x", "abc.*y"],
+            vec![View::Decoded, View::Decoded],
+            false,
+            0,
+        ),
+        (
+            "unsupported_or",
+            vec!["abc|def", "abc.*x"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
+            "empty",
+            vec!["", "abc.*x"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
+            "mixed",
+            vec!["abc.*x", "abc.*x"],
+            vec![View::Raw, View::Lower],
+            false,
+            0,
+        ),
+        (
+            "filter_or",
+            vec!["abc.*x", "abc.*y"],
+            vec![View::Raw, View::Raw],
+            true,
+            0,
+        ),
+        (
+            "byte_fallback",
+            vec!["abc.*x", "abc.*y"],
+            vec![View::Raw, View::Raw],
+            false,
+            1,
+        ),
+        (
+            "ast_fallback",
+            vec!["abc.*x", "abc.*y"],
+            vec![View::Raw, View::Raw],
+            false,
+            2,
+        ),
+    ] {
+        let items: Vec<_> = patterns
+            .iter()
+            .zip(views)
+            .enumerate()
+            .map(|(id, (p, view))| SweepItem {
+                id: id as i64,
+                view,
+                regex: (*p).into(),
+            })
+            .collect();
+        let filter = filtered.then_some("id%2=0 OR id%3=0 -- trailing comment");
+        let cols = ViewColumns::new("v").unwrap();
+        let mut options = SweepOptions::default();
+        let default =
+            sweep_queries_with_options("t", &["id"], &cols, &items, filter, options).unwrap();
+        let dense = default.queries[0]
+            .split("\nWHERE")
+            .next()
+            .unwrap()
+            .to_string();
+        if budget == 1 {
+            options.max_bytes = dense.len();
+        }
+        if budget == 2 {
+            options.max_ast_nodes = 200;
+        }
+        let plan =
+            sweep_queries_with_options("t", &["id"], &cols, &items, filter, options).unwrap();
+        if budget != 0 {
+            assert_eq!(plan.queries, vec![dense]);
+            assert_eq!(plan.source_scan_count, 1);
+        }
+        let expect_gate = !matches!(
+            name,
+            "unsupported_or" | "empty" | "mixed" | "byte_fallback" | "ast_fallback"
+        );
+        let actual_gate = plan
+            .queries
+            .iter()
+            .any(|q| q.contains("\nWHERE position(") || q.contains("\nWHERE (position("));
+        assert_eq!(actual_gate, expect_gate, "{name}");
+        let mut expected = Vec::new();
+        for (row, value) in values.iter().enumerate() {
+            if filtered && row % 2 != 0 && row % 3 != 0 {
+                continue;
+            }
+            for item in &items {
+                if Matcher::regex(&item.regex, item.view, false)
+                    .unwrap()
+                    .is_match(value)
+                {
+                    expected.push(json!([row, item.id, item.view.name()]));
+                }
+            }
+        }
+        cases.push(json!({"name":name,"queries":plan.queries,"expected":expected,"gate_expected":expect_gate,
+            "estimated_ast":plan.estimated_ast,"max_ast_nodes":options.max_ast_nodes,"max_bytes":options.max_bytes}));
+    }
+    cases
+}
+
 fn main() {
     let seed: u64 = std::env::args()
         .nth(1)
@@ -113,6 +249,22 @@ fn main() {
     ];
     let mut values: Vec<Vec<u8>> = SECURITY.iter().map(|s| s.as_bytes().to_vec()).collect();
     values.extend([vec![0xc0, b'a'], vec![b'0', 0x80]]);
+    values.extend([
+        b"a'b123x".to_vec(),
+        b"a'b456y".to_vec(),
+        b"a\\b123x".to_vec(),
+        b"a\\b456y".to_vec(),
+        b"\xff\0a'b123x".to_vec(),
+        b"\xff\0a\\b456y".to_vec(),
+        b"ABC123X".to_vec(),
+        b"AbC456Y".to_vec(),
+        b"\xff\0AbC77X".to_vec(),
+        b"%61%62%63%31x".to_vec(),
+        b"%41BC%00X".to_vec(),
+        b"abc123x".to_vec(),
+        b"abc456y".to_vec(),
+        b"abc\nxxx".to_vec(),
+    ]);
     for _ in 0..300 {
         let n = (r.next() % 10) as usize;
         values.push((0..n).flat_map(|_| r.pick(tokens).to_vec()).collect());
@@ -296,7 +448,9 @@ fn main() {
         (204, r"\p{L}"),
         (205, "evil"),
         (206, "evil|cmd"),
-        (207, "\0"),
+        // Literal NUL patterns are truncated by older native engines; the
+        // escaped spelling keeps this binary-value test portable.
+        (207, r"\x00"),
     ] {
         let m = Matcher::regex(regex, View::Raw, false).unwrap();
         for (row, value) in values.iter().enumerate() {
@@ -326,6 +480,7 @@ fn main() {
         "views": views,
         "predicates": preds,
         "sweep": {"queries": sweeps, "expected": expected_hits},
+        "shared_gate_cases": shared_gate_cases(&values),
         "watchlist": {"table_ddl": watchlist_table_ddl("watch").unwrap(), "items": watch_items, "inserts": watch_inserts, "mv": mv},
     });
     println!("{out}");

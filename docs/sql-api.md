@@ -82,6 +82,12 @@ wc_ch_view_columns_ddl(table text, col text,
 wc_ch_sweep(source text, select_cols text[], col text, ids bigint[],
             regexes text[], views text[], filter text = NULL,
             materialized boolean = false) → SETOF text
+wc_ch_sweep_plan(source text, select_cols text[], col text, ids bigint[],
+            regexes text[], views text[], max_ast_nodes integer = 45000,
+            max_query_bytes integer = 200000, filter text = NULL,
+            materialized boolean = false)
+  → TABLE(query text, strategy text, source_scans bigint,
+          estimated_ast_nodes bigint, exact_only_items bigint)
 wc_ch_watchlist_ddl(name text, source text, hits text, watch text,
                     select_cols text[], col text,
                     views text = 'raw,lower,decoded,revdomain',
@@ -99,18 +105,32 @@ index materialization statements. Its default list does **not** include
 Sweep arrays must have equal lengths. Each generated query returns the selected
 columns plus `indicator_id` and `view`. Each indicator uses a constant regex and
 a conservative candidate predicate before its exact `match` check. Batches count
-the complete escaped SQL against their byte budget and cap expression count;
-a single indicator that cannot fit returns an error. Short-circuit execution
+the complete escaped SQL against their byte budget and a conservative parsed-AST
+budget (45,000 nodes by default, below the engine default of 50,000);
+a single indicator that cannot fit even after removing its optional candidate
+returns an error. `wc_ch_sweep_plan` exposes configurable budgets, the strategy,
+and total source-query count. Each query also includes these scan diagnostics
+in a comment. Parsed-AST estimates do not replace the engine's expanded-AST or
+execution limits; physical reads depend on the source plan and must be measured.
+An optional `WHERE` gate uses up to three grams required by every indicator when
+all indicators share a supported view/AND plan. It is omitted if unsupported,
+alias-sensitive, or unable to fit the remaining byte/AST budgets; exact checks
+and query count are preserved. Filter pushdown remains an engine-plan property.
+There is no fixed indicator-count cap or automatic dynamic-regex switch. Short-circuit execution
 depends on ClickHouse settings and expression evaluation; candidates do not
 guarantee that every rejected row avoids regex work.
 
 Watchlist DDL creates the indicator table and an insert-time materialized view
 writing to the caller-provided hits table. It does not backfill existing source
 rows or replay them when a watchlist changes. `wc_ch_watchlist_insert` returns an
-INSERT with at most one conservative substring needle and its regex/view binding.
+INSERT with up to three conservative substring needles and their regex/view binding.
 Only supported AND plans supply a needle; other plans use exact matching alone.
-The view uses the first stored needle to avoid nested row/indicator/needle arrays;
-selection is deterministic and does not estimate corpus frequency. Empty
+The view filters original indicator indices after each scalar substring check,
+then rechecks the surviving indices exactly. It avoids nested arrays of needles. Default ranking penalizes common URL fragments and punctuation; the
+library frequency-aware API can use the view-aware file counts emitted by
+`wc-lake export-pg`. Counts rank already-proven required trigrams only; missing,
+stale or incomplete counts cannot turn an optional gram into a requirement.
+See [integration](../libwildcard/INTEGRATION.md) for the frequency APIs and metadata. Empty
 or stale metadata bypasses the substring pre-check. Writers must use the helper
 or compute equally sound metadata; bindings detect stale values, not deliberately
 fabricated needles. The dynamic view still checks each indicator for each row;

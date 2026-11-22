@@ -74,6 +74,18 @@ if got != exp:
     fail(f"sweep: ch-only={sorted(got-exp)[:5]} rust-only={sorted(exp-got)[:5]}")
 print(f"sweep: {len(exp)} expected hits, {len(got)} from ClickHouse")
 
+# Explicit same-view gate cases, including escaping and bounded fallbacks.
+for case in spec.get("shared_gate_cases", []):
+    got_gate = []
+    for sql, estimate in zip(case["queries"], case["estimated_ast"]):
+        if len(sql.encode()) > case["max_bytes"] or estimate > case["max_ast_nodes"]:
+            fail(f"shared gate {case['name']}: budget exceeded")
+        got_gate.extend((int(r[0]), int(r[1]), r[2]) for r in rows(sql))
+    expected_gate = sorted(tuple(r) for r in case["expected"])
+    if sorted(got_gate) != expected_gate:
+        fail(f"shared gate {case['name']}: exact pairs differ")
+print(f"shared gate: {len(spec.get('shared_gate_cases', []))} cases checked")
+
 # 4. watchlist materialized view
 w = spec["watchlist"]
 q("DROP TABLE IF EXISTS watch"); q("DROP TABLE IF EXISTS src"); q("DROP TABLE IF EXISTS hits"); q("DROP VIEW IF EXISTS wc_mv")
