@@ -79,10 +79,12 @@ unsafe fn re2match_oid() -> pg_sys::Oid {
         if extension == pg_sys::InvalidOid {
             return pg_sys::InvalidOid;
         }
-        let tuple = pg_sys::SearchSysCache1(
-            pg_sys::SysCacheIdentifier::EXTENSIONOID as i32,
-            pg_sys::Datum::from(extension),
-        );
+        // PostgreSQL 17 names the extension OID cache differently.
+        #[cfg(feature = "pg17")]
+        let cache = pg_sys::SysCacheIdentifier::ZEXTENSIONOID;
+        #[cfg(not(feature = "pg17"))]
+        let cache = pg_sys::SysCacheIdentifier::EXTENSIONOID;
+        let tuple = pg_sys::SearchSysCache1(cache as i32, pg_sys::Datum::from(extension));
         if tuple.is_null() {
             return pg_sys::InvalidOid;
         }

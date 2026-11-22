@@ -66,6 +66,9 @@ CREATE EXTENSION pg_wildcard;
 The extension also declares PostgreSQL 14–17 features for compatibility checks.
 Each server major requires a separate build and test run; the presence of a
 feature or CI matrix entry is not proof of a successful deployment.
+The qualification matrix also exercises FDW planner-private strings on each
+major, including PostgreSQL 14's older `Value` node representation and the
+PostgreSQL 17 extension-catalog cache identifier.
 
 ## GitHub Actions configuration
 
