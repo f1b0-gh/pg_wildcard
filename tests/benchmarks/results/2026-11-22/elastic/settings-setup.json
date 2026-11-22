@@ -1,0 +1,106 @@
+{
+  "engine": "Elasticsearch",
+  "version": {
+    "number": "9.5.6",
+    "build_flavor": "default",
+    "build_type": "docker",
+    "build_hash": "fd1e8011342a0988e432b999cea4bf884ca120ed",
+    "build_date": "2026-10-28T22:37:54.387301573Z",
+    "build_snapshot": false,
+    "lucene_version": "10.5.2",
+    "minimum_wire_compatibility_version": "8.19.0",
+    "minimum_index_compatibility_version": "8.0.0"
+  },
+  "image": "docker.elastic.co/elasticsearch/elasticsearch@sha256:79b4f1de4c15e6eca824723086a51e5934406d614d410cc11be77748cafac537",
+  "cpus": 4,
+  "memory_bytes": 4294967296,
+  "cluster_overrides": {
+    "persistent": {
+      "cluster": {
+        "routing": {
+          "allocation": {
+            "disk": {
+              "watermark": {
+                "low": "10gb",
+                "flood_stage": "2gb",
+                "high": "5gb"
+              }
+            }
+          }
+        }
+      }
+    },
+    "transient": {}
+  },
+  "jvm_heap_max_bytes": 2147483648,
+  "machine": {
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "architecture": "x86_64",
+    "cpu_model": "AMD Ryzen 5 PRO 4650U with Radeon Graphics",
+    "host_logical_cpus": 12
+  },
+  "corpus": "url-evil-every-100-v1",
+  "rows": 1000000,
+  "indicators": 1000,
+  "mapping": {
+    "wildcard": {
+      "settings": {
+        "number_of_shards": 1,
+        "number_of_replicas": 0,
+        "refresh_interval": "-1",
+        "requests.cache.enable": false,
+        "queries.cache.enabled": false
+      },
+      "mappings": {
+        "dynamic": "strict",
+        "_meta": {},
+        "properties": {
+          "id": {
+            "type": "long"
+          },
+          "v": {
+            "type": "wildcard"
+          }
+        }
+      }
+    },
+    "keyword": {
+      "settings": {
+        "number_of_shards": 1,
+        "number_of_replicas": 0,
+        "refresh_interval": "-1",
+        "requests.cache.enable": false,
+        "queries.cache.enabled": false
+      },
+      "mappings": {
+        "dynamic": "strict",
+        "_meta": {},
+        "properties": {
+          "id": {
+            "type": "long"
+          },
+          "v": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  },
+  "repeats_requested": 3,
+  "transport": "native Elasticsearch HTTP JSON; differs from Antalya Arrow/PG FDW",
+  "pair_checksum": "SHA256 sorted UTF-8 lines row_id TAB indicator_id TAB raw LF",
+  "msearch_batch": 100,
+  "max_concurrent_searches": 4,
+  "query_types": [
+    "wildcard"
+  ],
+  "docs": [
+    "https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/keyword#wildcard-field-type",
+    "https://www.elastic.co/docs/reference/query-languages/query-dsl/query-dsl-wildcard-query",
+    "https://www.elastic.co/docs/reference/query-languages/query-dsl/query-dsl-regexp-query",
+    "https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-msearch",
+    "https://www.elastic.co/docs/reference/elasticsearch/configuration-reference/cluster-level-shard-allocation-routing-settings"
+  ],
+  "invalid_utf8": "not representable in JSON string corpus",
+  "cache_policy": "query and request caches disabled; no OS cache drop; no artificial cold-cache claim"
+}

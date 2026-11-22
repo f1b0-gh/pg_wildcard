@@ -74,6 +74,7 @@ jobs:
           cargo metadata --locked --manifest-path fuzz/Cargo.toml --format-version 1 > /dev/null
           python3 -m unittest discover -s tests/ci -v
           python3 -m unittest discover -s tests/operations -v
+          python3 -m unittest discover -s tests/benchmarks -p 'test_*.py' -v
       - run: cargo fmt --manifest-path libwildcard/Cargo.toml --all -- --check
       - name: Backend cache ownership and allocation regressions
         run: |
@@ -120,6 +121,17 @@ jobs:
           for seed in 1 42 1234; do
             cargo run --locked -q --manifest-path libwildcard/Cargo.toml --features hot --example difftest_gen -- "$seed" | python3 libwildcard/tests/differential/run.py
           done
+      - name: Benchmark correctness smoke (one percent; timings informational)
+        run: |
+          mkdir -p .local/benchmark-smoke
+          cargo run --locked -q --manifest-path libwildcard/Cargo.toml --features hot --example sweep_benchmark_gen > .local/benchmark-smoke/spec.json
+          python3 tests/benchmarks/smoke.py .local/benchmark-smoke/spec.json --out .local/benchmark-smoke/results
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: benchmark-smoke
+          path: pg_wildcard/.local/benchmark-smoke/results
+          if-no-files-found: ignore
       - name: Iceberg and Puffin end-to-end
         run: |
           cargo build --locked --manifest-path libwildcard/Cargo.toml --features cold --bin wc-lake --example lake_scale_fixture

@@ -1,0 +1,65 @@
+[
+  {
+    "case": "auto_cold",
+    "backend_pid": 17831,
+    "postgres_ms": 202.829,
+    "direct_fetch_ms": 85.323292,
+    "direct_process_ms": 161.43765499873552,
+    "preparation": {
+      "FDW automatic candidate decision": "insufficient_mark_reduction",
+      "FDW automatic candidate selected": false,
+      "FDW plan preparation": 77.394,
+      "FDW plan transfer wait": 12.417,
+      "FDW plan decode": 0.238,
+      "FDW plan framing decode": 0.0,
+      "FDW plan terminal": 63.451,
+      "FDW plan HTTP body bytes": 2336,
+      "FDW plan control requests": 4,
+      "FDW plan probes": 2,
+      "FDW plan cache hits": 0
+    },
+    "remote_sql": "SELECT `id`, `url` FROM fdw_profile.events WHERE like(url, '%powershell%')"
+  },
+  {
+    "case": "auto_warm",
+    "backend_pid": 17831,
+    "postgres_ms": 78.291,
+    "direct_fetch_ms": 73.199443,
+    "direct_process_ms": 94.19125400017947,
+    "preparation": {
+      "FDW automatic candidate decision": "insufficient_mark_reduction",
+      "FDW automatic candidate selected": false,
+      "FDW plan preparation": 0.003,
+      "FDW plan transfer wait": 0.0,
+      "FDW plan decode": 0.0,
+      "FDW plan framing decode": 0.0,
+      "FDW plan terminal": 0.0,
+      "FDW plan HTTP body bytes": 0,
+      "FDW plan control requests": 0,
+      "FDW plan probes": 0,
+      "FDW plan cache hits": 1
+    },
+    "remote_sql": "SELECT `id`, `url` FROM fdw_profile.events WHERE like(url, '%powershell%')"
+  },
+  {
+    "case": "manual_exact",
+    "backend_pid": 17831,
+    "postgres_ms": 87.646,
+    "direct_fetch_ms": 70.72347900000001,
+    "direct_process_ms": 87.4822430050699,
+    "preparation": {
+      "FDW automatic candidate decision": "not_requested",
+      "FDW automatic candidate selected": false,
+      "FDW plan preparation": 0.0,
+      "FDW plan transfer wait": 0.0,
+      "FDW plan decode": 0.0,
+      "FDW plan framing decode": 0.0,
+      "FDW plan terminal": 0.0,
+      "FDW plan HTTP body bytes": 0,
+      "FDW plan control requests": 0,
+      "FDW plan probes": 0,
+      "FDW plan cache hits": 0
+    },
+    "remote_sql": "SELECT `id`, `url` FROM fdw_profile.events WHERE like(url, '%powershell%')"
+  }
+]
