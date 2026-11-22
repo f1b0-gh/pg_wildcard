@@ -86,6 +86,17 @@ migration where the engine treats these settings as immutable. Measure storage,
 ingestion, broad scans and selective queries before adopting it; smaller granules
 and blocks are not a universal improvement.
 
+The standalone library also provides an opt-in byte-fragment index and bounded
+rule-dispatch sweep. It selects candidate rule positions before exact regex
+checks, preserving duplicate IDs and source rows. The index expression uses
+hex-encoded byte windows so invalid UTF-8 remains searchable; an overflow token
+keeps values beyond the extraction bound visible. Unsupported rule sets use an
+explicit dense fallback with isolated source expressions. See
+[consumer integration](../libwildcard/INTEGRATION.md#opt-in-byte-index-dispatch)
+for limits and index-build requirements. This does not change default sweeps or
+automatically create indexes. Evaluate write cost, storage and query latency
+against the alternative indexed system on matching workloads.
+
 ## Puffin decoding and construction
 
 Wildcard readers select `wildcard-ngram-v1` blobs; other Puffin blob types remain

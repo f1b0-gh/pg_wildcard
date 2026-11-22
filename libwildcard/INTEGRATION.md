@@ -50,6 +50,38 @@ small, or the value expression is trusted custom SQL or an unqualified generated
 alias (`view`, `indicator_id`, `wc_hit`), the optional gate is omitted. Existing
 filters stay parenthesized and every per-indicator exact check remains.
 
+## Opt-in byte-index dispatch
+
+`antalya::sweep_byte_dispatch` generates a single source query for a bounded set
+of raw-view rules. It groups rule positions by required byte fragments, selects
+candidate positions with byte substring searches, and applies exact `match()` to
+those positions. Duplicate IDs and source rows retain their multiplicity. This
+is independent of the regex engine and does not change the default sweep API.
+
+The current limits are 2,000 rules, 255 groups, 64 rules per group, and at most
+256 unassigned rules or 25% of the input. Other views, insufficient coverage and
+SQL/AST budget exhaustion return the existing constant-candidate plan with an
+explicit fallback reason. A rule with no required fragment is still checked
+exactly and disables the optional source index gate.
+
+`byte_gram_index_ddl(table, index, column)` emits an explicit fragment-array text
+index for the matching raw column. Existing parts require `MATERIALIZE INDEX`.
+The expression extracts six-character windows from hex-encoded bytes, preserving
+byte fragments even for invalid UTF-8. Windows crossing a half-byte boundary
+only add candidates; exact regex checks remove them. This avoids copying the
+source string per trigram inside an array lambda.
+Index extraction stops at 8,192 bytes; longer values carry an overflow token and
+remain candidates even when a match lies beyond that prefix. The gate has scalar
+semantics with or without the index. Check physical index use and engine-version
+compatibility separately. The source value is preserved.
+
+This is an opt-in layout for admitted wildcard fields. Measure initial indexing,
+sustained ingestion, storage and query latency against the alternative indexed
+system on the same corpus and rules. An unindexed ClickHouse baseline measures
+added overhead, not competitiveness with Elasticsearch's wildcard index.
+Extraction bounds do not bound total query memory or promise a speedup. Optional
+`GramFileCounts` only rank already-proven required fragments.
+
 ## Watchlist needle selection
 
 `antalya::watchlist_needles(pattern, view)` selects up to three necessary ASCII

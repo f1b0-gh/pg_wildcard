@@ -107,6 +107,10 @@ for case in spec.get("shared_gate_cases", []):
             rows(sql+" SETTINGS force_data_skipping_indices='wc_gate_ngrams'")
 print("indexed gates: exact pairs with/without skipping; ASCII forced-index check passed")
 
+if "byte_dispatch" in spec:
+    from byte_dispatch import check as check_byte_dispatch
+    check_byte_dispatch(spec["byte_dispatch"], q, rows, fail)
+
 # 4. watchlist materialized view
 w = spec["watchlist"]
 q("DROP TABLE IF EXISTS watch"); q("DROP TABLE IF EXISTS src"); q("DROP TABLE IF EXISTS hits"); q("DROP VIEW IF EXISTS wc_mv")

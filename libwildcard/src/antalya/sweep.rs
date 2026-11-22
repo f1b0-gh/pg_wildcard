@@ -30,11 +30,16 @@ pub enum SweepStrategy {
     /// Constant candidate predicates and exact constant-regex rechecks.
     /// Individual candidates may be omitted to fit the configured limits.
     ConstantCandidates,
+    /// Bounded byte-fragment dispatch followed by exact dynamic regex checks.
+    ByteDispatch,
 }
 
 impl SweepStrategy {
     pub fn name(self) -> &'static str {
-        "constant_candidates"
+        match self {
+            Self::ConstantCandidates => "constant_candidates",
+            Self::ByteDispatch => "byte_dispatch",
+        }
     }
 }
 
@@ -305,7 +310,7 @@ pub(super) fn sweep_sql(
 // two, even when grouping creates no nodes. A same-level AND/OR chain is one
 // variadic function with one argument list; changing operator starts another.
 // Unary signs are overcounted. The iterative delimiter stack has a hard cap.
-fn expression_ast(sql: &str) -> Result<usize, ChError> {
+pub(super) fn expression_ast(sql: &str) -> Result<usize, ChError> {
     let bytes = sql.as_bytes();
     let mut pos = 0;
     let mut cost = 0usize;

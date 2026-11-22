@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 //! Versioned comparison fixtures. Never infer the oracle from generated SQL.
 use libwildcard::antalya::{
-    SweepItem, SweepOptions, ViewColumns, WatchlistStrategy, predicate, sweep_queries_with_options,
-    view_columns_ddl, watchlist_insert_sql, watchlist_mv, watchlist_needles, watchlist_plan,
-    watchlist_table_ddl,
+    SweepItem, SweepOptions, ViewColumns, WatchlistStrategy, byte_gram_index_ddl, predicate,
+    sweep_byte_dispatch, sweep_queries_with_options, view_columns_ddl, watchlist_insert_sql,
+    watchlist_mv, watchlist_needles, watchlist_plan, watchlist_table_ddl,
 };
 use libwildcard::core::{
     GramQuery, View, grams,
@@ -198,6 +198,16 @@ pub fn build(variant: &str, count: usize, rows: usize) -> Result<Value, String> 
     )
     .map_err(|e| e.to_string())?;
     let views: std::collections::BTreeSet<_> = items.iter().map(|i| i.view).collect();
+    let dispatch = sweep_byte_dispatch(
+        "bench",
+        &["id"],
+        &cols,
+        &items,
+        None,
+        SweepOptions::default(),
+        None,
+    )
+    .map_err(|e| e.to_string())?;
     let views: Vec<_> = views.into_iter().collect();
     let patterns: Vec<_> = items.iter().enumerate().map(|(n,i)| {
         let mut p = json!({"id":i.id,"view":i.view.name(),"regex":i.regex,"elastic_wildcard":elastic[n],"needles":watchlist_needles(&i.regex,i.view).unwrap(),"required_grams":required_grams(&matchers[n].plan)});
@@ -252,6 +262,12 @@ pub fn build(variant: &str, count: usize, rows: usize) -> Result<Value, String> 
             "patterns":patterns,"pattern_sha256":sha256_hex(&pattern_bytes),
             "elastic_supported":variant!="mixed","elastic_exclusion":if variant=="mixed" {Some("mixed views and RE2 alternation are native/Rust qualification only")} else {None},
             "queries":plan.queries,"indexed_queries":indexed.queries,"index_ddl":view_columns_ddl("bench","v",&views).map_err(|e|e.to_string())?,
+            "byte_dispatch":{"queries":dispatch.sweep.queries,
+                "index_ddl":byte_gram_index_ddl("bench","v_byte_grams","v").map_err(|e|e.to_string())?,
+                "strategy":dispatch.sweep.strategy.name(),"groups":dispatch.dispatch_groups,
+                "unassigned":dispatch.unassigned_items,"index_gate":dispatch.index_gate,
+                "fallback":dispatch.fallback.map(|r| format!("{r:?}")),
+                "estimated_ast":dispatch.sweep.estimated_ast},
             "diagnostics":{"source_queries":plan.source_scan_count,"estimated_ast":plan.estimated_ast,"exact_only_items":plan.exact_only_items},
             "watchlist":{"ddl":watchlist_table_ddl("watch").unwrap(),"inserts":items.iter().map(|i|watchlist_insert_sql("watch",i).unwrap()).collect::<Vec<_>>(),
                 "join_plan":{"sql":join_plan.sql,"strategy":join_plan.strategy.name(),

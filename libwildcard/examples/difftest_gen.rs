@@ -5,8 +5,9 @@
 //! compares. Usage: cargo run -p wildcard-ch --example difftest_gen [seed]
 
 use libwildcard::antalya::{
-    SweepItem, SweepOptions, ViewColumns, WatchlistStrategy, candidate_predicate, column_predicate,
-    sweep_queries, sweep_queries_with_options, watchlist_insert_sql, watchlist_mv, watchlist_plan,
+    SweepItem, SweepOptions, ViewColumns, WatchlistStrategy, byte_gram_index_ddl,
+    candidate_predicate, column_predicate, sweep_byte_dispatch, sweep_queries,
+    sweep_queries_with_options, watchlist_insert_sql, watchlist_mv, watchlist_plan,
     watchlist_table_ddl,
 };
 use libwildcard::core::View;
@@ -29,6 +30,88 @@ impl Rng {
 
 fn hex(b: &[u8]) -> String {
     b.iter().map(|x| format!("{x:02X}")).collect()
+}
+
+fn byte_dispatch_cases(values: &[Vec<u8>]) -> serde_json::Value {
+    let mut values = values.to_vec();
+    values.extend([
+        b"abc00xabc01x".to_vec(),
+        b"\xffabc02x\x00abc03x".to_vec(),
+        [vec![b'x'; 8186], b"abc04x".to_vec()].concat(),
+        [vec![b'x'; 8187], b"abc05x".to_vec()].concat(),
+        [vec![b'x'; 100_000], b"abc06x".to_vec()].concat(),
+        b"abc07x\xff".to_vec(),
+        "É K".as_bytes().to_vec(),
+    ]);
+    let mut cases = Vec::new();
+    for (name, column, unsupported, filtered) in [
+        ("gate", "v", false, false),
+        ("source_view", "view", false, true),
+        ("source_indicator", "indicator_id", false, false),
+        ("helper_collision", "_wc_dispatch0_value", false, false),
+        ("unicode_exact_fallback", "v", true, false),
+        ("coverage_fallback", "view", true, true),
+        ("mixed_fallback", "_wc_dispatch0_value", true, false),
+    ] {
+        let mut items: Vec<_> = (0..16)
+            .map(|i| SweepItem {
+                id: if i < 2 { i64::MIN } else { i },
+                view: View::Raw,
+                regex: format!("abc{i:02}x"),
+            })
+            .collect();
+        items.push(items[0].clone());
+        if unsupported {
+            for regex in ["(?i)é", "(?i)k", "a|b", ".*"] {
+                items.push(SweepItem {
+                    id: i64::MAX,
+                    view: View::Raw,
+                    regex: regex.into(),
+                });
+            }
+        }
+        if name == "coverage_fallback" {
+            for item in &mut items {
+                item.regex = ".*".into();
+            }
+        }
+        if name == "mixed_fallback" {
+            for (item, view) in items.iter_mut().zip(View::ALL) {
+                item.view = view;
+            }
+        }
+        let filter = filtered.then_some("id % 2 = 0 OR id % 3 = 0 -- trailing comment");
+        let plan = sweep_byte_dispatch(
+            "bd",
+            &["id"],
+            &ViewColumns::new(column).unwrap(),
+            &items,
+            filter,
+            SweepOptions::default(),
+            None,
+        )
+        .unwrap();
+        assert_eq!(
+            plan.fallback.is_some(),
+            name == "coverage_fallback" || name == "mixed_fallback",
+            "{name}: {:?}",
+            plan.fallback
+        );
+        assert_eq!(plan.index_gate, !unsupported);
+        let mut expected = Vec::new();
+        for item in &items {
+            let matcher = Matcher::regex(&item.regex, item.view, false).unwrap();
+            for (id, value) in values.iter().enumerate() {
+                if (!filtered || id % 2 == 0 || id % 3 == 0) && matcher.is_match(value) {
+                    expected.push(json!([id, item.id, item.view.name()]));
+                }
+            }
+        }
+        cases.push(json!({"name": name, "queries": plan.sweep.queries,
+            "index_gate": plan.index_gate, "expected": expected,
+            "ddl": byte_gram_index_ddl("bd", "byte_grams", column).unwrap()}));
+    }
+    json!({"values_hex": values.iter().map(|v| hex(v)).collect::<Vec<_>>(), "cases": cases})
 }
 
 fn watchlist_join_cases(values: &[Vec<u8>], items: &[SweepItem]) -> serde_json::Value {
@@ -614,6 +697,7 @@ fn main() {
         "predicates": preds,
         "sweep": {"queries": sweeps, "expected": expected_hits},
         "shared_gate_cases": shared_gate_cases(&values),
+        "byte_dispatch": byte_dispatch_cases(&values),
         "watchlist_join": watchlist_join_cases(&values, &items),
         "watchlist": {"table_ddl": watchlist_table_ddl("watch").unwrap(), "items": watch_items, "inserts": watch_inserts, "mv": mv},
     });
