@@ -22,6 +22,22 @@ assert!(matcher.is_match(b"GET /%77p-ADMIN/a.PHP"));
 # }
 ```
 
+For parallel callers, retain one scratch cache per worker:
+
+```rust
+use libwildcard::core::{Matcher, View};
+# fn main() -> Result<(), Box<dyn std::error::Error>> {
+let matcher = Matcher::regex("evil", View::Raw, false)?;
+let mut cache = matcher.create_cache();
+assert!(matcher.is_match_with(&mut cache, b"evil.example"));
+# Ok(())
+# }
+```
+
+Caller-owned scratch avoids the shared matcher mutex. Its retained memory is
+bounded per cache, independently of `Matcher::cache_charge()`; bound worker and
+cache counts as well. A cache can be reused with another matcher safely.
+
 ## Contracts
 
 Matching follows ClickHouse semantics. Views are explicit derived values; raw

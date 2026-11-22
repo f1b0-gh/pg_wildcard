@@ -31,5 +31,5 @@ pub mod verify;
 pub mod views;
 
 pub use query::GramQuery;
-pub use verify::{Kind, Matcher};
+pub use verify::{Kind, MatchCache, Matcher};
 pub use views::View;

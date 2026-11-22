@@ -36,6 +36,26 @@ SELECT wc_like('https://login.example.com/x', 'com.example.%', 'revdomain');
 SELECT wc_regex(E'a\nb', 'a.b');
 ```
 
+## Matcher cache configuration
+
+Each PostgreSQL backend retains up to `pg_wildcard.matcher_cache_entries`
+patterns (default 256) within `pg_wildcard.matcher_cache_kb` (default 32768 KiB).
+Both settings are session-configurable; zero disables retention. Random eviction
+avoids the clear-all cliff when a join cycles through more patterns than fit.
+Changes apply on the next matching or diagnostics call.
+
+```sql
+SET pg_wildcard.matcher_cache_entries = 1024;
+SET pg_wildcard.matcher_cache_kb = '64MB';
+SELECT * FROM wc_matcher_cache_stats();
+-- entries, charged_bytes, hits, misses, evictions (all bigint)
+```
+
+Counters are cumulative within the current backend. Diagnostics are volatile and
+parallel-unsafe; parallel workers have separate caches. Charged memory excludes
+compilation/search temporaries and caller-held references; it is not an RSS cap.
+See [memory accounting](semantics.md) for library scratch-cache limits.
+
 ## Indicators
 
 ```text
