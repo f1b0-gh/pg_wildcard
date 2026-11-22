@@ -58,7 +58,7 @@ try:
             time.sleep(0.2)
 
     psql("CREATE EXTENSION pg_wildcard")
-    for regression in ["planner_predicates.sql", "planner_identity.sql"]:
+    for regression in ["planner_predicates.sql", "planner_identity.sql", "lake_coverage.sql"]:
         with open(os.path.join(HERE, regression)) as source:
             psql(source.read())
         check(True, f"planner regression: {regression}")
@@ -137,20 +137,28 @@ try:
         psql(f"\\copy {t} FROM '{work}/lk/{f}.csv' CSV")
     psql("CREATE FOREIGN TABLE lake_http (id bigint, url text) SERVER ch OPTIONS (table 'file(''lake/*.parquet'', Parquet)', lake_index 'lk')")
     psql("CREATE FOREIGN TABLE lake_full (id bigint, url text) SERVER ch OPTIONS (table 'file(''lake/*.parquet'', Parquet)')")
-    lake_cases = ["wc_match(url, '*/wp-admin/*', 'decoded')", "wc_like(url, 'com.evil.%', 'revdomain')",
-                  "wc_regex(url, 'powershell', true, 'lower')", "wc_match(url, '*/static/app.js', 'raw')"]
-    for c in lake_cases:
+    lake_cases = [("wc_match(url, '*/wp-admin/*', 'decoded')", True),
+                  ("wc_like(url, 'com.evil.%', 'revdomain')", True),
+                  ("wc_regex(url, 'powershell', true, 'lower')", True),
+                  ("wc_match(url, '*/static/app.js', 'raw')", False)]
+    for c, expect_pruning in lake_cases:
         a = psql(f"SELECT coalesce(string_agg(id::text, ',' ORDER BY id), '') FROM lake_http WHERE {c}")
         b = psql(f"SELECT coalesce(string_agg(id::text, ',' ORDER BY id), '') FROM lake_full WHERE {c}")
         plan = psql(f"EXPLAIN (VERBOSE, COSTS OFF) SELECT id FROM lake_http WHERE {c}")
         files = [l.strip() for l in plan.split("\n") if "Lake files" in l]
-        check(a == b and files and a != "", f"lake {c[:45]:45} rows={len(a.split(','))} identical={a == b} {files[0] if files else 'no pruning'}")
+        check(a == b and bool(files) == expect_pruning and a != "", f"lake {c[:45]:45} rows={len(a.split(','))} identical={a == b} {files[0] if files else 'no pruning'}")
     for table in ["http_local", "http_plain", "http_candidate", "lake_http"]:
         try:
             psql(f"SELECT count(*) FROM {table} WHERE url LIKE " + r"E'abc\\'")
             check(False, f"dangling LIKE escape must still raise on {table}")
         except subprocess.CalledProcessError as error:
             check("escape" in error.stderr.lower(), f"dangling LIKE escape remains a PostgreSQL error on {table}")
+    # An append after indexing must remain visible, even with zero indexed candidates.
+    pq.write_table(pa.table({"id": [900001], "url": ["/wp-admin/newly-appended-marker"]}, schema=schema), f"{work}/lake/appended.parquet")
+    for c in ["wc_match(url, '*newly-appended-marker*')", "wc_match(url, '*/wp-admin/*')"]:
+        a = psql(f"SELECT array_agg(id ORDER BY id) FROM lake_http WHERE {c}")
+        b = psql(f"SELECT array_agg(id ORDER BY id) FROM lake_full WHERE {c}")
+        check(a == b and "900001" in a, f"post-index append remains visible: {c}")
     # prove skipping: truncate a file that is not a candidate for the wp-admin query
     victim = f"{work}/lake/f0.parquet"
     with open(victim, "r+b") as fh:

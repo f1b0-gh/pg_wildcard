@@ -60,3 +60,28 @@ fn sql_keeps_unknown_files_even_when_the_index_has_no_matching_files() -> Result
     fs::remove_dir_all(directory)?;
     Ok(())
 }
+
+#[test]
+fn oversized_coverage_guard_keeps_exact_and_extra_filters() {
+    use libwildcard::antalya::{ChError, lake_query_with_coverage};
+
+    // Raw input fits the guard cap; SQL quoting makes the exclusion too large.
+    let indexed = vec![format!("s3://bucket/{}.parquet", "'".repeat(40_000))];
+    let sql = lake_query_with_coverage(
+        "logs",
+        "id",
+        "match(v, 'needle')",
+        &indexed,
+        &[],
+        Some("ts > 0"),
+    )
+    .unwrap();
+    assert_eq!(
+        sql,
+        "SELECT id FROM logs WHERE (ts > 0) AND match(v, 'needle')"
+    );
+    assert!(matches!(
+        lake_query_with_coverage("logs", "id", "1", &indexed, &["unknown".into()], None),
+        Err(ChError::Range)
+    ));
+}

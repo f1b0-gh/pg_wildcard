@@ -72,9 +72,14 @@ server. Use a C.UTF-8 database with ICU support:
 ```bash
 psql -X -v ON_ERROR_STOP=1 -f tests/fdw/planner_topk.sql
 psql -X -v ON_ERROR_STOP=1 -f tests/fdw/planner_collation.sql
+psql -X -v ON_ERROR_STOP=1 -f tests/fdw/planner_identity.sql
+psql -X -v ON_ERROR_STOP=1 -f tests/fdw/planner_predicates.sql
+psql -X -v ON_ERROR_STOP=1 -f tests/fdw/lake_coverage.sql
 ```
 
-Both scripts roll back their objects. They cover qualified `wc_*` top-K, wrapper
+The scripts roll back their objects. Predicate and coverage tests also check
+PostgreSQL escape rules, session-independent temporal literals, function identity
+and appended lake files. They cover qualified `wc_*` top-K, wrapper
 aliases, same-named user functions, Unicode, OFFSET and conservative fallbacks;
 ICU LIKE/equality and text ordering must not generate unsafe remote predicates,
 candidate PREWHERE or lake pruning. `optimization.py` additionally checks actual

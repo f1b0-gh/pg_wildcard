@@ -73,10 +73,11 @@ fetches `LIMIT + OFFSET` with explicit null ordering, up to one million rows;
 PostgreSQL retains its own Sort/Limit and applies OFFSET once. Text, float and
 timestamp ordering do not use this optimization.
 
-`lake_index` intersects supported file candidates on the indexed column.
-It does not validate coverage against the remote snapshot or retain unknown
-new files automatically. Follow the [lake coverage rules](lake.md#coverage-and-snapshot-rules)
-before enabling it.
+`lake_index` intersects supported candidates on the indexed column and excludes
+only known impossible files. Unknown appended or rewritten paths remain visible,
+including when no indexed file is a candidate. Path guards over 64 KiB fall back
+to an unrestricted scan. The index must bind immutable file paths; see the
+[lake coverage rules](lake.md#coverage-and-snapshot-rules).
 
 PostgreSQL LIKE patterns are parsed and re-emitted with canonical ClickHouse
 escapes; malformed or oversized patterns remain local. Temporal constants are
