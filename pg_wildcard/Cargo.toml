@@ -19,6 +19,7 @@ pg18 = ["pgrx/pg18", "pgrx-tests/pg18"]
 pg_test = []
 
 [dependencies]
+libc = "0.2"
 wildcard-core.workspace = true
 wildcard-ch.workspace = true
 antalya-rs.workspace = true

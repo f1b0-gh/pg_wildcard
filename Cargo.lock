@@ -1671,6 +1671,7 @@ dependencies = [
  "arrow-ipc",
  "arrow-schema",
  "chrono",
+ "libc",
  "pgrx",
  "pgrx-tests",
  "tokio",
