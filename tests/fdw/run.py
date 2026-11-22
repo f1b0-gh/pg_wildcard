@@ -58,10 +58,15 @@ try:
             time.sleep(0.2)
 
     psql("CREATE EXTENSION pg_wildcard")
+    for regression in ["planner_predicates.sql"]:
+        with open(os.path.join(HERE, regression)) as source:
+            psql(source.read())
+        check(True, f"planner regression: {regression}")
     rnd = random.Random(11)
     base = ["https://login.evil.com/wp-admin/setup.php", "http://LOGIN.EVIL.COM.:8080/%77p-ADMIN/x.PHP?a=1",
             "https://user:pass@sub.evil.com:443/path", "https://evil.com.attacker.net/", "GET /%2e%2e/%2E%2E/etc/passwd",
             "C:\\Windows\\PowerShell.EXE -EncodedCommand SQBFAFgA", "Mozilla/5.0 (compatible; sqlmap/1.7)", "aéb", "line1\nline2", "a'b\tc\\d"]
+    base += ["abc", "abcd", r"a\bc", "a%b", "a_b", "élan"]
     hosts = ["good.example", "shop.example", "cdn.example", "api.example"]
     paths = ["/", "/index.html", "/search?q=x", "/img/a.png", "/static/app.js", "/wp-login.php"]
     urls = base + [f"https://{rnd.choice(hosts)}{rnd.choice(paths)}" for _ in range(2000)]
@@ -80,6 +85,7 @@ try:
     psql("CREATE FOREIGN TABLE http_plain (id bigint, ts timestamp, url text) SERVER ch OPTIONS (table 'd.http')")
     psql("CREATE FOREIGN TABLE http_mat (id bigint, ts timestamp, url text, url_lower text, url_decoded text, url_revdomain text) "
          "SERVER ch OPTIONS (table 'd.http', materialized_views 'true')")
+    psql("CREATE FOREIGN TABLE http_candidate (id bigint, ts timestamp, url text) SERVER ch OPTIONS (table 'd.http', candidate_columns 'url')")
     psql("CREATE TABLE http_local AS SELECT id, ts, url FROM http_plain")
     n = int(psql("SELECT count(*) FROM http_local"))
     check(n == len(urls), f"FDW reads all {len(urls)} rows (got {n}), including tabs, newlines, quotes, backslashes")
@@ -91,7 +97,9 @@ try:
              ("wc_match(url, '*passwd', 'raw')"), ("wc_regex(url, 'powershell(\\.exe)?\\s+-e', true, 'lower')"),
              ("wc_match(url, 'a?b', 'raw')"), ("wc_regex(url, 'line1.line2')"), ("wc_match(url, '*\\\\d', 'raw')"),
              ("wc_like(url, '%.php', 'decoded') AND ts >= '2026-11-03'"), ("wc_match(url, '*sqlmap*', 'lower') OR id = 3"),
-             ("url LIKE '%/static/%' AND id < 500")]
+             ("url LIKE '%/static/%' AND id < 500"),
+             (r"url LIKE E'a\\bc'"), (r"url NOT LIKE E'a\\bc'"),
+             (r"url LIKE E'a\\%b'"), (r"url LIKE E'a\\_b'")]
     for c in cases:
         local = psql(f"SELECT coalesce(string_agg(id::text, ',' ORDER BY id), '') FROM http_local WHERE {c}")
         for t in ["http_plain", "http_mat"]:
@@ -101,6 +109,12 @@ try:
             pushed = "ClickHouse SQL" in plan and " WHERE " in plan.split("ClickHouse SQL")[1]
             check(remote == local and pushed and not removed,
                   f"{t:10} {c[:60]:60} rows={len(local.split(',')) if local else 0} pushed={pushed} local-filtered={bool(removed)}")
+    for style in ["ISO, MDY", "SQL, MDY", "SQL, DMY", "German, DMY"]:
+        settings = f"SET DateStyle = '{style}'; SET TimeZone = 'America/New_York'; "
+        where = "ts >= TIMESTAMP '2026-11-05 10:00:00.000001'"
+        local = psql(settings + f"SELECT array_agg(id ORDER BY id) FROM http_local WHERE {where}")
+        remote = psql(settings + f"SELECT array_agg(id ORDER BY id) FROM http_plain WHERE {where}")
+        check(local == remote, f"timestamp filter preserves microseconds under {style}")
     plan = psql("EXPLAIN (VERBOSE, COSTS OFF) SELECT id FROM http_mat WHERE wc_match(url, '*/wp-admin/*', 'decoded')")
     check("url_decoded" in plan, "materialized table: rewrite + pushdown target the url_decoded column")
     plan = psql("EXPLAIN (COSTS OFF) SELECT id FROM http_local WHERE wc_match(url, '*evil.com*', 'raw')")
@@ -131,6 +145,12 @@ try:
         plan = psql(f"EXPLAIN (VERBOSE, COSTS OFF) SELECT id FROM lake_http WHERE {c}")
         files = [l.strip() for l in plan.split("\n") if "Lake files" in l]
         check(a == b and files and a != "", f"lake {c[:45]:45} rows={len(a.split(','))} identical={a == b} {files[0] if files else 'no pruning'}")
+    for table in ["http_local", "http_plain", "http_candidate", "lake_http"]:
+        try:
+            psql(f"SELECT count(*) FROM {table} WHERE url LIKE " + r"E'abc\\'")
+            check(False, f"dangling LIKE escape must still raise on {table}")
+        except subprocess.CalledProcessError as error:
+            check("escape" in error.stderr.lower(), f"dangling LIKE escape remains a PostgreSQL error on {table}")
     # prove skipping: truncate a file that is not a candidate for the wp-admin query
     victim = f"{work}/lake/f0.parquet"
     with open(victim, "r+b") as fh:

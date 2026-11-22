@@ -1450,6 +1450,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "wildcard-core"
+version = "0.2.0"
+dependencies = [
+ "libwildcard",
+]
+
+[[package]]
 name = "wildcard-fdw-transport-tests"
 version = "0.1.0"
 dependencies = [
@@ -1461,6 +1468,7 @@ dependencies = [
  "tokio",
  "uuid",
  "wildcard-ch",
+ "wildcard-core",
 ]
 
 [[package]]

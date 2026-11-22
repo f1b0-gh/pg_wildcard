@@ -78,6 +78,13 @@ It does not validate coverage against the remote snapshot or retain unknown
 new files automatically. Follow the [lake coverage rules](lake.md#coverage-and-snapshot-rules)
 before enabling it.
 
+PostgreSQL LIKE patterns are parsed and re-emitted with canonical ClickHouse
+escapes; malformed or oversized patterns remain local. Temporal constants are
+converted from PostgreSQL's binary epoch values, independent of DateStyle and
+TimeZone. Timestamp comparisons use exact UTC microseconds, and dates use ISO
+Date32 literals. Cross-type temporal comparisons and constants outside the
+1900–2299 ClickHouse range remain local to preserve PostgreSQL semantics.
+
 ## Arrow transport and completion
 
 Execution uses the shared `antalya-rs::AntalyaClient` and ClickHouse Arrow

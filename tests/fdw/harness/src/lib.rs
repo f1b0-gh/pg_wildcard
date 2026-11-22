@@ -5,3 +5,6 @@
 mod transport;
 #[path = "../../../../pg_wildcard/src/fdw/values.rs"]
 mod values;
+
+#[path = "../../../../pg_wildcard/src/fdw/predicates.rs"]
+mod predicates;
