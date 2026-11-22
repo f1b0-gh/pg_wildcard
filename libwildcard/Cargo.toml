@@ -22,7 +22,7 @@ idna = "1.1"
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", optional = true }
 lz4_flex = { version = "0.14", default-features = false, features = ["frame", "std"], optional = true }
-zstd = { version = "0.13", optional = true }
+zstd = { version = "0.14", optional = true }
 parquet = { version = "=59.3.3", default-features = false, features = ["arrow", "snap", "zstd", "lz4"], optional = true }
 arrow-array = { version = "=59.3.3", optional = true }
 arrow-schema = { version = "=59.3.3", optional = true }
