@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 //! Prevent PostgreSQL's process signal handlers from running on Tokio workers.
 //!
-//! Block before spawning, rather than in an on-thread-start callback: threads
-//! inherit the mask at creation, closing the startup window. Blocking DNS work
-//! is submitted from these workers and inherits the same mask.
+//! Block before construction so initial workers inherit the mask from birth.
+//! Also mask every worker before it processes tasks, including lazy blocking
+//! workers submitted directly from the backend by future callers.
 
 struct SignalMask(libc::sigset_t);
 
@@ -62,6 +62,12 @@ pub(super) fn build_runtime() -> Result<tokio::runtime::Runtime, &'static str> {
         .worker_threads(1)
         // System DNS uses spawn_blocking; abort cannot stop a running lookup.
         .max_blocking_threads(4)
+        .on_thread_start(|| {
+            let mask = SignalMask::block().unwrap_or_else(|_| std::process::abort());
+            // Keep this mask for the worker's lifetime; never restore the
+            // creator's mask after startup. This guard has no heap allocation.
+            std::mem::forget(mask);
+        })
         .enable_all()
         .build()
         .map_err(|_| "cannot create Antalya runtime")
@@ -156,6 +162,34 @@ mod tests {
             before,
             "runtime work changed backend signal mask"
         );
+    }
+
+    #[test]
+    fn backend_origin_blocking_workers_block_signals_before_work() {
+        // SAFETY: change only this test thread and restore its original mask on
+        // scope exit. No signal is sent. This also works under masked CI launchers.
+        let _restore = unsafe {
+            let mut one = std::mem::MaybeUninit::<libc::sigset_t>::uninit();
+            assert_eq!(libc::sigemptyset(one.as_mut_ptr()), 0);
+            let mut one = one.assume_init();
+            assert_eq!(libc::sigaddset(&mut one, libc::SIGUSR1), 0);
+            let mut previous = std::mem::MaybeUninit::<libc::sigset_t>::uninit();
+            assert_eq!(
+                libc::pthread_sigmask(libc::SIG_UNBLOCK, &one, previous.as_mut_ptr()),
+                0
+            );
+            super::SignalMask(previous.assume_init())
+        };
+        assert_eq!(signal_mask(&[libc::SIGUSR1]), [false]);
+        let before = backend_signal_mask();
+        let faults_before = fault_signal_mask();
+        let runtime = super::build_runtime().unwrap();
+        // Force lazy creation from the backend rather than an async worker.
+        let worker = runtime.spawn_blocking(|| (backend_signal_mask(), fault_signal_mask()));
+        let (blocking, faults) = runtime.block_on(worker).unwrap();
+        assert!(blocking.iter().all(|blocked| *blocked), "{blocking:?}");
+        assert_eq!(faults, faults_before);
+        assert_eq!(backend_signal_mask(), before);
     }
 
     #[test]
