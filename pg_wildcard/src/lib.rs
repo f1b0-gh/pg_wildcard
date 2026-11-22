@@ -290,6 +290,24 @@ fn wc_ch_watchlist_ddl(
     SetOfIterator::new(vec![ch(wildcard_ch::watchlist_table_ddl(watch)), mv])
 }
 
+/// Insert a watchlist indicator with conservative needles bound to its source.
+#[pg_extern(immutable, parallel_safe, strict)]
+fn wc_ch_watchlist_insert(
+    watch: &str,
+    id: i64,
+    regex: &str,
+    view: default!(&str, "'raw'"),
+) -> String {
+    ch(wildcard_ch::watchlist_insert_sql(
+        watch,
+        &SweepItem {
+            id,
+            regex: regex.to_owned(),
+            view: view_arg(view),
+        },
+    ))
+}
+
 // ---------------------------------------------------------------- lake pruning
 
 extension_sql!(
@@ -590,11 +608,18 @@ mod tests {
             "SELECT string_agg(q, ';') FROM wc_ch_sweep('logs', ARRAY['id'], 'url', ARRAY[1,2]::bigint[], ARRAY['evil\\.com','sqlmap'], ARRAY['lower','lower']) q",
         );
         assert!(
-            q.contains("arrayEnumerate(wc_pats_lower)") && !q.contains("multiMatchAllIndices"),
+            q.contains("match(lower(url), 'sqlmap')")
+                && !q.contains("multiMatchAllIndices")
+                && !q.contains("wc_pats_"),
             "{q}"
         );
         let n = Spi::get_one::<i64>("SELECT count(*) FROM wc_ch_watchlist_ddl('mv', 'logs', 'hits', 'watch', ARRAY['id'], 'url')").unwrap().unwrap();
         assert_eq!(n, 2);
+        let insert = s("SELECT wc_ch_watchlist_insert('watch', 7, 'abc', 'lower')");
+        assert_eq!(
+            insert,
+            "INSERT INTO watch (id, view, regex, needles, needles_regex, needles_view) VALUES (7, 'lower', 'abc', ['abc'], 'abc', 'lower')"
+        );
     }
 
     #[pg_test]

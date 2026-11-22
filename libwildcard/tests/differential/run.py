@@ -78,7 +78,8 @@ print(f"sweep: {len(exp)} expected hits, {len(got)} from ClickHouse")
 w = spec["watchlist"]
 q("DROP TABLE IF EXISTS watch"); q("DROP TABLE IF EXISTS src"); q("DROP TABLE IF EXISTS hits"); q("DROP VIEW IF EXISTS wc_mv")
 q(w["table_ddl"])
-q("INSERT INTO watch (id, view, regex) VALUES " + ", ".join(f"({i}, '{v}', unhex('{bytes(r, 'utf-8').hex()}'))" for i, v, r in w["items"]))
+for insert in w["inserts"]:
+    q(insert)
 q("CREATE TABLE src (id UInt32, v String) ENGINE = MergeTree ORDER BY id")
 q("CREATE TABLE hits (id UInt32, indicator_id Int64, view String) ENGINE = MergeTree ORDER BY id")
 q(w["mv"])
@@ -87,6 +88,34 @@ got_w = {(int(r[0]), int(r[1]), r[2]) for r in rows("SELECT id, indicator_id, vi
 if got_w != exp:
     fail(f"watchlist: ch-only={sorted(got_w-exp)[:5]} rust-only={sorted(exp-got_w)[:5]}")
 print(f"watchlist: {len(got_w)} hits from materialized view")
+
+# Regex-only and view-only writes must invalidate old derived metadata. All
+# metadata defaults empty for legacy inserts, so direct writers also remain safe.
+for label, projection in [
+    ("stale regex", "id, view, '.*', needles, needles_regex, needles_view"),
+    ("stale view", "id, 'raw', regex, needles, needles_regex, needles_view"),
+    ("empty defaults", "id, view, regex"),
+]:
+    q("TRUNCATE TABLE watch")
+    for insert in w["inserts"]:
+        q(insert)
+    q("CREATE TABLE saved ENGINE = Memory AS SELECT * FROM watch FINAL")
+    q("TRUNCATE TABLE watch")
+    columns = "id, view, regex" if label == "empty defaults" else "id, view, regex, needles, needles_regex, needles_view"
+    q(f"INSERT INTO watch ({columns}) SELECT {projection} FROM saved")
+    q("DROP TABLE saved")
+    q("TRUNCATE TABLE hits")
+    q("INSERT INTO src SELECT id, v FROM t")
+    got_update = {(int(r[0]), int(r[1]), r[2]) for r in rows("SELECT id, indicator_id, view FROM hits")}
+    # Independent exhaustive dynamic regex cross-product, no metadata gates.
+    expressions = {v["view"]: v["expr"] for v in spec["views"]}
+    expected_update = set()
+    for view, expression in expressions.items():
+        sql = f"SELECT t.id, w.id, w.view FROM t CROSS JOIN (SELECT * FROM watch FINAL WHERE active = 1 AND view = '{view}') w WHERE match({expression}, w.regex)"
+        expected_update.update((int(r[0]), int(r[1]), r[2]) for r in rows(sql))
+    if got_update != expected_update:
+        fail(f"watchlist {label}: ch-only={sorted(got_update-expected_update)[:5]} exact-only={sorted(expected_update-got_update)[:5]}")
+    print(f"watchlist {label}: {len(got_update)} hits, exact={len(expected_update)}")
 
 print("RESULT:", "PASS" if failures == 0 else f"FAIL ({failures})")
 sys.exit(1 if failures else 0)

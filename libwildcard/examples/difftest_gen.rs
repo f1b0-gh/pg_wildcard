@@ -5,8 +5,8 @@
 //! compares. Usage: cargo run -p wildcard-ch --example difftest_gen [seed]
 
 use libwildcard::antalya::{
-    SweepItem, ViewColumns, candidate_predicate, column_predicate, sweep_queries, watchlist_mv,
-    watchlist_table_ddl,
+    SweepItem, ViewColumns, candidate_predicate, column_predicate, sweep_queries,
+    watchlist_insert_sql, watchlist_mv, watchlist_table_ddl,
 };
 use libwildcard::core::View;
 use libwildcard::core::indicator;
@@ -294,6 +294,9 @@ fn main() {
         (202, r"\ba"),
         (203, r"\B"),
         (204, r"\p{L}"),
+        (205, "evil"),
+        (206, "evil|cmd"),
+        (207, "\0"),
     ] {
         let m = Matcher::regex(regex, View::Raw, false).unwrap();
         for (row, value) in values.iter().enumerate() {
@@ -308,6 +311,10 @@ fn main() {
         });
     }
     let sweeps = sweep_queries("t", &["id"], &cols, &items, None, 200_000).unwrap();
+    let watch_inserts: Vec<_> = items
+        .iter()
+        .map(|i| watchlist_insert_sql("watch", i).unwrap())
+        .collect();
     let watch_items: Vec<_> = items
         .iter()
         .map(|i| json!([i.id, i.view.name(), i.regex]))
@@ -319,7 +326,7 @@ fn main() {
         "views": views,
         "predicates": preds,
         "sweep": {"queries": sweeps, "expected": expected_hits},
-        "watchlist": {"table_ddl": watchlist_table_ddl("watch").unwrap(), "items": watch_items, "mv": mv},
+        "watchlist": {"table_ddl": watchlist_table_ddl("watch").unwrap(), "items": watch_items, "inserts": watch_inserts, "mv": mv},
     });
     println!("{out}");
 }
