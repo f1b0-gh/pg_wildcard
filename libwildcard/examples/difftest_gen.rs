@@ -5,8 +5,9 @@
 //! compares. Usage: cargo run -p wildcard-ch --example difftest_gen [seed]
 
 use libwildcard::antalya::{
-    SweepItem, SweepOptions, ViewColumns, WatchlistStrategy, candidate_predicate, column_predicate,
-    sweep_queries, sweep_queries_with_options, watchlist_insert_sql, watchlist_mv, watchlist_plan,
+    SweepItem, SweepOptions, ViewColumns, WatchlistStrategy, byte_gram_index_ddl,
+    candidate_predicate, column_predicate, sweep_byte_dispatch, sweep_queries,
+    sweep_queries_with_options, watchlist_insert_sql, watchlist_mv, watchlist_plan,
     watchlist_table_ddl,
 };
 use libwildcard::core::View;
@@ -29,6 +30,193 @@ impl Rng {
 
 fn hex(b: &[u8]) -> String {
     b.iter().map(|x| format!("{x:02X}")).collect()
+}
+
+fn byte_dispatch_cases(values: &[Vec<u8>]) -> serde_json::Value {
+    let mut values = values.to_vec();
+    values.extend([
+        b"abc00xabc01x".to_vec(),
+        b"\xffabc02x\x00abc03x".to_vec(),
+        [vec![b'x'; 8186], b"abc04x".to_vec()].concat(),
+        [vec![b'x'; 8187], b"abc05x".to_vec()].concat(),
+        [vec![b'x'; 100_000], b"abc06x".to_vec()].concat(),
+        b"abc07x\xff".to_vec(),
+        "É K".as_bytes().to_vec(),
+    ]);
+    let mut cases = Vec::new();
+    for (name, column, unsupported, filtered) in [
+        ("gate", "v", false, false),
+        ("source_view", "view", false, true),
+        ("source_indicator", "indicator_id", false, false),
+        ("helper_collision", "_wc_dispatch0_value", false, false),
+        ("unicode_exact_fallback", "v", true, false),
+        ("coverage_fallback", "view", true, true),
+        ("mixed_fallback", "_wc_dispatch0_value", true, false),
+    ] {
+        let mut items: Vec<_> = (0..16)
+            .map(|i| SweepItem {
+                id: if i < 2 { i64::MIN } else { i },
+                view: View::Raw,
+                regex: format!("abc{i:02}x"),
+            })
+            .collect();
+        items.push(items[0].clone());
+        if unsupported {
+            for regex in ["(?i)é", "(?i)k", "a|b", ".*"] {
+                items.push(SweepItem {
+                    id: i64::MAX,
+                    view: View::Raw,
+                    regex: regex.into(),
+                });
+            }
+        }
+        if name == "coverage_fallback" {
+            for item in &mut items {
+                item.regex = ".*".into();
+            }
+        }
+        if name == "mixed_fallback" {
+            for (item, view) in items.iter_mut().zip(View::ALL) {
+                item.view = view;
+            }
+        }
+        let filter = filtered.then_some("id % 2 = 0 OR id % 3 = 0 -- trailing comment");
+        let plan = sweep_byte_dispatch(
+            "bd",
+            &["id"],
+            &ViewColumns::new(column).unwrap(),
+            &items,
+            filter,
+            SweepOptions::default(),
+            None,
+        )
+        .unwrap();
+        assert_eq!(
+            plan.fallback.is_some(),
+            name == "coverage_fallback" || name == "mixed_fallback",
+            "{name}: {:?}",
+            plan.fallback
+        );
+        assert_eq!(plan.index_gate, !unsupported);
+        let mut expected = Vec::new();
+        for item in &items {
+            let matcher = Matcher::regex(&item.regex, item.view, false).unwrap();
+            for (id, value) in values.iter().enumerate() {
+                if (!filtered || id % 2 == 0 || id % 3 == 0) && matcher.is_match(value) {
+                    expected.push(json!([id, item.id, item.view.name()]));
+                }
+            }
+        }
+        cases.push(json!({"name": name, "queries": plan.sweep.queries,
+            "index_gate": plan.index_gate, "expected": expected,
+            "ddl": byte_gram_index_ddl("bd", "byte_grams", column).unwrap()}));
+    }
+    for (strategy, regex) in [("fallback", ".*"), ("dispatch", "abc")] {
+        for (selection, selected) in [
+            ("indicator", vec!["indicator_id"]),
+            ("view", vec!["view"]),
+            (
+                "duplicates",
+                vec![
+                    "id",
+                    "indicator_id",
+                    "view",
+                    "id",
+                    "bd.indicator_id",
+                    "bd.view",
+                ],
+            ),
+        ] {
+            let items = [SweepItem {
+                id: 17,
+                view: View::Raw,
+                regex: regex.into(),
+            }];
+            let values = [b"abc".as_slice(), b"not-a-match".as_slice()];
+            let plan = sweep_byte_dispatch(
+                "bd",
+                &selected,
+                &ViewColumns::new("v").unwrap(),
+                &items,
+                None,
+                SweepOptions::default(),
+                None,
+            )
+            .unwrap();
+            let matcher = Matcher::regex(regex, View::Raw, false).unwrap();
+            let expected: Vec<_> = values
+                .iter()
+                .enumerate()
+                .filter(|(_, v)| matcher.is_match(v))
+                .map(|(id, v)| {
+                    let value = std::str::from_utf8(v).unwrap();
+                    let mut row: Vec<_> = selected
+                        .iter()
+                        .map(|col| {
+                            if *col == "id" {
+                                json!(id)
+                            } else {
+                                json!(value)
+                            }
+                        })
+                        .collect();
+                    row.extend([json!(17), json!("raw")]);
+                    row
+                })
+                .collect();
+            cases.push(json!({"name":format!("projection_{strategy}_{selection}"),"queries":plan.sweep.queries,"index_gate":plan.index_gate,
+                "projection_types":selected.iter().map(|col|if *col == "id" {"int"} else {"str"}).collect::<Vec<_>>(),
+                "expected":expected,"values_hex":values.iter().map(|v|hex(v)).collect::<Vec<_>>(),
+                "ddl":byte_gram_index_ddl("bd","byte_grams","v").unwrap()}));
+        }
+    }
+    // Numeric IDs in benign values must not make the source gate admit every row.
+    let items: Vec<_> = (0..100)
+        .map(|i| SweepItem {
+            id: i,
+            view: View::Raw,
+            regex: format!("evil{i:04}\\.example"),
+        })
+        .collect();
+    let mut selective_values: Vec<Vec<u8>> = (0..100)
+        .flat_map(|i| {
+            [
+                format!("evil{i:04}.example").into_bytes(),
+                format!("benign{i:04}suffix").into_bytes(),
+            ]
+        })
+        .collect();
+    selective_values.extend([
+        [vec![b'x'; 8193], b"evil0001.example".to_vec()].concat(),
+        vec![b'x'; 8193], // Overflow widens even when no rule matches.
+        b"\xffevil0002.example\x00".to_vec(),
+    ]);
+    let plan = sweep_byte_dispatch(
+        "bd",
+        &["id"],
+        &ViewColumns::new("v").unwrap(),
+        &items,
+        None,
+        SweepOptions::default(),
+        None,
+    )
+    .unwrap();
+    let mut expected = Vec::new();
+    for item in &items {
+        let matcher = Matcher::regex(&item.regex, item.view, false).unwrap();
+        for (id, value) in selective_values.iter().enumerate() {
+            if matcher.is_match(value) {
+                expected.push(json!([id, item.id, "raw"]));
+            }
+        }
+    }
+    cases.push(
+        json!({"name": "numeric_selectivity", "queries": plan.sweep.queries,
+        "index_gate": plan.index_gate, "expected": expected, "candidate_rows": 103,
+        "values_hex": selective_values.iter().map(|v| hex(v)).collect::<Vec<_>>(),
+        "ddl": byte_gram_index_ddl("bd", "byte_grams", "v").unwrap()}),
+    );
+    json!({"values_hex": values.iter().map(|v| hex(v)).collect::<Vec<_>>(), "cases": cases})
 }
 
 fn watchlist_join_cases(values: &[Vec<u8>], items: &[SweepItem]) -> serde_json::Value {
@@ -614,6 +802,7 @@ fn main() {
         "predicates": preds,
         "sweep": {"queries": sweeps, "expected": expected_hits},
         "shared_gate_cases": shared_gate_cases(&values),
+        "byte_dispatch": byte_dispatch_cases(&values),
         "watchlist_join": watchlist_join_cases(&values, &items),
         "watchlist": {"table_ddl": watchlist_table_ddl("watch").unwrap(), "items": watch_items, "inserts": watch_inserts, "mv": mv},
     });

@@ -12,6 +12,11 @@ use std::collections::BTreeMap;
 use crate::core::pattern::Piece;
 use thiserror::Error;
 mod adaptive;
+mod indexed_dispatch;
+pub use indexed_dispatch::{
+    ByteDispatchFallback, ByteDispatchGate, ByteDispatchPlan, ByteDispatchStrategy,
+    ByteDispatchSweepPlan, byte_gram_index_ddl, sweep_byte_dispatch,
+};
 pub mod identities;
 mod lake_filter;
 pub use lake_filter::{

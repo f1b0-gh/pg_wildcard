@@ -50,6 +50,57 @@ small, or the value expression is trusted custom SQL or an unqualified generated
 alias (`view`, `indicator_id`, `wc_hit`), the optional gate is omitted. Existing
 filters stay parenthesized and every per-indicator exact check remains.
 
+## Opt-in byte-index dispatch
+
+`antalya::sweep_byte_dispatch` generates a single source query for a bounded set
+of raw-view rules. It groups rule positions by required byte fragments, selects
+candidate positions with byte substring searches, and applies exact `match()` to
+those positions. Duplicate IDs and source rows retain their multiplicity. This
+is independent of the regex engine and does not change the default sweep API.
+The opt-in result uses `ByteDispatchSweepPlan` and `ByteDispatchStrategy`; the
+original `SweepPlan` and exhaustive `SweepStrategy` remain unchanged.
+
+Selected source values retain their order and multiplicity, including repeated
+columns. Generated hit columns always end the result as `indicator_id` and `view`.
+If selected source names collide with those labels, their result names are
+qualified by a generated source relation. Distinct qualified source identifiers
+sharing a final component retain their full identifier as the source column
+label. Inspect response metadata for those source names; do not treat a source
+`indicator_id` or `view` as the generated match. These projections use an extra
+scope boundary, charged to the SQL/AST budget.
+
+The current limits are 2,000 rules, 255 groups, 64 rules per group, and at most
+256 unassigned rules or 25% of the input. Other views, insufficient coverage and
+SQL/AST budget exhaustion return the existing constant-candidate plan with an
+explicit fallback reason. A rule with no required fragment is still checked
+exactly and disables the optional source index gate.
+
+The source gate requires up to three proven fragments for each rule, with OR
+between rules. This avoids admitting a row merely because it shares one common
+fragment, such as digits in a benign URL. Long values bypass this gate. If the
+conjunctions exceed the SQL or parsed-AST budget, the planner widens to one
+fragment per rule before considering dense fallback. `gate_strategy` reports
+`RequiredFragments`, `SingleFragmentBudget` or `Disabled`; `index_gate` only says
+whether a source gate was emitted, not whether the engine used an index.
+
+`byte_gram_index_ddl(table, index, column)` emits an explicit fragment-array text
+index for the matching raw column. Existing parts require `MATERIALIZE INDEX`.
+The expression extracts six-character windows from hex-encoded bytes, preserving
+byte fragments even for invalid UTF-8. Windows crossing a half-byte boundary
+only add candidates; exact regex checks remove them. This avoids copying the
+source string per trigram inside an array lambda.
+Index extraction stops at 8,192 bytes; longer values carry an overflow token and
+remain candidates even when a match lies beyond that prefix. The gate has scalar
+semantics with or without the index. Check physical index use and engine-version
+compatibility separately. The source value is preserved.
+
+This is an opt-in layout for admitted wildcard fields. Measure initial indexing,
+sustained ingestion, storage and query latency against the alternative indexed
+system on the same corpus and rules. An unindexed ClickHouse baseline measures
+added overhead, not competitiveness with Elasticsearch's wildcard index.
+Extraction bounds do not bound total query memory or promise a speedup. Optional
+`GramFileCounts` only rank already-proven required fragments.
+
 ## Watchlist needle selection
 
 `antalya::watchlist_needles(pattern, view)` selects up to three necessary ASCII

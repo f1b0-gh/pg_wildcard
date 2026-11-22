@@ -70,7 +70,7 @@ pub fn watchlist_needles_with_frequencies(
 // dropping them from a conjunction preserves its mandatory interior grams.
 // Reject unsupported nodes, nonprintable interiors or exhausted bounds; never
 // infer an OR gram.
-fn required_grams(pattern: &str, view: View) -> Option<Vec<grams::GramKey>> {
+pub(super) fn required_grams(pattern: &str, view: View) -> Option<Vec<grams::GramKey>> {
     if pattern.len() > 8192 {
         return None;
     }
@@ -116,7 +116,7 @@ fn required_grams(pattern: &str, view: View) -> Option<Vec<grams::GramKey>> {
     Some(grams)
 }
 
-fn select_needles(
+pub(super) fn select_needles(
     mut needles: Vec<grams::GramKey>,
     frequencies: Option<&GramFileCounts>,
 ) -> Vec<String> {
