@@ -25,14 +25,17 @@ def token(key):
         {'sub': 'benchmark', 'iss': 'wildcard-benchmark', 'aud': 'wildcard-benchmark', 'exp': int(time.time()) + 86400}])
     return (body + b'.' + enc(hmac.new(key.encode(), body, hashlib.sha256).digest())).decode()
 
-def start(engine, state):
+def start(engine, state, *, elastic_memory_gib=4):
+    if elastic_memory_gib not in (4,8):
+        raise ValueError('Elasticsearch memory must be 4 or 8 GiB')
     if state.exists() or state.is_symlink():
         raise RuntimeError('State already exists; stop its owned fixture first')
     owner = secrets.token_hex(8)
     name = 'wildcard-benchmark-' + engine + '-' + owner
     network = name + '-net'
     data = {'engine': engine, 'name': name, 'network': network, 'owner': owner,
-            'image': IMAGES[engine], 'cpus': 4, 'memory_bytes': 8 << 30 if engine == 'antalya' else 4 << 30}
+            'image': IMAGES[engine], 'cpus': 4, 'memory_bytes': (8 if engine == 'antalya' else elastic_memory_gib) << 30}
+    if engine == 'elasticsearch':data['heap_bytes']=(elastic_memory_gib//2) << 30
     command('docker', 'image', 'inspect', data['image'])
     state.parent.mkdir(parents=True, exist_ok=True)
     # Only this new directory is ours. Never chmod the caller's parent or reuse
@@ -72,7 +75,7 @@ def start(engine, state):
         port = 8123
     else:
         args += ['-e', 'discovery.type=single-node', '-e', 'xpack.security.enabled=false',
-                 '-e', 'ES_JAVA_OPTS=-Xms2g -Xmx2g', '-e', 'node.processors=4']
+                 '-e', f'ES_JAVA_OPTS=-Xms{elastic_memory_gib//2}g -Xmx{elastic_memory_gib//2}g', '-e', 'node.processors=4']
         port = 9200
     command(*args, data['image'])
     info = json.loads(command('docker', 'inspect', name))[0]
@@ -139,8 +142,10 @@ def stop(state):
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('action', choices=['start', 'stop']);p.add_argument('--engine', choices=IMAGES)
-    p.add_argument('--state', type=Path, required=True);a = p.parse_args()
+    p.add_argument('--state', type=Path, required=True)
+    p.add_argument('--elastic-memory-gib',type=int,choices=(4,8),default=4)
+    a = p.parse_args()
     if a.action == 'start':
         if not a.engine:p.error('--engine is required for start')
-        start(a.engine, a.state)
+        start(a.engine, a.state, elastic_memory_gib=a.elastic_memory_gib)
     else:stop(a.state)

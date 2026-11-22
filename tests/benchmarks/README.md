@@ -162,3 +162,47 @@ Native queries permit four threads. Elastic uses one shard and
 searches inside each `_msearch` while keeping the same complete pair contract.
 Record this setting when comparing engines: a single client does not imply a
 single native execution thread, nor does `_msearch` imply one source query.
+
+Native HTTP and the direct worker explicitly disable query-result and
+query-condition caches. PostgreSQL inherits the native fixture's cache policy;
+the FDW's supported settings do not include those overrides. Inspect the recorded
+PG native query profiles when comparing routes. The historical byte-dispatch PG
+profiles recorded condition-cache misses and no hits; this is different from
+proving that all routes disabled the cache. Text-index and filesystem caches are
+also uncontrolled.
+
+For the bounded byte-fragment dispatch experiment, pass `--layout byte_dispatch`.
+The generator includes this plan alongside the existing sweep plan. Unsupported
+or fallback plans are rejected. Native HTTP, direct published Antalya and both
+PostgreSQL routes use the same indexed source. The PostgreSQL routes consume the
+generated exact-pair query through the FDW; they do not add local `wc_*` rechecks.
+The default route set for this layout replaces `indexed` with
+`elastic_wildcard_4`: two Elastic concurrency settings share one wildcard index.
+`elastic_wildcard` uses `--elastic-searches` (default 1); the `_4` route always
+uses 4. The legacy layout and its default routes are unchanged.
+
+Use `fixtures.py start --engine elasticsearch --elastic-memory-gib 8 --state
+.local/perf/elastic-fair.json` for the 8 GiB fixture with a 4 GiB heap, matching
+the native fixture's 4 CPUs and 8 GiB container limit. The existing Elastic
+fixture default remains 4 GiB with a 2 GiB heap. Select resources before timing
+and record the effective limits; existing fixtures are not resized.
+
+The byte layout uploads identical raw documents in 2,000-document HTTP batches,
+with 90% initial and 10% incremental ingestion. Both indexes are maintained on
+insert. Timers end at count-confirmed searchable visibility, including Elastic
+refresh. Serialization, compaction and source-hash verification are separate.
+`--ingest-durability fsync` (the byte-layout default) configures native
+`fsync_after_insert=1,fsync_part_directory=1` and Elastic translog durability
+`request`; effective settings are saved and checked. This aligns configured
+fsync acknowledgment, without claiming hardware failure testing. The explicit
+`defaults` mode preserves engine defaults, which have different acknowledgment
+durability and must not support an ingestion speed ranking. Fixed batch sizes
+and one build per case measure this workload, not maximum ingestion throughput.
+
+Index use and selectivity are separate checks. The byte gate requires up to
+three necessary fragments together for each rule, OR across rules, and retains
+overlong values for exact rechecking. A broad OR of single common fragments can
+use the index yet admit most rows. Inspect `EXPLAIN` actions for index-derived
+`PREWHERE` filters and use forced-index checks to establish index use; measure
+candidate counts separately. Logical `read_rows` and `read_bytes` alone do not
+establish physical disk reads or whether the text index was used.

@@ -31,8 +31,8 @@ from route_workers import DirectWorker, PgWorker
 ROOT=Path(__file__).resolve().parents[2]
 module_spec=importlib.util.spec_from_file_location('sweeps',ROOT/'libwildcard/tests/benchmarks/sweeps.py')
 sweeps=importlib.util.module_from_spec(module_spec);module_spec.loader.exec_module(sweeps)
-ROUTES=('native','indexed','direct','pg_backend','pg_copy','elastic_wildcard','elastic_keyword')
-DEFAULT_ROUTES=tuple(route for route in ROUTES if route != 'elastic_keyword')
+ROUTES=('native','indexed','direct','pg_backend','pg_copy','elastic_wildcard','elastic_keyword','elastic_wildcard_4')
+DEFAULT_ROUTES=tuple(route for route in ROUTES if route not in ('elastic_keyword','elastic_wildcard_4'))
 
 
 def emit(out, **record):
@@ -209,13 +209,22 @@ def main():
     parser.add_argument('spec',type=Path);parser.add_argument('--native-state',type=Path,required=True)
     parser.add_argument('--elastic-state',type=Path);parser.add_argument('--pg-container')
     parser.add_argument('--direct-worker',type=Path);parser.add_argument('--out',type=Path,required=True)
-    parser.add_argument('--routes',default=','.join(DEFAULT_ROUTES));parser.add_argument('--repeats',type=int,default=5)
+    parser.add_argument('--routes');parser.add_argument('--repeats',type=int,default=5)
     parser.add_argument('--concurrency',type=int,default=1)
     parser.add_argument('--elastic-searches',type=int,choices=(1,4),default=1,help='Bounded searches within each msearch; separate from concurrent client sweeps')
+    parser.add_argument('--layout',choices=('default','byte_dispatch'),default='default')
+    parser.add_argument('--ingest-durability',choices=('defaults','fsync'),default='fsync',help='Byte layout only: fsync aligns configured acknowledgment durability; defaults records unequal engine defaults')
     args=parser.parse_args();spec=json.loads(args.spec.read_text())
+    byte_layout=args.layout=='byte_dispatch'
+    if byte_layout:
+        import indexed_ingest
+        spec=indexed_ingest.select_spec(spec)
     require_wildcard_target(spec)
     expected=expected_pairs(spec)
-    routes=args.routes.split(',')
+    defaults=tuple(r for r in DEFAULT_ROUTES if r!='indexed')+('elastic_wildcard_4',) if byte_layout else DEFAULT_ROUTES
+    routes=args.routes.split(',') if args.routes else list(defaults)
+    if byte_layout and ('indexed' in routes or 'elastic_keyword' in routes):
+        raise ValueError('byte_dispatch layout uses one shared indexed source and the Elastic wildcard mapping')
     if set(routes)-set(ROUTES) or args.concurrency not in (1,4,8,32):raise ValueError('invalid routes/concurrency')
     schedule(routes,args.repeats)
     if args.out.exists():raise ValueError('fresh result directory required')
@@ -226,7 +235,11 @@ def main():
     private=json.loads(args.native_state.read_text());pg_state={'schema':None}
     try:
         engine=sweeps.Engine(args.native_state,timeout_seconds=60)
-        index_ready=native_setup(engine,spec,out,'indexed' in routes)
+        if byte_layout:
+            indexed_ingest.native_setup(engine,spec,out,emit=emit,storage=storage,source_hash=source_hash,literal=sweeps.literal,durability=args.ingest_durability)
+            index_ready=False
+        else:
+            index_ready=native_setup(engine,spec,out,'indexed' in routes)
         if not index_ready:routes=[r for r in routes if r!='indexed']
         queries=[q.replace('FROM bench\n','FROM '+engine.database+'.bench\n') for q in spec['queries']]
         indexed=[q.replace('FROM bench\n','FROM '+engine.database+'.bench_indexed\n') for q in spec['indexed_queries']]
@@ -244,9 +257,10 @@ def main():
             if spec['elastic_supported']:
                 elastic=Client(json.loads(args.elastic_state.read_text()),70,'wc-compare-'+uuid.uuid4().hex)
                 for kind in ('wildcard','keyword'):
-                    if 'elastic_'+kind not in routes:continue
+                    if 'elastic_'+kind not in routes and not (kind=='wildcard' and 'elastic_wildcard_4' in routes):continue
                     index='wc_compare_'+uuid.uuid4().hex;indexes[kind]=index
-                    elastic_setup(elastic,index,kind,spec,out)
+                    if byte_layout:indexed_ingest.elastic_setup(elastic,index,kind,spec,out,emit=emit,durability=args.ingest_durability)
+                    else:elastic_setup(elastic,index,kind,spec,out)
             else:
                 emit(out,kind='excluded',route='elastic',reason=spec['elastic_exclusion'])
                 routes=[r for r in routes if not r.startswith('elastic_')]
@@ -290,13 +304,15 @@ def main():
                   'runner_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'direct_worker_sha256':hashlib.sha256(args.direct_worker.read_bytes()).hexdigest() if args.direct_worker else None,'pattern_sha256':spec['pattern_sha256'],'rows':spec['rows'],'indicators':spec['indicators'],
                   'routes':routes,'repeats':args.repeats,'concurrency':args.concurrency,
                   'elastic_msearch_max_concurrent_searches':args.elastic_searches,
-                  'elastic_fixture':{k:v for k,v in json.loads(args.elastic_state.read_text()).items() if k in ('image','cpus','memory_bytes','version')} if elastic else None,
+                  'elastic_fixture':{k:v for k,v in json.loads(args.elastic_state.read_text()).items() if k in ('image','cpus','memory_bytes','heap_bytes','version')} if elastic else None,
                   'native_max_threads_per_query':4,
+                  'layout':args.layout,'ingest_durability':args.ingest_durability if byte_layout else 'legacy_defaults',
+                  'elastic_route_concurrency':{r:4 if r=='elastic_wildcard_4' else args.elastic_searches for r in routes if r.startswith('elastic_')},
                   'direct_setup':[{'process_ms':w.setup_ms,**w.ready} for w in direct],
                   'pg_setup':pg_setup,
                   'precontrol_failure':precontrol_failure,
                   'timer':'request through complete consumption; exact validation/hash after timing; PG backend executor separate from EXPLAIN request; direct/PG sessions reused',
-                  'cache':'one untimed warmup; query caches disabled; filesystem cache uncontrolled',
+                  'cache':'one untimed warmup; native/direct query result and condition caches disabled; PG inherits the fixture cache policy (inspect native query profiles); Elastic request/query caches disabled; text-index and filesystem caches uncontrolled',
                   'failures':'60s per server query; sweeps completed after60s are rejected even on the last response. HTTP idle/client deadlines bound overdue work; cancellation is confirmed before the next variant. First failure censors remaining samples of that route.'}
         elastic_dsl=[{'id':p['id'],'view':p['view'],'query':{'wildcard':{'v':{'value':p['elastic_wildcard'],'case_insensitive':False}}}} for p in spec['patterns']] if spec['elastic_supported'] else []
         (out/'elastic-dsl.json').write_text(json.dumps(elastic_dsl,indent=2)+'\n')
@@ -329,7 +345,7 @@ def main():
             def action(worker):
                 if route in ('native','indexed'):return native_run(engine,indexed if route=='indexed' else queries)
                 if route=='direct':return direct[worker].request(engine.database,queries)
-                if route.startswith('elastic_'):return elastic_run(elastic,indexes[route[8:]],spec,args.elastic_searches)
+                if route.startswith('elastic_'):return elastic_run(elastic,indexes['wildcard' if route=='elastic_wildcard_4' else route[8:]],spec,4 if route=='elastic_wildcard_4' else args.elastic_searches)
                 result=pg[worker].request(pgsql,backend=route=='pg_backend')
                 if route=='pg_backend':
                     nodes=list(foreign_nodes(result['plan']['Plan']))
