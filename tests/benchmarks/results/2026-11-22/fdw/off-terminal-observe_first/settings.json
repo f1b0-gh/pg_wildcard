@@ -1,0 +1,23 @@
+{
+  "engine": "26.8.34.20001.altinityantalya",
+  "postgres": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "client": "crates.io antalya-rs =0.1.0",
+  "sampler_period_ms": 10,
+  "build_profile": "PostgreSQL release opt-level=3 fat LTO codegen-units=1; direct cargo release",
+  "cache_policy": "No cache flush; fixture loading and correctness checks precede timing. Direct cohort runs before PostgreSQL cohort. No randomized-order or cold-cache claim.",
+  "ttfb": "unavailable: published API exposes first decoded batch, not first HTTP byte",
+  "clock_contract": "Nested/overlapping clocks; never sum or subtract to invent exclusive phases. PG Execution Time includes executor timing overhead. Local recheck time is not instrumented separately.",
+  "batch_contract": "max_batch_bytes bounds each charged retained batch and its pre-read reservation; client shared retained budget remains 64MiB; no bound on backend RSS. Peak individual charge is not concurrent shared peak.",
+  "arguments": {
+    "output": "tests/benchmarks/results/2026-11-22/fdw/off-terminal-observe_first",
+    "pg_container": "wildcard-review-pg18",
+    "direct_worker": ".local/perf-review/fdw/direct-profile",
+    "setup": false,
+    "setup_only": false,
+    "timing_off": true,
+    "concurrency": "1",
+    "policies": "observe_first",
+    "budgets": "16777216",
+    "workloads": "narrow"
+  }
+}

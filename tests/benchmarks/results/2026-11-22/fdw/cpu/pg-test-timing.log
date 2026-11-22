@@ -1,0 +1,11 @@
+Testing timing overhead for 1 second.
+Per loop time including overhead: 1388.94 ns
+Histogram of timing durations:
+  < us   % of total      count
+     1      0.71961       5181
+     2     61.03976     439471
+     4     38.10007     274311
+     8      0.00125          9
+    16      0.12917        930
+    32      0.00972         70
+    64      0.00042          3

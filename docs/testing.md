@@ -14,6 +14,7 @@ PostgreSQL and registry-client prerequisites.
 | HTTP/Arrow transport regressions | `tests/transport` | Rust |
 | FDW transport and value decoders | `tests/fdw/harness` | Rust; no PostgreSQL server |
 | Extension and FDW integration | `pg_wildcard`, `tests/fdw` | PostgreSQL, pgrx; chDB or owned Antalya fixture |
+| Performance correctness smoke and route profiling | `tests/benchmarks` | chDB for CI; isolated native engine, PostgreSQL and Elasticsearch for full measurements |
 | Operations tooling | `tests/operations` | Python 3 standard library; native checks also need an owned Antalya fixture |
 
 ## Standalone library
@@ -131,7 +132,9 @@ Native operations checks use the companion's owned framed fixture; see
 The automatic [CI workflow](../.github/workflows/ci.yml) runs on pushes and pull
 requests. Standalone default/all-feature tests, formatting, Clippy, package
 verification, license checks, seeded ClickHouse parity and the Iceberg/Puffin
-end-to-end test run without an Antalya checkout. The backend matcher-cache tests
+end-to-end test run without an Antalya checkout. The parity job also runs a
+1% sweep/ingest correctness benchmark and uploads timings without performance
+thresholds; see [measurement contracts and reproduction](../tests/benchmarks/README.md). The backend matcher-cache tests
 also run directly with `rustc --test`, without PostgreSQL or a companion.
 The separate consumer job resolves the published Antalya client and runs
 compatibility crates, HTTP/Arrow transport and the PostgreSQL-independent FDW

@@ -1,47 +1,60 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Sweep scaling experiment
 
-From the repository root, with the qualified Python test environment:
+The full fixture contains one million synthetic URL rows, one thousand ASCII
+indicators and 10,000 matching row/indicator/view pairs. Timed batch sweeps return
+those pairs. Ingest measurements time insertion into an actual source table with
+a materialized view; reading and checking its hit table happens after the timer.
+
+From the repository root:
 
 ```sh
 mkdir -p .local/sweep-benchmark
 cargo run --locked --manifest-path libwildcard/Cargo.toml --features hot \
-  --example sweep_benchmark_gen > .local/sweep-benchmark/queries.json
-for strategy in original_hyperscan constant_candidates exhaustive_exact; do
-  timeout 300 python3 libwildcard/tests/benchmarks/sweeps.py --strategy "$strategy" \
-    < .local/sweep-benchmark/queries.json \
-    > ".local/sweep-benchmark/$strategy.log" 2>&1
-  echo "$?" > ".local/sweep-benchmark/$strategy.exit"
-done
+  --example sweep_benchmark_gen > .local/sweep-benchmark/spec.json
+python3 tests/benchmarks/fixtures.py start --engine antalya \
+  --state .local/sweep-benchmark/antalya.json
+python3 tests/benchmarks/run_sweeps.py .local/sweep-benchmark/spec.json \
+  --state .local/sweep-benchmark/antalya.json --out .local/sweep-benchmark/results
+python3 tests/benchmarks/fixtures.py stop --state .local/sweep-benchmark/antalya.json
 ```
 
-This uses one million synthetic URL rows, one thousand ASCII indicators and
-10,000 expected hits. Each strategy gets up to three timed repetitions. A completed sweep sample
-over one minute suppresses further repetitions of that strategy. A process
-that reaches the five-minute timeout does not start another repetition. Exit
-124 means the remaining measurement is censored, not a completed query time.
-Generated sweeps include all their batches in the reported time. Setup is
-untimed, and every completed measurement must return the expected hit count.
+Native HTTP measurements exercise engine SQL, **not direct `antalya-rs`**.
+For embedded chDB semantic checks, omit `--state` when invoking `sweeps.py`:
 
-The harness records engine version, query bytes, batch count, memory and AST
-limits, block size, thread count, and short-circuit settings. Separate probes
-compare `AND` and `if` under disabled, enabled and forced short-circuiting. Those
-probes do not count regex evaluations or prove a regex compiles only once;
-constant regex arguments make engine optimizations possible, with execution
-behavior depending on the engine and settings.
+```sh
+python3 libwildcard/tests/benchmarks/sweeps.py --mode sweeps \
+  --strategy constant_candidates < .local/sweep-benchmark/spec.json
+python3 tests/benchmarks/smoke.py .local/sweep-benchmark/spec.json \
+  --out .local/sweep-benchmark/smoke
+```
 
-The old Hyperscan strategy is included only as an ASCII performance baseline.
-It is not a correctness gate: Unicode and invalid UTF-8 can disagree with RE2.
-The differential suite covers those inputs separately. This synthetic corpus
-and a shared development machine cannot establish a general speed guarantee;
-retain the settings, all samples, and any concurrent-load caveat with results.
+Strategies include historical ASCII Hyperscan, exhaustive exact checks, the
+previous fixed-64 constant-candidate batches, and byte/AST-budgeted batches.
+Ingest compares Hyperscan, exhaustive matching, the old lexical single needle,
+three heuristically ranked needles, and optionally file-frequency-ranked needles.
+The Hyperscan baseline is not a correctness gate outside this ASCII fixture.
+Unicode, unsupported plans and invalid UTF-8 are covered by differential tests.
 
-For dynamic watchlists, use the same generated specification and run each
-strategy with `--ingest --repeats 1`; the three strategy names are
-`original_hyperscan`, `exhaustive_exact`, and `dynamic_needles`. This creates an
-actual watch table and insert-triggered MV, times `INSERT INTO ingest_src SELECT
-...` separately from setup, and verifies the hits table against the known
-10,000-hit corpus oracle. The metadata is populated by generated validated
-inserts. Input and insertion blocks are bounded to 8,192 rows, including the
-minimum insertion block settings, to keep the exhaustive cross-product within
-the recorded memory limit. Throughput is sensitive to these settings.
+For real file-frequency measurements, generate a Parquet/Puffin fixture with
+`tests/benchmarks/frequency_fixture.py --help`, then pass its exported
+`gram-frequencies.csv` to `sweep_benchmark_gen --frequencies PATH`. Frequencies
+change ranking only; every selected needle must still be required by the plan.
+`--mode candidates` reports the fraction of row × indicator pairs passing the
+substring predicate, not a directly instrumented regex invocation count.
+
+Each variant gets up to three repetitions; a completed sample lasting at least
+60 seconds suppresses further repetitions. Native queries have a 300-second
+server limit. The suite preserves failed and censored runs and cancels only its
+own query IDs before proceeding. Timeouts are not completed timings or medians.
+All samples, engine query IDs, `read_rows`, profile events, query bytes and
+settings are retained. The 1,000-indicator fixture must use at most two source
+queries and read at most twice the source row count on the native engine.
+Larger view expressions can legitimately require more batches.
+
+Setup and correctness checks are untimed. Report median corpus rows per second
+rather than summing source rows read across repeated scans. Query and condition
+caches are disabled; filesystem caches are uncontrolled. Short-circuit behavior
+depends on the engine/settings; constant regex arguments do not by themselves
+prove compilation or invocation counts. Use the same engine for comparisons and
+retain machine, load and timeout caveats alongside results.

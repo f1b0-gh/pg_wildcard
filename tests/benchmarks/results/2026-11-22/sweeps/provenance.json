@@ -1,0 +1,9 @@
+{
+  "spec_sha256": "4f74e2a7808f5f8b7475ad3235ce920ca371acc5663d14303cc8b400de3545b9",
+  "generator_binary_sha256": "9f2dcfbb0d9cc8ea0e1790641ab37ff3d61c1ce1d5a507a0e4213b8b54ca23af",
+  "measurement_order": "All FDW cohorts and Elasticsearch query timings finished before these sweep variants. Variants execute sequentially with no other task-owned builds or tests. Shared host load remains uncontrolled.",
+  "corpus": "1M URL rows,1000 raw ASCII indicators,10000 exact row/indicator/view pairs",
+  "direct_client": false,
+  "route": "native_engine_http",
+  "server_query_limit_seconds": 300
+}

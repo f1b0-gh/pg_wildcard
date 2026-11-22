@@ -1,0 +1,52 @@
+{
+  "postgres_build": "cargo pgrx install --release -p pg_wildcard --no-default-features --features pg18 --pg-config /usr/lib/postgresql/18/bin/pg_config --cargo=--locked",
+  "direct_build": "cargo build --locked --release --manifest-path tests/transport/Cargo.toml --features production --example fdw_profile",
+  "kernel": "7.0.0-43-generic",
+  "logical_cpus_visible": 12,
+  "client": "published crates.io antalya-rs 0.1.0",
+  "engine_version": "26.8.34.20001.altinityantalya",
+  "engine_image": "altinityinfra/clickhouse-server@sha256:0989fbcd21552463cff9ef8d7a44bd2213a2c8e1879816f856a744a14b28e77a",
+  "engine_cpu_limit": 4,
+  "engine_memory_limit": 8589934592,
+  "cpu_model": "AMD Ryzen 5 PRO 4650U with Radeon Graphics",
+  "profiling_invalidation": "An initial run leaked process samplers and was discarded entirely; only the sentinel-cleaned rerun is retained here. Invalid raw data remains in .local/perf-review/fdw/invalid-sampler-run.",
+  "extension_sha256": "6c23575ef8e61df9fef3e257783714f706afb904e0f7daab77544f68c08ba036",
+  "direct_worker_sha256": "bcd37f07764d84adc9811b37581750b9f2a79eb0f6b69c71251cb8ac16582ed0",
+  "root_cargo_lock_sha256": "b3998652539f33b8a686dcbba138898f99bf065c4af521c3657bb32d3dab87ed",
+  "direct_cargo_lock_sha256": "1cc5fb24f1248b9f42dad3ff7abf148a17455c844714cede87ee0b7997bb00bc",
+  "host_cgroup_cpu_max": null,
+  "host_cgroup_memory_max": null,
+  "wildcard-review-pg18": {
+    "NanoCpus": 0,
+    "Memory": 0,
+    "CpuQuota": 0,
+    "CpuPeriod": 0,
+    "CpusetCpus": ""
+  },
+  "wildcard-benchmark-antalya-1657313964be275b": {
+    "NanoCpus": 4000000000,
+    "Memory": 8589934592,
+    "CpuQuota": 0,
+    "CpuPeriod": 0,
+    "CpusetCpus": ""
+  },
+  "host_memory_total_kib": 15568772,
+  "cpu_profiler": {
+    "perf_version": "6.12.117",
+    "event": "cycles:u",
+    "frequency_hz": 199,
+    "callgraph": "dwarf,16384",
+    "samples": 849,
+    "lost_samples": 0,
+    "scope": "Owned PG backend PID in a task-owned profiler sidecar; scoped PERFMON/SYS_PTRACE; no host perf sysctl change."
+  },
+  "fixture": {
+    "parquet_writer": "PyArrow 26.0.1",
+    "parquet_compression": "snappy",
+    "lake_files": 8,
+    "rows_per_lake_file": 125000,
+    "selective_rows": 125,
+    "wide_payload_bytes": 1024,
+    "wide_rows": 32768
+  }
+}

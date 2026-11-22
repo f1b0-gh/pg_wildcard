@@ -1,0 +1,92 @@
+[
+  {
+    "mode": "sweeps",
+    "strategy": "constant_candidates",
+    "started_utc": "2026-11-22T07:10:21.875626+00:00",
+    "exit_code": 0,
+    "status": "completed",
+    "invocation_wall_seconds": 52.20088718298939,
+    "cleanup": "confirmed"
+  },
+  {
+    "mode": "sweeps",
+    "strategy": "exhaustive_exact",
+    "started_utc": "2026-11-22T07:11:14.139107+00:00",
+    "exit_code": 0,
+    "status": "completed",
+    "invocation_wall_seconds": 143.93561550800223,
+    "cleanup": "confirmed"
+  },
+  {
+    "mode": "sweeps",
+    "strategy": "fixed64_candidates",
+    "started_utc": "2026-11-22T07:13:38.133062+00:00",
+    "exit_code": 0,
+    "status": "completed",
+    "invocation_wall_seconds": 51.682053452008404,
+    "cleanup": "confirmed"
+  },
+  {
+    "mode": "sweeps",
+    "strategy": "original_hyperscan",
+    "started_utc": "2026-11-22T07:14:29.865166+00:00",
+    "exit_code": 0,
+    "status": "completed",
+    "invocation_wall_seconds": 5.5844708860095125,
+    "cleanup": "confirmed"
+  },
+  {
+    "mode": "ingest",
+    "strategy": "exhaustive_exact",
+    "started_utc": "2026-11-22T07:14:35.504126+00:00",
+    "exit_code": 1,
+    "status": "failed",
+    "invocation_wall_seconds": 302.2887643740105,
+    "cleanup": "confirmed"
+  },
+  {
+    "mode": "ingest",
+    "strategy": "frequency_needles",
+    "started_utc": "2026-11-22T07:19:37.848042+00:00",
+    "exit_code": 0,
+    "status": "completed",
+    "invocation_wall_seconds": 180.4416603819991,
+    "cleanup": "confirmed"
+  },
+  {
+    "mode": "ingest",
+    "strategy": "legacy_lexical",
+    "started_utc": "2026-11-22T07:22:38.350217+00:00",
+    "exit_code": 1,
+    "status": "failed",
+    "invocation_wall_seconds": 305.9403780189896,
+    "cleanup": "confirmed"
+  },
+  {
+    "mode": "ingest",
+    "strategy": "original_hyperscan",
+    "started_utc": "2026-11-22T07:27:44.360241+00:00",
+    "exit_code": 0,
+    "status": "completed",
+    "invocation_wall_seconds": 20.097109768990777,
+    "cleanup": "confirmed"
+  },
+  {
+    "mode": "ingest",
+    "strategy": "ranked_needles",
+    "started_utc": "2026-11-22T07:28:04.519748+00:00",
+    "exit_code": 0,
+    "status": "completed",
+    "invocation_wall_seconds": 246.16788951899798,
+    "cleanup": "confirmed"
+  },
+  {
+    "mode": "candidates",
+    "strategy": "all",
+    "started_utc": "2026-11-22T07:32:10.767680+00:00",
+    "exit_code": 0,
+    "status": "completed",
+    "invocation_wall_seconds": 11.847368032002123,
+    "cleanup": "confirmed"
+  }
+]
