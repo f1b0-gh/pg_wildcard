@@ -94,6 +94,12 @@ wc_ch_watchlist_ddl(name text, source text, hits text, watch text,
                     materialized boolean = false) → SETOF text
 wc_ch_watchlist_insert(watch text, id bigint, regex text,
                        view text = 'raw') → text
+wc_ch_watchlist_plan(name text, source text, hits text, watch text,
+                    select_cols text[], col text,
+                    views text = 'raw,lower,decoded,revdomain',
+                    requested_strategy text = 'staged_needles', materialized boolean = false)
+  → TABLE(watchlist_ddl text, mv_ddl text, strategy text, fallback text,
+          max_value_bytes integer, max_source_keys integer)
 ```
 
 These functions return statements or expressions; the caller executes them on
@@ -141,8 +147,27 @@ stale or incomplete counts cannot turn an optional gram into a requirement.
 See [integration](../libwildcard/INTEGRATION.md) for the frequency APIs and metadata. Empty
 or stale metadata bypasses the substring pre-check. Writers must use the helper
 or compute equally sound metadata; bindings detect stale values, not deliberately
-fabricated needles. The dynamic view still checks each indicator for each row;
+fabricated needles. The default dynamic view still checks each indicator for each row;
 benchmark ingestion with your data before enabling a large watchlist.
+
+`wc_ch_watchlist_plan` returns one row containing both DDL statements and strategy
+diagnostics. Request `requested_strategy='rule_anchor_join'` with `views='raw'` to route
+byte trigrams to required rule anchors before the same exact recheck. Other view
+configurations select `staged_needles` with `fallback='requires_single_raw_view'`.
+The old DDL helper and the new helper's default retain staged matching. Unknown
+strategies, empty views and duplicate views are errors.
+The diagnostics describe the generated statement. `CREATE ... IF NOT EXISTS`
+does not replace an existing materialized view or migrate its strategy.
+
+The join extracts at most 255 source keys from values up to 256 bytes; longer
+values and rules with missing/stale metadata retain exact matching through
+fallback keys. These bounds appear only when the join is selected. They do not
+bound join fanout, output size or total memory. Keep engine memory/time limits
+and qualify the strategy on the deployed Antalya build. This is rule selection
+for incoming rows; it does not add a document index or replay historical rows.
+Only caller-declared wildcard fields or admitted wildcard observables belong in
+this route. See [library integration](../libwildcard/INTEGRATION.md) for projection,
+metadata and fallback details.
 
 Hyperscan is not used because its Unicode and invalid-byte behavior can miss RE2
 matches. See the [benchmark harness](../libwildcard/tests/benchmarks/README.md)

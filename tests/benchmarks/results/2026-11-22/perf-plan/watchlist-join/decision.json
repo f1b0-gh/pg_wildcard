@@ -1,0 +1,18 @@
+{
+  "implementation": "retain_opt_in_raw_rule_anchor_join",
+  "default": "staged_needles",
+  "merge_ready": false,
+  "final_whole_stack_review": "pending",
+  "production_source_sha256": "d6d96c037260695d23ba222b4ac8ed7b4523460e31e5077bd7d37ef9c205dced",
+  "rationale": "Selective prototype workloads improve across six complete five-pair cases. Production transfer is separately qualified, retaining the original unrelated regression and the reverse-order repetition. Actual production update/block experiments improve subsequent insertion in two different distributions; rule-upsert time itself is not optimized.",
+  "scope": "Only an explicitly configured single raw view selects the join. Other view sets use the existing staged strategy, with diagnostics. No regex engine, syntax, flags, translation or dependency change.",
+  "limits": "Source extraction is capped at 256 bytes and 255 distinct keys per row. This is not a bound on total row-by-rule fanout, global memory or output size; engine memory/time limits remain required.",
+  "incomplete_performance_controls": "No-needle prototype baseline timed out after three paired rounds; long-value baseline failed its memory limit in warmup. These are censored, not full performance gates or speedup ratios. Production semantic fallback controls pass separately.",
+  "comparisons_excluded": [
+    "Elastic percolator",
+    "direct antalya-rs",
+    "full PostgreSQL delivery",
+    "new-pattern compilation during updates"
+  ],
+  "update_scope": "Existing regex/view/needle tuples rotated among stable IDs. Physical deletion and reinsertion also checked. Concurrent rule-update isolation was not measured."
+}

@@ -1,0 +1,204 @@
+[
+  {
+    "case": "no_grams",
+    "rows": 10000,
+    "rules": 1000,
+    "completed_samples": {
+      "staged_needles": 3,
+      "rule_join": 5
+    },
+    "paired_rounds": [
+      0,
+      1,
+      2
+    ],
+    "paired_median_change_percent": -5.020283814523319,
+    "complete_five_pair_comparison": false,
+    "exact_pairs": 1000,
+    "pair_sha256": "165176fd1ee6585c5cfedc01d1d5edac2427b6ec41105f49ea50dc2d61ac532b",
+    "completed_seconds": {
+      "staged_needles": [
+        90.97369088602136,
+        102.76913410099223,
+        104.74121745300363
+      ],
+      "rule_join": [
+        86.40655340699595,
+        91.28508688698639,
+        100.45116966200294,
+        93.33659748002538,
+        107.46561642800225
+      ]
+    },
+    "observed_peak_query_mib": {
+      "staged_needles": 301.99901485443115,
+      "rule_join": 7.985541343688965
+    },
+    "failures": [
+      {
+        "case": "no_grams",
+        "strategy": "staged_needles",
+        "warmup": false,
+        "repeat": 3,
+        "query_id": "wc_benchmark_f342d404c9d24b13bb8689d0dde1147b_d5009c73980049d5bd913d31787602d3",
+        "status": "failed_insertion",
+        "elapsed_ms": 122061.05699701584,
+        "error": "Code: 159. DB::Exception: Timeout exceeded: elapsed 121930.556 ms, maximum: 120000.000 ms. (TIMEOUT_EXCEEDED) (version 26.8.34.20001.altinityantalya)\n",
+        "no_latency_sample": true,
+        "server_query_absent_after_cancel": true,
+        "terminal_log": [
+          [
+            "ExceptionWhileProcessing",
+            159,
+            121939,
+            21000,
+            316670407
+          ]
+        ],
+        "host_load": [
+          39.240234375,
+          29.4443359375,
+          27.60546875
+        ]
+      }
+    ]
+  },
+  {
+    "case": "common_gram",
+    "rows": 10000,
+    "rules": 1000,
+    "completed_samples": {
+      "staged_needles": 5,
+      "rule_join": 5
+    },
+    "paired_rounds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "paired_median_change_percent": -10.280078704483842,
+    "complete_five_pair_comparison": true,
+    "exact_pairs": 1000,
+    "pair_sha256": "165176fd1ee6585c5cfedc01d1d5edac2427b6ec41105f49ea50dc2d61ac532b",
+    "completed_seconds": {
+      "staged_needles": [
+        6.624362272996223,
+        4.091727691004053,
+        3.864251949999016,
+        3.8812806070200168,
+        4.035716122016311
+      ],
+      "rule_join": [
+        3.736535283009289,
+        3.671094863995677,
+        3.5811031290213577,
+        3.3552637780085206,
+        3.661420553980861
+      ]
+    },
+    "observed_peak_query_mib": {
+      "staged_needles": 366.0528745651245,
+      "rule_join": 7.985058784484863
+    },
+    "failures": []
+  },
+  {
+    "case": "stale_bindings",
+    "rows": 10000,
+    "rules": 1000,
+    "completed_samples": {
+      "staged_needles": 5,
+      "rule_join": 5
+    },
+    "paired_rounds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "paired_median_change_percent": -11.555049558766406,
+    "complete_five_pair_comparison": true,
+    "exact_pairs": 1,
+    "pair_sha256": "e6d8de83d61628453c181d1945fd489c72cd93b01341fd3c59ce5ee0df033364",
+    "completed_seconds": {
+      "staged_needles": [
+        5.457602787995711,
+        5.176812992984196,
+        5.337561502004974,
+        5.466440872987732,
+        6.095364612992853
+      ],
+      "rule_join": [
+        4.723057297989726,
+        4.734403506998206,
+        4.767674745002296,
+        4.834790921013337,
+        4.755411299993284
+      ]
+    },
+    "observed_peak_query_mib": {
+      "staged_needles": 302.00439739227295,
+      "rule_join": 7.984906196594238
+    },
+    "failures": []
+  },
+  {
+    "case": "long_values",
+    "rows": 10000,
+    "rules": 1000,
+    "completed_samples": {
+      "staged_needles": 0,
+      "rule_join": 5
+    },
+    "paired_rounds": [],
+    "paired_median_change_percent": null,
+    "complete_five_pair_comparison": false,
+    "exact_pairs": 1,
+    "pair_sha256": "e6d8de83d61628453c181d1945fd489c72cd93b01341fd3c59ce5ee0df033364",
+    "completed_seconds": {
+      "staged_needles": [],
+      "rule_join": [
+        5.503372206003405,
+        5.820503744005691,
+        5.546176701987861,
+        5.414374362997478,
+        5.455297410022467
+      ]
+    },
+    "observed_peak_query_mib": {
+      "staged_needles": null,
+      "rule_join": 16.4342041015625
+    },
+    "failures": [
+      {
+        "case": "long_values",
+        "strategy": "staged_needles",
+        "warmup": true,
+        "repeat": 0,
+        "query_id": "wc_benchmark_523279db50fe4a7fa31b65a3db333569_22bd537636254e348f1510aa17a0bde6",
+        "status": "failed_insertion",
+        "elapsed_ms": 1537.360565009294,
+        "error": "Code: 241. DB::Exception: Query memory limit exceeded: would use 4.06 GiB (attempt to allocate chunk of 3.91 GiB), maximum: 3.73 GiB: while executing 'FUNCTION position(__table2.v :: 0, arrayElement(_CAST(7883091326372909755_6275670435763007268_Array(String), 'Array(String)'_String), i... :: 4) -> position(__table2.v, arrayElement(_CAST(7883091326372909755_6275670435763007268_Array(String), 'Arra... UInt64 : 2': while executing 'FUNCTION arrayFilter(i UInt32 -> greater(position(__table2.v, arrayElement(_CAST(7883091326372909755_6275670435763007268_... :: 4, _CAST(7389132973273086103_10351578196622134393_Array(UInt32), 'Array(UInt32)'_String) :: 7) -> arrayFilter(i UInt32 -> greater(position(__table2.v, arrayElement(_CAST(7883091326372909755_62756704... Array(UInt32) : 5': while pushing to view wc_benchmark_523279db50fe4a7fa31b65a3db333569.ingest_mv. (MEMORY_LIMIT_EXCEEDED) (version 26.8.34.20001.altinityantalya)\n",
+        "no_latency_sample": true,
+        "server_query_absent_after_cancel": true,
+        "terminal_log": [
+          [
+            "ExceptionWhileProcessing",
+            241,
+            1514,
+            21000,
+            1000872137
+          ]
+        ],
+        "host_load": [
+          27.54248046875,
+          30.77978515625,
+          28.72802734375
+        ]
+      }
+    ]
+  }
+]

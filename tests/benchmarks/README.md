@@ -54,6 +54,13 @@ strategies, checks exact result pairs, adds an untimed positive canary for every
 indicator across all sweep batches, and uploads timings without enforcing
 performance thresholds.
 
+Comparison fixtures also emit the production watchlist strategy in
+`watchlist.join_plan`. `comparison_smoke.py --require-watchlist-plan` executes
+that materialized view, verifies full hit multisets and every-indicator canaries,
+and records informational insertion time with its selected strategy/fallback.
+CI requires this field. Historical fixtures without it remain runnable without
+the flag and explicitly report that watchlist qualification was not performed.
+
 ## Comparable workload matrix
 
 `sweep_benchmark_gen --comparison shared|unrelated|common|short|mixed` emits a

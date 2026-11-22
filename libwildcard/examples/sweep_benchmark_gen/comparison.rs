@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 //! Versioned comparison fixtures. Never infer the oracle from generated SQL.
 use libwildcard::antalya::{
-    SweepItem, SweepOptions, ViewColumns, predicate, sweep_queries_with_options, view_columns_ddl,
-    watchlist_insert_sql, watchlist_mv, watchlist_needles, watchlist_table_ddl,
+    SweepItem, SweepOptions, ViewColumns, WatchlistStrategy, predicate, sweep_queries_with_options,
+    view_columns_ddl, watchlist_insert_sql, watchlist_mv, watchlist_needles, watchlist_plan,
+    watchlist_table_ddl,
 };
 use libwildcard::core::{
     GramQuery, View, grams,
@@ -222,6 +223,17 @@ pub fn build(variant: &str, count: usize, rows: usize) -> Result<Value, String> 
         }),
         _ => json!({"kind":"field", "field":"v", "data_type":"wildcard", "synthetic":true}),
     };
+    let join_plan = watchlist_plan(
+        "ingest_join_mv",
+        "ingest_src",
+        "ingest_hits",
+        "watch",
+        &["id"],
+        &cols,
+        &views,
+        WatchlistStrategy::RuleAnchorJoin,
+    )
+    .map_err(|e| e.to_string())?;
     Ok(
         json!({"schema":"wildcard-comparison-v2","variant":variant,"rows":rows,"indicators":count,
             "stride":if variant=="short" {10000} else {100}, "templates":templates,"template_hits":hits,"benign_prefix":benign,
@@ -235,6 +247,9 @@ pub fn build(variant: &str, count: usize, rows: usize) -> Result<Value, String> 
             "queries":plan.queries,"indexed_queries":indexed.queries,"index_ddl":view_columns_ddl("bench","v",&views).map_err(|e|e.to_string())?,
             "diagnostics":{"source_queries":plan.source_scan_count,"estimated_ast":plan.estimated_ast,"exact_only_items":plan.exact_only_items},
             "watchlist":{"ddl":watchlist_table_ddl("watch").unwrap(),"inserts":items.iter().map(|i|watchlist_insert_sql("watch",i).unwrap()).collect::<Vec<_>>(),
+                "join_plan":{"sql":join_plan.sql,"strategy":join_plan.strategy.name(),
+                    "fallback":join_plan.fallback.map(|f|f.name()),"max_value_bytes":join_plan.max_value_bytes,
+                    "max_source_keys":join_plan.max_source_keys},
                 "mv":watchlist_mv("ingest_mv","ingest_src","ingest_hits","watch",&["id"],&cols,&views).unwrap()}
         }),
     )
@@ -242,6 +257,25 @@ pub fn build(variant: &str, count: usize, rows: usize) -> Result<Value, String> 
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn watchlist_comparison_reports_join_selection_and_mixed_view_fallback() {
+        let raw = build("shared", 12, 10000).unwrap();
+        assert_eq!(
+            raw["watchlist"]["join_plan"]["strategy"],
+            "rule_anchor_join"
+        );
+        assert_eq!(raw["watchlist"]["join_plan"]["max_source_keys"], 255);
+        let mixed = build("mixed", 12, 10000).unwrap();
+        assert_eq!(
+            mixed["watchlist"]["join_plan"]["strategy"],
+            "staged_needles"
+        );
+        assert_eq!(
+            mixed["watchlist"]["join_plan"]["fallback"],
+            "requires_single_raw_view"
+        );
+    }
+
     #[test]
     fn observable_fixtures_keep_wildcards_and_reject_realistic_near_misses() {
         for family in ["domains", "urls", "paths", "commands"] {
