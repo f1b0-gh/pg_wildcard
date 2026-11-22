@@ -59,7 +59,7 @@ unsafe fn options(relid: pg_sys::Oid) -> HashMap<String, String> {
         if out.keys().any(|key| {
             !matches!(
                 key.as_str(),
-                "url" | "database" | "settings" | "timeout_ms" | "terminal_policy"
+                "url" | "database" | "settings" | "timeout_ms" | "terminal_policy" | "batch_bytes"
             )
         }) {
             error!(
@@ -1082,6 +1082,8 @@ unsafe extern "C-unwind" fn explain_foreign_scan(
         }
         if (*es).analyze {
             let m = observed;
+            let query_id = CString::new(m.last_query_id.as_str()).unwrap_or_default();
+            pg_sys::ExplainPropertyText(c"FDW last query ID".as_ptr(), query_id.as_ptr(), es);
             let reason = CString::new(if m.preparation.reason.is_empty() {
                 "not_requested"
             } else {
@@ -1138,6 +1140,8 @@ unsafe extern "C-unwind" fn explain_foreign_scan(
                 (c"FDW plan control requests", m.preparation.controls),
                 (c"FDW plan probes", m.preparation.probe_queries),
                 (c"FDW plan cache hits", m.preparation.cache_hits),
+                (c"FDW executions", m.executions),
+                (c"FDW peak individual batch bytes", m.peak_batch_bytes),
                 (c"FDW batches", m.batches),
                 (c"FDW remote rows", m.rows),
                 (c"FDW charged batch bytes", m.charged_bytes),
@@ -1147,6 +1151,7 @@ unsafe extern "C-unwind" fn explain_foreign_scan(
             }
             if let Some(e) = m.execution {
                 for (name, value) in [
+                    (c"FDW first batch", e.first_batch),
                     (c"FDW HTTP body wait", e.transfer),
                     (c"FDW Arrow decode", e.decode),
                     (c"FDW framing decode", Some(e.framing)),

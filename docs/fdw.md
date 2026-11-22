@@ -34,6 +34,7 @@ identity includes the token. Protect catalog access to mapping credentials.
 | Server | `database` | `default` |
 | Server | `timeout_ms` | `60000`; integer 1–300000 |
 | Server | `terminal_policy` | `flush_first`; also `observe_first`, `observe_only`, `in_band` |
+| Server | `batch_bytes` | `16777216`; integer 65536–16777216, per-batch retained charge / pending-read reservation, not backend RSS |
 | Server or table | `settings` | Allowlisted comma-separated `key=value` pairs; table value overrides server value |
 | Mapping | `bearer_token` | Required, nonempty |
 | Table | `table` | Remote source |
@@ -50,6 +51,37 @@ Allowed settings are `max_threads` (1–64), `max_block_size` (1–16384; defaul
 1024), `max_execution_time` (>0 and ≤300 seconds), `object_storage_cluster`
 (a short cluster name), and `iceberg_snapshot_id` (positive integer). They are
 encoded as HTTP settings, not interpolated as arbitrary SQL.
+
+## Local and remote indexes
+
+A foreign table has no local row storage and cannot receive a PostgreSQL index.
+Indexes on the Antalya source can help when the generated remote predicate is
+eligible; inspect the remote SQL and native `EXPLAIN indexes=1,actions=1`, then
+measure reads and latency. An index appearing in a plan does not establish a
+performance benefit.
+
+PostgreSQL indexes remain useful on local tables joined to the foreign table
+and on lake metadata. The existing primary keys cover `wc_lake_index(index_name)`,
+`wc_lake_file(index_name, file_ord)` and `wc_lake_gram(index_name, gram)` lookups.
+A local watchlist index does not automatically reduce remote reads: this wrapper
+keeps joins local and pushes constant-pattern search predicates.
+
+A local materialized copy can have ordinary PostgreSQL indexes, at the cost of
+storage and explicit refreshes. PostgreSQL documents this
+[materialized-view use with foreign data](https://www.postgresql.org/docs/18/rules-materializedviews.html).
+Treat measurements of such a copy separately from direct Antalya and full FDW
+delivery.
+
+On local text columns, constant-pattern `wc_match` and `wc_like` calls in the
+`raw` view can simplify to PostgreSQL `LIKE`. This exposes eligible predicates
+to [pg_trgm GIN/GiST indexes](https://www.postgresql.org/docs/18/pgtrgm.html).
+It does not imply index support for every `wc_*` function or transformed view;
+check the resulting PostgreSQL plan.
+
+This wrapper does not implement `AnalyzeForeignTable`. Its planner row estimate
+defaults to 1,000 and can be set with the table's `rows` option. Keep local table
+statistics current and compare estimates with actual rows in `EXPLAIN ANALYZE`;
+changing the estimate affects planning, not remote filtering or indexing.
 
 ## Pushdown and rechecks
 
@@ -205,3 +237,25 @@ must not be added as independent components of ordinary query latency.
 
 See [testing](testing.md) for native and chDB checks and [operations](operations.md)
 for deployment requirements.
+
+For controlled profiling, the server option `batch_bytes` lowers the published
+client's per-execution retained Arrow batch limit (65536–16777216 bytes, default
+16777216). It is part of the cached client identity. It also controls the
+pre-read reservation; it does not change the client's shared 64 MiB retention
+budget, server result limits, string limit or PostgreSQL memory allocation.
+`FDW peak individual batch bytes` is the maximum charge of one returned batch,
+not the simultaneous sum of current/queued/pending batches and not backend RSS.
+
+`FDW last query ID` correlates the last execution with native `system.query_log`;
+`FDW executions` identifies rescans. `FDW first batch` is the published client's
+offset to the first decoded batch, including admission and identity work. It is
+omitted for multiple executions and must not be called HTTP time-to-first-byte.
+Body wait includes server execution and scheduling. Decode, polling, queue wait,
+terminal confirmation and PostgreSQL executor clocks overlap; they cannot be
+summed into exclusive stages. Local recheck rows remain visible in the PostgreSQL
+plan, but local recheck CPU time is not separately instrumented.
+
+The paired native profiler is `tests/benchmarks/fdw_profile.py`; its direct path
+uses `tests/transport/examples/fdw_profile.rs` with the same SQL, projection and
+query settings. Build both the extension and direct worker with release settings
+for performance comparisons. Results retain raw EXPLAIN and query-log rows.

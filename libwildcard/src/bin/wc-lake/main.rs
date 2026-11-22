@@ -359,6 +359,14 @@ fn run(cmd: &str, a: &Args) -> Result<(), String> {
                 std::path::Path::new(a.get("out-dir")?),
             )
             .map_err(|e| e.to_string())?;
+            libwildcard::lake::export_gram_frequencies(
+                &idx,
+                &column,
+                meta.snapshot_id,
+                Some(&meta.properties),
+                std::path::Path::new(a.get("out-dir")?),
+            )
+            .map_err(|e| e.to_string())?;
             libwildcard::lake::export_known_inventory(
                 &idx,
                 a.opt

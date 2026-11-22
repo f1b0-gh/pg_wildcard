@@ -1,0 +1,234 @@
+{
+  "measurements": [
+    {
+      "artifact": "sweeps-fixed64_candidates.jsonl",
+      "samples": 3,
+      "wall_seconds": [
+        13.662767709000036,
+        13.993515925991233,
+        13.958098682996933
+      ],
+      "median_seconds": 13.958098682996933,
+      "peak_query_memory_bytes": 126914134,
+      "query_count": [
+        16,
+        16,
+        16
+      ],
+      "read_rows": [
+        16000000,
+        16000000,
+        16000000
+      ],
+      "hits": [
+        10000,
+        10000,
+        10000
+      ],
+      "pair_sha256": [
+        "d6dbb4eafa8437a4b276f6cf08e28010e025567ff60a31ba5ed14dbd91d1724c"
+      ]
+    },
+    {
+      "artifact": "sweeps-constant_candidates.jsonl",
+      "samples": 3,
+      "wall_seconds": [
+        17.41459442699852,
+        16.650687272005598,
+        16.23571494400676
+      ],
+      "median_seconds": 16.650687272005598,
+      "peak_query_memory_bytes": 1131084366,
+      "query_count": [
+        2,
+        2,
+        2
+      ],
+      "read_rows": [
+        2000000,
+        2000000,
+        2000000
+      ],
+      "hits": [
+        10000,
+        10000,
+        10000
+      ],
+      "pair_sha256": [
+        "d6dbb4eafa8437a4b276f6cf08e28010e025567ff60a31ba5ed14dbd91d1724c"
+      ]
+    },
+    {
+      "artifact": "sweeps-sparse_candidates-prototype.jsonl",
+      "samples": 3,
+      "wall_seconds": [
+        36.38220947900845,
+        33.11590836899995,
+        37.00614014398889
+      ],
+      "median_seconds": 36.38220947900845,
+      "peak_query_memory_bytes": 466558075,
+      "query_count": [
+        2,
+        2,
+        2
+      ],
+      "read_rows": [
+        2000000,
+        2000000,
+        2000000
+      ],
+      "hits": [
+        10000,
+        10000,
+        10000
+      ],
+      "pair_sha256": [
+        "d6dbb4eafa8437a4b276f6cf08e28010e025567ff60a31ba5ed14dbd91d1724c"
+      ]
+    },
+    {
+      "artifact": "sweeps-grouped64_candidates-prototype-pilot.jsonl",
+      "samples": 1,
+      "wall_seconds": [
+        19.26656027699937
+      ],
+      "median_seconds": 19.26656027699937,
+      "peak_query_memory_bytes": 445900483,
+      "query_count": [
+        2
+      ],
+      "read_rows": [
+        2000000
+      ],
+      "hits": [
+        10000
+      ],
+      "pair_sha256": [
+        "d6dbb4eafa8437a4b276f6cf08e28010e025567ff60a31ba5ed14dbd91d1724c"
+      ]
+    },
+    {
+      "artifact": "ingest-frequency_needles.jsonl",
+      "samples": 1,
+      "wall_seconds": [
+        178.89368151000235
+      ],
+      "median_seconds": 178.89368151000235,
+      "peak_query_memory_bytes": 2220228088,
+      "query_count": [
+        1
+      ],
+      "read_rows": [
+        2001128
+      ],
+      "hits": [
+        10000
+      ],
+      "pair_sha256": [
+        "d6dbb4eafa8437a4b276f6cf08e28010e025567ff60a31ba5ed14dbd91d1724c"
+      ]
+    },
+    {
+      "artifact": "ingest-ranked_needles.jsonl",
+      "samples": 1,
+      "wall_seconds": [
+        243.79169046600873
+      ],
+      "median_seconds": 243.79169046600873,
+      "peak_query_memory_bytes": 2219722653,
+      "query_count": [
+        1
+      ],
+      "read_rows": [
+        2001128
+      ],
+      "hits": [
+        10000
+      ],
+      "pair_sha256": [
+        "d6dbb4eafa8437a4b276f6cf08e28010e025567ff60a31ba5ed14dbd91d1724c"
+      ]
+    },
+    {
+      "artifact": "ingest-staged_perneedle_frequency_needles-prototype.jsonl",
+      "samples": 1,
+      "wall_seconds": [
+        83.0374643390096
+      ],
+      "median_seconds": 83.0374643390096,
+      "peak_query_memory_bytes": 573732758,
+      "query_count": [
+        1
+      ],
+      "read_rows": [
+        2001128
+      ],
+      "hits": [
+        10000
+      ],
+      "pair_sha256": [
+        "d6dbb4eafa8437a4b276f6cf08e28010e025567ff60a31ba5ed14dbd91d1724c"
+      ]
+    },
+    {
+      "artifact": "ingest-staged_perneedle_ranked_needles-prototype.jsonl",
+      "samples": 1,
+      "wall_seconds": [
+        106.91596751900215
+      ],
+      "median_seconds": 106.91596751900215,
+      "peak_query_memory_bytes": 574919922,
+      "query_count": [
+        1
+      ],
+      "read_rows": [
+        2001128
+      ],
+      "hits": [
+        10000
+      ],
+      "pair_sha256": [
+        "d6dbb4eafa8437a4b276f6cf08e28010e025567ff60a31ba5ed14dbd91d1724c"
+      ]
+    },
+    {
+      "artifact": "sweeps-common_gram_gate-prototype.jsonl",
+      "samples": 3,
+      "wall_seconds": [
+        3.792768856001203,
+        4.3034939439967275,
+        4.043002816004446
+      ],
+      "median_seconds": 4.043002816004446,
+      "peak_query_memory_bytes": 94113105,
+      "query_count": [
+        2,
+        2,
+        2
+      ],
+      "read_rows": [
+        2000000,
+        2000000,
+        2000000
+      ],
+      "hits": [
+        10000,
+        10000,
+        10000
+      ],
+      "pair_sha256": [
+        "d6dbb4eafa8437a4b276f6cf08e28010e025567ff60a31ba5ed14dbd91d1724c"
+      ]
+    }
+  ],
+  "selected_shapes": [
+    "common_required_gram_where_gate",
+    "perneedle_index_filters_then_exact"
+  ],
+  "rejected_shapes": [
+    "conditional_sparse_arrays",
+    "concat_filtered_dense64_groups"
+  ],
+  "repeat_policy": "Runner stops after a sample >=60s; staged MV timings are one sample each."
+}

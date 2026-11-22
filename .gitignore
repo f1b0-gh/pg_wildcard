@@ -24,3 +24,6 @@ __pycache__/
 wc_iceberg_*/
 *.so
 .DS_Store
+
+# Explicitly published, synthetic benchmark observations (no credentials).
+!/tests/benchmarks/results/**/*.log

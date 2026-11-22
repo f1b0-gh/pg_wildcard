@@ -1,0 +1,29 @@
+[
+  {
+    "workload": "narrow",
+    "route": "direct",
+    "samples": 3,
+    "median_ms": 361.395764,
+    "min_ms": 267.86938100000003,
+    "max_ms": 414.903116,
+    "executor_median_ms": null
+  },
+  {
+    "workload": "narrow",
+    "route": "pg_backend",
+    "samples": 3,
+    "median_ms": 470.9790659999271,
+    "min_ms": 389.8716460000742,
+    "max_ms": 544.727592000072,
+    "executor_median_ms": 465.55
+  },
+  {
+    "workload": "narrow",
+    "route": "pg_copy",
+    "samples": 3,
+    "median_ms": 643.4317240000382,
+    "min_ms": 640.1661419999982,
+    "max_ms": 912.383446000149,
+    "executor_median_ms": null
+  }
+]

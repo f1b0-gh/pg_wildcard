@@ -1,0 +1,125 @@
+[
+  {
+    "case": "shared-100-c1",
+    "status": "complete",
+    "exit_status": 0,
+    "seconds": 264.47405843999877
+  },
+  {
+    "case": "unrelated-100-c1",
+    "status": "complete",
+    "exit_status": 0,
+    "evidence": "completed summary and kernel zombie exit_code=0 before paused controller replacement"
+  },
+  {
+    "case": "common-100-c1",
+    "status": "complete",
+    "exit_status": 0,
+    "seconds": 925.9147633789999
+  },
+  {
+    "case": "short-100-c1",
+    "status": "complete",
+    "exit_status": 0,
+    "seconds": 306.04831385199986
+  },
+  {
+    "case": "mixed-100-c1",
+    "status": "complete",
+    "exit_status": 0,
+    "seconds": 186.06359716299994
+  },
+  {
+    "case": "shared-1000-c1",
+    "status": "complete",
+    "exit_status": 0,
+    "seconds": 444.8678220679999
+  },
+  {
+    "case": "unrelated-1000-c1",
+    "status": "complete",
+    "exit_status": 0,
+    "seconds": 1034.2772160319996
+  },
+  {
+    "case": "common-1000-c1",
+    "status": "failed",
+    "exit_status": 1,
+    "seconds": 203.63599973799955,
+    "attempt_directory": ".local/perf/matrix-setup-failures/common-1000-c1-pg-timeout",
+    "classification": "PostgreSQL full COPY precontrol statement timeout; original collector aborted all routes before measured cohorts",
+    "cleanup_confirmed": true
+  },
+  {
+    "case": "common-1000-c1",
+    "status": "complete",
+    "exit_status": 0,
+    "seconds": 661.9470545980002
+  },
+  {
+    "case": "short-1000-c1",
+    "status": "complete",
+    "exit_status": 0,
+    "seconds": 808.7295600870002
+  },
+  {
+    "case": "mixed-1000-c1",
+    "status": "complete",
+    "exit_status": 0,
+    "seconds": 1171.6628566970003
+  },
+  {
+    "case": "shared-1000-c4",
+    "status": "complete",
+    "exit_status": 0,
+    "seconds": 682.1335672319992
+  },
+  {
+    "case": "unrelated-1000-c4",
+    "status": "complete",
+    "exit_status": 0,
+    "seconds": 740.4469613400006
+  },
+  {
+    "case": "common-1000-c4",
+    "status": "complete",
+    "exit_status": 0,
+    "seconds": 640.0077093399996
+  },
+  {
+    "case": "domains-current-100-c1",
+    "status": "complete",
+    "exit_status": 0,
+    "seconds": 188.49567977600054
+  },
+  {
+    "case": "shared-10000-c1",
+    "status": "complete",
+    "exit_status": 0,
+    "seconds": 1613.8474242110005
+  },
+  {
+    "case": "unrelated-10000-c1",
+    "status": "complete",
+    "exit_status": 0,
+    "seconds": 637.9612769470004
+  },
+  {
+    "case": "common-10000-c1",
+    "status": "censored_generation_budget",
+    "generator_timeout_seconds": 60,
+    "reason": "bounded stress fixture generation did not finish; no query timing or correctness claim"
+  },
+  {
+    "case": "short-10000-c1",
+    "status": "censored_pair_budget",
+    "error": "oracle exceeds pair budget",
+    "spec_sha256": "60fd3fed2758162701cb3d7a5b481444f51cd740455f7355e358309f992a21e3"
+  },
+  {
+    "case": "mixed-10000-c1",
+    "status": "censored_generation_budget",
+    "generator_timeout_seconds": 60,
+    "reason": "bounded stress fixture generation did not finish; no query timing or correctness claim"
+  }
+]

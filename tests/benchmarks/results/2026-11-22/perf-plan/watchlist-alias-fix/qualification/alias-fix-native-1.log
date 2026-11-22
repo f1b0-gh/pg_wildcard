@@ -1,0 +1,21 @@
+native backend: 26.8.34.20001.altinityantalya
+views: 5 x 371 values checked
+predicates: 1735/1735 agree
+sweep: 758 expected hits, 758 from ClickHouse
+shared gate: 14 cases checked
+indexed gates: exact pairs with/without skipping; ASCII forced-index check passed
+watchlist: 758 hits from materialized view
+watchlist stale regex: 7049 hits, exact=7049
+watchlist stale view: 750 hits, exact=750
+watchlist empty defaults: 758 hits, exact=758
+watchlist join plain prefer_columns=0: seven lifecycle phases, exact multisets and projections
+watchlist join qualified prefer_columns=0: seven lifecycle phases, exact multisets and projections
+watchlist join colliding_names prefer_columns=0: seven lifecycle phases, exact multisets and projections
+watchlist join empty_projection prefer_columns=0: seven lifecycle phases, exact multisets and projections
+watchlist join materialized_raw prefer_columns=0: seven lifecycle phases, exact multisets and projections
+watchlist join plain prefer_columns=1: seven lifecycle phases, exact multisets and projections
+watchlist join qualified prefer_columns=1: seven lifecycle phases, exact multisets and projections
+watchlist join colliding_names prefer_columns=1: seven lifecycle phases, exact multisets and projections
+watchlist join empty_projection prefer_columns=1: seven lifecycle phases, exact multisets and projections
+watchlist join materialized_raw prefer_columns=1: seven lifecycle phases, exact multisets and projections
+RESULT: PASS

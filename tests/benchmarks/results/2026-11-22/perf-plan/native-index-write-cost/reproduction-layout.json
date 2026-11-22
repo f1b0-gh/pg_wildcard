@@ -1,0 +1,14 @@
+{
+  ".local/perf/indexed/index-write-cost.py": {
+    "artifact": "reproduction/index-write-cost.py",
+    "sha256": "193d8b9da0cff0122f5285cce9bad757c2934d6110f57214fcffe1b9ac6aaba8"
+  },
+  ".local/perf/indexed/report-write-cost.py": {
+    "artifact": "reproduction/report-write-cost.py",
+    "sha256": "71fa00ae98f85bf2069771b05a2db4f7904fa20e9b7613e80e91e67f1013a7e5"
+  },
+  ".local/perf/specs/unrelated-1000.json": {
+    "artifact": "reproduction/unrelated-1000.json.gz",
+    "sha256": "d9bbcb6d03386879b949fcb79286c7ea47e0e783990684833fcd829bf9976849"
+  }
+}

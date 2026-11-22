@@ -1,0 +1,30 @@
+{
+  "engine": "26.8.34.20001.altinityantalya",
+  "settings": {
+    "max_threads": 4,
+    "max_block_size": 8192,
+    "max_insert_block_size": 8192,
+    "min_insert_block_size_rows": 8192,
+    "min_insert_block_size_bytes": 0,
+    "max_memory_usage": 4000000000,
+    "max_ast_elements": 50000,
+    "max_expanded_ast_elements": 500000,
+    "max_query_size": 262144,
+    "max_result_rows": 100000,
+    "max_result_bytes": 67108864,
+    "result_overflow_mode": "throw",
+    "use_query_cache": 0,
+    "use_query_condition_cache": 0,
+    "short_circuit_function_evaluation": "enable"
+  },
+  "query_timeout_seconds": 300,
+  "machine": {
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu_count": 12,
+    "cpu_model": "AMD Ryzen 5 PRO 4650U with Radeon Graphics",
+    "host_memory_bytes": 15942422528,
+    "python": "3.12.3"
+  },
+  "timer": "native HTTP insertion into real MV; complete hit pairs checked after clock; ranking/setup outside timer",
+  "variants": "only required-needle metadata differs; regex/view bindings and MV SQL identical"
+}

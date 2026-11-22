@@ -1,0 +1,148 @@
+[
+  {
+    "artifact": "ingest-exhaustive_exact.jsonl",
+    "mode": "ingest",
+    "strategy": "exhaustive_exact",
+    "samples": 0,
+    "failure": "Code: 159. DB::Exception: Timeout exceeded: elapsed 300913.204 ms, maximum: 300000.000 ms. (TIMEOUT_EXCEEDED) (version 26.8.34.20001.altinityantalya)\n"
+  },
+  {
+    "artifact": "ingest-frequency_needles.jsonl",
+    "mode": "ingest",
+    "strategy": "frequency_needles",
+    "samples": 1,
+    "median_seconds": 178.89368151000235,
+    "rows_per_second": 5589.912352181582,
+    "query_count": 1,
+    "read_rows": 2001128,
+    "peak_query_memory_bytes": 2220228088
+  },
+  {
+    "artifact": "ingest-legacy_lexical.jsonl",
+    "mode": "ingest",
+    "strategy": "legacy_lexical",
+    "samples": 0,
+    "failure": "Code: 159. DB::Exception: Timeout exceeded: elapsed 304303.525 ms, maximum: 300000.000 ms. (TIMEOUT_EXCEEDED) (version 26.8.34.20001.altinityantalya)\n"
+  },
+  {
+    "artifact": "ingest-original_hyperscan.jsonl",
+    "mode": "ingest",
+    "strategy": "original_hyperscan",
+    "samples": 3,
+    "median_seconds": 5.583466613999917,
+    "rows_per_second": 179100.2022816098,
+    "query_count": 1,
+    "read_rows": 2001128,
+    "peak_query_memory_bytes": 15355850
+  },
+  {
+    "artifact": "ingest-ranked_needles.jsonl",
+    "mode": "ingest",
+    "strategy": "ranked_needles",
+    "samples": 1,
+    "median_seconds": 243.79169046600873,
+    "rows_per_second": 4101.862528983233,
+    "query_count": 1,
+    "read_rows": 2001128,
+    "peak_query_memory_bytes": 2219722653
+  },
+  {
+    "artifact": "ingest-staged_perneedle_frequency_needles-prototype.jsonl",
+    "mode": "ingest",
+    "strategy": "staged_perneedle_frequency_needles",
+    "samples": 1,
+    "median_seconds": 83.0374643390096,
+    "rows_per_second": 12042.756940618872,
+    "query_count": 1,
+    "read_rows": 2001128,
+    "peak_query_memory_bytes": 573732758
+  },
+  {
+    "artifact": "ingest-staged_perneedle_ranked_needles-prototype.jsonl",
+    "mode": "ingest",
+    "strategy": "staged_perneedle_ranked_needles",
+    "samples": 1,
+    "median_seconds": 106.91596751900215,
+    "rows_per_second": 9353.139883640582,
+    "query_count": 1,
+    "read_rows": 2001128,
+    "peak_query_memory_bytes": 574919922
+  },
+  {
+    "artifact": "sweeps-common_gram_gate-prototype.jsonl",
+    "mode": "sweeps",
+    "strategy": "common_gram_gate",
+    "samples": 3,
+    "median_seconds": 4.043002816004446,
+    "rows_per_second": 247340.9110776391,
+    "query_count": 2,
+    "read_rows": 2000000,
+    "peak_query_memory_bytes": 94113105
+  },
+  {
+    "artifact": "sweeps-constant_candidates.jsonl",
+    "mode": "sweeps",
+    "strategy": "constant_candidates",
+    "samples": 3,
+    "median_seconds": 16.650687272005598,
+    "rows_per_second": 60057.581027377535,
+    "query_count": 2,
+    "read_rows": 2000000,
+    "peak_query_memory_bytes": 1131084366
+  },
+  {
+    "artifact": "sweeps-exhaustive_exact.jsonl",
+    "mode": "sweeps",
+    "strategy": "exhaustive_exact",
+    "samples": 1,
+    "median_seconds": 142.96200920800038,
+    "rows_per_second": 6994.865317995534,
+    "query_count": 1,
+    "read_rows": 1000000,
+    "peak_query_memory_bytes": 3097663579
+  },
+  {
+    "artifact": "sweeps-fixed64_candidates.jsonl",
+    "mode": "sweeps",
+    "strategy": "fixed64_candidates",
+    "samples": 3,
+    "median_seconds": 13.958098682996933,
+    "rows_per_second": 71642.99541872065,
+    "query_count": 16,
+    "read_rows": 16000000,
+    "peak_query_memory_bytes": 126914134
+  },
+  {
+    "artifact": "sweeps-grouped64_candidates-prototype-pilot.jsonl",
+    "mode": "sweeps",
+    "strategy": "grouped64_candidates",
+    "samples": 1,
+    "median_seconds": 19.26656027699937,
+    "rows_per_second": 51903.40079509734,
+    "query_count": 2,
+    "read_rows": 2000000,
+    "peak_query_memory_bytes": 445900483
+  },
+  {
+    "artifact": "sweeps-original_hyperscan.jsonl",
+    "mode": "sweeps",
+    "strategy": "original_hyperscan",
+    "samples": 3,
+    "median_seconds": 1.2248573679971742,
+    "rows_per_second": 816421.5900788108,
+    "query_count": 1,
+    "read_rows": 1000000,
+    "peak_query_memory_bytes": 13550782
+  },
+  {
+    "artifact": "sweeps-sparse_candidates-prototype.jsonl",
+    "mode": "sweeps",
+    "strategy": "sparse_candidates",
+    "samples": 3,
+    "median_seconds": 36.38220947900845,
+    "rows_per_second": 27485.96125194026,
+    "query_count": 2,
+    "read_rows": 2000000,
+    "peak_query_memory_bytes": 466558075
+  }
+]

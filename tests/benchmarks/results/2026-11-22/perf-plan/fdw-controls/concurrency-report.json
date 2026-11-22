@@ -1,0 +1,439 @@
+{
+  "cases": [
+    {
+      "concurrency": 1,
+      "workload": "narrow",
+      "route": "direct",
+      "measured_cohorts": 5,
+      "client_samples": 5,
+      "client_ms": {
+        "median": 322.201161,
+        "min": 308.145626,
+        "max": 512.123776
+      },
+      "cohort_rows_per_second": {
+        "median": 3092476.941921237,
+        "min": 1944842.9546742153,
+        "max": 3230505.2630228484
+      },
+      "observed_client_peak": 1,
+      "observed_database_reference_query_peak": 1,
+      "sampled_max_backend_rss_mib": null,
+      "sampled_max_sum_backend_rss_mib": null,
+      "sampled_max_sum_backend_threads": null,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 1,
+      "workload": "narrow",
+      "route": "pg_backend",
+      "measured_cohorts": 5,
+      "client_samples": 5,
+      "client_ms": {
+        "median": 345.5269600090105,
+        "min": 297.94056701939553,
+        "max": 928.2920039840974
+      },
+      "cohort_rows_per_second": {
+        "median": 2891119.4416197753,
+        "min": 1076820.8379219333,
+        "max": 3352923.7289595325
+      },
+      "observed_client_peak": 1,
+      "observed_database_reference_query_peak": 1,
+      "sampled_max_backend_rss_mib": 28.61328125,
+      "sampled_max_sum_backend_rss_mib": 28.61328125,
+      "sampled_max_sum_backend_threads": 2,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 1,
+      "workload": "narrow",
+      "route": "pg_copy",
+      "measured_cohorts": 5,
+      "client_samples": 5,
+      "client_ms": {
+        "median": 512.9069540125784,
+        "min": 404.93242000229657,
+        "max": 768.8199270050973
+      },
+      "cohort_rows_per_second": {
+        "median": 1949196.5352517704,
+        "min": 1300481.328272606,
+        "max": 2468880.1666330616
+      },
+      "observed_client_peak": 1,
+      "observed_database_reference_query_peak": 1,
+      "sampled_max_backend_rss_mib": 28.9765625,
+      "sampled_max_sum_backend_rss_mib": 28.9765625,
+      "sampled_max_sum_backend_threads": 2,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 1,
+      "workload": "wide1k",
+      "route": "direct",
+      "measured_cohorts": 5,
+      "client_samples": 5,
+      "client_ms": {
+        "median": 634.568604,
+        "min": 573.373814,
+        "max": 1137.181473
+      },
+      "cohort_rows_per_second": {
+        "median": 51606.417715997064,
+        "min": 28485.25154507442,
+        "max": 57119.92400639595
+      },
+      "observed_client_peak": 1,
+      "observed_database_reference_query_peak": 1,
+      "sampled_max_backend_rss_mib": null,
+      "sampled_max_sum_backend_rss_mib": null,
+      "sampled_max_sum_backend_threads": null,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 1,
+      "workload": "wide1k",
+      "route": "pg_backend",
+      "measured_cohorts": 5,
+      "client_samples": 5,
+      "client_ms": {
+        "median": 665.5404260091018,
+        "min": 607.0781580056064,
+        "max": 838.4752529964317
+      },
+      "cohort_rows_per_second": {
+        "median": 49212.10197607695,
+        "min": 39065.70745964269,
+        "max": 53952.38718738635
+      },
+      "observed_client_peak": 1,
+      "observed_database_reference_query_peak": 1,
+      "sampled_max_backend_rss_mib": 58.6171875,
+      "sampled_max_sum_backend_rss_mib": 58.6171875,
+      "sampled_max_sum_backend_threads": 2,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 1,
+      "workload": "wide1k",
+      "route": "pg_copy",
+      "measured_cohorts": 5,
+      "client_samples": 5,
+      "client_ms": {
+        "median": 705.0621229864191,
+        "min": 615.694200998405,
+        "max": 967.9614850028884
+      },
+      "cohort_rows_per_second": {
+        "median": 46469.14620044,
+        "min": 33848.02921105353,
+        "max": 53212.69658146956
+      },
+      "observed_client_peak": 1,
+      "observed_database_reference_query_peak": 1,
+      "sampled_max_backend_rss_mib": 62.9140625,
+      "sampled_max_sum_backend_rss_mib": 62.9140625,
+      "sampled_max_sum_backend_threads": 2,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 8,
+      "workload": "narrow",
+      "route": "direct",
+      "measured_cohorts": 1,
+      "client_samples": 8,
+      "client_ms": {
+        "median": 932.2962365,
+        "min": 841.8878050000001,
+        "max": 992.436612
+      },
+      "cohort_rows_per_second": {
+        "median": 7934932.710612346,
+        "min": 7934932.710612346,
+        "max": 7934932.710612346
+      },
+      "observed_client_peak": 8,
+      "observed_database_reference_query_peak": 8,
+      "sampled_max_backend_rss_mib": null,
+      "sampled_max_sum_backend_rss_mib": null,
+      "sampled_max_sum_backend_threads": null,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 8,
+      "workload": "narrow",
+      "route": "pg_backend",
+      "measured_cohorts": 1,
+      "client_samples": 8,
+      "client_ms": {
+        "median": 1085.9065810072934,
+        "min": 804.3251100170892,
+        "max": 1234.0695729944855
+      },
+      "cohort_rows_per_second": {
+        "median": 6480071.821295121,
+        "min": 6480071.821295121,
+        "max": 6480071.821295121
+      },
+      "observed_client_peak": 8,
+      "observed_database_reference_query_peak": 8,
+      "sampled_max_backend_rss_mib": 24.73828125,
+      "sampled_max_sum_backend_rss_mib": 195.86328125,
+      "sampled_max_sum_backend_threads": 16,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 8,
+      "workload": "narrow",
+      "route": "pg_copy",
+      "measured_cohorts": 1,
+      "client_samples": 8,
+      "client_ms": {
+        "median": 1921.9641259987839,
+        "min": 1641.8945410114247,
+        "max": 2008.2889150071424
+      },
+      "cohort_rows_per_second": {
+        "median": 3982371.3938687984,
+        "min": 3982371.3938687984,
+        "max": 3982371.3938687984
+      },
+      "observed_client_peak": 8,
+      "observed_database_reference_query_peak": 8,
+      "sampled_max_backend_rss_mib": 24.765625,
+      "sampled_max_sum_backend_rss_mib": 196.8359375,
+      "sampled_max_sum_backend_threads": 16,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 8,
+      "workload": "wide1k",
+      "route": "direct",
+      "measured_cohorts": 1,
+      "client_samples": 8,
+      "client_ms": {
+        "median": 1991.5375085,
+        "min": 1794.225747,
+        "max": 2091.440117
+      },
+      "cohort_rows_per_second": {
+        "median": 124848.89074754092,
+        "min": 124848.89074754092,
+        "max": 124848.89074754092
+      },
+      "observed_client_peak": 8,
+      "observed_database_reference_query_peak": 8,
+      "sampled_max_backend_rss_mib": null,
+      "sampled_max_sum_backend_rss_mib": null,
+      "sampled_max_sum_backend_threads": null,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 8,
+      "workload": "wide1k",
+      "route": "pg_backend",
+      "measured_cohorts": 1,
+      "client_samples": 8,
+      "client_ms": {
+        "median": 2224.960238483618,
+        "min": 1475.9596819931176,
+        "max": 2511.298886005534
+      },
+      "cohort_rows_per_second": {
+        "median": 104348.08071874864,
+        "min": 104348.08071874864,
+        "max": 104348.08071874864
+      },
+      "observed_client_peak": 8,
+      "observed_database_reference_query_peak": 8,
+      "sampled_max_backend_rss_mib": 60.5,
+      "sampled_max_sum_backend_rss_mib": 451.453125,
+      "sampled_max_sum_backend_threads": 16,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 8,
+      "workload": "wide1k",
+      "route": "pg_copy",
+      "measured_cohorts": 1,
+      "client_samples": 8,
+      "client_ms": {
+        "median": 2835.557845508447,
+        "min": 2033.584774006158,
+        "max": 3041.334621986607
+      },
+      "cohort_rows_per_second": {
+        "median": 86167.99351648307,
+        "min": 86167.99351648307,
+        "max": 86167.99351648307
+      },
+      "observed_client_peak": 8,
+      "observed_database_reference_query_peak": 8,
+      "sampled_max_backend_rss_mib": 65.0234375,
+      "sampled_max_sum_backend_rss_mib": 456.17578125,
+      "sampled_max_sum_backend_threads": 16,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 32,
+      "workload": "narrow",
+      "route": "direct",
+      "measured_cohorts": 1,
+      "client_samples": 32,
+      "client_ms": {
+        "median": 5765.950231999999,
+        "min": 2964.003847,
+        "max": 6629.6597950000005
+      },
+      "cohort_rows_per_second": {
+        "median": 4796328.163300433,
+        "min": 4796328.163300433,
+        "max": 4796328.163300433
+      },
+      "observed_client_peak": 32,
+      "observed_database_reference_query_peak": 32,
+      "sampled_max_backend_rss_mib": null,
+      "sampled_max_sum_backend_rss_mib": null,
+      "sampled_max_sum_backend_threads": null,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 32,
+      "workload": "narrow",
+      "route": "pg_backend",
+      "measured_cohorts": 1,
+      "client_samples": 32,
+      "client_ms": {
+        "median": 8401.736573500046,
+        "min": 6960.078682000017,
+        "max": 8913.810729000033
+      },
+      "cohort_rows_per_second": {
+        "median": 3587826.4145174576,
+        "min": 3587826.4145174576,
+        "max": 3587826.4145174576
+      },
+      "observed_client_peak": 32,
+      "observed_database_reference_query_peak": 32,
+      "sampled_max_backend_rss_mib": 28.73828125,
+      "sampled_max_sum_backend_rss_mib": 903.93359375,
+      "sampled_max_sum_backend_threads": 64,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 32,
+      "workload": "narrow",
+      "route": "pg_copy",
+      "measured_cohorts": 1,
+      "client_samples": 32,
+      "client_ms": {
+        "median": 15291.397055000005,
+        "min": 11139.088906999972,
+        "max": 16807.848106999925
+      },
+      "cohort_rows_per_second": {
+        "median": 1902965.6431597697,
+        "min": 1902965.6431597697,
+        "max": 1902965.6431597697
+      },
+      "observed_client_peak": 32,
+      "observed_database_reference_query_peak": 32,
+      "sampled_max_backend_rss_mib": 28.7421875,
+      "sampled_max_sum_backend_rss_mib": 904.84375,
+      "sampled_max_sum_backend_threads": 64,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 32,
+      "workload": "wide1k",
+      "route": "direct",
+      "measured_cohorts": 1,
+      "client_samples": 32,
+      "client_ms": {
+        "median": 11907.774212,
+        "min": 7027.164049,
+        "max": 13117.221968000002
+      },
+      "cohort_rows_per_second": {
+        "median": 79914.07283704064,
+        "min": 79914.07283704064,
+        "max": 79914.07283704064
+      },
+      "observed_client_peak": 32,
+      "observed_database_reference_query_peak": 32,
+      "sampled_max_backend_rss_mib": null,
+      "sampled_max_sum_backend_rss_mib": null,
+      "sampled_max_sum_backend_threads": null,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 32,
+      "workload": "wide1k",
+      "route": "pg_backend",
+      "measured_cohorts": 1,
+      "client_samples": 32,
+      "client_ms": {
+        "median": 13241.069633999927,
+        "min": 8475.812444999974,
+        "max": 14093.475893000004
+      },
+      "cohort_rows_per_second": {
+        "median": 74203.28987814099,
+        "min": 74203.28987814099,
+        "max": 74203.28987814099
+      },
+      "observed_client_peak": 32,
+      "observed_database_reference_query_peak": 33,
+      "sampled_max_backend_rss_mib": 71.4609375,
+      "sampled_max_sum_backend_rss_mib": 1714.94140625,
+      "sampled_max_sum_backend_threads": 64,
+      "monitor_errors": []
+    },
+    {
+      "concurrency": 32,
+      "workload": "wide1k",
+      "route": "pg_copy",
+      "measured_cohorts": 1,
+      "client_samples": 32,
+      "client_ms": {
+        "median": 12948.525383499942,
+        "min": 7636.711863999835,
+        "max": 14984.295418000102
+      },
+      "cohort_rows_per_second": {
+        "median": 69930.31092615862,
+        "min": 69930.31092615862,
+        "max": 69930.31092615862
+      },
+      "observed_client_peak": 32,
+      "observed_database_reference_query_peak": 32,
+      "sampled_max_backend_rss_mib": 71.87890625,
+      "sampled_max_sum_backend_rss_mib": 1837.94921875,
+      "sampled_max_sum_backend_threads": 64,
+      "monitor_errors": []
+    }
+  ],
+  "pending": [],
+  "interrupted_attempt": {
+    "observed_utc": "2026-11-22T14:27:21.102827+00:00",
+    "boot_id": "6a938263-727a-480e-9594-d94516a2a6a0",
+    "classification": "interrupted_host_reboot; incomplete evidence; not a successful run",
+    "raw_sha256": "b60490d99ce42d0b1219504a9f987630f1aed1d277691644c6a5f3ca1f9482d7",
+    "invalid_lines": [
+      {
+        "line": 14,
+        "bytes": 1127
+      }
+    ],
+    "complete_records": 13,
+    "database": "wc_benchmark_d3e1df280b1d4cdc853723d96bd01416",
+    "schema": "wc_fdw_e3ed718b4bbb493b93f84cf2f0548fed",
+    "source_processes_missing": true,
+    "fixture_exit_code": 255,
+    "original_raw_preserved": true,
+    "cleanup_completed": true,
+    "recovery_note": "First cleanup attempt reached no server because Docker reassigned the owned Antalya IP after restart; fixture state now follows its inspected address."
+  }
+}

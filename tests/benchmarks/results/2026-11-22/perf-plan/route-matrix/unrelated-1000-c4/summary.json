@@ -1,0 +1,72 @@
+[
+  {
+    "route": "native",
+    "samples": 0,
+    "median_ms": null,
+    "min_ms": null,
+    "max_ms": null,
+    "censored": true,
+    "observed_engine_peak": 4,
+    "sampler_errors": 0
+  },
+  {
+    "route": "indexed",
+    "samples": 0,
+    "median_ms": null,
+    "min_ms": null,
+    "max_ms": null,
+    "censored": true,
+    "observed_engine_peak": 4,
+    "sampler_errors": 0
+  },
+  {
+    "route": "direct",
+    "samples": 0,
+    "median_ms": null,
+    "min_ms": null,
+    "max_ms": null,
+    "censored": true,
+    "observed_engine_peak": 4,
+    "sampler_errors": 0
+  },
+  {
+    "route": "pg_backend",
+    "samples": 0,
+    "median_ms": null,
+    "min_ms": null,
+    "max_ms": null,
+    "censored": true,
+    "observed_engine_peak": 4,
+    "sampler_errors": 0
+  },
+  {
+    "route": "pg_copy",
+    "samples": 0,
+    "median_ms": null,
+    "min_ms": null,
+    "max_ms": null,
+    "censored": true,
+    "observed_engine_peak": null,
+    "sampler_errors": 0
+  },
+  {
+    "route": "elastic_wildcard",
+    "samples": 20,
+    "median_ms": 1969.8266075001811,
+    "min_ms": 1721.1767120006698,
+    "max_ms": 3287.858864001464,
+    "censored": false,
+    "observed_engine_peak": 4,
+    "sampler_errors": 0
+  },
+  {
+    "route": "elastic_keyword",
+    "samples": 20,
+    "median_ms": 35428.98807450001,
+    "min_ms": 34188.868482000544,
+    "max_ms": 41016.54603600036,
+    "censored": false,
+    "observed_engine_peak": 4,
+    "sampler_errors": 0
+  }
+]

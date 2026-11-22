@@ -1,0 +1,36 @@
+[
+  {
+    "case": "no_grams",
+    "completed_strategies": [
+      "rule_join"
+    ],
+    "failed_strategies": [
+      "staged_needles"
+    ]
+  },
+  {
+    "case": "common_gram",
+    "completed_strategies": [
+      "rule_join",
+      "staged_needles"
+    ],
+    "failed_strategies": []
+  },
+  {
+    "case": "stale_bindings",
+    "completed_strategies": [
+      "rule_join",
+      "staged_needles"
+    ],
+    "failed_strategies": []
+  },
+  {
+    "case": "long_values",
+    "completed_strategies": [
+      "rule_join"
+    ],
+    "failed_strategies": [
+      "staged_needles"
+    ]
+  }
+]

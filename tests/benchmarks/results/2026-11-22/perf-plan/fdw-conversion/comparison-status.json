@@ -1,0 +1,32 @@
+[
+  {
+    "name": "baseline-0",
+    "exit_status": 0,
+    "seconds": 153.04615283801104,
+    "binary_sha256": "6c23575ef8e61df9fef3e257783714f706afb904e0f7daab77544f68c08ba036"
+  },
+  {
+    "name": "prepared-0",
+    "exit_status": 0,
+    "seconds": 157.37694211001508,
+    "binary_sha256": "4617fc1e3d8d83c4ceef05ee84b48efe36a5714b7ecc1dbb4a740222088be499"
+  },
+  {
+    "name": "prepared-1",
+    "exit_status": 0,
+    "seconds": 157.84576749798725,
+    "binary_sha256": "4617fc1e3d8d83c4ceef05ee84b48efe36a5714b7ecc1dbb4a740222088be499"
+  },
+  {
+    "name": "baseline-1",
+    "exit_status": 0,
+    "seconds": 152.54688597400673,
+    "binary_sha256": "6c23575ef8e61df9fef3e257783714f706afb904e0f7daab77544f68c08ba036"
+  },
+  {
+    "name": "baseline-2",
+    "exit_status": 1,
+    "seconds": 104.85806421702728,
+    "binary_sha256": "6c23575ef8e61df9fef3e257783714f706afb904e0f7daab77544f68c08ba036"
+  }
+]

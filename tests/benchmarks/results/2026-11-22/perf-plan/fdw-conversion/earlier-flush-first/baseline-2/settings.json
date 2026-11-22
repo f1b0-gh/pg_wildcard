@@ -1,0 +1,47 @@
+{
+  "label": "baseline",
+  "concurrency": 1,
+  "policy": "flush_first",
+  "batch_bytes": 16777216,
+  "repeats": 1,
+  "workloads": [
+    "narrow",
+    "smalltext",
+    "wide1k",
+    "broad_recheck"
+  ],
+  "routes": [
+    "direct",
+    "pg_backend",
+    "pg_copy"
+  ],
+  "engine": "26.8.34.20001.altinityantalya",
+  "machine": {
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu_count": 12,
+    "cpu_model": "AMD Ryzen 5 PRO 4650U with Radeon Graphics",
+    "host_memory_bytes": 15942422528,
+    "python": "3.12.3"
+  },
+  "host_load": [
+    26.60546875,
+    29.744140625,
+    31.44873046875
+  ],
+  "pg_pids": [
+    4156
+  ],
+  "direct_setup": [
+    {
+      "process_ms": 36.809929995797575,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 21.388905,
+      "ready": true
+    }
+  ],
+  "pg_setup": [
+    277.46469000703655
+  ],
+  "timer": "warm connections; request through fully written TCP COPY file or all Arrow batches; backend executor TIMING OFF separate; value checks outside timed samples",
+  "memory": "sampled backend RSS/HWM/threads separate from max individual BudgetedBatch; no assertion RSS <= batch budget"
+}

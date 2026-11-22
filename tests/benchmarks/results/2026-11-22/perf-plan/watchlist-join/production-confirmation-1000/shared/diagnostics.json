@@ -1,0 +1,17 @@
+{
+  "prototype": {
+    "strategy": "raw_rule_anchor_join",
+    "max_value_bytes_before_fallback": 256,
+    "maximum_source_keys": 255,
+    "index_side": "current active watchlist, not document storage",
+    "status": "unqualified local prototype"
+  },
+  "production": {
+    "fallback": null,
+    "max_source_keys": 255,
+    "max_value_bytes": 256,
+    "sql": "CREATE MATERIALIZED VIEW IF NOT EXISTS ingest_join_mv TO ingest_hits AS\nSELECT _wc0_src.* EXCEPT (_wc0_value, _wc0_key), _wc0_rule.id AS indicator_id, 'raw' AS view\nFROM (\n  SELECT id, v AS _wc0_value, arrayJoin(if(length(_wc0_value) > 256, ['_wc_long_value'], arrayConcat(arrayDistinct(arrayMap(_wc0_i -> substring(_wc0_value, _wc0_i + 1, 3), range(toUInt64(greatest(toInt64(least(length(_wc0_value), 256)) - 2, 0))))), ['_wc_no_anchor']))) AS _wc0_key\n  FROM ingest_src\n) AS _wc0_src\nALL INNER JOIN (\n  SELECT id, regex, _wc0_needles, arrayJoin([if(length(arrayElement(_wc0_needles, 1)) = 3 AND arrayAll(_wc0_i -> ascii(substring(arrayElement(_wc0_needles, 1), _wc0_i, 1)) BETWEEN 32 AND 126, [1, 2, 3]), arrayElement(_wc0_needles, 1), '_wc_no_anchor'), '_wc_long_value']) AS _wc0_key\n  FROM (\n    SELECT id, regex, if(needles_regex = regex AND needles_view = view, arraySlice(needles, 1, 3), CAST([], 'Array(String)')) AS _wc0_needles\n    FROM watch FINAL WHERE active = 1 AND view = 'raw'\n  )\n) AS _wc0_rule ON _wc0_src._wc0_key = _wc0_rule._wc0_key\nWHERE arrayAll(_wc0_n -> position(_wc0_src._wc0_value, _wc0_n) > 0, _wc0_rule._wc0_needles)\n  AND match(_wc0_src._wc0_value, _wc0_rule.regex)",
+    "strategy": "rule_anchor_join"
+  },
+  "production_source_sha256": "d6d96c037260695d23ba222b4ac8ed7b4523460e31e5077bd7d37ef9c205dced"
+}

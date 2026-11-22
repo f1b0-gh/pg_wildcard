@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS watch (id Int64, view LowCardinality(String), regex String, needles Array(String) DEFAULT [], needles_regex String DEFAULT '', needles_view String DEFAULT '', active UInt8 DEFAULT 1, updated_at DateTime64(3) DEFAULT now64(3)) ENGINE = ReplacingMergeTree(updated_at) ORDER BY id

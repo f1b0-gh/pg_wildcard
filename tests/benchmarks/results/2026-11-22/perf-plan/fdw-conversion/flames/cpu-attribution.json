@@ -1,0 +1,186 @@
+[
+  {
+    "label": "baseline",
+    "workload": "narrow",
+    "samples": 1428,
+    "inclusive_counts": {
+      "FDW scan callback": 561,
+      "Tuple-building context": 208,
+      "Explicit value/Datum conversion frames": 110,
+      "Local wc_* wrapper": 0,
+      "antalya-rs": 335,
+      "Arrow IPC": 41,
+      "Base64": 135
+    },
+    "inclusive_percent": {
+      "FDW scan callback": 39.285714285714285,
+      "Tuple-building context": 14.565826330532214,
+      "Explicit value/Datum conversion frames": 7.703081232492997,
+      "Local wc_* wrapper": 0.0,
+      "antalya-rs": 23.4593837535014,
+      "Arrow IPC": 2.8711484593837535,
+      "Base64": 9.453781512605042
+    }
+  },
+  {
+    "label": "baseline",
+    "workload": "smalltext",
+    "samples": 3636,
+    "inclusive_counts": {
+      "FDW scan callback": 1954,
+      "Tuple-building context": 1483,
+      "Explicit value/Datum conversion frames": 787,
+      "Local wc_* wrapper": 0,
+      "antalya-rs": 1096,
+      "Arrow IPC": 142,
+      "Base64": 449
+    },
+    "inclusive_percent": {
+      "FDW scan callback": 53.74037403740374,
+      "Tuple-building context": 40.78657865786578,
+      "Explicit value/Datum conversion frames": 21.644664466446645,
+      "Local wc_* wrapper": 0.0,
+      "antalya-rs": 30.143014301430142,
+      "Arrow IPC": 3.905390539053905,
+      "Base64": 12.348734873487349
+    }
+  },
+  {
+    "label": "baseline",
+    "workload": "wide1k",
+    "samples": 672,
+    "inclusive_counts": {
+      "FDW scan callback": 161,
+      "Tuple-building context": 93,
+      "Explicit value/Datum conversion frames": 72,
+      "Local wc_* wrapper": 0,
+      "antalya-rs": 432,
+      "Arrow IPC": 1,
+      "Base64": 221
+    },
+    "inclusive_percent": {
+      "FDW scan callback": 23.958333333333336,
+      "Tuple-building context": 13.839285714285715,
+      "Explicit value/Datum conversion frames": 10.714285714285714,
+      "Local wc_* wrapper": 0.0,
+      "antalya-rs": 64.28571428571429,
+      "Arrow IPC": 0.1488095238095238,
+      "Base64": 32.88690476190476
+    }
+  },
+  {
+    "label": "baseline",
+    "workload": "broad_recheck",
+    "samples": 3783,
+    "inclusive_counts": {
+      "FDW scan callback": 1486,
+      "Tuple-building context": 1217,
+      "Explicit value/Datum conversion frames": 702,
+      "Local wc_* wrapper": 919,
+      "antalya-rs": 768,
+      "Arrow IPC": 49,
+      "Base64": 361
+    },
+    "inclusive_percent": {
+      "FDW scan callback": 39.28099392016918,
+      "Tuple-building context": 32.17023526301877,
+      "Explicit value/Datum conversion frames": 18.556701030927837,
+      "Local wc_* wrapper": 24.29288924134285,
+      "antalya-rs": 20.30134813639968,
+      "Arrow IPC": 1.295268305577584,
+      "Base64": 9.542690985989955
+    }
+  },
+  {
+    "label": "prepared",
+    "workload": "narrow",
+    "samples": 1356,
+    "inclusive_counts": {
+      "FDW scan callback": 480,
+      "Tuple-building context": 110,
+      "Explicit value/Datum conversion frames": 1,
+      "Local wc_* wrapper": 0,
+      "antalya-rs": 341,
+      "Arrow IPC": 61,
+      "Base64": 118
+    },
+    "inclusive_percent": {
+      "FDW scan callback": 35.39823008849557,
+      "Tuple-building context": 8.112094395280236,
+      "Explicit value/Datum conversion frames": 0.07374631268436578,
+      "Local wc_* wrapper": 0.0,
+      "antalya-rs": 25.147492625368734,
+      "Arrow IPC": 4.498525073746313,
+      "Base64": 8.702064896755163
+    }
+  },
+  {
+    "label": "prepared",
+    "workload": "smalltext",
+    "samples": 3251,
+    "inclusive_counts": {
+      "FDW scan callback": 1541,
+      "Tuple-building context": 1072,
+      "Explicit value/Datum conversion frames": 8,
+      "Local wc_* wrapper": 0,
+      "antalya-rs": 1116,
+      "Arrow IPC": 174,
+      "Base64": 438
+    },
+    "inclusive_percent": {
+      "FDW scan callback": 47.400799753921866,
+      "Tuple-building context": 32.97446939403261,
+      "Explicit value/Datum conversion frames": 0.2460781298062135,
+      "Local wc_* wrapper": 0.0,
+      "antalya-rs": 34.32789910796678,
+      "Arrow IPC": 5.352199323285143,
+      "Base64": 13.472777606890189
+    }
+  },
+  {
+    "label": "prepared",
+    "workload": "wide1k",
+    "samples": 646,
+    "inclusive_counts": {
+      "FDW scan callback": 141,
+      "Tuple-building context": 74,
+      "Explicit value/Datum conversion frames": 0,
+      "Local wc_* wrapper": 0,
+      "antalya-rs": 431,
+      "Arrow IPC": 2,
+      "Base64": 219
+    },
+    "inclusive_percent": {
+      "FDW scan callback": 21.826625386996902,
+      "Tuple-building context": 11.455108359133128,
+      "Explicit value/Datum conversion frames": 0.0,
+      "Local wc_* wrapper": 0.0,
+      "antalya-rs": 66.71826625386997,
+      "Arrow IPC": 0.30959752321981426,
+      "Base64": 33.90092879256966
+    }
+  },
+  {
+    "label": "prepared",
+    "workload": "broad_recheck",
+    "samples": 3584,
+    "inclusive_counts": {
+      "FDW scan callback": 1156,
+      "Tuple-building context": 763,
+      "Explicit value/Datum conversion frames": 2,
+      "Local wc_* wrapper": 1054,
+      "antalya-rs": 742,
+      "Arrow IPC": 53,
+      "Base64": 352
+    },
+    "inclusive_percent": {
+      "FDW scan callback": 32.254464285714285,
+      "Tuple-building context": 21.2890625,
+      "Explicit value/Datum conversion frames": 0.055803571428571425,
+      "Local wc_* wrapper": 29.408482142857146,
+      "antalya-rs": 20.703125,
+      "Arrow IPC": 1.4787946428571428,
+      "Base64": 9.821428571428571
+    }
+  }
+]

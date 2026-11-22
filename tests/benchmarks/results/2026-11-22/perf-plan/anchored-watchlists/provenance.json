@@ -1,0 +1,21 @@
+{
+  "files": {
+    ".local/perf/execution/anchor-benchmark.py": "fc1c3f9b308dc9bac4acdab65f88cbcc5c0c42e7d4020ba2ad99e30da0741ae5",
+    "tests/benchmarks/compare_routes.py": "8ce54838c87abef006808c32cbb3738725b4fc9c302e522125f2ac7da3416b3b",
+    "tests/benchmarks/comparison.py": "b1797b7b7ae36413c850f8a3f400c1b9bdba614a6bb909c3d3cb3e720bd702b1",
+    "libwildcard/tests/benchmarks/sweeps.py": "1798a4c5cd9649aca9b0c513a4d8dd446a7a668ad71f1aa13c560dbf2040029a",
+    ".local/review-pg/target/release/examples/sweep_benchmark_gen": "d0a036727dbb86f9e7d3d61a2ee684d2bd15e282ed2b481232a4cddd86f5385e"
+  },
+  "fixture": {
+    "image": "altinityinfra/clickhouse-server@sha256:0989fbcd21552463cff9ef8d7a44bd2213a2c8e1879816f856a744a14b28e77a",
+    "cpus": 4,
+    "memory_bytes": 8589934592,
+    "version": "26.8.34.20001.altinityantalya"
+  },
+  "row_count": 1000000,
+  "indicators": 100,
+  "repetitions": 5,
+  "query_budget_seconds": 300,
+  "prior_censored_attempt": "censored-60s.json",
+  "runner_snapshot": "runner.py"
+}
