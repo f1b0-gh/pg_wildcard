@@ -84,7 +84,7 @@ jobs:
         run: |
           test ! -e ../antalya-rs
           cargo package --locked --manifest-path libwildcard/Cargo.toml --all-features
-      - uses: EmbarkStudios/cargo-deny-action@70f81531115945ba6eb6b941ec9d39d063438eb9 # v2, cargo-deny 0.21.0
+      - uses: EmbarkStudios/cargo-deny-action@17aeb3c839e42274e2b8adf721c8c65edfdc74dd # v2, cargo-deny 0.21.0
         with:
           command: check licenses
           manifest-path: pg_wildcard/libwildcard/Cargo.toml
@@ -155,19 +155,19 @@ jobs:
           cargo fmt --manifest-path tests/fdw/harness/Cargo.toml -- --check
           cargo test --locked --manifest-path tests/fdw/harness/Cargo.toml
           cargo clippy --locked --manifest-path tests/fdw/harness/Cargo.toml --all-targets -- -D warnings
-      - uses: EmbarkStudios/cargo-deny-action@70f81531115945ba6eb6b941ec9d39d063438eb9 # v2, cargo-deny 0.21.0
+      - uses: EmbarkStudios/cargo-deny-action@17aeb3c839e42274e2b8adf721c8c65edfdc74dd # v2, cargo-deny 0.21.0
         with:
           command: check licenses
           manifest-path: pg_wildcard/Cargo.toml
           arguments: --all-features --locked --config pg_wildcard/deny.toml
           rust-version: '1.99.1'
-      - uses: EmbarkStudios/cargo-deny-action@70f81531115945ba6eb6b941ec9d39d063438eb9 # v2, cargo-deny 0.21.0
+      - uses: EmbarkStudios/cargo-deny-action@17aeb3c839e42274e2b8adf721c8c65edfdc74dd # v2, cargo-deny 0.21.0
         with:
           command: check licenses
           manifest-path: pg_wildcard/tests/transport/Cargo.toml
           arguments: --all-features --locked --config pg_wildcard/deny.toml
           rust-version: '1.99.1'
-      - uses: EmbarkStudios/cargo-deny-action@70f81531115945ba6eb6b941ec9d39d063438eb9 # v2, cargo-deny 0.21.0
+      - uses: EmbarkStudios/cargo-deny-action@17aeb3c839e42274e2b8adf721c8c65edfdc74dd # v2, cargo-deny 0.21.0
         with:
           command: check licenses
           manifest-path: pg_wildcard/tests/fdw/harness/Cargo.toml
