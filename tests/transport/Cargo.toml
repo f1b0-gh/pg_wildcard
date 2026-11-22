@@ -43,3 +43,11 @@ path = "src/control_worker.rs"
 [[example]]
 name = "fdw_profile"
 required-features = ["production"]
+
+[[example]]
+name = "sweep_route"
+required-features = ["production"]
+
+[[example]]
+name = "fdw_warm"
+required-features = ["production"]

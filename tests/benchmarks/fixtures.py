@@ -75,9 +75,17 @@ def start(engine, state):
             if engine == 'antalya':
                 version = command('docker', 'exec', name, 'clickhouse-client', '-q', 'SELECT version()')
                 command('docker', 'exec', name, 'clickhouse-client', '--multiquery', '-q',
-                        "CREATE USER benchmark IDENTIFIED WITH jwt SETTINGS max_threads=4, max_memory_usage=4000000000, log_queries=1, log_query_settings=1; GRANT FILE, SELECT, INSERT, CREATE DATABASE, CREATE TABLE, CREATE VIEW, DROP DATABASE, DROP TABLE, DROP VIEW, ALTER TABLE, TRUNCATE, KILL QUERY, SYSTEM FLUSH LOGS ON *.* TO benchmark;")
+                        "CREATE USER benchmark IDENTIFIED WITH jwt SETTINGS max_threads=4, max_memory_usage=4000000000, log_queries=1, log_query_settings=1; GRANT FILE, SELECT, INSERT, CREATE DATABASE, CREATE TABLE, CREATE VIEW, DROP DATABASE, DROP TABLE, DROP VIEW, ALTER TABLE, TRUNCATE, OPTIMIZE, KILL QUERY, SYSTEM FLUSH LOGS ON *.* TO benchmark;")
             else:
                 version = json.load(opener.open(data['url'], timeout=2))['version']['number']
+                # Owned disposable cluster: keep absolute free-space guards on
+                # shared development disks whose percentage use may exceed 85%.
+                disk = {'persistent': {'cluster.routing.allocation.disk.watermark.low': '10gb',
+                    'cluster.routing.allocation.disk.watermark.high': '5gb',
+                    'cluster.routing.allocation.disk.watermark.flood_stage': '2gb'}}
+                request = urllib.request.Request(data['url']+'/_cluster/settings', data=json.dumps(disk).encode(), method='PUT', headers={'Content-Type':'application/json'})
+                with opener.open(request, timeout=5) as response: json.load(response)
+                data['disk_watermarks'] = disk['persistent']
             data['version'] = version;state.write_text(json.dumps(data));state.chmod(0o600)
             print(json.dumps({k: data[k] for k in ['engine', 'name', 'image', 'version', 'cpus', 'memory_bytes']}))
             return
