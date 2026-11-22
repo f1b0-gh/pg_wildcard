@@ -1,0 +1,15 @@
+{
+  "qualified_source": "650bd17c",
+  "integrated_source": "a15c3912",
+  "main": "60764f20",
+  "renderer_sha256": "3325eb0f1f7d916c36d55670eaa7b405e35684d1f6702b931ac29f8e3e703e33",
+  "comparison": "All four smoke/full specifications JSON-identical after merged sha2 helper. Renderer and lifecycle checker byte-identical.",
+  "checks": [
+    "byte-rebase-test.log:6 example tests pass",
+    "byte-rebase-build.log:release generators rebuilt"
+  ],
+  "direct_worker_sha256": "0c0da005dbd7758a687d23deb0b4e523f034bb7d6804b2cbed77260714f09e0c",
+  "transport_source_sha256": "d9ce4a325bb571c36a133bde959028567bc4a8bb3a94abee7f3ffe03f125adac",
+  "transport_lock_sha256": "1cc5fb24f1248b9f42dad3ff7abf148a17455c844714cede87ee0b7997bb00bc",
+  "pg_extension_sha256": "6c23575ef8e61df9fef3e257783714f706afb904e0f7daab77544f68c08ba036"
+}

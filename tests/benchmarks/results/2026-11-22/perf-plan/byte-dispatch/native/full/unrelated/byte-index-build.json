@@ -1,0 +1,12 @@
+{
+  "ddl": "ALTER TABLE bench_bytes ADD INDEX v_byte_grams ngrams(concat(hex(substring(v, 1, 8192)), if(length(v) > 8192, '_wildcard_overflow_', '')), 6) TYPE text(tokenizer='array') GRANULARITY 1",
+  "build_seconds": 2.23527981299776,
+  "incremental_insert_seconds": 0.8248483569987002,
+  "storage": {
+    "rows": 1000000,
+    "total_bytes": 18066110,
+    "data_compressed_bytes": 9375381,
+    "index_compressed_bytes": 8682418
+  },
+  "scope": "native server-to-server copy and index work; not an end-to-end Elastic ingestion comparison"
+}

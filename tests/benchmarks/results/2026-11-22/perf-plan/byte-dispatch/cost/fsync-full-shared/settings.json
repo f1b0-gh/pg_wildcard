@@ -1,0 +1,37 @@
+{
+  "contract": "configured fsync acknowledgment: native inserted files and part directory; Elastic request translog. No hardware/crash test claim.",
+  "batch_documents": 2000,
+  "rows": 1000000,
+  "corpus_sha256": "843a3e1627c609db8844db2a95203fd76ca0bf9b4a143694bc0b2159688eb082",
+  "operation_order": [
+    "native",
+    "elastic"
+  ],
+  "timer": "HTTP upload and index maintenance through count-confirmed visibility; preparation and compaction separate",
+  "resources": [
+    {
+      "engine": "antalya",
+      "image": "altinityinfra/clickhouse-server@sha256:0989fbcd21552463cff9ef8d7a44bd2213a2c8e1879816f856a744a14b28e77a",
+      "version": "26.8.34.20001.altinityantalya",
+      "memory_bytes": 8589934592,
+      "cpus": 4.0,
+      "heap_bytes": null
+    },
+    {
+      "engine": "elasticsearch",
+      "image": "docker.elastic.co/elasticsearch/elasticsearch@sha256:79b4f1de4c15e6eca824723086a51e5934406d614d410cc11be77748cafac537",
+      "version": "9.5.6",
+      "memory_bytes": 8589934592,
+      "cpus": 4.0,
+      "heap_bytes": 4294967296
+    }
+  ],
+  "source_sha256": "e4c8a6f3482165ac81249076a56dc487697f70a4fa559cae3ffa66f3927f1f8e",
+  "machine": {
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu_count": 12,
+    "cpu_model": "AMD Ryzen 5 PRO 4650U with Radeon Graphics",
+    "host_memory_bytes": 15942414336,
+    "python": "3.12.3"
+  }
+}
