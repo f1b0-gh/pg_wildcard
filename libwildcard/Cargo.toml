@@ -9,11 +9,12 @@ exclude = [".local/**", ".venv/**", "**/__pycache__/**", "*.log", "target/**", "
 
 [features]
 default = []
-hot = ["dep:serde", "dep:serde_json"]
+hot = ["dep:serde", "dep:serde_json", "dep:sha2"]
 puffin = ["dep:serde", "dep:serde_json", "dep:lz4_flex", "dep:zstd"]
 cold = ["hot", "puffin", "dep:parquet", "dep:arrow-array", "dep:arrow-schema"]
 
 [dependencies]
+sha2 = { version = "0.10", optional = true }
 thiserror = "2"
 regex = { version = "1.11", default-features = false, features = ["std", "perf", "unicode"] }
 regex-automata = { version = "0.4", default-features = false, features = ["std", "meta", "perf", "unicode", "nfa-pikevm"] }
@@ -62,3 +63,7 @@ required-features = ["hot"]
 [[example]]
 name = "sweep_benchmark_gen"
 required-features = ["hot"]
+
+[[example]]
+name = "lake_scale_fixture"
+required-features = ["cold"]

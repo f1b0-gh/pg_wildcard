@@ -39,6 +39,7 @@ identity includes the token. Protect catalog access to mapping credentials.
 | Table | `table` | Remote source |
 | Table | `materialized_views` | Off; `true` uses conventional `<col>_<view>` columns |
 | Table | `lake_index` | Optional name in `wc_lake_index` |
+| Table | `lake_known_table` | Optional ClickHouse inventory loaded from `wc-lake export-pg` |
 | Table | `rows` | Optional planner row estimate |
 | Table | `candidate_columns` | Off; bounded comma-separated plain identifiers |
 | Table | `candidate_prewhere` | Off; place candidate filter in PREWHERE when enabled |
@@ -75,8 +76,11 @@ timestamp ordering do not use this optimization.
 
 `lake_index` intersects supported candidates on the indexed column and excludes
 only known impossible files. Unknown appended or rewritten paths remain visible,
-including when no indexed file is a candidate. Path guards over 64 KiB fall back
-to an unrestricted scan. The index must bind immutable file paths; see the
+including when no indexed file is a candidate. `lake_known_table` enables a
+server inventory keyed by a digest of the exact local inventory; selective
+queries send candidates and dense queries send exclusions. Path guards over
+64 KiB fall back to an unrestricted scan, with the reason visible in EXPLAIN.
+The index must bind immutable file paths; see the
 [lake coverage rules](lake.md#coverage-and-snapshot-rules).
 
 PostgreSQL LIKE patterns are parsed and re-emitted with canonical ClickHouse

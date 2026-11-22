@@ -99,12 +99,34 @@ fn index_footer(file: &[u8]) -> Result<puffin::FileMetadata, Error> {
 /// payload and decoded collections use the same bounded legacy policy as the
 /// builder; a malformed first matching blob is an error, not skipped coverage.
 pub fn read_first_index(file: &[u8]) -> Result<Option<(BlobMetadata, NgramIndex)>, Error> {
+    read_first_index_policy(file, index_limits(MAX_INDEX_HEAP_BYTES))
+}
+
+/// Opt-in reader for large, externally assembled file inventories.
+/// Allows at most 65,536 files and 8 MiB of path bytes; preserves the legacy
+/// 16 MiB file, 32 MiB blob, 128 MiB heap and 1 million gram/posting limits.
+/// This does not increase builder admission or change the wire format.
+pub fn read_first_index_large_inventory(
+    file: &[u8],
+) -> Result<Option<(BlobMetadata, NgramIndex)>, Error> {
+    let limits = DecodeLimits {
+        max_files: 65_536,
+        max_path_bytes: 8 << 20,
+        ..index_limits(MAX_INDEX_HEAP_BYTES)
+    };
+    read_first_index_policy(file, limits)
+}
+
+fn read_first_index_policy(
+    file: &[u8],
+    limits: DecodeLimits,
+) -> Result<Option<(BlobMetadata, NgramIndex)>, Error> {
     let meta = index_footer(file)?;
     let Some(blob) = meta.blobs.into_iter().find(|b| b.blob_type == BLOB_TYPE) else {
         return Ok(None);
     };
     let data = puffin::read_blob_limited(file, &blob, MAX_INDEX_BLOB_BYTES)?;
-    let index = NgramIndex::decode_with_policy(&data, index_limits(MAX_INDEX_HEAP_BYTES))?;
+    let index = NgramIndex::decode_with_policy(&data, limits)?;
     Ok(Some((blob, index)))
 }
 

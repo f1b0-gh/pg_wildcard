@@ -462,6 +462,58 @@ fn wc_lake_sql(
     extra_where: default!(Option<&str>, "NULL"),
     materialized: default!(bool, false),
 ) -> Option<String> {
+    Some(lake_sql(
+        index_name,
+        lake_table,
+        select_list,
+        pattern,
+        kind,
+        view,
+        extra_where,
+        materialized,
+        None,
+    ))
+}
+
+/// Coverage-bound server inventory keeps selective guards small on large lakes.
+#[pg_extern(stable)]
+#[allow(clippy::too_many_arguments)]
+fn wc_lake_sql_with_inventory(
+    index_name: &str,
+    lake_table: &str,
+    select_list: &str,
+    pattern: &str,
+    known_table: &str,
+    kind: default!(&str, "'wildcard'"),
+    view: default!(&str, "'raw'"),
+    extra_where: default!(Option<&str>, "NULL"),
+    materialized: default!(bool, false),
+) -> String {
+    lake_sql(
+        index_name,
+        lake_table,
+        select_list,
+        pattern,
+        kind,
+        view,
+        extra_where,
+        materialized,
+        Some(known_table),
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn lake_sql(
+    index_name: &str,
+    lake_table: &str,
+    select_list: &str,
+    pattern: &str,
+    kind: &str,
+    view: &str,
+    extra_where: Option<&str>,
+    materialized: bool,
+    known_table: Option<&str>,
+) -> String {
     let (k, v) = (kind_arg(kind), view_arg(view));
     let column: String = Spi::get_one_with_args(
         "SELECT column_name FROM wc_lake_index WHERE index_name = $1",
@@ -470,28 +522,27 @@ fn wc_lake_sql(
     .ok()
     .flatten()
     .unwrap_or_else(|| error!("pg_wildcard: unknown lake index '{index_name}'"));
-    let (indexed, files, used) = lake_candidates_with_coverage(index_name, pattern, k, v);
+    let (indexed, files, _) = lake_candidates_with_coverage(index_name, pattern, k, v);
     let pred = ch(wildcard_ch::column_predicate(
         &cols_arg(&column, materialized),
         k,
         pattern,
         v,
     ));
-    let guard = used
-        .then(|| wildcard_ch::lake_path_filter(&indexed, &files))
-        .flatten();
-    let extra = match (guard, extra_where) {
-        (Some(guard), Some(extra)) => Some(format!("({guard}) AND ({extra})")),
-        (Some(guard), None) => Some(guard),
-        (None, extra) => extra.map(str::to_owned),
-    };
-    ch(wildcard_ch::lake_query(
+    let (query, strategy) = ch(wildcard_ch::lake_query_with_inventory(
         lake_table,
         select_list,
         &pred,
-        None,
-        extra.as_deref(),
-    ))
+        &indexed,
+        &files,
+        extra_where,
+        known_table,
+    ));
+    if strategy == wildcard_ch::LakeFilterStrategy::FilterBudgetExceeded {
+        format!("/* pg_wildcard: {} */\n{query}", strategy.description())
+    } else {
+        query
+    }
 }
 
 #[cfg(any(test, feature = "pg_test"))]
@@ -746,6 +797,30 @@ mod tests {
         let query = s("SELECT wc_lake_sql('large', 'lake.http', 'url', '*evil.test*')");
         assert!(!query.contains("_path"), "oversized guard must widen");
         assert!(query.contains("like(url, '%evil.test%')"));
+        assert!(query.contains("pruning disabled:"));
+    }
+
+    #[pg_test]
+    fn lake_sql_uses_bound_remote_inventory_for_ten_thousand_paths() {
+        Spi::run("INSERT INTO wc_lake_index VALUES ('remote_scale', 'url', 'raw', 1)").unwrap();
+        Spi::run("INSERT INTO wc_lake_file SELECT 'remote_scale', n, 's3://bucket/' || repeat('x', 90) || '/' || n || '.parquet', 1, n = 0 FROM generate_series(0,9999) n").unwrap();
+        let query = s(
+            "SELECT wc_lake_sql_with_inventory('remote_scale', 'events', 'url', '*needle-marker*', 'inventory.known')",
+        );
+        assert!(query.len() < 65536, "selective guard must stay bounded");
+        assert!(
+            query.contains(
+                "NOT IN (SELECT path FROM inventory.known WHERE index_name = 'wc-lake-v1:"
+            ),
+            "{query}"
+        );
+        assert!(
+            query.contains(" OR _path IN ("),
+            "unknown and candidate files remain eligible"
+        );
+        assert!(query.contains("like(url, '%needle-marker%')"));
+        let fallback = s("SELECT wc_lake_sql('remote_scale', 'events', 'url', '*needle-marker*')");
+        assert!(fallback.contains("pruning disabled:"));
     }
 }
 

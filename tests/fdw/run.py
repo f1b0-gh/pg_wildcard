@@ -132,22 +132,30 @@ try:
     ch_paths = sorted(ch("SELECT DISTINCT _path FROM file('lake/*.parquet', Parquet)").split())
     mapping = [f"{work}/lake/f{f}.parquet={next(p for p in ch_paths if p.endswith(f'f{f}.parquet'))}" for f in range(8)]
     sh(WC_LAKE, "index", "--column", "url", "--views", "raw,lower,decoded,revdomain", "--snapshot-id", "1", "--out", f"{work}/lk.puffin", *mapping)
-    sh(WC_LAKE, "export-pg", f"{work}/lk.puffin", "--name", "lk", "--out-dir", f"{work}/lk")
+    sh(WC_LAKE, "export-pg", f"{work}/lk.puffin", "--name", "lk", "--out-dir", f"{work}/lk", "--known-table", "d.wc_lake_known")
     for t, f in [("wc_lake_index (index_name, column_name, views, snapshot_id)", "index"), ("wc_lake_file", "files"), ("wc_lake_gram", "grams")]:
         psql(f"\\copy {t} FROM '{work}/lk/{f}.csv' CSV")
     psql("CREATE FOREIGN TABLE lake_http (id bigint, url text) SERVER ch OPTIONS (table 'file(''lake/*.parquet'', Parquet)', lake_index 'lk')")
+    for artifact in ["known-schema.sql"]:
+        with open(f"{work}/lk/{artifact}") as source:
+            ch(source.read())
+    with open(f"{work}/lk/known-insert.sql") as header, open(f"{work}/lk/known.csv") as rows:
+        ch(header.read() + "\n" + rows.read())
+    psql("CREATE FOREIGN TABLE lake_inventory (id bigint, url text) SERVER ch OPTIONS (table 'file(''lake/*.parquet'', Parquet)', lake_index 'lk', lake_known_table 'd.wc_lake_known')")
     psql("CREATE FOREIGN TABLE lake_full (id bigint, url text) SERVER ch OPTIONS (table 'file(''lake/*.parquet'', Parquet)')")
     lake_cases = [("wc_match(url, '*/wp-admin/*', 'decoded')", True),
                   ("wc_like(url, 'com.evil.%', 'revdomain')", True),
                   ("wc_regex(url, 'powershell', true, 'lower')", True),
                   ("wc_match(url, '*/static/app.js', 'raw')", False)]
     for c, expect_pruning in lake_cases:
-        a = psql(f"SELECT coalesce(string_agg(id::text, ',' ORDER BY id), '') FROM lake_http WHERE {c}")
         b = psql(f"SELECT coalesce(string_agg(id::text, ',' ORDER BY id), '') FROM lake_full WHERE {c}")
-        plan = psql(f"EXPLAIN (VERBOSE, COSTS OFF) SELECT id FROM lake_http WHERE {c}")
-        files = [l.strip() for l in plan.split("\n") if "Lake files" in l]
-        check(a == b and bool(files) == expect_pruning and a != "", f"lake {c[:45]:45} rows={len(a.split(','))} identical={a == b} {files[0] if files else 'no pruning'}")
-    for table in ["http_local", "http_plain", "http_candidate", "lake_http"]:
+        for table in ["lake_http", "lake_inventory"]:
+            a = psql(f"SELECT coalesce(string_agg(id::text, ',' ORDER BY id), '') FROM {table} WHERE {c}")
+            plan = psql(f"EXPLAIN (VERBOSE, COSTS OFF) SELECT id FROM {table} WHERE {c}")
+            files = [l.strip() for l in plan.split("\n") if "Lake files" in l]
+            guarded = "_path NOT IN (" in plan
+            check(a == b and guarded == expect_pruning and bool(files) and a != "", f"{table} {c[:45]:45} rows={len(a.split(','))} identical={a == b} {files[0] if files else 'no pruning'}")
+    for table in ["http_local", "http_plain", "http_candidate", "lake_http", "lake_inventory"]:
         try:
             psql(f"SELECT count(*) FROM {table} WHERE url LIKE " + r"E'abc\\'")
             check(False, f"dangling LIKE escape must still raise on {table}")
@@ -156,20 +164,22 @@ try:
     # An append after indexing must remain visible, even with zero indexed candidates.
     pq.write_table(pa.table({"id": [900001], "url": ["/wp-admin/newly-appended-marker"]}, schema=schema), f"{work}/lake/appended.parquet")
     for c in ["wc_match(url, '*newly-appended-marker*')", "wc_match(url, '*/wp-admin/*')"]:
-        a = psql(f"SELECT array_agg(id ORDER BY id) FROM lake_http WHERE {c}")
         b = psql(f"SELECT array_agg(id ORDER BY id) FROM lake_full WHERE {c}")
-        check(a == b and "900001" in a, f"post-index append remains visible: {c}")
+        for table in ["lake_http", "lake_inventory"]:
+            a = psql(f"SELECT array_agg(id ORDER BY id) FROM {table} WHERE {c}")
+            check(a == b and "900001" in a, f"{table} post-index append remains visible: {c}")
     # prove skipping: truncate a file that is not a candidate for the wp-admin query
     victim = f"{work}/lake/f0.parquet"
     with open(victim, "r+b") as fh:
         fh.truncate(os.path.getsize(victim) // 2)
-    ok_pruned = True
-    try: psql("SELECT count(*) FROM lake_http WHERE wc_match(url, '*/wp-admin/*', 'decoded')")
-    except subprocess.CalledProcessError: ok_pruned = False
     ok_full = True
     try: psql("SELECT count(*) FROM lake_full WHERE wc_match(url, '*/wp-admin/*', 'decoded')")
     except subprocess.CalledProcessError: ok_full = False
-    check(ok_pruned and not ok_full, f"truncated non-candidate file: pruned query ok={ok_pruned}, full query ok={ok_full}")
+    for table in ["lake_http", "lake_inventory"]:
+        ok_pruned = True
+        try: psql(f"SELECT count(*) FROM {table} WHERE wc_match(url, '*/wp-admin/*', 'decoded')")
+        except subprocess.CalledProcessError: ok_pruned = False
+        check(ok_pruned and not ok_full, f"{table} truncated non-candidate file: pruned query ok={ok_pruned}, full query ok={ok_full}")
 except subprocess.CalledProcessError as e:
     print("ERROR:", e.stderr)
     failures += 1

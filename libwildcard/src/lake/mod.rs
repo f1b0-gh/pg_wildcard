@@ -186,6 +186,41 @@ pub fn export_pg(
     Ok(())
 }
 
+/// Export a concrete ClickHouse inventory loader alongside the Postgres CSVs.
+/// Keys bind the complete path set, never the mutable Postgres index name.
+/// Execute `known-schema.sql`, then pipe `known.csv` to clickhouse-client with
+/// `--query="$(cat known-insert.sql)"`. Partial loads only widen scans.
+pub fn export_known_inventory(
+    index: &NgramIndex,
+    table: &str,
+    dir: &Path,
+) -> Result<(), LakeError> {
+    if table.len() > 1024 || crate::antalya::ident(table).is_err() {
+        return Err(LakeError::Invalid("invalid known inventory table"));
+    }
+    std::fs::create_dir_all(dir)?;
+    let paths: Vec<_> = index.files.iter().map(|file| file.path.clone()).collect();
+    let coverage = crate::antalya::lake_coverage_id(&paths);
+    let q = |s: &str| format!("\"{}\"", s.replace('"', "\"\""));
+    let mut output = std::io::BufWriter::new(File::create(dir.join("known.csv"))?);
+    for path in std::collections::BTreeSet::from_iter(paths) {
+        writeln!(output, "{},{}", q(&coverage), q(&path))?;
+    }
+    output.flush()?;
+    std::fs::write(dir.join("coverage-id.txt"), format!("{coverage}\n"))?;
+    std::fs::write(
+        dir.join("known-schema.sql"),
+        format!(
+            "CREATE TABLE IF NOT EXISTS {table} (index_name String, path String) ENGINE = MergeTree ORDER BY (index_name, path);\n"
+        ),
+    )?;
+    std::fs::write(
+        dir.join("known-insert.sql"),
+        format!("INSERT INTO {table} (index_name, path) FORMAT CSV"),
+    )?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use std::sync::Arc;

@@ -14,7 +14,8 @@
 //! (`k=v,k=v`, from a narrow allowlist), `timeout_ms`. User mapping option:
 //! `bearer_token` (legacy `user`/`password` is refused). Table options: `table` (ClickHouse table or table function),
 //! `materialized_views` (`true`: use `<col>_<view>` columns), `lake_index`
-//! (name in `wc_lake_index`), `rows` (row estimate).
+//! (name in `wc_lake_index`), `lake_known_table` (optional content-addressed
+//! ClickHouse inventory from `wc-lake export-pg`), `rows` (row estimate).
 
 #![cfg_attr(not(test), deny(clippy::unwrap_used, clippy::expect_used))]
 
@@ -83,6 +84,7 @@ unsafe fn options(relid: pg_sys::Oid) -> HashMap<String, String> {
                 "table"
                     | "materialized_views"
                     | "lake_index"
+                    | "lake_known_table"
                     | "rows"
                     | "settings"
                     | "candidate_columns"
@@ -418,11 +420,12 @@ unsafe fn deparse(
 /// Returns (condition, summary for EXPLAIN).
 unsafe fn lake_filter(
     index: &str,
+    known_table: Option<&str>,
     quals: &[*mut pg_sys::Node],
     relid: pg_sys::Oid,
     scanrelid: u32,
     materialized: bool,
-) -> Option<(String, String)> {
+) -> Option<(Option<String>, String)> {
     unsafe {
         let column: String = Spi::get_one_with_args(
             "SELECT column_name FROM wc_lake_index WHERE index_name = $1",
@@ -450,13 +453,16 @@ unsafe fn lake_filter(
         }
         let set = set?;
         let candidates: Vec<String> = set.into_iter().collect();
-        let condition = wildcard_ch::lake_path_filter(&indexed, &candidates)?;
+        let filter =
+            wildcard_ch::lake_path_filter_with_inventory(&indexed, &candidates, known_table)
+                .unwrap_or_else(|_| error!("wildcard_fdw: invalid lake inventory configuration"));
         let summary = format!(
-            "{} of {} indexed files; unknown files retained (index {index})",
+            "{} of {} indexed files; unknown files retained (index {index}); {}",
             candidates.len(),
-            indexed.len()
+            indexed.len(),
+            filter.strategy.description(),
         );
-        Some((condition, summary))
+        Some((filter.condition, summary))
     }
 }
 
@@ -573,10 +579,18 @@ unsafe extern "C-unwind" fn get_foreign_plan(
             .collect();
         let mut lake_summary = String::new();
         if let Some(index) = o.get("lake_index")
-            && let Some((cond, summary)) =
-                lake_filter(index, &quals, relid, scanrelid, materialized)
+            && let Some((cond, summary)) = lake_filter(
+                index,
+                o.get("lake_known_table").map(String::as_str),
+                &quals,
+                relid,
+                scanrelid,
+                materialized,
+            )
         {
-            pushed.insert(0, cond);
+            if let Some(cond) = cond {
+                pushed.insert(0, cond);
+            }
             lake_summary = summary;
         }
         let automatic = match o

@@ -70,4 +70,33 @@ BEGIN
     END IF;
 END
 $$;
+
+-- Planning a selective query over 10,000 immutable paths stays compact and
+-- performs no network request (coverage_source deliberately has no endpoint).
+INSERT INTO wc_lake_index(index_name, column_name, views, snapshot_id)
+VALUES ('regression_scale', 'url', 'raw', 2);
+INSERT INTO wc_lake_file
+SELECT 'regression_scale', n, 's3://lake/data/' || lpad(n::text, 8, '0') || '.parquet', 1, n = 0
+FROM generate_series(0, 9999) AS n;
+CREATE FOREIGN TABLE lake_scaled(url text)
+ SERVER coverage_source OPTIONS (table 'events', lake_index 'regression_scale', lake_known_table 'wc_lake_known');
+DO $scale$
+DECLARE plan jsonb; remote text; reason text;
+BEGIN
+ EXECUTE $q$EXPLAIN (FORMAT JSON) SELECT * FROM lake_scaled WHERE wc_match(url, '*needle*')$q$ INTO plan;
+ remote := plan->0->'Plan'->>'ClickHouse SQL';
+ reason := plan->0->'Plan'->>'Lake files';
+ IF remote NOT LIKE '%SELECT path FROM wc_lake_known WHERE index_name = ''wc-lake-v1:%'
+    OR length(remote) > 1024 OR reason NOT LIKE '%server inventory%' THEN
+  RAISE EXCEPTION 'expected compact coverage-bound server inventory: %, %', remote, reason;
+ END IF;
+ ALTER FOREIGN TABLE lake_scaled OPTIONS (DROP lake_known_table);
+ EXECUTE $q$EXPLAIN (FORMAT JSON) SELECT * FROM lake_scaled WHERE wc_match(url, '*needle*')$q$ INTO plan;
+ remote := plan->0->'Plan'->>'ClickHouse SQL';
+ reason := plan->0->'Plan'->>'Lake files';
+ IF remote LIKE '%_path%' OR reason NOT LIKE '%exceeds 64 KiB%' THEN
+  RAISE EXCEPTION 'expected visible conservative overflow: %, %', remote, reason;
+ END IF;
+END $scale$;
+
 ROLLBACK;

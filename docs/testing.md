@@ -51,15 +51,22 @@ for seed in 1 42 1234; do
   cargo run --locked -q --manifest-path libwildcard/Cargo.toml --features hot --example difftest_gen -- "$seed" |
     python3 libwildcard/tests/differential/run.py
 done
-cargo build --locked --manifest-path libwildcard/Cargo.toml --features cold --bin wc-lake
-python3 libwildcard/tests/lake/iceberg_e2e.py libwildcard/target/debug/wc-lake
+cargo build --locked --manifest-path libwildcard/Cargo.toml --features cold --bin wc-lake --example lake_scale_fixture
+python3 libwildcard/tests/lake/iceberg_e2e.py libwildcard/target/debug/wc-lake \
+  libwildcard/target/debug/examples/lake_scale_fixture
 ```
 
 If `CARGO_TARGET_DIR` is set, use its `debug/wc-lake` path instead. The lake test
 creates its own table under the current directory, compares pruned and full
 results, checks append-after-index coverage, and corrupts a generated
-non-candidate file to prove the engine skips it. It removes that directory on
-success; failures retain it for inspection.
+non-candidate file to prove the engine skips it. The optional scale fixture
+extends the local inventory to 10,000 paths (including empty historical files
+absent from the current snapshot); the test loads the CLI-exported server
+inventory and executes CLI-generated SQL. It checks stale generations, partial
+loads, append preservation and physical skipping by fresh engines. It removes
+its temporary directory on success; failures retain it for inspection. Run from
+`.local/` with absolute executable/script paths to keep experiment artifacts
+there.
 
 chDB validates the embedded engine version installed in the environment. For a
 specific Antalya build, also run the native fixture. The standalone helper
