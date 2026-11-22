@@ -98,6 +98,20 @@ known_schema = open(os.path.join(export_dir, "known-schema.sql")).read()
 known_insert = open(os.path.join(export_dir, "known-insert.sql")).read()
 known_csv = open(os.path.join(export_dir, "known.csv")).read()
 coverage_id = open(os.path.join(export_dir, "coverage-id.txt")).read().strip()
+# Ranking statistics are observed file counts, bound to this exported inventory.
+frequency_meta = json.load(open(os.path.join(export_dir, "gram-frequencies.json")))
+assert frequency_meta["format"] == "wildcard-gram-file-counts-v1"
+assert frequency_meta["coverage_id"] == coverage_id
+assert frequency_meta["column"] == "url"
+assert frequency_meta["snapshot_id"] == snap.snapshot_id
+assert frequency_meta["missing_count"] == "unknown"
+assert "max-value-bytes" in frequency_meta["source_properties"]
+frequencies = {int(row["gram_key"]): int(row["file_count"])
+               for row in csv.DictReader(open(os.path.join(export_dir, "gram-frequencies.csv")))}
+postings = {int(row[1]): len(row[2].strip("{}").split(",")) if row[2] != "{}" else 0
+            for row in csv.reader(open(os.path.join(export_dir, "grams.csv")))}
+assert frequencies == postings
+assert frequency_meta["gram_count"] == len(frequencies)
 # Independently reproduce the versioned, length-framed inventory identity.
 def coverage(paths):
     paths = sorted(set(paths))

@@ -264,6 +264,69 @@ fn wc_ch_sweep(
     SetOfIterator::new(qs)
 }
 
+/// Sweep queries with explicit byte/AST budgets and scan diagnostics.
+#[pg_extern(immutable, parallel_safe)]
+#[allow(clippy::too_many_arguments, clippy::type_complexity)]
+fn wc_ch_sweep_plan(
+    source: &str,
+    select_cols: Vec<String>,
+    col: &str,
+    ids: Vec<i64>,
+    regexes: Vec<String>,
+    views: Vec<String>,
+    max_ast_nodes: default!(i32, 45000),
+    max_query_bytes: default!(i32, 200000),
+    filter: default!(Option<&str>, "NULL"),
+    materialized: default!(bool, false),
+) -> TableIterator<
+    'static,
+    (
+        name!(query, String),
+        name!(strategy, String),
+        name!(source_scans, i64),
+        name!(estimated_ast_nodes, i64),
+        name!(exact_only_items, i64),
+    ),
+> {
+    if ids.len() != regexes.len() || ids.len() != views.len() {
+        error!("pg_wildcard: ids, regexes and views must have the same length");
+    }
+    if max_ast_nodes <= 0 || max_query_bytes <= 0 {
+        error!("pg_wildcard: sweep budgets must be positive");
+    }
+    let items: Vec<_> = ids
+        .into_iter()
+        .zip(regexes)
+        .zip(views)
+        .map(|((id, regex), view)| SweepItem {
+            id,
+            regex,
+            view: view_arg(&view),
+        })
+        .collect();
+    let sel: Vec<_> = select_cols.iter().map(String::as_str).collect();
+    let plan = ch(wildcard_ch::sweep_queries_with_options(
+        source,
+        &sel,
+        &cols_arg(col, materialized),
+        &items,
+        filter,
+        wildcard_ch::SweepOptions {
+            max_bytes: max_query_bytes as usize,
+            max_ast_nodes: max_ast_nodes as usize,
+        },
+    ));
+    let scans = plan.source_scan_count as i64;
+    let exact = plan.exact_only_items as i64;
+    let strategy = plan.strategy.name().to_owned();
+    TableIterator::new(
+        plan.queries
+            .into_iter()
+            .zip(plan.estimated_ast)
+            .map(move |(query, nodes)| (query, strategy.clone(), scans, nodes as i64, exact)),
+    )
+}
+
 /// DDL for a ClickHouse watchlist: indicator table + materialized view writing hits.
 #[pg_extern(immutable, parallel_safe)]
 #[allow(clippy::too_many_arguments)]
@@ -639,6 +702,16 @@ mod tests {
                 .unwrap(),
             1
         );
+    }
+
+    #[pg_test]
+    fn sweep_diagnostics_use_explicit_budgets() {
+        assert!(b(
+            "SELECT bool_and(source_scans = 1 AND estimated_ast_nodes > 0 AND strategy = 'constant_candidates') FROM wc_ch_sweep_plan('logs', ARRAY['id'], 'url', ARRAY[1,2]::bigint[], ARRAY['abc','def'], ARRAY['raw','raw'])"
+        ));
+        assert!(b(
+            "SELECT bool_and(source_scans <= 2 AND estimated_ast_nodes <= 45000) FROM wc_ch_sweep_plan('logs', ARRAY['id'], 'url', ARRAY(SELECT n::bigint FROM generate_series(0,999) n), ARRAY(SELECT 'evil' || lpad(n::text,4,'0') || '\\.example' FROM generate_series(0,999) n), array_fill('raw'::text,ARRAY[1000]))"
+        ));
     }
 
     #[pg_test]
