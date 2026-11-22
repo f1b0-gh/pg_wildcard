@@ -58,7 +58,7 @@ try:
             time.sleep(0.2)
 
     psql("CREATE EXTENSION pg_wildcard")
-    for regression in ["planner_predicates.sql"]:
+    for regression in ["planner_predicates.sql", "planner_identity.sql"]:
         with open(os.path.join(HERE, regression)) as source:
             psql(source.read())
         check(True, f"planner regression: {regression}")
