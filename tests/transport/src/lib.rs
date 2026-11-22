@@ -106,9 +106,9 @@ impl Scenario {
         };
         Query::new(sql, id)
             .map_err(|_| Error::Configuration("query construction"))?
-            .typed_parameter("source", Parameter::UInt64(self.source_rows))
+            .parameter("source", Parameter::UInt64(self.source_rows))
             .map_err(|_| Error::Configuration("query construction"))?
-            .typed_parameter("limit", Parameter::UInt64(self.rows as u64))
+            .parameter("limit", Parameter::UInt64(self.rows as u64))
             .map_err(|_| Error::Configuration("query construction"))
     }
     pub fn fingerprints(&self) -> Result<(String, String)> {
