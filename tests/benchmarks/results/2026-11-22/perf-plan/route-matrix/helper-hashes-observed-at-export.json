@@ -1,0 +1,7 @@
+{
+  "tests/benchmarks/compare_routes.py": "ffeafc62edaa17983b49ad2e91c73f79ec9cd669e4fa2a2cd0c40ce58bb405ce",
+  "tests/benchmarks/comparison.py": "b1797b7b7ae36413c850f8a3f400c1b9bdba614a6bb909c3d3cb3e720bd702b1",
+  "tests/benchmarks/route_workers.py": "de6894fe352a1073a91b6444a9a840b25faed2547dc571163a25064f59220304",
+  "tests/benchmarks/elasticsearch.py": "e56be928b122a7b1ac69e802d09bc39e2388f5bb34f0eae76cef465f843e1393",
+  "libwildcard/tests/benchmarks/sweeps.py": "1798a4c5cd9649aca9b0c513a4d8dd446a7a668ad71f1aa13c560dbf2040029a"
+}

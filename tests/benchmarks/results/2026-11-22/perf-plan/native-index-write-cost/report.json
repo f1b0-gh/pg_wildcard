@@ -1,0 +1,168 @@
+{
+  "cases": [
+    {
+      "strategy": "plain",
+      "stage": "initial_900k",
+      "repetitions": 5,
+      "request_seconds": {
+        "median": 0.5860998790012673,
+        "min": 0.4434570559824351,
+        "max": 0.666719317989191
+      },
+      "server_ms": {
+        "median": 582,
+        "min": 441,
+        "max": 664
+      },
+      "native_cpu_ms": {
+        "median": 559.66,
+        "min": 483.323,
+        "max": 584.031
+      },
+      "query_peak_mib": {
+        "median": 13.289047241210938,
+        "min": 12.227636337280273,
+        "max": 15.711724281311035
+      },
+      "read_rows": {
+        "median": 901120,
+        "min": 901120,
+        "max": 901120
+      }
+    },
+    {
+      "strategy": "plain",
+      "stage": "incremental_100k",
+      "repetitions": 5,
+      "request_seconds": {
+        "median": 0.07592096598818898,
+        "min": 0.06433649099199101,
+        "max": 0.10416094498941675
+      },
+      "server_ms": {
+        "median": 73,
+        "min": 62,
+        "max": 90
+      },
+      "native_cpu_ms": {
+        "median": 69.814,
+        "min": 60.542,
+        "max": 71.336
+      },
+      "query_peak_mib": {
+        "median": 9.158958435058594,
+        "min": 9.158958435058594,
+        "max": 9.159019470214844
+      },
+      "read_rows": {
+        "median": 107072,
+        "min": 107072,
+        "max": 107072
+      }
+    },
+    {
+      "strategy": "byte_index",
+      "stage": "initial_900k",
+      "repetitions": 5,
+      "request_seconds": {
+        "median": 3.881037228013156,
+        "min": 3.5711415089899674,
+        "max": 4.829610918997787
+      },
+      "server_ms": {
+        "median": 3873,
+        "min": 3567,
+        "max": 4826
+      },
+      "native_cpu_ms": {
+        "median": 3745.085,
+        "min": 3475.192,
+        "max": 4318.968
+      },
+      "query_peak_mib": {
+        "median": 51.772950172424316,
+        "min": 50.714576721191406,
+        "max": 52.82907295227051
+      },
+      "read_rows": {
+        "median": 901120,
+        "min": 901120,
+        "max": 901120
+      }
+    },
+    {
+      "strategy": "byte_index",
+      "stage": "incremental_100k",
+      "repetitions": 5,
+      "request_seconds": {
+        "median": 0.48566712098545395,
+        "min": 0.39163461499265395,
+        "max": 0.5734777940087952
+      },
+      "server_ms": {
+        "median": 483,
+        "min": 388,
+        "max": 565
+      },
+      "native_cpu_ms": {
+        "median": 455.868,
+        "min": 383.502,
+        "max": 505.646
+      },
+      "query_peak_mib": {
+        "median": 46.7549934387207,
+        "min": 46.75497817993164,
+        "max": 46.7549934387207
+      },
+      "read_rows": {
+        "median": 107072,
+        "min": 107072,
+        "max": 107072
+      }
+    }
+  ],
+  "storage": {
+    "plain": {
+      "total_bytes": {
+        "median": 9383542,
+        "min": 9383542,
+        "max": 9383542
+      },
+      "data_compressed_bytes": {
+        "median": 9375381,
+        "min": 9375381,
+        "max": 9375381
+      },
+      "index_compressed_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "byte_index": {
+      "total_bytes": {
+        "median": 15554355,
+        "min": 15554355,
+        "max": 15554355
+      },
+      "data_compressed_bytes": {
+        "median": 9375381,
+        "min": 9375381,
+        "max": 9375381
+      },
+      "index_compressed_bytes": {
+        "median": 6170663,
+        "min": 6170663,
+        "max": 6170663
+      }
+    }
+  },
+  "corpus_sha256": "7b521c2f2a5021e408a3e7b1057b971108edc482ccb403a62aaa9321c7a8a889",
+  "query_profiles_recovered": 20,
+  "sources": {
+    "raw.jsonl": "946f236854ca312da4f1fc3800b81804a7b610576c0ab0c8910fc5482fffc8d8",
+    "summary.json": "854a92b00970c463628a354d6c955471fce61e159054ab0e4d68c22c7d4270d7",
+    "recovered-profiles.json": "b404fb58cd980ab3c37f5ed8a5a72eade6e0e154d9a70c68aee64f0f5f9a4f47"
+  },
+  "provenance": "original timings; post-run recovery of exact INSERT profiles; machine snapshot unavailable at start"
+}

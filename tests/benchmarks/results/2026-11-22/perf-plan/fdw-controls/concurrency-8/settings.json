@@ -1,0 +1,103 @@
+{
+  "label": "baseline-c8",
+  "concurrency": 8,
+  "policy": "in_band",
+  "batch_bytes": 16777216,
+  "repeats": 1,
+  "workloads": [
+    "narrow",
+    "wide1k"
+  ],
+  "routes": [
+    "direct",
+    "pg_backend",
+    "pg_copy"
+  ],
+  "engine": "26.8.34.20001.altinityantalya",
+  "machine": {
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu_count": 12,
+    "cpu_model": "AMD Ryzen 5 PRO 4650U with Radeon Graphics",
+    "host_memory_bytes": 15942422528,
+    "python": "3.12.3"
+  },
+  "host_load": [
+    15.72998046875,
+    12.33740234375,
+    14.97314453125
+  ],
+  "pg_pids": [
+    18378,
+    18386,
+    18394,
+    18402,
+    18409,
+    18417,
+    18425,
+    18433
+  ],
+  "direct_setup": [
+    {
+      "process_ms": 32.02193998731673,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 19.237498,
+      "ready": true
+    },
+    {
+      "process_ms": 15.30893801827915,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.222042,
+      "ready": true
+    },
+    {
+      "process_ms": 15.0493289984297,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.165259,
+      "ready": true
+    },
+    {
+      "process_ms": 14.750119997188449,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 10.821001,
+      "ready": true
+    },
+    {
+      "process_ms": 15.759428002638742,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.680286,
+      "ready": true
+    },
+    {
+      "process_ms": 15.113586006918922,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.437648999999999,
+      "ready": true
+    },
+    {
+      "process_ms": 15.840097999898717,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 10.949303,
+      "ready": true
+    },
+    {
+      "process_ms": 15.227150986902416,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 10.833992,
+      "ready": true
+    }
+  ],
+  "pg_setup": [
+    190.90225399122573,
+    211.0748160048388,
+    181.8093920010142,
+    184.19329199241474,
+    186.66519501130097,
+    212.4774869880639,
+    208.687288017245,
+    183.48089102073573
+  ],
+  "timer": "warm connections; request through fully written TCP COPY file or all Arrow batches; backend executor TIMING OFF separate; value checks outside timed samples",
+  "memory": "sampled backend RSS/HWM/threads separate from max individual BudgetedBatch; no assertion RSS <= batch budget",
+  "direct_worker_sha256": "9d9701ca07d70951571ce7b890b0835b9f9538230e51381f0ee9dece345cf90b",
+  "runner_sha256": "212577948d29713eae349098b34fc496f83991c7907e6e81ffe778f7b96689c7"
+}

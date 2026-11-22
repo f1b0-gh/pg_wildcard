@@ -185,6 +185,25 @@ def cohorts(route, workers, action, expected, out, warmup, repeat, observe=None)
     return record
 
 
+def cancel_native_queries(engine):
+    engine.query("KILL QUERY WHERE query_id != currentQueryID() AND (startsWith(query_id,"+sweeps.literal(engine.prefix)+") OR (database="+sweeps.literal(engine.database)+" AND (startsWith(query_id,'comparison-direct-') OR startsWith(query_id,'wildcard-')))) SYNC",logging=False)
+
+
+def pg_precontrol(workers, sql, expected, canary_sql, canary_expected, cancel):
+    """A bounded PG precheck can censor PG routes, never correctness failures."""
+    for index, worker in enumerate(workers):
+        stage='full_copy'
+        try:
+            proof=worker.request(sql);verify_pairs(proof['pairs'],expected)
+            stage='canary'
+            proof=worker.request(canary_sql);verify_pairs(proof['pairs'],canary_expected)
+        except TimeoutError as error:
+            for session in workers:session.close()
+            cancel()
+            return {'stage':stage,'worker':index,'error':str(error),'cleanup_confirmed':True}
+    return None
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('spec',type=Path);parser.add_argument('--native-state',type=Path,required=True)
@@ -203,6 +222,7 @@ def main():
     args.out.mkdir(parents=True);out=args.out
     (out/'spec.json').write_text(json.dumps(spec,sort_keys=True)+'\n')
     engine=None;elastic=None;indexes={};direct=[];pg=[];admin=None;schema=None
+    pg_setup=[];precontrol_failure=None
     private=json.loads(args.native_state.read_text());pg_state={'schema':None}
     try:
         engine=sweeps.Engine(args.native_state,timeout_seconds=60)
@@ -252,10 +272,14 @@ def main():
                 return 'SELECT * FROM ('+' UNION ALL '.join(selects)+') AS all_pairs LIMIT 100001'
             pgsql=pg_tables(queries,'batch');canary_pgsql=pg_tables(canary_queries,'canary')
             for i in range(args.concurrency):pg.append(PgWorker(args.pg_container,ROOT,out/f'pg-{i}.private.log'))
-            for worker in pg:
-                proof=worker.request(pgsql);verify_pairs(proof['pairs'],expected)
-                proof=worker.request(canary_pgsql);verify_pairs(proof['pairs'],canary_expected)
-            emit(out,kind='canary',route='postgres',pairs=len(canary_expected),timed=False)
+            pg_setup=[{'process_ms':w.setup_ms,'backend_pid':w.pid} for w in pg]
+            precontrol_failure=pg_precontrol(pg,pgsql,expected,canary_pgsql,canary_expected,lambda:cancel_native_queries(engine))
+            if precontrol_failure:
+                precontrol_failure['routes']=[r for r in routes if r.startswith('pg_')]
+                emit(out,kind='precontrol_failure',timed=False,**precontrol_failure)
+                pg=[]
+            else:
+                emit(out,kind='canary',route='postgres',pairs=len(canary_expected),timed=False)
         versions={'postgres':None,'elastic':None}
         if admin:
             admin.execute('SELECT version();');versions['postgres']=admin.file.read_text().strip()
@@ -269,7 +293,8 @@ def main():
                   'elastic_fixture':{k:v for k,v in json.loads(args.elastic_state.read_text()).items() if k in ('image','cpus','memory_bytes','version')} if elastic else None,
                   'native_max_threads_per_query':4,
                   'direct_setup':[{'process_ms':w.setup_ms,**w.ready} for w in direct],
-                  'pg_setup':[{'process_ms':w.setup_ms,'backend_pid':w.pid} for w in pg],
+                  'pg_setup':pg_setup,
+                  'precontrol_failure':precontrol_failure,
                   'timer':'request through complete consumption; exact validation/hash after timing; PG backend executor separate from EXPLAIN request; direct/PG sessions reused',
                   'cache':'one untimed warmup; query caches disabled; filesystem cache uncontrolled',
                   'failures':'60s per server query; sweeps completed after60s are rejected even on the last response. HTTP idle/client deadlines bound overdue work; cancellation is confirmed before the next variant. First failure censors remaining samples of that route.'}
@@ -298,7 +323,7 @@ def main():
                 if len(raw)>65536:raise ValueError('monitor response bound')
                 row=json.loads(raw)['data'][0]
             return {'sample_time':time.monotonic(),'active_queries':int(row[0]),'query_memory_bytes':int(row[1]),'client_processes':processes}
-        disabled=set();all_records=[]
+        disabled=set(precontrol_failure['routes'] if precontrol_failure else []);all_records=[]
         for warmup,repeat,route in schedule(routes,args.repeats):
             if route in disabled:continue
             def action(worker):
@@ -318,7 +343,7 @@ def main():
             if any('error' in r for r in record['results']):
                 # Finish cancellation before another timed variant. The database
                 # and opaque ID belong only to this invocation.
-                engine.query("KILL QUERY WHERE query_id != currentQueryID() AND (startsWith(query_id,"+sweeps.literal(engine.prefix)+") OR (database="+sweeps.literal(engine.database)+" AND (startsWith(query_id,'comparison-direct-') OR startsWith(query_id,'wildcard-')))) SYNC",logging=False)
+                cancel_native_queries(engine)
                 if route=='direct':
                     for worker in direct:worker.close()
                     direct=[]

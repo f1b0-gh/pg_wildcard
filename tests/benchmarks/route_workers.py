@@ -93,7 +93,15 @@ class PgWorker:
             if time.monotonic()>=deadline or not select.select([self.process.stdout],[],[],max(0,deadline-time.monotonic()))[0]:
                 raise TimeoutError('PG worker deadline')
             chunk=os.read(self.process.stdout.fileno(),65536)
-            if not chunk: raise RuntimeError('psql failed; inspect private worker log')
+            if not chunk:
+                # Classify the observed server timeout without exposing private SQL
+                # or credentials from stderr. Other psql failures remain fatal.
+                with open(self.log.name, 'rb') as log:
+                    log.seek(0, os.SEEK_END)
+                    log.seek(max(0, log.tell()-65536))
+                    if b'ERROR:  canceling statement due to statement timeout' in log.read().splitlines():
+                        raise TimeoutError('PostgreSQL statement timeout')
+                raise RuntimeError('psql failed; inspect private worker log')
             self.pending.extend(chunk)
             if len(self.pending)>MAX_BYTES: raise ValueError('PG protocol output bound')
         elapsed=(time.monotonic()-start)*1000

@@ -139,6 +139,11 @@ EXPLAIN clocks remain separate, and all-indicator canaries exercise batches
 whose indicators are absent from a 1% source sample. Native query-log reads and
 query memory are separate from client overlap, backend RSS and container limits.
 Timeouts/resource failures are censored records, never successful samples.
+If the PostgreSQL full-result precheck times out, both requested PostgreSQL
+routes are censored before timing. The runner records `precontrol_failure`,
+closes their sessions and confirms cancellation of owned native queries before
+continuing other routes. Result mismatches and unexpected precheck errors remain
+fatal. A censored precheck supplies no latency sample or correctness claim.
 
 The index counterpart uses the existing materialized-column/text-index DDL.
 Its actual EXPLAIN, source digest, index bytes and incremental insertion cost

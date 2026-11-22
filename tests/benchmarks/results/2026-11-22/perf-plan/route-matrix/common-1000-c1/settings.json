@@ -1,0 +1,95 @@
+{
+  "versions": {
+    "postgres": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "elastic": "9.5.6"
+  },
+  "schema": "wildcard-route-measurement-v1",
+  "engine": "26.8.34.20001.altinityantalya",
+  "engine_image": "altinityinfra/clickhouse-server@sha256:0989fbcd21552463cff9ef8d7a44bd2213a2c8e1879816f856a744a14b28e77a",
+  "engine_resources": {
+    "cpus": 4,
+    "memory_bytes": 8589934592
+  },
+  "machine": {
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu_count": 12,
+    "cpu_model": "AMD Ryzen 5 PRO 4650U with Radeon Graphics",
+    "host_memory_bytes": 15942414336,
+    "python": "3.12.3"
+  },
+  "host_load": [
+    13.39306640625,
+    14.16015625,
+    13.267578125
+  ],
+  "settings": {
+    "max_threads": 4,
+    "max_block_size": 8192,
+    "max_insert_block_size": 8192,
+    "min_insert_block_size_rows": 8192,
+    "min_insert_block_size_bytes": 0,
+    "max_memory_usage": 4000000000,
+    "max_ast_elements": 50000,
+    "max_expanded_ast_elements": 500000,
+    "max_query_size": 262144,
+    "max_result_rows": 100000,
+    "max_result_bytes": 67108864,
+    "result_overflow_mode": "throw",
+    "use_query_cache": 0,
+    "use_query_condition_cache": 0,
+    "short_circuit_function_evaluation": "enable"
+  },
+  "corpus_sha256": "edc0ca6b2d28a2a14984cf532a1ce8a6640189f9178006ea640468b8c95dd5c7",
+  "spec_sha256": "d018ffb9af8106468584912f2f7d4c5e21a254dd913096ed95fb3fb135379235",
+  "runner_sha256": "ffeafc62edaa17983b49ad2e91c73f79ec9cd669e4fa2a2cd0c40ce58bb405ce",
+  "direct_worker_sha256": "0c0da005dbd7758a687d23deb0b4e523f034bb7d6804b2cbed77260714f09e0c",
+  "pattern_sha256": "b3f5471e1e371d82c071290a754088fd8e9e5c0f2ef43d18002b3c35dbf650fb",
+  "rows": 1000000,
+  "indicators": 1000,
+  "routes": [
+    "native",
+    "indexed",
+    "direct",
+    "pg_backend",
+    "pg_copy",
+    "elastic_wildcard",
+    "elastic_keyword"
+  ],
+  "repeats": 5,
+  "concurrency": 1,
+  "elastic_msearch_max_concurrent_searches": 1,
+  "elastic_fixture": {
+    "image": "docker.elastic.co/elasticsearch/elasticsearch@sha256:79b4f1de4c15e6eca824723086a51e5934406d614d410cc11be77748cafac537",
+    "cpus": 4,
+    "memory_bytes": 4294967296,
+    "version": "9.5.6"
+  },
+  "native_max_threads_per_query": 4,
+  "direct_setup": [
+    {
+      "process_ms": 12.221979000059946,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 9.368101,
+      "ready": true
+    }
+  ],
+  "pg_setup": [
+    {
+      "process_ms": 134.5019130003493,
+      "backend_pid": 1020
+    }
+  ],
+  "precontrol_failure": {
+    "stage": "full_copy",
+    "worker": 0,
+    "error": "PostgreSQL statement timeout",
+    "cleanup_confirmed": true,
+    "routes": [
+      "pg_backend",
+      "pg_copy"
+    ]
+  },
+  "timer": "request through complete consumption; exact validation/hash after timing; PG backend executor separate from EXPLAIN request; direct/PG sessions reused",
+  "cache": "one untimed warmup; query caches disabled; filesystem cache uncontrolled",
+  "failures": "60s per server query; sweeps completed after60s are rejected even on the last response. HTTP idle/client deadlines bound overdue work; cancellation is confirmed before the next variant. First failure censors remaining samples of that route."
+}
