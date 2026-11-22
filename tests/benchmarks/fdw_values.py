@@ -22,7 +22,7 @@ def verify_copy(raw, workload, rows):
     The seen bitmap is at most 1 MiB; payloads remain bounded at 64 MiB. This
     validation deliberately runs after the measured complete-consumption clock.
     """
-    if workload not in WORKLOADS or not 0<rows<=1000000:raise ValueError('invalid FDW fixture bounds')
+    if workload not in WORKLOADS or not 0<=rows<=1000000:raise ValueError('invalid FDW fixture bounds')
     if workload=='selective' and rows>1000:raise ValueError('invalid selective fixture bounds')
     if len(raw)>MAX_BYTES or raw[:19]!=HEADER:raise OracleMismatch('COPY header/byte bound differs')
     seen=bytearray(rows);offset=19;count=0;fields=1 if workload=='narrow' else 3

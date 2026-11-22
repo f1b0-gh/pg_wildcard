@@ -15,6 +15,13 @@ def payload(rows):
 
 
 class FdwValuesTests(unittest.TestCase):
+    def test_empty_selective_control_rejects_truncation_and_any_row(self):
+        self.assertEqual(verify_copy(payload([]),'selective',0)['rows'],0)
+        for raw in [payload([])[:-1], payload([])+b'x',
+                    payload([expected_row('selective',0)])]:
+            with self.assertRaises(ValueError):verify_copy(raw,'selective',0)
+
+
     def test_selective_fixture_checks_sparse_ids_and_every_value(self):
         rows=[(struct.pack('!q',i*1000),b'evil.test/powershell',b'x'*16) for i in range(3)]
         self.assertEqual(verify_copy(payload(rows[::-1]),'selective',3)['rows'],3)

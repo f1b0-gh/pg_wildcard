@@ -226,6 +226,11 @@ Iceberg. Candidate staging can add work and remains opt-in.
 `candidate_mode='auto'` compares exact and candidate variants using bounded,
 confirmed native EXPLAIN probes at first tuple demand. It recognizes a limited
 single-MergeTree-reader plan shape and caches preferences by client identity.
+Each client in a backend retains at most 32 preferences, keyed by both SQL
+alternatives and query settings, with a 64 KiB combined key limit. Reuse promotes
+a preference for eviction purposes, but its 60-second lifetime still starts at
+insertion. Pooling connections can amortize probes; fresh backends and expired
+preferences probe again. Preferences never contain rows or completion evidence.
 Unknown plans use exact SQL; authentication, transport and confirmation errors
 still fail. Preparation, execution and completion share the deadline.
 

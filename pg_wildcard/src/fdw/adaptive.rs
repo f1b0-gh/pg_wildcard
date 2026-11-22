@@ -36,12 +36,15 @@ impl PlanCache {
     ) -> Option<(bool, &'static str)> {
         self.entries
             .retain(|e| now.saturating_duration_since(e.created) < TTL);
-        self.entries
-            .iter()
-            .find(|e| {
-                e.exact == exact && e.candidate == candidate && e.settings.as_deref() == settings
-            })
-            .map(|e| (e.selected, e.reason))
+        let position = self.entries.iter().position(|e| {
+            e.exact == exact && e.candidate == candidate && e.settings.as_deref() == settings
+        })?;
+        let entry = self.entries.remove(position)?;
+        let result = (entry.selected, entry.reason);
+        // Promote reuse without extending the insertion TTL: this is only a
+        // plan preference, and fresh estimates must still be sampled regularly.
+        self.entries.push_back(entry);
+        Some(result)
     }
     fn put(
         &mut self,
@@ -275,6 +278,49 @@ mod tests {
                 .is_none()
         );
     }
+    #[test]
+    fn cache_hits_keep_hot_preferences_during_cold_key_churn() {
+        let now = Instant::now();
+        let mut cache = PlanCache::default();
+        cache.put("hot", "candidate", None, true, "candidate", now);
+        for i in 0..CACHE_ENTRIES - 1 {
+            cache.put(
+                &format!("cold{i}"),
+                "candidate",
+                None,
+                false,
+                "unknown",
+                now,
+            );
+        }
+        assert_eq!(
+            cache.get("hot", "candidate", None, now),
+            Some((true, "candidate"))
+        );
+        cache.put("new", "candidate", None, false, "unknown", now);
+        assert_eq!(cache.entries.len(), CACHE_ENTRIES);
+        assert_eq!(
+            cache.get("hot", "candidate", None, now),
+            Some((true, "candidate"))
+        );
+        assert!(cache.get("cold0", "candidate", None, now).is_none());
+    }
+
+    #[test]
+    fn cache_recency_does_not_extend_insertion_ttl() {
+        let now = Instant::now();
+        let mut cache = PlanCache::default();
+        cache.put("hot", "candidate", None, true, "candidate", now);
+        for seconds in [30, 59] {
+            assert!(
+                cache
+                    .get("hot", "candidate", None, now + Duration::from_secs(seconds))
+                    .is_some()
+            );
+        }
+        assert!(cache.get("hot", "candidate", None, now + TTL).is_none());
+    }
+
     #[test]
     fn cache_is_bounded_and_large_keys_are_not_retained() {
         let mut cache = PlanCache::default();
