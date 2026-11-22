@@ -1,0 +1,24 @@
+[
+  {
+    "case": "pg-budget-1048576",
+    "batch_bytes": 1048576,
+    "exit_status": 1,
+    "seconds": 1.5190391600008297,
+    "installed_binary_sha256": "6c23575ef8e61df9fef3e257783714f706afb904e0f7daab77544f68c08ba036",
+    "classification": "expected PG data resource refusal during full COPY precontrol; no latency sample",
+    "typed_error": "wildcard_fdw: Antalya Data: configured resource limit exceeded",
+    "private_log_sha256": "ef1361eccb4dd9bb65f83abbcc64db6e014cc3c1063b14d7805c7799cc99ade9",
+    "cleanup_confirmed": true
+  },
+  {
+    "case": "pg-budget-4194304",
+    "batch_bytes": 4194304,
+    "exit_status": 1,
+    "seconds": 1.2178200130001642,
+    "installed_binary_sha256": "6c23575ef8e61df9fef3e257783714f706afb904e0f7daab77544f68c08ba036",
+    "classification": "expected PG data resource refusal during full COPY precontrol; no latency sample",
+    "typed_error": "wildcard_fdw: Antalya Data: configured resource limit exceeded",
+    "private_log_sha256": "ef1361eccb4dd9bb65f83abbcc64db6e014cc3c1063b14d7805c7799cc99ade9",
+    "cleanup_confirmed": true
+  }
+]

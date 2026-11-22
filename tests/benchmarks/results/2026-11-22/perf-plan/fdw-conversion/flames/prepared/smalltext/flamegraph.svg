@@ -1,0 +1,939 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="560" viewBox="0 0 1600 560">
+<style>text{font:11px monospace}rect{stroke:white;stroke-width:.4}</style>
+<text x="5" y="14">PostgreSQL FDW CPU samples: 3251; width = sampled cycles:u events; inclusive stacks</text>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::execution::Execution&gt;::finish::{closure#0} [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="0.00" y="520" width="0.49" height="19" fill="rgb(245,124,75)"/>
+</g>
+<g><title>&lt;core[efd5e57aef94d71e]::pin::Pin&lt;alloc[c23e483dde3f7cfb]::boxed::Box&lt;&lt;pg_wildcard[fa6338fa92e591c1]::fdw::transport::Session&gt;::start_selected::{closure#2}&gt;&gt; as core[efd5e57aef94d71e]::future::future::Future&gt;::poll [pg_wildcard.so]: 1114 samples (34.27%)</title><rect x="0.49" y="520" width="548.26" height="19" fill="rgb(245,122,114)"/>
+<text x="3.49" y="533">&lt;core[efd5e57aef94d71e]::pin::Pin&lt;alloc[c23e483dde3f7cfb]::boxed::Box&lt;&lt;pg_wil</text>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::execution::Execution&gt;::next_batch::{closure#0} [pg_wildcard.so]: 1090 samples (33.53%)</title><rect x="0.49" y="500" width="536.45" height="19" fill="rgb(245,151,111)"/>
+<text x="3.49" y="513">&lt;antalya_rs[bad8e0b89db77521]::execution::Execution&gt;::next_batch::{closure#</text>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::execution::Execution&gt;::next_provisional_batch::{closure#0} [pg_wildcard.so]: 1086 samples (33.41%)</title><rect x="0.49" y="480" width="534.48" height="19" fill="rgb(245,188,115)"/>
+<text x="3.49" y="493">&lt;antalya_rs[bad8e0b89db77521]::execution::Execution&gt;::next_provisional_batc</text>
+</g>
+<g><title>&lt;alloc[c23e483dde3f7cfb]::sync::Arc&lt;antalya_rs[bad8e0b89db77521]::resources::bytes::ByteLease&gt;&gt;::new [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="0.49" y="460" width="0.49" height="19" fill="rgb(245,133,40)"/>
+</g>
+<g><title>&lt;alloc[c23e483dde3f7cfb]::sync::Arc&lt;arrow_buffer[a99bc7c6bf0265dd]::bytes::Bytes&gt;&gt;::drop_slow [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="0.98" y="460" width="1.97" height="19" fill="rgb(245,115,99)"/>
+</g>
+<g><title>&lt;alloc[c23e483dde3f7cfb]::sync::Arc&lt;dyn arrow_buffer[a99bc7c6bf0265dd]::alloc::Allocation&gt;&gt;::drop_slow [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="0.98" y="440" width="0.98" height="19" fill="rgb(245,115,80)"/>
+</g>
+<g><title>bytes[903b38f84d177cb]::bytes::shared_drop [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="0.98" y="420" width="0.49" height="19" fill="rgb(245,154,84)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="0.98" y="400" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="0.98" y="380" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="0.98" y="360" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::execution::measured::framing::FramedSource&gt;::new::{closure#0} [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="2.95" y="460" width="0.98" height="19" fill="rgb(245,121,65)"/>
+</g>
+<g><title>&lt;reqwest[7ef4387a312ac1c5]::async_impl::client::Client&gt;::execute_request [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="2.95" y="440" width="0.49" height="19" fill="rgb(245,178,62)"/>
+</g>
+<g><title>&lt;http[e2aeabc5fdd845d6]::header::map::HeaderMap as core[efd5e57aef94d71e]::clone::Clone&gt;::clone [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="2.95" y="420" width="0.49" height="19" fill="rgb(245,209,108)"/>
+</g>
+<g><title>&lt;reqwest[7ef4387a312ac1c5]::async_impl::client::Pending as core[efd5e57aef94d71e]::future::future::Future&gt;::poll [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="3.45" y="440" width="0.49" height="19" fill="rgb(245,110,47)"/>
+</g>
+<g><title>&lt;reqwest[7ef4387a312ac1c5]::async_impl::client::PendingRequest as core[efd5e57aef94d71e]::future::future::Future&gt;::poll [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="3.45" y="420" width="0.49" height="19" fill="rgb(245,113,100)"/>
+</g>
+<g><title>&lt;url[4599ad7b6bb3bf72]::ParseOptions&gt;::parse [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="3.45" y="400" width="0.49" height="19" fill="rgb(245,108,88)"/>
+</g>
+<g><title>&lt;url[4599ad7b6bb3bf72]::parser::Parser&gt;::after_double_slash [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="3.45" y="380" width="0.49" height="19" fill="rgb(245,107,115)"/>
+</g>
+<g><title>&lt;url[4599ad7b6bb3bf72]::parser::Parser&gt;::with_query_and_fragment [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="3.45" y="360" width="0.49" height="19" fill="rgb(245,187,97)"/>
+</g>
+<g><title>&lt;url[4599ad7b6bb3bf72]::parser::Parser&gt;::parse_query_and_fragment [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="3.45" y="340" width="0.49" height="19" fill="rgb(245,111,47)"/>
+</g>
+<g><title>&lt;url[4599ad7b6bb3bf72]::parser::Parser&gt;::parse_query [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="3.45" y="320" width="0.49" height="19" fill="rgb(245,127,75)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="3.45" y="300" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::execution::measured::framing::FramedSource&gt;::packet [pg_wildcard.so]: 448 samples (13.78%)</title><rect x="3.94" y="460" width="220.49" height="19" fill="rgb(245,143,56)"/>
+<text x="6.94" y="473">&lt;antalya_rs[bad8e0b89db77521]:</text>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::execution::measured::framing::Unique as serde_core[f86eca6e83447d88]::de::Deserialize&gt;::deserialize::&lt;&amp;mut serde_json[d2cd1cc64cd5a810]::de::Deserializer&lt;serde_json[d2cd1cc64cd5a810]::read::SliceRead&gt;&gt; [pg_wildcard.so]: 5 samples (0.15%)</title><rect x="3.94" y="440" width="2.46" height="19" fill="rgb(245,125,44)"/>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::execution::measured::framing::Unique as serde_core[f86eca6e83447d88]::de::Deserialize&gt;::deserialize::&lt;&amp;mut serde_json[d2cd1cc64cd5a810]::de::Deserializer&lt;serde_json[d2cd1cc64cd5a810]::read::SliceRead&gt;&gt; [pg_wildcard.so]: 5 samples (0.15%)</title><rect x="3.94" y="420" width="2.46" height="19" fill="rgb(245,125,44)"/>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::execution::measured::framing::Unique as serde_core[f86eca6e83447d88]::de::Deserialize&gt;::deserialize::&lt;&amp;mut serde_json[d2cd1cc64cd5a810]::de::Deserializer&lt;serde_json[d2cd1cc64cd5a810]::read::SliceRead&gt;&gt; [pg_wildcard.so]: 5 samples (0.15%)</title><rect x="3.94" y="400" width="2.46" height="19" fill="rgb(245,125,44)"/>
+</g>
+<g><title>&lt;alloc[c23e483dde3f7cfb]::collections::btree::map::BTreeMap&lt;alloc[c23e483dde3f7cfb]::string::String, serde_json[d2cd1cc64cd5a810]::value::Value&gt;&gt;::insert [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="3.94" y="380" width="0.49" height="19" fill="rgb(245,136,64)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="3.94" y="360" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::execution::measured::framing::Unique as serde_core[f86eca6e83447d88]::de::Deserialize&gt;::deserialize::&lt;&amp;mut serde_json[d2cd1cc64cd5a810]::de::Deserializer&lt;serde_json[d2cd1cc64cd5a810]::read::SliceRead&gt;&gt; [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="4.43" y="380" width="1.97" height="19" fill="rgb(245,125,44)"/>
+</g>
+<g><title>&lt;serde_json[d2cd1cc64cd5a810]::read::SliceRead as serde_json[d2cd1cc64cd5a810]::read::Read&gt;::parse_str [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="4.43" y="360" width="0.98" height="19" fill="rgb(245,104,117)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::str::converts::from_utf8 [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="4.43" y="340" width="0.49" height="19" fill="rgb(245,187,63)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="5.41" y="360" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="5.41" y="340" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;bytes[903b38f84d177cb]::bytes::Bytes as core[efd5e57aef94d71e]::convert::From&lt;alloc[c23e483dde3f7cfb]::vec::Vec&lt;u8&gt;&gt;&gt;::from [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="6.40" y="440" width="1.48" height="19" fill="rgb(245,162,118)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="6.40" y="420" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>__rustc[3d2f79520d6fa809]::__rdl_alloc [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="6.89" y="420" width="0.49" height="19" fill="rgb(245,109,53)"/>
+</g>
+<g><title>base64[407719190e31a81f]::engine::Engine::decode::inner::&lt;base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose&gt; [pg_wildcard.so]: 438 samples (13.47%)</title><rect x="7.87" y="440" width="215.56" height="19" fill="rgb(245,197,88)"/>
+<text x="10.87" y="453">base64[407719190e31a81f]::eng</text>
+</g>
+<g><title>&lt;base64[407719190e31a81f]::engine::general_purpose::GeneralPurpose as base64[407719190e31a81f]::engine::Engine&gt;::internal_decode [pg_wildcard.so]: 400 samples (12.30%)</title><rect x="7.87" y="420" width="196.86" height="19" fill="rgb(245,199,94)"/>
+<text x="10.87" y="433">&lt;base64[407719190e31a81f]::</text>
+</g>
+<g><title>base64[407719190e31a81f]::engine::general_purpose::decode::decode_complete_quads [pg_wildcard.so]: 400 samples (12.30%)</title><rect x="7.87" y="400" width="196.86" height="19" fill="rgb(245,113,40)"/>
+<text x="10.87" y="413">base64[407719190e31a81f]::e</text>
+</g>
+<g><title>[unknown] [libc.so.6]: 38 samples (1.17%)</title><rect x="204.74" y="420" width="18.70" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 2 samples (0.06%)</title><rect x="204.74" y="400" width="0.98" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;alloc[c23e483dde3f7cfb]::collections::btree::map::BTreeMap&lt;alloc[c23e483dde3f7cfb]::string::String, serde_json[d2cd1cc64cd5a810]::value::Value&gt;&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="223.44" y="440" width="0.49" height="19" fill="rgb(245,188,43)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;alloc[c23e483dde3f7cfb]::collections::btree::map::IntoIter&lt;alloc[c23e483dde3f7cfb]::string::String, serde_json[d2cd1cc64cd5a810]::value::Value&gt;&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="223.44" y="420" width="0.49" height="19" fill="rgb(245,159,104)"/>
+</g>
+<g><title>&lt;alloc[c23e483dde3f7cfb]::collections::btree::node::Handle&lt;alloc[c23e483dde3f7cfb]::collections::btree::node::NodeRef&lt;alloc[c23e483dde3f7cfb]::collections::btree::node::marker::Dying, alloc[c23e483dde3f7cfb]::string::String, serde_json[d2cd1cc64cd5a810]::value::Value, alloc[c23e483dde3f7cfb]::collections::btree::node::marker::LeafOrInternal&gt;, alloc[c23e483dde3f7cfb]::collections::btree::node::marker::KV&gt;&gt;::drop_key_val [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="223.44" y="400" width="0.49" height="19" fill="rgb(245,101,45)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;serde_json[d2cd1cc64cd5a810]::value::Value&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="223.44" y="380" width="0.49" height="19" fill="rgb(245,177,43)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;[serde_json[d2cd1cc64cd5a810]::value::Value]&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="223.44" y="360" width="0.49" height="19" fill="rgb(245,203,88)"/>
+</g>
+<g><title>&lt;alloc[c23e483dde3f7cfb]::collections::btree::map::BTreeMap&lt;alloc[c23e483dde3f7cfb]::string::String, serde_json[d2cd1cc64cd5a810]::value::Value&gt; as core[efd5e57aef94d71e]::ops::drop::Drop&gt;::drop [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="223.44" y="340" width="0.49" height="19" fill="rgb(245,178,48)"/>
+</g>
+<g><title>&lt;alloc[c23e483dde3f7cfb]::collections::btree::map::IntoIter&lt;alloc[c23e483dde3f7cfb]::string::String, serde_json[d2cd1cc64cd5a810]::value::Value&gt; as core[efd5e57aef94d71e]::ops::drop::Drop&gt;::drop [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="223.44" y="320" width="0.49" height="19" fill="rgb(245,177,88)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="223.44" y="300" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::execution::measured::framing::FramedSource&gt;::take_line [pg_wildcard.so]: 368 samples (11.32%)</title><rect x="224.42" y="460" width="181.11" height="19" fill="rgb(245,208,41)"/>
+<text x="227.42" y="473">&lt;antalya_rs[bad8e0b89db7</text>
+</g>
+<g><title>[unknown] [libc.so.6]: 33 samples (1.02%)</title><rect x="224.42" y="440" width="16.24" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::execution::measured::ipc_guard::Guard&gt;::feed [pg_wildcard.so]: 39 samples (1.20%)</title><rect x="405.54" y="460" width="19.19" height="19" fill="rgb(245,202,97)"/>
+</g>
+<g><title>&lt;arrow_ipc[6c698072108cb3b4]::gen::Message::Message&gt;::header_as_record_batch [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="405.54" y="440" width="0.98" height="19" fill="rgb(245,184,106)"/>
+</g>
+<g><title>&lt;flatbuffers[7059cb707a19f7ba]::vtable::VTable&gt;::get [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="405.54" y="420" width="0.49" height="19" fill="rgb(245,119,97)"/>
+</g>
+<g><title>antalya_rs[bad8e0b89db77521]::execution::transport::ipc::decode::layout::validate [pg_wildcard.so]: 6 samples (0.18%)</title><rect x="406.52" y="440" width="2.95" height="19" fill="rgb(245,162,59)"/>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::execution::transport::ipc::decode::layout::Layout&gt;::field [pg_wildcard.so]: 5 samples (0.15%)</title><rect x="406.52" y="420" width="2.46" height="19" fill="rgb(245,113,62)"/>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::execution::transport::ipc::decode::layout::Layout&gt;::buffers [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="406.52" y="400" width="0.49" height="19" fill="rgb(245,119,72)"/>
+</g>
+<g><title>antalya_rs[bad8e0b89db77521]::execution::transport::ipc::decode::schema::read [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="409.47" y="440" width="0.49" height="19" fill="rgb(245,207,101)"/>
+</g>
+<g><title>arrow_ipc[6c698072108cb3b4]::convert::fb_to_schema [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="409.47" y="420" width="0.49" height="19" fill="rgb(245,109,99)"/>
+</g>
+<g><title>&lt;arrow_schema[fbc0cf4c5cb49592]::fields::Fields as core[efd5e57aef94d71e]::convert::From&lt;alloc[c23e483dde3f7cfb]::vec::Vec&lt;arrow_schema[fbc0cf4c5cb49592]::field::Field&gt;&gt;&gt;::from [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="409.47" y="400" width="0.49" height="19" fill="rgb(245,200,71)"/>
+</g>
+<g><title>alloc[c23e483dde3f7cfb]::sync::arcinner_layout_for_value_layout [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="409.47" y="380" width="0.49" height="19" fill="rgb(245,198,89)"/>
+</g>
+<g><title>antalya_rs[bad8e0b89db77521]::execution::transport::ipc::validate_batch [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="409.97" y="440" width="1.97" height="19" fill="rgb(245,164,61)"/>
+</g>
+<g><title>flatbuffers[7059cb707a19f7ba]::get_root::root_with_opts::&lt;arrow_ipc[6c698072108cb3b4]::gen::Message::Message&gt; [pg_wildcard.so]: 24 samples (0.74%)</title><rect x="411.93" y="440" width="11.81" height="19" fill="rgb(245,114,76)"/>
+</g>
+<g><title>&lt;arrow_ipc[6c698072108cb3b4]::gen::Message::Message as flatbuffers[7059cb707a19f7ba]::verifier::Verifiable&gt;::run_verifier::{closure#0} [pg_wildcard.so]: 13 samples (0.40%)</title><rect x="411.93" y="420" width="6.40" height="19" fill="rgb(245,160,46)"/>
+</g>
+<g><title>&lt;flatbuffers[7059cb707a19f7ba]::primitives::ForwardsUOffset&lt;arrow_ipc[6c698072108cb3b4]::gen::Message::RecordBatch&gt; as flatbuffers[7059cb707a19f7ba]::verifier::Verifiable&gt;::run_verifier [pg_wildcard.so]: 9 samples (0.28%)</title><rect x="411.93" y="400" width="4.43" height="19" fill="rgb(245,186,90)"/>
+</g>
+<g><title>&lt;flatbuffers[7059cb707a19f7ba]::verifier::TableVerifier&gt;::visit_field::&lt;flatbuffers[7059cb707a19f7ba]::primitives::ForwardsUOffset&lt;arrow_ipc[6c698072108cb3b4]::gen::Message::BodyCompression&gt;, &amp;str&gt; [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="411.93" y="380" width="0.98" height="19" fill="rgb(245,198,85)"/>
+</g>
+<g><title>&lt;flatbuffers[7059cb707a19f7ba]::verifier::TableVerifier&gt;::visit_field::&lt;flatbuffers[7059cb707a19f7ba]::primitives::ForwardsUOffset&lt;flatbuffers[7059cb707a19f7ba]::vector::Vector&lt;i64&gt;&gt;, &amp;str&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="412.92" y="380" width="0.49" height="19" fill="rgb(245,132,111)"/>
+</g>
+<g><title>&lt;flatbuffers[7059cb707a19f7ba]::verifier::Verifier&gt;::visit_table [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="413.41" y="380" width="0.98" height="19" fill="rgb(245,127,69)"/>
+</g>
+<g><title>flatbuffers[7059cb707a19f7ba]::verifier::append_trace::&lt;()&gt; [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="416.36" y="400" width="0.98" height="19" fill="rgb(245,114,111)"/>
+</g>
+<g><title>&lt;flatbuffers[7059cb707a19f7ba]::verifier::TableVerifier&gt;::deref [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="418.33" y="420" width="1.97" height="19" fill="rgb(245,115,109)"/>
+</g>
+<g><title>&lt;flatbuffers[7059cb707a19f7ba]::verifier::TableVerifier&gt;::visit_field::&lt;flatbuffers[7059cb707a19f7ba]::primitives::ForwardsUOffset&lt;flatbuffers[7059cb707a19f7ba]::vector::Vector&lt;flatbuffers[7059cb707a19f7ba]::primitives::ForwardsUOffset&lt;arrow_ipc[6c698072108cb3b4]::gen::Schema::KeyValue&gt;&gt;&gt;, &amp;str&gt; [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="420.30" y="420" width="1.97" height="19" fill="rgb(245,138,45)"/>
+</g>
+<g><title>&lt;flatbuffers[7059cb707a19f7ba]::verifier::TableVerifier&gt;::deref [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="420.30" y="400" width="0.49" height="19" fill="rgb(245,115,109)"/>
+</g>
+<g><title>&lt;flatbuffers[7059cb707a19f7ba]::verifier::Verifier&gt;::visit_table [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="422.27" y="420" width="1.48" height="19" fill="rgb(245,127,69)"/>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::metrics::Measurement as core[efd5e57aef94d71e]::ops::drop::Drop&gt;::drop [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="424.73" y="460" width="0.98" height="19" fill="rgb(245,136,101)"/>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::read_timeout::ReadTimer&gt;::wait::&lt;&lt;reqwest[7ef4387a312ac1c5]::async_impl::response::Response&gt;::chunk::{closure#0}&gt;::{closure#0} [pg_wildcard.so]: 12 samples (0.37%)</title><rect x="425.72" y="460" width="5.91" height="19" fill="rgb(245,183,49)"/>
+</g>
+<g><title>&lt;reqwest[7ef4387a312ac1c5]::async_impl::response::Response&gt;::chunk::{closure#0} [pg_wildcard.so]: 11 samples (0.34%)</title><rect x="425.72" y="440" width="5.41" height="19" fill="rgb(245,175,109)"/>
+</g>
+<g><title>&lt;http_body_util[5aba04d16017869c]::combinators::map_err::MapErr&lt;reqwest[7ef4387a312ac1c5]::async_impl::body::TotalTimeoutBody&lt;http_body_util[5aba04d16017869c]::combinators::box_body::BoxBody&lt;bytes[903b38f84d177cb]::bytes::Bytes, alloc[c23e483dde3f7cfb]::boxed::Box&lt;dyn core[efd5e57aef94d71e]::error::Error + core[efd5e57aef94d71e]::marker::Send + core[efd5e57aef94d71e]::marker::Sync&gt;&gt;&gt;, reqwest[7ef4387a312ac1c5]::async_impl::body::box_err&lt;reqwest[7ef4387a312ac1c5]::error::Error&gt;&gt; as http_body[63bedd1deaac3f70]::Body&gt;::poll_frame [pg_wildcard.so]: 10 samples (0.31%)</title><rect x="425.72" y="420" width="4.92" height="19" fill="rgb(245,177,84)"/>
+</g>
+<g><title>&lt;http_body_util[5aba04d16017869c]::combinators::map_err::MapErr&lt;hyper[e3021e4518a19444]::body::incoming::Incoming, reqwest[7ef4387a312ac1c5]::async_impl::body::box_err&lt;hyper[e3021e4518a19444]::error::Error&gt;&gt; as http_body[63bedd1deaac3f70]::Body&gt;::poll_frame [pg_wildcard.so]: 9 samples (0.28%)</title><rect x="425.72" y="400" width="4.43" height="19" fill="rgb(245,195,114)"/>
+</g>
+<g><title>&lt;hyper[e3021e4518a19444]::body::incoming::Incoming as http_body[63bedd1deaac3f70]::Body&gt;::poll_frame [pg_wildcard.so]: 8 samples (0.25%)</title><rect x="425.72" y="380" width="3.94" height="19" fill="rgb(245,134,78)"/>
+</g>
+<g><title>&lt;atomic_waker[261e3783689b9aed]::AtomicWaker&gt;::register [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="425.72" y="360" width="1.97" height="19" fill="rgb(245,187,73)"/>
+</g>
+<g><title>tokio[3b2dcaef427225d8]::runtime::task::waker::clone_waker [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="425.72" y="340" width="0.49" height="19" fill="rgb(245,162,45)"/>
+</g>
+<g><title>tokio[3b2dcaef427225d8]::runtime::task::waker::wake_by_val [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="427.68" y="360" width="0.49" height="19" fill="rgb(245,114,85)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::scheduler::multi_thread::handle::Handle&gt;::schedule_task [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="427.68" y="340" width="0.49" height="19" fill="rgb(245,131,100)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::scheduler::multi_thread::idle::Idle&gt;::worker_to_notify [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="427.68" y="320" width="0.49" height="19" fill="rgb(245,155,81)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::time::sleep::Sleep as core[efd5e57aef94d71e]::future::future::Future&gt;::poll [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="430.14" y="400" width="0.49" height="19" fill="rgb(245,153,60)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::sync::task::atomic_waker::AtomicWaker&gt;::register_by_ref [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="430.14" y="380" width="0.49" height="19" fill="rgb(245,125,47)"/>
+</g>
+<g><title>&lt;arrow_buffer[a99bc7c6bf0265dd]::buffer::immutable::Buffer as core[efd5e57aef94d71e]::convert::From&lt;bytes[903b38f84d177cb]::bytes::Bytes&gt;&gt;::from [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="431.62" y="460" width="0.49" height="19" fill="rgb(245,114,40)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="431.62" y="440" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;arrow_ipc[6c698072108cb3b4]::reader::stream::StreamDecoder&gt;::decode [pg_wildcard.so]: 147 samples (4.52%)</title><rect x="432.11" y="460" width="72.35" height="19" fill="rgb(245,182,48)"/>
+<text x="435.11" y="473">&lt;arrow_ip</text>
+</g>
+<g><title>&lt;arrow_buffer[a99bc7c6bf0265dd]::buffer::immutable::Buffer&gt;::slice_with_length [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="432.11" y="440" width="0.49" height="19" fill="rgb(245,119,97)"/>
+</g>
+<g><title>&lt;arrow_ipc[6c698072108cb3b4]::convert::MessageBuffer&gt;::try_new [pg_wildcard.so]: 25 samples (0.77%)</title><rect x="432.61" y="440" width="12.30" height="19" fill="rgb(245,151,110)"/>
+</g>
+<g><title>&lt;flatbuffers[7059cb707a19f7ba]::primitives::ForwardsUOffset&lt;arrow_ipc[6c698072108cb3b4]::gen::Message::Message&gt; as flatbuffers[7059cb707a19f7ba]::verifier::Verifiable&gt;::run_verifier [pg_wildcard.so]: 23 samples (0.71%)</title><rect x="432.61" y="420" width="11.32" height="19" fill="rgb(245,119,92)"/>
+</g>
+<g><title>&lt;arrow_ipc[6c698072108cb3b4]::gen::Message::Message as flatbuffers[7059cb707a19f7ba]::verifier::Verifiable&gt;::run_verifier::{closure#0} [pg_wildcard.so]: 13 samples (0.40%)</title><rect x="432.61" y="400" width="6.40" height="19" fill="rgb(245,160,46)"/>
+</g>
+<g><title>&lt;flatbuffers[7059cb707a19f7ba]::primitives::ForwardsUOffset&lt;arrow_ipc[6c698072108cb3b4]::gen::Message::RecordBatch&gt; as flatbuffers[7059cb707a19f7ba]::verifier::Verifiable&gt;::run_verifier [pg_wildcard.so]: 10 samples (0.31%)</title><rect x="432.61" y="380" width="4.92" height="19" fill="rgb(245,186,90)"/>
+</g>
+<g><title>&lt;flatbuffers[7059cb707a19f7ba]::verifier::TableVerifier&gt;::visit_field::&lt;flatbuffers[7059cb707a19f7ba]::primitives::ForwardsUOffset&lt;arrow_ipc[6c698072108cb3b4]::gen::Message::BodyCompression&gt;, &amp;str&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="432.61" y="360" width="0.49" height="19" fill="rgb(245,198,85)"/>
+</g>
+<g><title>&lt;flatbuffers[7059cb707a19f7ba]::verifier::TableVerifier&gt;::visit_field::&lt;flatbuffers[7059cb707a19f7ba]::primitives::ForwardsUOffset&lt;flatbuffers[7059cb707a19f7ba]::vector::Vector&lt;arrow_ipc[6c698072108cb3b4]::gen::Schema::Buffer&gt;&gt;, &amp;str&gt; [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="433.10" y="360" width="0.98" height="19" fill="rgb(245,189,55)"/>
+</g>
+<g><title>&lt;flatbuffers[7059cb707a19f7ba]::verifier::TableVerifier&gt;::visit_field::&lt;flatbuffers[7059cb707a19f7ba]::primitives::ForwardsUOffset&lt;flatbuffers[7059cb707a19f7ba]::vector::Vector&lt;i64&gt;&gt;, &amp;str&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="434.08" y="360" width="0.49" height="19" fill="rgb(245,132,111)"/>
+</g>
+<g><title>&lt;flatbuffers[7059cb707a19f7ba]::verifier::Verifier&gt;::visit_table [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="439.00" y="400" width="1.48" height="19" fill="rgb(245,127,69)"/>
+</g>
+<g><title>flatbuffers[7059cb707a19f7ba]::verifier::append_trace::&lt;()&gt; [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="440.48" y="400" width="0.98" height="19" fill="rgb(245,114,111)"/>
+</g>
+<g><title>&lt;arrow_ipc[6c698072108cb3b4]::gen::Message::Message&gt;::header_as_record_batch [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="444.91" y="440" width="0.98" height="19" fill="rgb(245,184,106)"/>
+</g>
+<g><title>&lt;arrow_ipc[6c698072108cb3b4]::reader::RecordBatchDecoder&gt;::read_record_batch [pg_wildcard.so]: 113 samples (3.48%)</title><rect x="445.89" y="440" width="55.61" height="19" fill="rgb(245,161,80)"/>
+<text x="448.89" y="453">&lt;arrow</text>
+</g>
+<g><title>&lt;arrow_array[598ad3715c262810]::record_batch::RecordBatch&gt;::try_new_with_options [pg_wildcard.so]: 9 samples (0.28%)</title><rect x="445.89" y="420" width="4.43" height="19" fill="rgb(245,140,50)"/>
+</g>
+<g><title>&lt;arrow_array[598ad3715c262810]::record_batch::RecordBatch&gt;::try_new_impl [pg_wildcard.so]: 8 samples (0.25%)</title><rect x="445.89" y="400" width="3.94" height="19" fill="rgb(245,204,85)"/>
+</g>
+<g><title>&lt;arrow_array[598ad3715c262810]::array::byte_array::GenericByteArray&lt;arrow_array[598ad3715c262810]::types::GenericBinaryType&lt;i32&gt;&gt; as arrow_array[598ad3715c262810]::array::Array&gt;::data_type [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="445.89" y="380" width="0.49" height="19" fill="rgb(245,197,53)"/>
+</g>
+<g><title>&lt;arrow_array[598ad3715c262810]::array::byte_array::GenericByteArray&lt;arrow_array[598ad3715c262810]::types::GenericBinaryType&lt;i32&gt;&gt; as arrow_array[598ad3715c262810]::array::Array&gt;::len [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="446.39" y="380" width="0.98" height="19" fill="rgb(245,158,67)"/>
+</g>
+<g><title>&lt;arrow_array[598ad3715c262810]::array::primitive_array::PrimitiveArray&lt;arrow_array[598ad3715c262810]::types::Date32Type&gt; as arrow_array[598ad3715c262810]::array::Array&gt;::null_count [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="447.37" y="380" width="0.98" height="19" fill="rgb(245,188,87)"/>
+</g>
+<g><title>&lt;arrow_ipc[6c698072108cb3b4]::reader::RecordBatchDecoder&gt;::create_array [pg_wildcard.so]: 101 samples (3.11%)</title><rect x="450.32" y="420" width="49.71" height="19" fill="rgb(245,110,119)"/>
+<text x="453.32" y="433">&lt;arrow</text>
+</g>
+<g><title>&lt;arrow_ipc[6c698072108cb3b4]::reader::RecordBatchDecoder&gt;::create_primitive_array [pg_wildcard.so]: 89 samples (2.74%)</title><rect x="450.32" y="400" width="43.80" height="19" fill="rgb(245,100,105)"/>
+<text x="453.32" y="413">&lt;arro</text>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayDataBuilder&gt;::add_buffer [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="450.32" y="380" width="0.49" height="19" fill="rgb(245,108,51)"/>
+</g>
+<g><title>&lt;alloc[c23e483dde3f7cfb]::raw_vec::RawVec&lt;arrow_buffer[a99bc7c6bf0265dd]::buffer::immutable::Buffer&gt;&gt;::grow_one [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="450.32" y="360" width="0.49" height="19" fill="rgb(245,208,89)"/>
+</g>
+<g><title>&lt;alloc[c23e483dde3f7cfb]::raw_vec::RawVecInner&gt;::finish_grow [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="450.32" y="340" width="0.49" height="19" fill="rgb(245,170,72)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayDataBuilder&gt;::buffers [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="450.82" y="380" width="0.98" height="19" fill="rgb(245,129,53)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;alloc[c23e483dde3f7cfb]::vec::Vec&lt;arrow_buffer[a99bc7c6bf0265dd]::buffer::immutable::Buffer&gt;&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="450.82" y="360" width="0.49" height="19" fill="rgb(245,120,67)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayDataBuilder&gt;::build [pg_wildcard.so]: 56 samples (1.72%)</title><rect x="451.80" y="380" width="27.56" height="19" fill="rgb(245,127,72)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayData&gt;::align_buffers [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="451.80" y="360" width="1.97" height="19" fill="rgb(245,112,83)"/>
+</g>
+<g><title>arrow_data[9ec472798f10045d]::data::layout [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="451.80" y="340" width="1.97" height="19" fill="rgb(245,144,94)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="451.80" y="320" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="451.80" y="300" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayData&gt;::validate [pg_wildcard.so]: 10 samples (0.31%)</title><rect x="453.77" y="360" width="4.92" height="19" fill="rgb(245,193,54)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayData&gt;::validate_child_data [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="453.77" y="340" width="1.48" height="19" fill="rgb(245,196,79)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayData&gt;::validate_offsets::&lt;i32&gt; [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="455.24" y="340" width="1.48" height="19" fill="rgb(245,130,76)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayData&gt;::typed_offsets::&lt;i32&gt; [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="455.24" y="320" width="0.98" height="19" fill="rgb(245,197,115)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayData&gt;::typed_buffer::&lt;i32&gt; [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="455.24" y="300" width="0.98" height="19" fill="rgb(245,118,47)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayData&gt;::validate_nulls [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="458.69" y="360" width="0.98" height="19" fill="rgb(245,198,90)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayData&gt;::validate_values [pg_wildcard.so]: 37 samples (1.14%)</title><rect x="459.67" y="360" width="18.21" height="19" fill="rgb(245,146,73)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayData&gt;::validate_offsets_full::&lt;i32&gt; [pg_wildcard.so]: 34 samples (1.05%)</title><rect x="459.67" y="340" width="16.73" height="19" fill="rgb(245,118,46)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 2 samples (0.06%)</title><rect x="477.88" y="360" width="0.98" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;arrow_schema[fbc0cf4c5cb49592]::datatype::DataType as core[efd5e57aef94d71e]::clone::Clone&gt;::clone [pg_wildcard.so]: 6 samples (0.18%)</title><rect x="479.36" y="380" width="2.95" height="19" fill="rgb(245,195,104)"/>
+</g>
+<g><title>arrow_array[598ad3715c262810]::array::make_array [pg_wildcard.so]: 22 samples (0.68%)</title><rect x="482.31" y="380" width="10.83" height="19" fill="rgb(245,111,56)"/>
+</g>
+<g><title>&lt;arrow_array[598ad3715c262810]::array::byte_array::GenericByteArray&lt;arrow_array[598ad3715c262810]::types::GenericBinaryType&lt;i32&gt;&gt; as core[efd5e57aef94d71e]::convert::From&lt;arrow_data[9ec472798f10045d]::data::ArrayData&gt;&gt;::from [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="482.31" y="360" width="1.48" height="19" fill="rgb(245,116,48)"/>
+</g>
+<g><title>arrow_array[598ad3715c262810]::array::get_offsets_from_buffer::&lt;i32&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="482.31" y="340" width="0.49" height="19" fill="rgb(245,113,43)"/>
+</g>
+<g><title>&lt;arrow_buffer[a99bc7c6bf0265dd]::buffer::scalar::ScalarBuffer&lt;f32&gt;&gt;::new [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="482.31" y="320" width="0.49" height="19" fill="rgb(245,114,94)"/>
+</g>
+<g><title>&lt;arrow_array[598ad3715c262810]::array::primitive_array::PrimitiveArray&lt;arrow_array[598ad3715c262810]::types::Int64Type&gt; as core[efd5e57aef94d71e]::convert::From&lt;arrow_data[9ec472798f10045d]::data::ArrayData&gt;&gt;::from [pg_wildcard.so]: 12 samples (0.37%)</title><rect x="483.79" y="360" width="5.91" height="19" fill="rgb(245,191,91)"/>
+</g>
+<g><title>&lt;arrow_buffer[a99bc7c6bf0265dd]::buffer::scalar::ScalarBuffer&lt;f64&gt;&gt;::new [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="483.79" y="340" width="1.48" height="19" fill="rgb(245,106,90)"/>
+</g>
+<g><title>&lt;arrow_buffer[a99bc7c6bf0265dd]::buffer::immutable::Buffer&gt;::slice_with_length [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="483.79" y="320" width="0.49" height="19" fill="rgb(245,119,97)"/>
+</g>
+<g><title>&lt;arrow_schema[fbc0cf4c5cb49592]::datatype::DataType as core[efd5e57aef94d71e]::cmp::PartialEq&gt;::eq [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="485.27" y="340" width="0.49" height="19" fill="rgb(245,136,108)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;alloc[c23e483dde3f7cfb]::vec::Vec&lt;arrow_buffer[a99bc7c6bf0265dd]::buffer::immutable::Buffer&gt;&gt; [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="485.76" y="340" width="0.98" height="19" fill="rgb(245,120,67)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 6 samples (0.18%)</title><rect x="489.70" y="360" width="2.95" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 2 samples (0.06%)</title><rect x="489.70" y="340" width="0.98" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;arrow_ipc[6c698072108cb3b4]::reader::RecordBatchDecoder&gt;::next_buffer [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="494.12" y="400" width="0.49" height="19" fill="rgb(245,113,102)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;[arrow_buffer[a99bc7c6bf0265dd]::buffer::immutable::Buffer; 2: usize]&gt; [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="494.62" y="400" width="0.98" height="19" fill="rgb(245,167,56)"/>
+</g>
+<g><title>&lt;arrow_ipc[6c698072108cb3b4]::reader::RecordBatchDecoder&gt;::try_new [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="501.51" y="440" width="0.98" height="19" fill="rgb(245,117,94)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="502.49" y="440" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;std[68c81ae915296b05]::sys::pal::unix::time::Timespec&gt;::now [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="504.46" y="460" width="0.49" height="19" fill="rgb(245,177,92)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="504.46" y="440" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;std[68c81ae915296b05]::time::Instant&gt;::now [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="504.95" y="460" width="0.98" height="19" fill="rgb(245,118,48)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::sync::notify::Notified as core[efd5e57aef94d71e]::ops::drop::Drop&gt;::drop [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="505.94" y="460" width="0.49" height="19" fill="rgb(245,131,85)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::sync::notify::NotifiedProject&gt;::drop_notified [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="505.94" y="440" width="0.49" height="19" fill="rgb(245,108,59)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::sync::notify::Notified&gt;::enable [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="506.43" y="460" width="0.98" height="19" fill="rgb(245,146,81)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::sync::notify::NotifiedProject&gt;::poll_notified [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="506.43" y="440" width="0.98" height="19" fill="rgb(245,120,106)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::time::instant::Instant&gt;::now [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="507.41" y="460" width="0.49" height="19" fill="rgb(245,162,50)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::time::sleep::Sleep as core[efd5e57aef94d71e]::future::future::Future&gt;::poll [pg_wildcard.so]: 5 samples (0.15%)</title><rect x="507.91" y="460" width="2.46" height="19" fill="rgb(245,153,60)"/>
+</g>
+<g><title>&lt;std[68c81ae915296b05]::time::Instant as core[efd5e57aef94d71e]::ops::arith::Add&lt;core[efd5e57aef94d71e]::time::Duration&gt;&gt;::add [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="507.91" y="440" width="0.98" height="19" fill="rgb(245,174,40)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::time::handle::Handle&gt;::reregister [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="508.89" y="440" width="0.98" height="19" fill="rgb(245,169,45)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::time::sleep::Sleep&gt;::new_timeout [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="510.37" y="460" width="0.49" height="19" fill="rgb(245,101,51)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::scheduler::Handle&gt;::current [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="510.37" y="440" width="0.49" height="19" fill="rgb(245,151,90)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="510.86" y="460" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>antalya_rs[bad8e0b89db77521]::memory::batch_bytes [pg_wildcard.so]: 32 samples (0.98%)</title><rect x="511.35" y="460" width="15.75" height="19" fill="rgb(245,117,80)"/>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::memory::Charge&gt;::array [pg_wildcard.so]: 30 samples (0.92%)</title><rect x="511.35" y="440" width="14.76" height="19" fill="rgb(245,128,45)"/>
+</g>
+<g><title>&lt;alloc[c23e483dde3f7cfb]::raw_vec::RawVecInner&gt;::finish_grow [pg_wildcard.so]: 5 samples (0.15%)</title><rect x="511.35" y="420" width="2.46" height="19" fill="rgb(245,170,72)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 2 samples (0.06%)</title><rect x="511.35" y="400" width="0.98" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;alloc[c23e483dde3f7cfb]::vec::Vec&lt;&amp;arrow_data[9ec472798f10045d]::data::ArrayData&gt;&gt;::extend_trusted::&lt;core[efd5e57aef94d71e]::slice::iter::Iter&lt;arrow_data[9ec472798f10045d]::data::ArrayData&gt;&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="513.81" y="420" width="0.49" height="19" fill="rgb(245,191,46)"/>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::memory::Charge&gt;::buffer [pg_wildcard.so]: 7 samples (0.22%)</title><rect x="514.30" y="420" width="3.45" height="19" fill="rgb(245,125,46)"/>
+</g>
+<g><title>&lt;hashbrown[2a10179b492ebecc]::raw::RawTable&lt;(usize, usize)&gt;&gt;::reserve_rehash::&lt;hashbrown[2a10179b492ebecc]::map::make_hasher&lt;usize, usize, std[68c81ae915296b05]::hash::random::RandomState&gt;::{closure#0}&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="514.30" y="400" width="0.49" height="19" fill="rgb(245,102,84)"/>
+</g>
+<g><title>&lt;hashbrown[2a10179b492ebecc]::raw::RawTableInner&gt;::fallible_with_capacity::&lt;alloc[c23e483dde3f7cfb]::alloc::Global&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="514.30" y="380" width="0.49" height="19" fill="rgb(245,106,47)"/>
+</g>
+<g><title>&lt;std[68c81ae915296b05]::hash::random::RandomState as core[efd5e57aef94d71e]::hash::BuildHasher&gt;::hash_one::&lt;&amp;usize&gt; [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="514.80" y="400" width="1.48" height="19" fill="rgb(245,166,49)"/>
+</g>
+<g><title>&lt;core[efd5e57aef94d71e]::hash::sip::Hasher&lt;core[efd5e57aef94d71e]::hash::sip::Sip13Rounds&gt; as core[efd5e57aef94d71e]::hash::Hasher&gt;::write [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="514.80" y="380" width="0.49" height="19" fill="rgb(245,108,53)"/>
+</g>
+<g><title>&lt;arrow_array[598ad3715c262810]::array::byte_array::GenericByteArray&lt;arrow_array[598ad3715c262810]::types::GenericBinaryType&lt;i32&gt;&gt; as arrow_array[598ad3715c262810]::array::Array&gt;::to_data [pg_wildcard.so]: 6 samples (0.18%)</title><rect x="517.75" y="420" width="2.95" height="19" fill="rgb(245,175,42)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayData as core[efd5e57aef94d71e]::convert::From&lt;arrow_array[598ad3715c262810]::array::byte_array::GenericByteArray&lt;arrow_array[598ad3715c262810]::types::GenericBinaryType&lt;i32&gt;&gt;&gt;&gt;::from [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="517.75" y="400" width="1.97" height="19" fill="rgb(245,154,97)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayDataBuilder&gt;::buffers [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="517.75" y="380" width="0.98" height="19" fill="rgb(245,129,53)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="517.75" y="360" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayDataBuilder&gt;::build_unchecked [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="518.73" y="380" width="0.49" height="19" fill="rgb(245,114,112)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="518.73" y="360" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;arrow_array[598ad3715c262810]::array::primitive_array::PrimitiveArray&lt;arrow_array[598ad3715c262810]::types::Date64Type&gt; as arrow_array[598ad3715c262810]::array::Array&gt;::to_data [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="520.70" y="420" width="1.97" height="19" fill="rgb(245,177,72)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayData as core[efd5e57aef94d71e]::convert::From&lt;arrow_array[598ad3715c262810]::array::primitive_array::PrimitiveArray&lt;arrow_array[598ad3715c262810]::types::Date64Type&gt;&gt;&gt;::from [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="520.70" y="400" width="0.98" height="19" fill="rgb(245,132,81)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayDataBuilder&gt;::build_unchecked [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="520.70" y="380" width="0.49" height="19" fill="rgb(245,114,112)"/>
+</g>
+<g><title>&lt;arrow_data[9ec472798f10045d]::data::ArrayDataBuilder&gt;::build [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="520.70" y="360" width="0.49" height="19" fill="rgb(245,127,72)"/>
+</g>
+<g><title>&lt;arrow_schema[fbc0cf4c5cb49592]::datatype::DataType as core[efd5e57aef94d71e]::clone::Clone&gt;::clone [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="521.69" y="400" width="0.98" height="19" fill="rgb(245,195,104)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;arrow_data[9ec472798f10045d]::data::ArrayData&gt; [pg_wildcard.so]: 5 samples (0.15%)</title><rect x="522.67" y="420" width="2.46" height="19" fill="rgb(245,140,40)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;alloc[c23e483dde3f7cfb]::vec::Vec&lt;arrow_buffer[a99bc7c6bf0265dd]::buffer::immutable::Buffer&gt;&gt; [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="522.67" y="400" width="1.48" height="19" fill="rgb(245,120,67)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;arrow_schema[fbc0cf4c5cb49592]::datatype::DataType&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="524.15" y="400" width="0.49" height="19" fill="rgb(245,165,72)"/>
+</g>
+<g><title>bytes[903b38f84d177cb]::bytes_mut::shared_v_drop [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="527.10" y="460" width="0.49" height="19" fill="rgb(245,152,51)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="527.10" y="440" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="527.10" y="420" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="527.10" y="400" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;&lt;antalya_rs[bad8e0b89db77521]::read_timeout::ReadTimer&gt;::wait&lt;&lt;reqwest[7ef4387a312ac1c5]::async_impl::response::Response&gt;::chunk::{closure#0}&gt;::{closure#0}&gt; [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="527.59" y="460" width="1.48" height="19" fill="rgb(245,102,106)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;antalya_rs[bad8e0b89db77521]::resources::bytes::ByteLease&gt; [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="529.07" y="460" width="0.98" height="19" fill="rgb(245,164,86)"/>
+</g>
+<g><title>&lt;alloc[c23e483dde3f7cfb]::sync::Arc&lt;antalya_rs[bad8e0b89db77521]::resources::bytes::Allocation&gt;&gt;::drop_slow [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="529.07" y="440" width="0.98" height="19" fill="rgb(245,123,87)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;core[efd5e57aef94d71e]::option::Option&lt;tokio[3b2dcaef427225d8]::runtime::Timer&gt;&gt; [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="530.05" y="460" width="1.97" height="19" fill="rgb(245,106,42)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::time::entry::TimerEntry as core[efd5e57aef94d71e]::ops::drop::Drop&gt;::drop [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="530.05" y="440" width="1.48" height="19" fill="rgb(245,121,58)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::time::wheel::Wheel&gt;::remove [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="530.05" y="420" width="0.49" height="19" fill="rgb(245,170,110)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;tokio[3b2dcaef427225d8]::time::timeout::Timeout&lt;&lt;antalya_rs[bad8e0b89db77521]::execution::measured::MeasuredCursor&gt;::next::{closure#0}&gt;&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="532.02" y="460" width="0.49" height="19" fill="rgb(245,115,78)"/>
+</g>
+<g><title>tokio[3b2dcaef427225d8]::time::timeout::poll_delay [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="532.51" y="460" width="0.49" height="19" fill="rgb(245,161,82)"/>
+</g>
+<g><title>[unknown] [ld-linux-x86-64.so.2]: 1 samples (0.03%)</title><rect x="532.51" y="440" width="0.49" height="19" fill="rgb(245,204,107)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;&lt;antalya_rs[bad8e0b89db77521]::execution::Execution&gt;::next_provisional_batch::{closure#0}&gt; [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="534.97" y="480" width="1.48" height="19" fill="rgb(245,103,64)"/>
+</g>
+<g><title>__tls_get_addr@plt [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="536.94" y="500" width="0.49" height="19" fill="rgb(245,131,107)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;&lt;antalya_rs[bad8e0b89db77521]::execution::Execution&gt;::next_batch::{closure#0}&gt; [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="537.43" y="500" width="0.98" height="19" fill="rgb(245,114,91)"/>
+</g>
+<g><title>pg_wildcard[fa6338fa92e591c1]::fdw::transport::send::{closure#0} [pg_wildcard.so]: 15 samples (0.46%)</title><rect x="538.42" y="500" width="7.38" height="19" fill="rgb(245,144,113)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::sync::batch_semaphore::Acquire as core[efd5e57aef94d71e]::ops::drop::Drop&gt;::drop [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="538.42" y="480" width="0.98" height="19" fill="rgb(245,194,108)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::sync::mpsc::list::Tx&lt;core[efd5e57aef94d71e]::result::Result&lt;pg_wildcard[fa6338fa92e591c1]::fdw::transport::Event, antalya_rs[bad8e0b89db77521]::error::Error&gt;&gt;&gt;::find_block [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="539.40" y="480" width="1.48" height="19" fill="rgb(245,154,61)"/>
+</g>
+<g><title>alloc[c23e483dde3f7cfb]::task::raw_waker::wake::&lt;pg_wildcard[fa6338fa92e591c1]::fdw::transport::BackendWake&gt; [pg_wildcard.so]: 8 samples (0.25%)</title><rect x="540.88" y="480" width="3.94" height="19" fill="rgb(245,169,65)"/>
+</g>
+<g><title>std[68c81ae915296b05]::sys::sync::futex::unix::futex_wake [pg_wildcard.so]: 5 samples (0.15%)</title><rect x="540.88" y="460" width="2.46" height="19" fill="rgb(245,106,62)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 4 samples (0.12%)</title><rect x="540.88" y="440" width="1.97" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 4 samples (0.12%)</title><rect x="540.88" y="420" width="1.97" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 2 samples (0.06%)</title><rect x="540.88" y="400" width="0.98" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 2 samples (0.06%)</title><rect x="540.88" y="380" width="0.98" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 2 samples (0.06%)</title><rect x="540.88" y="360" width="0.98" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 1 samples (0.03%)</title><rect x="540.88" y="340" width="0.49" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 1 samples (0.03%)</title><rect x="540.88" y="320" width="0.49" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>MemoryContextReset [postgres]: 1 samples (0.03%)</title><rect x="548.75" y="520" width="0.49" height="19" fill="rgb(245,132,112)"/>
+</g>
+<g><title>AllocSetReset [postgres]: 1 samples (0.03%)</title><rect x="548.75" y="500" width="0.49" height="19" fill="rgb(245,169,106)"/>
+</g>
+<g><title>[unknown] [[heap]]: 1 samples (0.03%)</title><rect x="549.25" y="520" width="0.49" height="19" fill="rgb(245,179,114)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="549.25" y="500" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="549.25" y="480" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="549.25" y="460" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 1 samples (0.03%)</title><rect x="549.25" y="440" width="0.49" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 7 samples (0.22%)</title><rect x="549.74" y="520" width="3.45" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>pgrx_pg_sys[768ca042e806565a]::submodules::thread_check::check_active_thread [pg_wildcard.so]: 6 samples (0.18%)</title><rect x="549.74" y="500" width="2.95" height="19" fill="rgb(245,196,88)"/>
+</g>
+<g><title>__tls_get_addr@plt [pg_wildcard.so]: 6 samples (0.18%)</title><rect x="549.74" y="480" width="2.95" height="19" fill="rgb(245,131,107)"/>
+</g>
+<g><title>[unknown] [[vdso]]: 90 samples (2.77%)</title><rect x="553.18" y="520" width="44.29" height="19" fill="rgb(245,114,70)"/>
+<text x="556.18" y="533">[unkn</text>
+</g>
+<g><title>[unknown] [[unknown]]: 84 samples (2.58%)</title><rect x="553.18" y="500" width="41.34" height="19" fill="rgb(245,115,52)"/>
+<text x="556.18" y="513">[unk</text>
+</g>
+<g><title>[unknown] [[unknown]]: 66 samples (2.03%)</title><rect x="553.18" y="480" width="32.48" height="19" fill="rgb(245,115,52)"/>
+<text x="556.18" y="493">[un</text>
+</g>
+<g><title>[unknown] [[unknown]]: 51 samples (1.57%)</title><rect x="553.18" y="460" width="25.10" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 43 samples (1.32%)</title><rect x="553.18" y="440" width="21.16" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 29 samples (0.89%)</title><rect x="553.18" y="420" width="14.27" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 14 samples (0.43%)</title><rect x="553.18" y="400" width="6.89" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 10 samples (0.31%)</title><rect x="553.18" y="380" width="4.92" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 163 samples (5.01%)</title><rect x="597.48" y="520" width="80.22" height="19" fill="rgb(245,100,49)"/>
+<text x="600.48" y="533">[unknown] </text>
+</g>
+<g><title>[unknown] [libc.so.6]: 163 samples (5.01%)</title><rect x="597.48" y="500" width="80.22" height="19" fill="rgb(245,100,49)"/>
+<text x="600.48" y="513">[unknown] </text>
+</g>
+<g><title>&lt;std[68c81ae915296b05]::sys::thread::unix::Thread&gt;::new::thread_start [pg_wildcard.so]: 163 samples (5.01%)</title><rect x="597.48" y="480" width="80.22" height="19" fill="rgb(245,206,87)"/>
+<text x="600.48" y="493">&lt;std[68c81</text>
+</g>
+<g><title>&lt;std[68c81ae915296b05]::thread::lifecycle::spawn_unchecked&lt;&lt;tokio[3b2dcaef427225d8]::runtime::blocking::pool::Spawner&gt;::spawn_thread::{closure#0}, ()&gt;::{closure#1} as core[efd5e57aef94d71e]::ops::function::FnOnce&lt;()&gt;&gt;::call_once::{shim:vtable#0} [pg_wildcard.so]: 163 samples (5.01%)</title><rect x="597.48" y="460" width="80.22" height="19" fill="rgb(245,209,104)"/>
+<text x="600.48" y="473">&lt;std[68c81</text>
+</g>
+<g><title>std[68c81ae915296b05]::sys::backtrace::__rust_begin_short_backtrace::&lt;&lt;tokio[3b2dcaef427225d8]::runtime::blocking::pool::Spawner&gt;::spawn_thread::{closure#0}, ()&gt; [pg_wildcard.so]: 163 samples (5.01%)</title><rect x="597.48" y="440" width="80.22" height="19" fill="rgb(245,129,112)"/>
+<text x="600.48" y="453">std[68c81a</text>
+</g>
+<g><title>tokio[3b2dcaef427225d8]::runtime::task::raw::poll::&lt;tokio[3b2dcaef427225d8]::runtime::blocking::task::BlockingTask&lt;tokio[3b2dcaef427225d8]::runtime::scheduler::multi_thread::worker::maybe_move_runtime::{closure#0}::{closure#0}&gt;, tokio[3b2dcaef427225d8]::runtime::blocking::schedule::BlockingSchedule&gt; [pg_wildcard.so]: 163 samples (5.01%)</title><rect x="597.48" y="420" width="80.22" height="19" fill="rgb(245,132,57)"/>
+<text x="600.48" y="433">tokio[3b2d</text>
+</g>
+<g><title>tokio[3b2dcaef427225d8]::runtime::scheduler::multi_thread::worker::run [pg_wildcard.so]: 163 samples (5.01%)</title><rect x="597.48" y="400" width="80.22" height="19" fill="rgb(245,176,63)"/>
+<text x="600.48" y="413">tokio[3b2d</text>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::scheduler::multi_thread::worker::Context&gt;::park_internal [pg_wildcard.so]: 81 samples (2.49%)</title><rect x="597.48" y="380" width="39.86" height="19" fill="rgb(245,101,79)"/>
+<text x="600.48" y="393">&lt;tok</text>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::driver::Driver&gt;::park [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="597.48" y="360" width="0.98" height="19" fill="rgb(245,179,86)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::time::Driver&gt;::park_internal [pg_wildcard.so]: 75 samples (2.31%)</title><rect x="598.46" y="360" width="36.91" height="19" fill="rgb(245,127,41)"/>
+<text x="601.46" y="373">&lt;tok</text>
+</g>
+<g><title>&lt;std[68c81ae915296b05]::sys::pal::unix::time::Timespec&gt;::now [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="598.46" y="340" width="0.98" height="19" fill="rgb(245,177,92)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 2 samples (0.06%)</title><rect x="598.46" y="320" width="0.98" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;std[68c81ae915296b05]::time::Instant&gt;::now [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="599.45" y="340" width="0.49" height="19" fill="rgb(245,118,48)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::io::driver::Driver&gt;::turn [pg_wildcard.so]: 69 samples (2.12%)</title><rect x="599.94" y="340" width="33.96" height="19" fill="rgb(245,108,87)"/>
+<text x="602.94" y="353">&lt;to</text>
+</g>
+<g><title>&lt;mio[e57b75e45cc2ee6e]::poll::Poll&gt;::poll [pg_wildcard.so]: 27 samples (0.83%)</title><rect x="599.94" y="320" width="13.29" height="19" fill="rgb(245,110,54)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 16 samples (0.49%)</title><rect x="599.94" y="300" width="7.87" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 10 samples (0.31%)</title><rect x="599.94" y="280" width="4.92" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 10 samples (0.31%)</title><rect x="599.94" y="260" width="4.92" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 4 samples (0.12%)</title><rect x="599.94" y="240" width="1.97" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 4 samples (0.12%)</title><rect x="599.94" y="220" width="1.97" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 3 samples (0.09%)</title><rect x="599.94" y="200" width="1.48" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 3 samples (0.09%)</title><rect x="599.94" y="180" width="1.48" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 2 samples (0.06%)</title><rect x="599.94" y="160" width="0.98" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 2 samples (0.06%)</title><rect x="599.94" y="140" width="0.98" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 1 samples (0.03%)</title><rect x="599.94" y="120" width="0.49" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::io::scheduled_io::ScheduledIo&gt;::wake [pg_wildcard.so]: 25 samples (0.77%)</title><rect x="613.23" y="320" width="12.30" height="19" fill="rgb(245,108,91)"/>
+</g>
+<g><title>tokio[3b2dcaef427225d8]::runtime::task::waker::wake_by_val [pg_wildcard.so]: 20 samples (0.62%)</title><rect x="613.23" y="300" width="9.84" height="19" fill="rgb(245,114,85)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::scheduler::multi_thread::handle::Handle&gt;::schedule_task [pg_wildcard.so]: 8 samples (0.25%)</title><rect x="613.23" y="280" width="3.94" height="19" fill="rgb(245,131,100)"/>
+</g>
+<g><title>[unknown] [ld-linux-x86-64.so.2]: 7 samples (0.22%)</title><rect x="613.23" y="260" width="3.45" height="19" fill="rgb(245,204,107)"/>
+</g>
+<g><title>tokio[3b2dcaef427225d8]::runtime::task::raw::schedule::&lt;alloc[c23e483dde3f7cfb]::sync::Arc&lt;tokio[3b2dcaef427225d8]::runtime::scheduler::multi_thread::handle::Handle&gt;&gt; [pg_wildcard.so]: 5 samples (0.15%)</title><rect x="617.16" y="280" width="2.46" height="19" fill="rgb(245,195,84)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 1 samples (0.03%)</title><rect x="625.53" y="320" width="0.49" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::time::handle::Handle&gt;::process_at_time [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="633.90" y="340" width="0.49" height="19" fill="rgb(245,159,96)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::scheduler::multi_thread::worker::Context&gt;::run_task [pg_wildcard.so]: 74 samples (2.28%)</title><rect x="637.34" y="380" width="36.42" height="19" fill="rgb(245,142,113)"/>
+<text x="640.34" y="393">&lt;tok</text>
+</g>
+<g><title>tokio[3b2dcaef427225d8]::runtime::task::raw::poll::&lt;core[efd5e57aef94d71e]::pin::Pin&lt;alloc[c23e483dde3f7cfb]::boxed::Box&lt;&lt;pg_wildcard[fa6338fa92e591c1]::fdw::transport::Session&gt;::start_selected::{closure#2}&gt;&gt;, alloc[c23e483dde3f7cfb]::sync::Arc&lt;tokio[3b2dcaef427225d8]::runtime::scheduler::multi_thread::handle::Handle&gt;&gt; [pg_wildcard.so]: 5 samples (0.15%)</title><rect x="637.34" y="360" width="2.46" height="19" fill="rgb(245,202,116)"/>
+</g>
+<g><title>&lt;core[efd5e57aef94d71e]::pin::Pin&lt;alloc[c23e483dde3f7cfb]::boxed::Box&lt;&lt;pg_wildcard[fa6338fa92e591c1]::fdw::transport::Session&gt;::start_selected::{closure#2}&gt;&gt; as core[efd5e57aef94d71e]::future::future::Future&gt;::poll [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="637.34" y="340" width="0.49" height="19" fill="rgb(245,122,114)"/>
+</g>
+<g><title>tokio[3b2dcaef427225d8]::runtime::task::raw::poll::&lt;core[efd5e57aef94d71e]::pin::Pin&lt;alloc[c23e483dde3f7cfb]::boxed::Box&lt;dyn core[efd5e57aef94d71e]::future::future::Future&lt;Output = ()&gt; + core[efd5e57aef94d71e]::marker::Send&gt;&gt;, alloc[c23e483dde3f7cfb]::sync::Arc&lt;tokio[3b2dcaef427225d8]::runtime::scheduler::multi_thread::handle::Handle&gt;&gt; [pg_wildcard.so]: 67 samples (2.06%)</title><rect x="639.80" y="360" width="32.97" height="19" fill="rgb(245,177,70)"/>
+<text x="642.80" y="373">tok</text>
+</g>
+<g><title>&lt;futures_util[1cacf8dc03a654d3]::future::future::Map&lt;futures_util[1cacf8dc03a654d3]::future::try_future::MapErr&lt;hyper[e3021e4518a19444]::client::conn::http1::upgrades::UpgradeableConnection&lt;reqwest[7ef4387a312ac1c5]::connect::sealed::Conn, reqwest[7ef4387a312ac1c5]::async_impl::body::Body&gt;, &lt;hyper_util[26b69352f08c695d]::client::legacy::client::Client&lt;reqwest[7ef4387a312ac1c5]::connect::Connector, reqwest[7ef4387a312ac1c5]::async_impl::body::Body&gt;&gt;::connect_to::{closure#0}::{closure#1}::{closure#0}::{closure#0}&gt;, &lt;hyper_util[26b69352f08c695d]::client::legacy::client::Client&lt;reqwest[7ef4387a312ac1c5]::connect::Connector, reqwest[7ef4387a312ac1c5]::async_impl::body::Body&gt;&gt;::connect_to::{closure#0}::{closure#1}::{closure#0}::{closure#1}&gt; as core[efd5e57aef94d71e]::future::future::Future&gt;::poll [pg_wildcard.so]: 64 samples (1.97%)</title><rect x="639.80" y="340" width="31.50" height="19" fill="rgb(245,103,97)"/>
+<text x="642.80" y="353">&lt;fu</text>
+</g>
+<g><title>&lt;hyper[e3021e4518a19444]::body::chan::Sender&gt;::poll_ready [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="639.80" y="320" width="0.49" height="19" fill="rgb(245,199,48)"/>
+</g>
+<g><title>&lt;hyper[e3021e4518a19444]::body::chan::Sender&gt;::try_send_data [pg_wildcard.so]: 6 samples (0.18%)</title><rect x="640.30" y="320" width="2.95" height="19" fill="rgb(245,126,49)"/>
+</g>
+<g><title>tokio[3b2dcaef427225d8]::runtime::task::waker::wake_by_val [pg_wildcard.so]: 6 samples (0.18%)</title><rect x="640.30" y="300" width="2.95" height="19" fill="rgb(245,114,85)"/>
+</g>
+<g><title>tokio[3b2dcaef427225d8]::runtime::task::raw::schedule::&lt;alloc[c23e483dde3f7cfb]::sync::Arc&lt;tokio[3b2dcaef427225d8]::runtime::scheduler::multi_thread::handle::Handle&gt;&gt; [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="640.30" y="280" width="1.97" height="19" fill="rgb(245,195,84)"/>
+</g>
+<g><title>&lt;hyper[e3021e4518a19444]::proto::h1::conn::Conn&lt;reqwest[7ef4387a312ac1c5]::connect::sealed::Conn, bytes[903b38f84d177cb]::bytes::Bytes, hyper[e3021e4518a19444]::proto::h1::role::Client&gt;&gt;::poll_read_body [pg_wildcard.so]: 42 samples (1.29%)</title><rect x="643.25" y="320" width="20.67" height="19" fill="rgb(245,208,40)"/>
+</g>
+<g><title>&lt;hyper[e3021e4518a19444]::proto::h1::io::Buffered&lt;reqwest[7ef4387a312ac1c5]::connect::sealed::Conn, hyper[e3021e4518a19444]::proto::h1::encode::EncodedBuf&lt;bytes[903b38f84d177cb]::bytes::Bytes&gt;&gt; as hyper[e3021e4518a19444]::proto::h1::io::MemRead&gt;::read_mem [pg_wildcard.so]: 34 samples (1.05%)</title><rect x="643.25" y="300" width="16.73" height="19" fill="rgb(245,186,105)"/>
+</g>
+<g><title>&lt;bytes[903b38f84d177cb]::bytes_mut::BytesMut&gt;::split_to [pg_wildcard.so]: 5 samples (0.15%)</title><rect x="643.25" y="280" width="2.46" height="19" fill="rgb(245,107,42)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 3 samples (0.09%)</title><rect x="643.25" y="260" width="1.48" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 2 samples (0.06%)</title><rect x="643.25" y="240" width="0.98" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;hyper[e3021e4518a19444]::proto::h1::io::Buffered&lt;reqwest[7ef4387a312ac1c5]::connect::sealed::Conn, hyper[e3021e4518a19444]::proto::h1::encode::EncodedBuf&lt;bytes[903b38f84d177cb]::bytes::Bytes&gt;&gt;&gt;::poll_read_from_io [pg_wildcard.so]: 28 samples (0.86%)</title><rect x="645.71" y="280" width="13.78" height="19" fill="rgb(245,122,68)"/>
+</g>
+<g><title>&lt;bytes[903b38f84d177cb]::bytes_mut::BytesMut&gt;::reserve_inner [pg_wildcard.so]: 6 samples (0.18%)</title><rect x="645.71" y="260" width="2.95" height="19" fill="rgb(245,147,89)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 6 samples (0.18%)</title><rect x="645.71" y="240" width="2.95" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 6 samples (0.18%)</title><rect x="645.71" y="220" width="2.95" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>&lt;hyper[e3021e4518a19444]::proto::h1::io::ReadStrategy&gt;::record [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="648.66" y="260" width="0.49" height="19" fill="rgb(245,143,79)"/>
+</g>
+<g><title>&lt;hyper_rustls[bae413d3a78b459d]::stream::MaybeHttpsStream&lt;hyper_util[26b69352f08c695d]::rt::tokio::TokioIo&lt;tokio[3b2dcaef427225d8]::net::tcp::stream::TcpStream&gt;&gt; as hyper[e3021e4518a19444]::rt::io::Read&gt;::poll_read [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="649.15" y="260" width="0.98" height="19" fill="rgb(245,119,75)"/>
+</g>
+<g><title>&lt;hyper_util[26b69352f08c695d]::rt::tokio::TokioIo&lt;tokio[3b2dcaef427225d8]::net::tcp::stream::TcpStream&gt; as hyper[e3021e4518a19444]::rt::io::Read&gt;::poll_read [pg_wildcard.so]: 17 samples (0.52%)</title><rect x="650.14" y="260" width="8.37" height="19" fill="rgb(245,123,97)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::net::tcp::stream::TcpStream&gt;::poll_read_priv [pg_wildcard.so]: 17 samples (0.52%)</title><rect x="650.14" y="240" width="8.37" height="19" fill="rgb(245,182,100)"/>
+</g>
+<g><title>&lt;&amp;mio[e57b75e45cc2ee6e]::net::tcp::stream::TcpStream as alloc[c23e483dde3f7cfb]::io::read::Read&gt;::read [pg_wildcard.so]: 12 samples (0.37%)</title><rect x="650.14" y="220" width="5.91" height="19" fill="rgb(245,189,116)"/>
+</g>
+<g><title>&lt;&amp;std[68c81ae915296b05]::net::tcp::TcpStream as alloc[c23e483dde3f7cfb]::io::read::Read&gt;::read [pg_wildcard.so]: 10 samples (0.31%)</title><rect x="650.14" y="200" width="4.92" height="19" fill="rgb(245,170,65)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 10 samples (0.31%)</title><rect x="650.14" y="180" width="4.92" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 10 samples (0.31%)</title><rect x="650.14" y="160" width="4.92" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 10 samples (0.31%)</title><rect x="650.14" y="140" width="4.92" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 7 samples (0.22%)</title><rect x="650.14" y="120" width="3.45" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 7 samples (0.22%)</title><rect x="650.14" y="100" width="3.45" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 7 samples (0.22%)</title><rect x="650.14" y="80" width="3.45" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 5 samples (0.15%)</title><rect x="650.14" y="60" width="2.46" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 4 samples (0.12%)</title><rect x="650.14" y="40" width="1.97" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 2 samples (0.06%)</title><rect x="650.14" y="20" width="0.98" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::io::registration::Registration&gt;::poll_ready [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="656.04" y="220" width="1.48" height="19" fill="rgb(245,108,67)"/>
+</g>
+<g><title>tokio[3b2dcaef427225d8]::runtime::task::waker::clone_waker [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="656.04" y="200" width="0.49" height="19" fill="rgb(245,162,45)"/>
+</g>
+<g><title>bytes[903b38f84d177cb]::bytes_mut::shared_v_drop [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="659.98" y="300" width="0.98" height="19" fill="rgb(245,152,51)"/>
+</g>
+<g><title>&lt;hyper[e3021e4518a19444]::proto::h1::dispatch::Dispatcher&lt;hyper[e3021e4518a19444]::proto::h1::dispatch::Client&lt;reqwest[7ef4387a312ac1c5]::async_impl::body::Body&gt;, reqwest[7ef4387a312ac1c5]::async_impl::body::Body, reqwest[7ef4387a312ac1c5]::connect::sealed::Conn, hyper[e3021e4518a19444]::proto::h1::role::Client&gt;&gt;::poll_flush [pg_wildcard.so]: 5 samples (0.15%)</title><rect x="663.92" y="320" width="2.46" height="19" fill="rgb(245,115,88)"/>
+</g>
+<g><title>&lt;hyper[e3021e4518a19444]::proto::h1::io::Buffered&lt;reqwest[7ef4387a312ac1c5]::connect::sealed::Conn, hyper[e3021e4518a19444]::proto::h1::encode::EncodedBuf&lt;bytes[903b38f84d177cb]::bytes::Bytes&gt;&gt;&gt;::poll_flush [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="663.92" y="300" width="1.48" height="19" fill="rgb(245,117,53)"/>
+</g>
+<g><title>&lt;hyper[e3021e4518a19444]::proto::h1::dispatch::Dispatcher&lt;hyper[e3021e4518a19444]::proto::h1::dispatch::Client&lt;reqwest[7ef4387a312ac1c5]::async_impl::body::Body&gt;, reqwest[7ef4387a312ac1c5]::async_impl::body::Body, reqwest[7ef4387a312ac1c5]::connect::sealed::Conn, hyper[e3021e4518a19444]::proto::h1::role::Client&gt;&gt;::poll_write [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="666.38" y="320" width="1.97" height="19" fill="rgb(245,131,83)"/>
+</g>
+<g><title>&lt;alloc[c23e483dde3f7cfb]::collections::vec_deque::iter::Iter&lt;hyper[e3021e4518a19444]::proto::h1::encode::EncodedBuf&lt;bytes[903b38f84d177cb]::bytes::Bytes&gt;&gt; as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator&gt;::fold::&lt;usize, core[efd5e57aef94d71e]::iter::adapters::map::map_fold&lt;&amp;hyper[e3021e4518a19444]::proto::h1::encode::EncodedBuf&lt;bytes[903b38f84d177cb]::bytes::Bytes&gt;, usize, usize, &lt;hyper[e3021e4518a19444]::common::buf::BufList&lt;hyper[e3021e4518a19444]::proto::h1::encode::EncodedBuf&lt;bytes[903b38f84d177cb]::bytes::Bytes&gt;&gt; as bytes[903b38f84d177cb]::buf::buf_impl::Buf&gt;::remaining::{closure#0}, &lt;usize as core[efd5e57aef94d71e]::iter::traits::accum::Sum&gt;::sum&lt;core[efd5e57aef94d71e]::iter::adapters::map::Map&lt;alloc[c23e483dde3f7cfb]::collections::vec_deque::iter::Iter&lt;hyper[e3021e4518a19444]::proto::h1::encode::EncodedBuf&lt;bytes[903b38f84d177cb]::bytes::Bytes&gt;&gt;, &lt;hyper[e3021e4518a19444]::common::buf::BufList&lt;hyper[e3021e4518a19444]::proto::h1::encode::EncodedBuf&lt;bytes[903b38f84d177cb]::bytes::Bytes&gt;&gt; as bytes[903b38f84d177cb]::buf::buf_impl::Buf&gt;::remaining::{closure#0}&gt;&gt;::{closure#0}&gt;::{closure#0}&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="666.38" y="300" width="0.49" height="19" fill="rgb(245,108,48)"/>
+</g>
+<g><title>[unknown] [ld-linux-x86-64.so.2]: 1 samples (0.03%)</title><rect x="666.87" y="300" width="0.49" height="19" fill="rgb(245,204,107)"/>
+</g>
+<g><title>&lt;hyper[e3021e4518a19444]::proto::h1::dispatch::SenderDropGuard&gt;::set [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="668.35" y="320" width="0.49" height="19" fill="rgb(245,104,119)"/>
+</g>
+<g><title>&lt;hyper[e3021e4518a19444]::proto::h1::role::Client as hyper[e3021e4518a19444]::proto::h1::Http1Transaction&gt;::parse [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="668.84" y="320" width="0.49" height="19" fill="rgb(245,119,41)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::task::state::State&gt;::transition_to_running [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="671.30" y="340" width="0.49" height="19" fill="rgb(245,123,86)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::runtime::scheduler::multi_thread::worker::Core&gt;::maintenance [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="673.76" y="380" width="0.49" height="19" fill="rgb(245,144,61)"/>
+</g>
+<g><title>__floattidf [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="674.25" y="380" width="0.49" height="19" fill="rgb(245,115,46)"/>
+</g>
+<g><title>pow [libm.so.6]: 3 samples (0.09%)</title><rect x="674.75" y="380" width="1.48" height="19" fill="rgb(245,112,107)"/>
+</g>
+<g><title>[unknown] [libm.so.6]: 3 samples (0.09%)</title><rect x="674.75" y="360" width="1.48" height="19" fill="rgb(245,138,109)"/>
+</g>
+<g><title>[unknown] [postgres]: 391 samples (12.03%)</title><rect x="677.70" y="520" width="192.43" height="19" fill="rgb(245,157,50)"/>
+<text x="680.70" y="533">[unknown] [postgres]</text>
+</g>
+<g><title>InstrStartNode [postgres]: 2 samples (0.06%)</title><rect x="677.70" y="500" width="0.98" height="19" fill="rgb(245,142,104)"/>
+</g>
+<g><title>InstrStopNode [postgres]: 2 samples (0.06%)</title><rect x="678.68" y="500" width="0.98" height="19" fill="rgb(245,120,83)"/>
+</g>
+<g><title>postmaster_child_launch [postgres]: 387 samples (11.90%)</title><rect x="679.67" y="500" width="190.46" height="19" fill="rgb(245,113,76)"/>
+<text x="682.67" y="513">postmaster_child_launch [p</text>
+</g>
+<g><title>BackendMain [postgres]: 387 samples (11.90%)</title><rect x="679.67" y="480" width="190.46" height="19" fill="rgb(245,174,107)"/>
+<text x="682.67" y="493">BackendMain [postgres]</text>
+</g>
+<g><title>PostgresMain [postgres]: 387 samples (11.90%)</title><rect x="679.67" y="460" width="190.46" height="19" fill="rgb(245,101,93)"/>
+<text x="682.67" y="473">PostgresMain [postgres]</text>
+</g>
+<g><title>[unknown] [postgres]: 382 samples (11.75%)</title><rect x="679.67" y="440" width="188.00" height="19" fill="rgb(245,157,50)"/>
+<text x="682.67" y="453">[unknown] [postgres]</text>
+</g>
+<g><title>PortalRun [postgres]: 381 samples (11.72%)</title><rect x="679.67" y="420" width="187.51" height="19" fill="rgb(245,121,119)"/>
+<text x="682.67" y="433">PortalRun [postgres]</text>
+</g>
+<g><title>[unknown] [postgres]: 381 samples (11.72%)</title><rect x="679.67" y="400" width="187.51" height="19" fill="rgb(245,157,50)"/>
+<text x="682.67" y="413">[unknown] [postgres]</text>
+</g>
+<g><title>[unknown] [postgres]: 381 samples (11.72%)</title><rect x="679.67" y="380" width="187.51" height="19" fill="rgb(245,157,50)"/>
+<text x="682.67" y="393">[unknown] [postgres]</text>
+</g>
+<g><title>standard_ProcessUtility [postgres]: 381 samples (11.72%)</title><rect x="679.67" y="360" width="187.51" height="19" fill="rgb(245,185,95)"/>
+<text x="682.67" y="373">standard_ProcessUtility [</text>
+</g>
+<g><title>ExplainQuery [postgres]: 381 samples (11.72%)</title><rect x="679.67" y="340" width="187.51" height="19" fill="rgb(245,187,105)"/>
+<text x="682.67" y="353">ExplainQuery [postgres]</text>
+</g>
+<g><title>[unknown] [postgres]: 381 samples (11.72%)</title><rect x="679.67" y="320" width="187.51" height="19" fill="rgb(245,157,50)"/>
+<text x="682.67" y="333">[unknown] [postgres]</text>
+</g>
+<g><title>standard_ExplainOneQuery [postgres]: 381 samples (11.72%)</title><rect x="679.67" y="300" width="187.51" height="19" fill="rgb(245,154,65)"/>
+<text x="682.67" y="313">standard_ExplainOneQuery </text>
+</g>
+<g><title>ExplainOnePlan [postgres]: 381 samples (11.72%)</title><rect x="679.67" y="280" width="187.51" height="19" fill="rgb(245,144,40)"/>
+<text x="682.67" y="293">ExplainOnePlan [postgres]</text>
+</g>
+<g><title>standard_ExecutorRun [postgres]: 381 samples (11.72%)</title><rect x="679.67" y="260" width="187.51" height="19" fill="rgb(245,166,115)"/>
+<text x="682.67" y="273">standard_ExecutorRun [pos</text>
+</g>
+<g><title>[unknown] [postgres]: 371 samples (11.41%)</title><rect x="679.67" y="240" width="182.59" height="19" fill="rgb(245,157,50)"/>
+<text x="682.67" y="253">[unknown] [postgres]</text>
+</g>
+<g><title>ExecScan [postgres]: 130 samples (4.00%)</title><rect x="679.67" y="220" width="63.98" height="19" fill="rgb(245,185,50)"/>
+<text x="682.67" y="233">ExecScan</text>
+</g>
+<g><title>MemoryContextReset [postgres]: 104 samples (3.20%)</title><rect x="679.67" y="200" width="51.18" height="19" fill="rgb(245,132,112)"/>
+<text x="682.67" y="213">Memory</text>
+</g>
+<g><title>AllocSetReset [postgres]: 90 samples (2.77%)</title><rect x="679.67" y="180" width="44.29" height="19" fill="rgb(245,169,106)"/>
+<text x="682.67" y="193">Alloc</text>
+</g>
+<g><title>InstrStartNode [postgres]: 30 samples (0.92%)</title><rect x="743.65" y="220" width="14.76" height="19" fill="rgb(245,142,104)"/>
+</g>
+<g><title>InstrStopNode [postgres]: 67 samples (2.06%)</title><rect x="758.41" y="220" width="32.97" height="19" fill="rgb(245,120,83)"/>
+<text x="761.41" y="233">Ins</text>
+</g>
+<g><title>BufferUsageAccumDiff [postgres]: 34 samples (1.05%)</title><rect x="758.41" y="200" width="16.73" height="19" fill="rgb(245,109,105)"/>
+</g>
+<g><title>[unknown] [postgres]: 104 samples (3.20%)</title><rect x="791.39" y="220" width="51.18" height="19" fill="rgb(245,157,50)"/>
+<text x="794.39" y="233">[unkno</text>
+</g>
+<g><title>pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan [pg_wildcard.so]: 58 samples (1.78%)</title><rect x="791.39" y="200" width="28.55" height="19" fill="rgb(245,194,119)"/>
+</g>
+<g><title>pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::&lt;core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe&lt;pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::{closure#0}&gt;, *mut pgrx_pg_sys[768ca042e806565a]::include::pg18::TupleTableSlot&gt; [pg_wildcard.so]: 41 samples (1.26%)</title><rect x="791.39" y="180" width="20.18" height="19" fill="rgb(245,173,65)"/>
+</g>
+<g><title>pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner [pg_wildcard.so]: 25 samples (0.77%)</title><rect x="791.39" y="160" width="12.30" height="19" fill="rgb(245,111,41)"/>
+</g>
+<g><title>PortalStart [postgres]: 1 samples (0.03%)</title><rect x="867.18" y="420" width="0.49" height="19" fill="rgb(245,107,40)"/>
+</g>
+<g><title>ExplainResultDesc [postgres]: 1 samples (0.03%)</title><rect x="867.18" y="400" width="0.49" height="19" fill="rgb(245,203,104)"/>
+</g>
+<g><title>TupleDescInitEntry [postgres]: 1 samples (0.03%)</title><rect x="867.18" y="380" width="0.49" height="19" fill="rgb(245,127,67)"/>
+</g>
+<g><title>[unknown] [postgres]: 1 samples (0.03%)</title><rect x="867.18" y="360" width="0.49" height="19" fill="rgb(245,157,50)"/>
+</g>
+<g><title>[unknown] [postgres]: 1 samples (0.03%)</title><rect x="867.18" y="340" width="0.49" height="19" fill="rgb(245,157,50)"/>
+</g>
+<g><title>systable_getnext [postgres]: 1 samples (0.03%)</title><rect x="867.18" y="320" width="0.49" height="19" fill="rgb(245,123,56)"/>
+</g>
+<g><title>index_getnext_slot [postgres]: 1 samples (0.03%)</title><rect x="867.18" y="300" width="0.49" height="19" fill="rgb(245,175,41)"/>
+</g>
+<g><title>index_getnext_tid [postgres]: 1 samples (0.03%)</title><rect x="867.18" y="280" width="0.49" height="19" fill="rgb(245,149,110)"/>
+</g>
+<g><title>btgettuple [postgres]: 1 samples (0.03%)</title><rect x="867.18" y="260" width="0.49" height="19" fill="rgb(245,192,76)"/>
+</g>
+<g><title>_bt_first [postgres]: 1 samples (0.03%)</title><rect x="867.18" y="240" width="0.49" height="19" fill="rgb(245,102,75)"/>
+</g>
+<g><title>_bt_search [postgres]: 1 samples (0.03%)</title><rect x="867.18" y="220" width="0.49" height="19" fill="rgb(245,169,45)"/>
+</g>
+<g><title>[unknown] [postgres]: 1 samples (0.03%)</title><rect x="867.18" y="200" width="0.49" height="19" fill="rgb(245,157,50)"/>
+</g>
+<g><title>pq_getbyte [postgres]: 5 samples (0.15%)</title><rect x="867.67" y="440" width="2.46" height="19" fill="rgb(245,107,79)"/>
+</g>
+<g><title>[unknown] [postgres]: 5 samples (0.15%)</title><rect x="867.67" y="420" width="2.46" height="19" fill="rgb(245,157,50)"/>
+</g>
+<g><title>secure_read [postgres]: 5 samples (0.15%)</title><rect x="867.67" y="400" width="2.46" height="19" fill="rgb(245,104,59)"/>
+</g>
+<g><title>WaitEventSetWait [postgres]: 3 samples (0.09%)</title><rect x="867.67" y="380" width="1.48" height="19" fill="rgb(245,106,98)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 2 samples (0.06%)</title><rect x="867.67" y="360" width="0.98" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 2 samples (0.06%)</title><rect x="867.67" y="340" width="0.98" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 2 samples (0.06%)</title><rect x="867.67" y="320" width="0.98" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="869.15" y="380" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="869.15" y="360" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="869.15" y="340" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner [pg_wildcard.so]: 1481 samples (45.56%)</title><rect x="870.13" y="520" width="728.88" height="19" fill="rgb(245,111,41)"/>
+<text x="873.13" y="533">pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner [pg_wildcard.so]</text>
+</g>
+<g><title>&lt;alloc[c23e483dde3f7cfb]::sync::Arc&lt;antalya_rs[bad8e0b89db77521]::resources::bytes::ByteLease&gt;&gt;::drop_slow [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="870.13" y="500" width="1.48" height="19" fill="rgb(245,135,56)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;antalya_rs[bad8e0b89db77521]::resources::bytes::ByteLease&gt; [pg_wildcard.so]: 3 samples (0.09%)</title><rect x="870.13" y="480" width="1.48" height="19" fill="rgb(245,164,86)"/>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::resources::bytes::ByteLease as core[efd5e57aef94d71e]::ops::drop::Drop&gt;::drop [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="870.13" y="460" width="0.98" height="19" fill="rgb(245,113,110)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::sync::notify::Notify&gt;::notify_waiters [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="871.12" y="460" width="0.49" height="19" fill="rgb(245,175,76)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::sync::notify::NotifyGuard&gt;::notify_waiters [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="871.12" y="440" width="0.49" height="19" fill="rgb(245,166,48)"/>
+</g>
+<g><title>&lt;core[efd5e57aef94d71e]::iter::adapters::GenericShunt&lt;core[efd5e57aef94d71e]::iter::adapters::map::Map&lt;core[efd5e57aef94d71e]::iter::adapters::enumerate::Enumerate&lt;core[efd5e57aef94d71e]::slice::iter::Iter&lt;pg_wildcard[fa6338fa92e591c1]::fdw::values::Target&gt;&gt;, pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner::{closure#10}&gt;, core[efd5e57aef94d71e]::result::Result&lt;core[efd5e57aef94d71e]::convert::Infallible, &amp;str&gt;&gt; as core[efd5e57aef94d71e]::iter::traits::iterator::Iterator&gt;::next [pg_wildcard.so]: 7 samples (0.22%)</title><rect x="871.61" y="500" width="3.45" height="19" fill="rgb(245,101,111)"/>
+</g>
+<g><title>&lt;alloc[c23e483dde3f7cfb]::sync::Arc&lt;dyn arrow_array[598ad3715c262810]::array::Array&gt; as arrow_array[598ad3715c262810]::array::Array&gt;::data_type [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="871.61" y="480" width="0.49" height="19" fill="rgb(245,132,70)"/>
+</g>
+<g><title>&lt;arrow_array[598ad3715c262810]::array::primitive_array::PrimitiveArray&lt;arrow_array[598ad3715c262810]::types::Int64Type&gt; as arrow_array[598ad3715c262810]::array::Array&gt;::as_any [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="872.10" y="480" width="0.49" height="19" fill="rgb(245,116,70)"/>
+</g>
+<g><title>&lt;arrow_array[598ad3715c262810]::array::primitive_array::PrimitiveArray&lt;arrow_array[598ad3715c262810]::types::Int64Type&gt; as core[efd5e57aef94d71e]::any::Any&gt;::type_id [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="872.59" y="480" width="0.98" height="19" fill="rgb(245,163,42)"/>
+</g>
+<g><title>&lt;pg_wildcard[fa6338fa92e591c1]::fdw::transport::Stream&gt;::event [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="875.05" y="500" width="0.49" height="19" fill="rgb(245,118,65)"/>
+</g>
+<g><title>&lt;antalya_rs[bad8e0b89db77521]::execution::BudgetedBatch&gt;::charged_bytes [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="875.05" y="480" width="0.49" height="19" fill="rgb(245,172,106)"/>
+</g>
+<g><title>&lt;pgrx[f615e66467087050]::memcxt::PgMemoryContexts&gt;::exec_in_context::&lt;(), pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner::{closure#13}&gt; [pg_wildcard.so]: 1072 samples (32.97%)</title><rect x="875.55" y="500" width="527.59" height="19" fill="rgb(245,189,106)"/>
+<text x="878.55" y="513">&lt;pgrx[f615e66467087050]::memcxt::PgMemoryContexts&gt;::exec_in_context::&lt;(), </text>
+</g>
+<g><title>&lt;&amp;[u8] as pgrx[f615e66467087050]::datum::into::IntoDatum&gt;::into_datum [pg_wildcard.so]: 486 samples (14.95%)</title><rect x="875.55" y="480" width="239.19" height="19" fill="rgb(245,205,59)"/>
+<text x="878.55" y="493">&lt;&amp;[u8] as pgrx[f615e66467087050]:</text>
+</g>
+<g><title>[unknown] [libc.so.6]: 214 samples (6.58%)</title><rect x="875.55" y="460" width="105.32" height="19" fill="rgb(245,100,49)"/>
+<text x="878.55" y="473">[unknown] [lib</text>
+</g>
+<g><title>cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::&lt;pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl&lt;*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}&gt;::{closure#0}&gt; [pg_wildcard.so]: 176 samples (5.41%)</title><rect x="980.87" y="460" width="86.62" height="19" fill="rgb(245,155,101)"/>
+<text x="983.87" y="473">cee_scape[a</text>
+</g>
+<g><title>[unknown] [libc.so.6]: 55 samples (1.69%)</title><rect x="980.87" y="440" width="27.07" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::&lt;pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl&lt;*mut core[efd5e57aef94d71e]::ffi::c_void, pgrx_pg_sys[768ca042e806565a]::include::pg18::palloc::{closure#0}&gt;::{closure#0}&gt; [pg_wildcard.so]: 79 samples (2.43%)</title><rect x="1007.94" y="440" width="38.88" height="19" fill="rgb(245,207,81)"/>
+<text x="1010.94" y="453">cee_</text>
+</g>
+<g><title>AllocSetAlloc [postgres]: 45 samples (1.38%)</title><rect x="1007.94" y="420" width="22.15" height="19" fill="rgb(245,184,83)"/>
+</g>
+<g><title>palloc [postgres]: 22 samples (0.68%)</title><rect x="1030.08" y="420" width="10.83" height="19" fill="rgb(245,103,57)"/>
+</g>
+<g><title>pgrx_pg_sys[768ca042e806565a]::submodules::thread_check::check_active_thread [pg_wildcard.so]: 37 samples (1.14%)</title><rect x="1067.49" y="460" width="18.21" height="19" fill="rgb(245,196,88)"/>
+</g>
+<g><title>[unknown] [ld-linux-x86-64.so.2]: 14 samples (0.43%)</title><rect x="1067.49" y="440" width="6.89" height="19" fill="rgb(245,204,107)"/>
+</g>
+<g><title>&lt;arrow_array[598ad3715c262810]::array::byte_array::GenericByteArray&lt;arrow_array[598ad3715c262810]::types::GenericBinaryType&lt;i32&gt;&gt; as arrow_array[598ad3715c262810]::array::Array&gt;::is_null [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="1114.73" y="480" width="1.97" height="19" fill="rgb(245,175,70)"/>
+</g>
+<g><title>&lt;arrow_array[598ad3715c262810]::array::byte_array::GenericByteArray&lt;arrow_array[598ad3715c262810]::types::GenericBinaryType&lt;i32&gt;&gt; as arrow_array[598ad3715c262810]::array::Array&gt;::len [pg_wildcard.so]: 9 samples (0.28%)</title><rect x="1116.70" y="480" width="4.43" height="19" fill="rgb(245,158,67)"/>
+</g>
+<g><title>&lt;arrow_array[598ad3715c262810]::array::primitive_array::PrimitiveArray&lt;arrow_array[598ad3715c262810]::types::Int64Type&gt; as arrow_array[598ad3715c262810]::array::Array&gt;::is_null [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="1121.13" y="480" width="1.97" height="19" fill="rgb(245,190,88)"/>
+</g>
+<g><title>&lt;arrow_array[598ad3715c262810]::array::primitive_array::PrimitiveArray&lt;arrow_array[598ad3715c262810]::types::Int64Type&gt; as arrow_array[598ad3715c262810]::array::Array&gt;::len [pg_wildcard.so]: 5 samples (0.15%)</title><rect x="1123.10" y="480" width="2.46" height="19" fill="rgb(245,208,94)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::slice::memchr::memchr_aligned [pg_wildcard.so]: 112 samples (3.45%)</title><rect x="1125.56" y="480" width="55.12" height="19" fill="rgb(245,141,47)"/>
+<text x="1128.56" y="493">core[e</text>
+</g>
+<g><title>core[efd5e57aef94d71e]::str::converts::from_utf8 [pg_wildcard.so]: 122 samples (3.75%)</title><rect x="1180.68" y="480" width="60.04" height="19" fill="rgb(245,187,63)"/>
+<text x="1183.68" y="493">core[ef</text>
+</g>
+<g><title>&lt;pgrx[f615e66467087050]::memcxt::PgMemoryContexts&gt;::value [pg_wildcard.so]: 27 samples (0.83%)</title><rect x="1403.14" y="500" width="13.29" height="19" fill="rgb(245,128,61)"/>
+</g>
+<g><title>&lt;std[68c81ae915296b05]::time::Instant&gt;::elapsed [pg_wildcard.so]: 11 samples (0.34%)</title><rect x="1416.43" y="500" width="5.41" height="19" fill="rgb(245,112,57)"/>
+</g>
+<g><title>&lt;std[68c81ae915296b05]::sys::pal::unix::time::Timespec&gt;::now [pg_wildcard.so]: 11 samples (0.34%)</title><rect x="1416.43" y="480" width="5.41" height="19" fill="rgb(245,177,92)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 8 samples (0.25%)</title><rect x="1416.43" y="460" width="3.94" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 1 samples (0.03%)</title><rect x="1416.43" y="440" width="0.49" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::sync::mpsc::chan::Rx&lt;core[efd5e57aef94d71e]::result::Result&lt;pg_wildcard[fa6338fa92e591c1]::fdw::transport::Event, antalya_rs[bad8e0b89db77521]::error::Error&gt;, tokio[3b2dcaef427225d8]::sync::mpsc::bounded::Semaphore&gt;&gt;::recv [pg_wildcard.so]: 14 samples (0.43%)</title><rect x="1421.84" y="500" width="6.89" height="19" fill="rgb(245,152,77)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::sync::batch_semaphore::Semaphore&gt;::add_permits_locked [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="1421.84" y="480" width="0.49" height="19" fill="rgb(245,141,50)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::sync::mpsc::bounded::Semaphore as tokio[3b2dcaef427225d8]::sync::mpsc::chan::Semaphore&gt;::add_permit [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="1422.33" y="480" width="0.98" height="19" fill="rgb(245,192,97)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::sync::mpsc::list::Rx&lt;core[efd5e57aef94d71e]::result::Result&lt;pg_wildcard[fa6338fa92e591c1]::fdw::transport::Event, antalya_rs[bad8e0b89db77521]::error::Error&gt;&gt;&gt;::pop [pg_wildcard.so]: 4 samples (0.12%)</title><rect x="1423.32" y="480" width="1.97" height="19" fill="rgb(245,168,109)"/>
+</g>
+<g><title>&lt;tokio[3b2dcaef427225d8]::sync::task::atomic_waker::AtomicWaker&gt;::register_by_ref [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="1425.28" y="480" width="0.49" height="19" fill="rgb(245,125,47)"/>
+</g>
+<g><title>[unknown] [ld-linux-x86-64.so.2]: 4 samples (0.12%)</title><rect x="1425.78" y="480" width="1.97" height="19" fill="rgb(245,204,107)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="1428.73" y="500" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [postgres]: 10 samples (0.31%)</title><rect x="1429.22" y="500" width="4.92" height="19" fill="rgb(245,157,50)"/>
+</g>
+<g><title>alloc[c23e483dde3f7cfb]::task::raw_waker::drop_waker::&lt;pg_wildcard[fa6338fa92e591c1]::fdw::transport::BackendWake&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="1434.14" y="500" width="0.49" height="19" fill="rgb(245,127,74)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="1434.14" y="480" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::&lt;pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl&lt;*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::TupleTableSlot, pgrx_pg_sys[768ca042e806565a]::include::pg18::ExecStoreVirtualTuple::{closure#0}&gt;::{closure#0}&gt; [pg_wildcard.so]: 78 samples (2.40%)</title><rect x="1434.64" y="500" width="38.39" height="19" fill="rgb(245,185,114)"/>
+<text x="1437.64" y="513">cee_</text>
+</g>
+<g><title>[unknown] [libc.so.6]: 36 samples (1.11%)</title><rect x="1434.64" y="480" width="17.72" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>cee_scape[aaa9a699a8173557]::asm_based::call_with_sigsetjmp::call_from_c_to_rust::&lt;pgrx_pg_sys[768ca042e806565a]::submodules::ffi::pg_guard_ffi_boundary_impl&lt;*mut pgrx_pg_sys[768ca042e806565a]::include::pg18::TupleTableSlot, pgrx_pg_sys[768ca042e806565a]::include::pg18::ExecStoreVirtualTuple::{closure#0}&gt;::{closure#0}&gt; [pg_wildcard.so]: 17 samples (0.52%)</title><rect x="1452.35" y="480" width="8.37" height="19" fill="rgb(245,178,93)"/>
+</g>
+<g><title>ExecStoreVirtualTuple [postgres]: 9 samples (0.28%)</title><rect x="1452.35" y="460" width="4.43" height="19" fill="rgb(245,202,73)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;alloc[c23e483dde3f7cfb]::vec::Vec&lt;pg_wildcard[fa6338fa92e591c1]::fdw::values::PreparedColumn&gt;&gt; [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="1473.02" y="500" width="0.49" height="19" fill="rgb(245,111,88)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;antalya_rs[bad8e0b89db77521]::execution::BudgetedBatch&gt; [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="1473.52" y="500" width="0.98" height="19" fill="rgb(245,144,90)"/>
+</g>
+<g><title>core[efd5e57aef94d71e]::ptr::drop_glue::&lt;alloc[c23e483dde3f7cfb]::vec::Vec&lt;alloc[c23e483dde3f7cfb]::sync::Arc&lt;dyn arrow_array[598ad3715c262810]::array::Array&gt;&gt;&gt; [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="1473.52" y="480" width="0.98" height="19" fill="rgb(245,130,41)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="1473.52" y="460" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="1473.52" y="440" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="1473.52" y="420" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>pgrx_pg_sys[768ca042e806565a]::submodules::thread_check::check_active_thread [pg_wildcard.so]: 22 samples (0.68%)</title><rect x="1474.50" y="500" width="10.83" height="19" fill="rgb(245,196,88)"/>
+</g>
+<g><title>[unknown] [ld-linux-x86-64.so.2]: 11 samples (0.34%)</title><rect x="1474.50" y="480" width="5.41" height="19" fill="rgb(245,204,107)"/>
+</g>
+<g><title>std[68c81ae915296b05]::thread::current::current [pg_wildcard.so]: 1 samples (0.03%)</title><rect x="1485.33" y="500" width="0.49" height="19" fill="rgb(245,123,56)"/>
+</g>
+<g><title>std[68c81ae915296b05]::thread::functions::park_timeout [pg_wildcard.so]: 15 samples (0.46%)</title><rect x="1485.82" y="500" width="7.38" height="19" fill="rgb(245,182,116)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 1 samples (0.03%)</title><rect x="1485.82" y="480" width="0.49" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [libc.so.6]: 1 samples (0.03%)</title><rect x="1486.31" y="480" width="0.49" height="19" fill="rgb(245,100,49)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 1 samples (0.03%)</title><rect x="1486.31" y="460" width="0.49" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 1 samples (0.03%)</title><rect x="1486.31" y="440" width="0.49" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 1 samples (0.03%)</title><rect x="1486.31" y="420" width="0.49" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 1 samples (0.03%)</title><rect x="1486.31" y="400" width="0.49" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 1 samples (0.03%)</title><rect x="1486.31" y="380" width="0.49" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>[unknown] [[unknown]]: 1 samples (0.03%)</title><rect x="1486.31" y="360" width="0.49" height="19" fill="rgb(245,115,52)"/>
+</g>
+<g><title>postmaster_child_launch [postgres]: 2 samples (0.06%)</title><rect x="1599.02" y="520" width="0.98" height="19" fill="rgb(245,113,76)"/>
+</g>
+<g><title>BackendMain [postgres]: 2 samples (0.06%)</title><rect x="1599.02" y="500" width="0.98" height="19" fill="rgb(245,174,107)"/>
+</g>
+<g><title>PostgresMain [postgres]: 2 samples (0.06%)</title><rect x="1599.02" y="480" width="0.98" height="19" fill="rgb(245,101,93)"/>
+</g>
+<g><title>[unknown] [postgres]: 2 samples (0.06%)</title><rect x="1599.02" y="460" width="0.98" height="19" fill="rgb(245,157,50)"/>
+</g>
+<g><title>PortalRun [postgres]: 2 samples (0.06%)</title><rect x="1599.02" y="440" width="0.98" height="19" fill="rgb(245,121,119)"/>
+</g>
+<g><title>[unknown] [postgres]: 2 samples (0.06%)</title><rect x="1599.02" y="420" width="0.98" height="19" fill="rgb(245,157,50)"/>
+</g>
+<g><title>[unknown] [postgres]: 2 samples (0.06%)</title><rect x="1599.02" y="400" width="0.98" height="19" fill="rgb(245,157,50)"/>
+</g>
+<g><title>standard_ProcessUtility [postgres]: 2 samples (0.06%)</title><rect x="1599.02" y="380" width="0.98" height="19" fill="rgb(245,185,95)"/>
+</g>
+<g><title>ExplainQuery [postgres]: 2 samples (0.06%)</title><rect x="1599.02" y="360" width="0.98" height="19" fill="rgb(245,187,105)"/>
+</g>
+<g><title>[unknown] [postgres]: 2 samples (0.06%)</title><rect x="1599.02" y="340" width="0.98" height="19" fill="rgb(245,157,50)"/>
+</g>
+<g><title>standard_ExplainOneQuery [postgres]: 2 samples (0.06%)</title><rect x="1599.02" y="320" width="0.98" height="19" fill="rgb(245,154,65)"/>
+</g>
+<g><title>ExplainOnePlan [postgres]: 2 samples (0.06%)</title><rect x="1599.02" y="300" width="0.98" height="19" fill="rgb(245,144,40)"/>
+</g>
+<g><title>standard_ExecutorRun [postgres]: 2 samples (0.06%)</title><rect x="1599.02" y="280" width="0.98" height="19" fill="rgb(245,166,115)"/>
+</g>
+<g><title>[unknown] [postgres]: 2 samples (0.06%)</title><rect x="1599.02" y="260" width="0.98" height="19" fill="rgb(245,157,50)"/>
+</g>
+<g><title>[unknown] [postgres]: 2 samples (0.06%)</title><rect x="1599.02" y="240" width="0.98" height="19" fill="rgb(245,157,50)"/>
+</g>
+<g><title>pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="1599.02" y="220" width="0.98" height="19" fill="rgb(245,194,119)"/>
+</g>
+<g><title>pgrx_pg_sys[768ca042e806565a]::submodules::panic::run_guarded::&lt;core[efd5e57aef94d71e]::panic::unwind_safe::AssertUnwindSafe&lt;pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::{closure#0}&gt;, *mut pgrx_pg_sys[768ca042e806565a]::include::pg18::TupleTableSlot&gt; [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="1599.02" y="200" width="0.98" height="19" fill="rgb(245,173,65)"/>
+</g>
+<g><title>pg_wildcard[fa6338fa92e591c1]::fdw::iterate_foreign_scan::iterate_foreign_scan_inner [pg_wildcard.so]: 2 samples (0.06%)</title><rect x="1599.02" y="180" width="0.98" height="19" fill="rgb(245,111,41)"/>
+</g>
+</svg>

@@ -1,0 +1,6 @@
+{
+  "case": "short-10000-c1",
+  "status": "censored_pair_budget",
+  "error": "oracle exceeds pair budget",
+  "spec_sha256": "60fd3fed2758162701cb3d7a5b481444f51cd740455f7355e358309f992a21e3"
+}

@@ -1,0 +1,2162 @@
+[
+  {
+    "run": "inband-baseline-0",
+    "workload": "narrow",
+    "route": "direct",
+    "request_ms": 375.10789700000004,
+    "executor_ms": null,
+    "native_ms": [
+      369
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 13.662666,
+    "terminal_ms": 0.003282,
+    "individual_batch_bytes": 65992,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-0",
+    "workload": "narrow",
+    "route": "pg_backend",
+    "request_ms": 390.17155100009404,
+    "executor_ms": 380.621,
+    "native_ms": [
+      377
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 15.143,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 65992,
+    "sampled_backend_rss_kib": 26368,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-0",
+    "workload": "narrow",
+    "route": "pg_copy",
+    "request_ms": 530.1892830175348,
+    "executor_ms": null,
+    "native_ms": [
+      317
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 26604,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-0",
+    "workload": "smalltext",
+    "route": "direct",
+    "request_ms": 1280.93725,
+    "executor_ms": null,
+    "native_ms": [
+      1276
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 33.052255,
+    "terminal_ms": 0.003772,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-0",
+    "workload": "smalltext",
+    "route": "pg_backend",
+    "request_ms": 1594.3448359903414,
+    "executor_ms": 1563.631,
+    "native_ms": [
+      1559
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 43.619,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": 26988,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-0",
+    "workload": "smalltext",
+    "route": "pg_copy",
+    "request_ms": 1745.4661339870654,
+    "executor_ms": null,
+    "native_ms": [
+      1542
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 28048,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-0",
+    "workload": "wide1k",
+    "route": "direct",
+    "request_ms": 634.568604,
+    "executor_ms": null,
+    "native_ms": [
+      612
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.381337,
+    "terminal_ms": 0.0028640000000000002,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-0",
+    "workload": "wide1k",
+    "route": "pg_backend",
+    "request_ms": 688.9518559910357,
+    "executor_ms": 668.377,
+    "native_ms": [
+      637
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.358,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": 52352,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-0",
+    "workload": "wide1k",
+    "route": "pg_copy",
+    "request_ms": 730.2072290040087,
+    "executor_ms": null,
+    "native_ms": [
+      651
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 54152,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-0",
+    "workload": "broad_recheck",
+    "route": "direct",
+    "request_ms": 1374.434601,
+    "executor_ms": null,
+    "native_ms": [
+      1366
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 38.881549,
+    "terminal_ms": 0.003282,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-0",
+    "workload": "broad_recheck",
+    "route": "pg_backend",
+    "request_ms": 1370.6875699863303,
+    "executor_ms": 1338.532,
+    "native_ms": [
+      1315
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 21.729,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 411040,
+    "sampled_backend_rss_kib": 55420,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-0",
+    "workload": "broad_recheck",
+    "route": "pg_copy",
+    "request_ms": 2118.5162430047058,
+    "executor_ms": null,
+    "native_ms": [
+      1815
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 54684,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-0",
+    "workload": "narrow",
+    "route": "direct",
+    "request_ms": 409.890597,
+    "executor_ms": null,
+    "native_ms": [
+      398
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 11.62808,
+    "terminal_ms": 0.0032830000000000003,
+    "individual_batch_bytes": 8768,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-0",
+    "workload": "narrow",
+    "route": "pg_backend",
+    "request_ms": 644.0759229881223,
+    "executor_ms": 634.632,
+    "native_ms": [
+      617
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 21.546,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 8768,
+    "sampled_backend_rss_kib": 26780,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-0",
+    "workload": "narrow",
+    "route": "pg_copy",
+    "request_ms": 645.5751929897815,
+    "executor_ms": null,
+    "native_ms": [
+      428
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 27032,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-0",
+    "workload": "smalltext",
+    "route": "direct",
+    "request_ms": 1215.578081,
+    "executor_ms": null,
+    "native_ms": [
+      1212
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 41.077495,
+    "terminal_ms": 0.003282,
+    "individual_batch_bytes": 52640,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-0",
+    "workload": "smalltext",
+    "route": "pg_backend",
+    "request_ms": 1949.4077030103654,
+    "executor_ms": 1916.531,
+    "native_ms": [
+      1906
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 51.311,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 52640,
+    "sampled_backend_rss_kib": 25404,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-0",
+    "workload": "smalltext",
+    "route": "pg_copy",
+    "request_ms": 1627.7993949770462,
+    "executor_ms": null,
+    "native_ms": [
+      1427
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 25776,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-0",
+    "workload": "wide1k",
+    "route": "direct",
+    "request_ms": 950.767409,
+    "executor_ms": null,
+    "native_ms": [
+      898
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.41382,
+    "terminal_ms": 0.003422,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-0",
+    "workload": "wide1k",
+    "route": "pg_backend",
+    "request_ms": 786.3233590032905,
+    "executor_ms": 771.709,
+    "native_ms": [
+      739
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.398,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": 53328,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-0",
+    "workload": "wide1k",
+    "route": "pg_copy",
+    "request_ms": 906.9777239928953,
+    "executor_ms": null,
+    "native_ms": [
+      781
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 53988,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-0",
+    "workload": "broad_recheck",
+    "route": "direct",
+    "request_ms": 1591.225766,
+    "executor_ms": null,
+    "native_ms": [
+      1551
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 39.440305,
+    "terminal_ms": 0.0038410000000000002,
+    "individual_batch_bytes": 52640,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-0",
+    "workload": "broad_recheck",
+    "route": "pg_backend",
+    "request_ms": 1251.196452009026,
+    "executor_ms": 1223.302,
+    "native_ms": [
+      1219
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 13.657,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 411040,
+    "sampled_backend_rss_kib": 28596,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-0",
+    "workload": "broad_recheck",
+    "route": "pg_copy",
+    "request_ms": 1914.7509989852551,
+    "executor_ms": null,
+    "native_ms": [
+      1657
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 28596,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-1",
+    "workload": "narrow",
+    "route": "direct",
+    "request_ms": 419.122627,
+    "executor_ms": null,
+    "native_ms": [
+      354
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 11.800381,
+    "terminal_ms": 0.003701,
+    "individual_batch_bytes": 65992,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-1",
+    "workload": "narrow",
+    "route": "pg_backend",
+    "request_ms": 454.73035000031814,
+    "executor_ms": 444.536,
+    "native_ms": [
+      401
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 10.855,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 65992,
+    "sampled_backend_rss_kib": 27336,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-1",
+    "workload": "narrow",
+    "route": "pg_copy",
+    "request_ms": 690.0707940221764,
+    "executor_ms": null,
+    "native_ms": [
+      470
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 27744,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-1",
+    "workload": "smalltext",
+    "route": "direct",
+    "request_ms": 1385.274972,
+    "executor_ms": null,
+    "native_ms": [
+      1380
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 32.434360000000005,
+    "terminal_ms": 0.0027930000000000003,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-1",
+    "workload": "smalltext",
+    "route": "pg_backend",
+    "request_ms": 1687.8558739845175,
+    "executor_ms": 1660.218,
+    "native_ms": [
+      1653
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 42.885,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": 28280,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-1",
+    "workload": "smalltext",
+    "route": "pg_copy",
+    "request_ms": 1765.276197984349,
+    "executor_ms": null,
+    "native_ms": [
+      1596
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 28624,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-1",
+    "workload": "wide1k",
+    "route": "direct",
+    "request_ms": 961.783235,
+    "executor_ms": null,
+    "native_ms": [
+      929
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.397341,
+    "terminal_ms": 0.003352,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-1",
+    "workload": "wide1k",
+    "route": "pg_backend",
+    "request_ms": 786.5594489849173,
+    "executor_ms": 767.946,
+    "native_ms": [
+      748
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.372,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": 55836,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-1",
+    "workload": "wide1k",
+    "route": "pg_copy",
+    "request_ms": 847.9896640055813,
+    "executor_ms": null,
+    "native_ms": [
+      749
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 55836,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-1",
+    "workload": "broad_recheck",
+    "route": "direct",
+    "request_ms": 1021.6670889999999,
+    "executor_ms": null,
+    "native_ms": [
+      1017
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 35.637476,
+    "terminal_ms": 0.0028640000000000002,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-1",
+    "workload": "broad_recheck",
+    "route": "pg_backend",
+    "request_ms": 884.2720480170101,
+    "executor_ms": 859.774,
+    "native_ms": [
+      826
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 10.883,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 411040,
+    "sampled_backend_rss_kib": 56972,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-1",
+    "workload": "broad_recheck",
+    "route": "pg_copy",
+    "request_ms": 1345.068305003224,
+    "executor_ms": null,
+    "native_ms": [
+      1214
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 56972,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-1",
+    "workload": "narrow",
+    "route": "direct",
+    "request_ms": 322.201161,
+    "executor_ms": null,
+    "native_ms": [
+      318
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 12.745921000000001,
+    "terminal_ms": 0.003352,
+    "individual_batch_bytes": 65992,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-1",
+    "workload": "narrow",
+    "route": "pg_backend",
+    "request_ms": 334.6960009948816,
+    "executor_ms": 326.733,
+    "native_ms": [
+      279
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 13.768,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 65992,
+    "sampled_backend_rss_kib": 29044,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-1",
+    "workload": "narrow",
+    "route": "pg_copy",
+    "request_ms": 404.93242000229657,
+    "executor_ms": null,
+    "native_ms": [
+      264
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 29516,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-1",
+    "workload": "smalltext",
+    "route": "direct",
+    "request_ms": 1153.34673,
+    "executor_ms": null,
+    "native_ms": [
+      1147
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 39.034728,
+    "terminal_ms": 0.003353,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-1",
+    "workload": "smalltext",
+    "route": "pg_backend",
+    "request_ms": 1340.948864002712,
+    "executor_ms": 1314.695,
+    "native_ms": [
+      1310
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 42.365,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": 30152,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-1",
+    "workload": "smalltext",
+    "route": "pg_copy",
+    "request_ms": 1161.5326950268354,
+    "executor_ms": null,
+    "native_ms": [
+      1065
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 30236,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-1",
+    "workload": "wide1k",
+    "route": "direct",
+    "request_ms": 573.373814,
+    "executor_ms": null,
+    "native_ms": [
+      560
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.357881,
+    "terminal_ms": 0.002794,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-1",
+    "workload": "wide1k",
+    "route": "pg_backend",
+    "request_ms": 631.4148610108532,
+    "executor_ms": 612.038,
+    "native_ms": [
+      586
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.356,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": 57896,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-1",
+    "workload": "wide1k",
+    "route": "pg_copy",
+    "request_ms": 680.2778890123591,
+    "executor_ms": null,
+    "native_ms": [
+      584
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 56972,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-1",
+    "workload": "broad_recheck",
+    "route": "direct",
+    "request_ms": 1151.169294,
+    "executor_ms": null,
+    "native_ms": [
+      1147
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 38.713882999999996,
+    "terminal_ms": 0.003771,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-1",
+    "workload": "broad_recheck",
+    "route": "pg_backend",
+    "request_ms": 1115.2135000156704,
+    "executor_ms": 1086.087,
+    "native_ms": [
+      1027
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 14.496,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 411032,
+    "sampled_backend_rss_kib": 45172,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-1",
+    "workload": "broad_recheck",
+    "route": "pg_copy",
+    "request_ms": 2044.5116990013048,
+    "executor_ms": null,
+    "native_ms": [
+      1851
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 45172,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-2",
+    "workload": "narrow",
+    "route": "direct",
+    "request_ms": 512.123776,
+    "executor_ms": null,
+    "native_ms": [
+      397
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 20.684304,
+    "terminal_ms": 0.003702,
+    "individual_batch_bytes": 8768,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-2",
+    "workload": "narrow",
+    "route": "pg_backend",
+    "request_ms": 928.2920039840974,
+    "executor_ms": 908.292,
+    "native_ms": [
+      879
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 24.271,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 8768,
+    "sampled_backend_rss_kib": 28532,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-2",
+    "workload": "narrow",
+    "route": "pg_copy",
+    "request_ms": 768.8199270050973,
+    "executor_ms": null,
+    "native_ms": [
+      528
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 29248,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-2",
+    "workload": "smalltext",
+    "route": "direct",
+    "request_ms": 1109.6332200000002,
+    "executor_ms": null,
+    "native_ms": [
+      1104
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 41.172090000000004,
+    "terminal_ms": 0.002863,
+    "individual_batch_bytes": 52640,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-2",
+    "workload": "smalltext",
+    "route": "pg_backend",
+    "request_ms": 1455.439621990081,
+    "executor_ms": 1418.106,
+    "native_ms": [
+      1410
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 42.586,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 52632,
+    "sampled_backend_rss_kib": 28920,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-2",
+    "workload": "smalltext",
+    "route": "pg_copy",
+    "request_ms": 1508.7812909914646,
+    "executor_ms": null,
+    "native_ms": [
+      1348
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 29508,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-2",
+    "workload": "wide1k",
+    "route": "direct",
+    "request_ms": 1137.181473,
+    "executor_ms": null,
+    "native_ms": [
+      1096
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.399159,
+    "terminal_ms": 0.003282,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-2",
+    "workload": "wide1k",
+    "route": "pg_backend",
+    "request_ms": 838.4752529964317,
+    "executor_ms": 816.643,
+    "native_ms": [
+      779
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.432,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": 57924,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-2",
+    "workload": "wide1k",
+    "route": "pg_copy",
+    "request_ms": 967.9614850028884,
+    "executor_ms": null,
+    "native_ms": [
+      811
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 57476,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-2",
+    "workload": "broad_recheck",
+    "route": "direct",
+    "request_ms": 1650.2950219999998,
+    "executor_ms": null,
+    "native_ms": [
+      1645
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 38.540242,
+    "terminal_ms": 0.00433,
+    "individual_batch_bytes": 52640,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-2",
+    "workload": "broad_recheck",
+    "route": "pg_backend",
+    "request_ms": 1416.1648599838372,
+    "executor_ms": 1385.858,
+    "native_ms": [
+      1347
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 10.912,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 411040,
+    "sampled_backend_rss_kib": 31776,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-2",
+    "workload": "broad_recheck",
+    "route": "pg_copy",
+    "request_ms": 2279.8516310285777,
+    "executor_ms": null,
+    "native_ms": [
+      2063
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 31552,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-2",
+    "workload": "narrow",
+    "route": "direct",
+    "request_ms": 409.626559,
+    "executor_ms": null,
+    "native_ms": [
+      403
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 23.661506,
+    "terminal_ms": 0.003353,
+    "individual_batch_bytes": 8768,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-2",
+    "workload": "narrow",
+    "route": "pg_backend",
+    "request_ms": 386.8447529966943,
+    "executor_ms": 377.165,
+    "native_ms": [
+      374
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 15.211,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 8768,
+    "sampled_backend_rss_kib": 26788,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-2",
+    "workload": "narrow",
+    "route": "pg_copy",
+    "request_ms": 639.9364269746002,
+    "executor_ms": null,
+    "native_ms": [
+      388
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 26932,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-2",
+    "workload": "smalltext",
+    "route": "direct",
+    "request_ms": 1367.2002029999999,
+    "executor_ms": null,
+    "native_ms": [
+      1357
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 30.89417,
+    "terminal_ms": 0.0038410000000000002,
+    "individual_batch_bytes": 52632,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-2",
+    "workload": "smalltext",
+    "route": "pg_backend",
+    "request_ms": 1611.1398579960223,
+    "executor_ms": 1583.083,
+    "native_ms": [
+      1578
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 37.756,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 52632,
+    "sampled_backend_rss_kib": 23792,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-2",
+    "workload": "smalltext",
+    "route": "pg_copy",
+    "request_ms": 1806.5382530039642,
+    "executor_ms": null,
+    "native_ms": [
+      1411
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 24468,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-2",
+    "workload": "wide1k",
+    "route": "direct",
+    "request_ms": 806.231037,
+    "executor_ms": null,
+    "native_ms": [
+      766
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.375667,
+    "terminal_ms": 0.0032830000000000003,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-2",
+    "workload": "wide1k",
+    "route": "pg_backend",
+    "request_ms": 930.3730130195618,
+    "executor_ms": 910.422,
+    "native_ms": [
+      875
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.389,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": 52124,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-2",
+    "workload": "wide1k",
+    "route": "pg_copy",
+    "request_ms": 1097.034580016043,
+    "executor_ms": null,
+    "native_ms": [
+      956
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 53328,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-2",
+    "workload": "broad_recheck",
+    "route": "direct",
+    "request_ms": 1137.385658,
+    "executor_ms": null,
+    "native_ms": [
+      1133
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 40.309299,
+    "terminal_ms": 0.003282,
+    "individual_batch_bytes": 52632,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-2",
+    "workload": "broad_recheck",
+    "route": "pg_backend",
+    "request_ms": 1005.3479819907807,
+    "executor_ms": 974.93,
+    "native_ms": [
+      957
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 10.77,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 411040,
+    "sampled_backend_rss_kib": 54616,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-2",
+    "workload": "broad_recheck",
+    "route": "pg_copy",
+    "request_ms": 1556.2242149899248,
+    "executor_ms": null,
+    "native_ms": [
+      1419
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 54616,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-3",
+    "workload": "narrow",
+    "route": "direct",
+    "request_ms": 280.709072,
+    "executor_ms": null,
+    "native_ms": [
+      276
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 10.436620000000001,
+    "terminal_ms": 0.003212,
+    "individual_batch_bytes": 65992,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-3",
+    "workload": "narrow",
+    "route": "pg_backend",
+    "request_ms": 298.2603150012437,
+    "executor_ms": 290.867,
+    "native_ms": [
+      273
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 11.964,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 65992,
+    "sampled_backend_rss_kib": 28964,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-3",
+    "workload": "narrow",
+    "route": "pg_copy",
+    "request_ms": 420.0571329856757,
+    "executor_ms": null,
+    "native_ms": [
+      304
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 29028,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-3",
+    "workload": "smalltext",
+    "route": "direct",
+    "request_ms": 1282.3363809999998,
+    "executor_ms": null,
+    "native_ms": [
+      1278
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 34.771302,
+    "terminal_ms": 0.003702,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-3",
+    "workload": "smalltext",
+    "route": "pg_backend",
+    "request_ms": 1054.7552140196785,
+    "executor_ms": 1032.344,
+    "native_ms": [
+      1029
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 37.217,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": 30316,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-3",
+    "workload": "smalltext",
+    "route": "pg_copy",
+    "request_ms": 1163.3713229966816,
+    "executor_ms": null,
+    "native_ms": [
+      1063
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 30496,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-3",
+    "workload": "wide1k",
+    "route": "direct",
+    "request_ms": 608.732894,
+    "executor_ms": null,
+    "native_ms": [
+      596
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.409264,
+    "terminal_ms": 0.003352,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-3",
+    "workload": "wide1k",
+    "route": "pg_backend",
+    "request_ms": 603.0965659883805,
+    "executor_ms": 588.417,
+    "native_ms": [
+      566
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.459,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": 57172,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-3",
+    "workload": "wide1k",
+    "route": "pg_copy",
+    "request_ms": 772.5484110123944,
+    "executor_ms": null,
+    "native_ms": [
+      699
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 62000,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-3",
+    "workload": "broad_recheck",
+    "route": "direct",
+    "request_ms": 1001.4643510000001,
+    "executor_ms": null,
+    "native_ms": [
+      998
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 39.249127,
+    "terminal_ms": 0.003282,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-3",
+    "workload": "broad_recheck",
+    "route": "pg_backend",
+    "request_ms": 792.8522319998592,
+    "executor_ms": 766.977,
+    "native_ms": [
+      753
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 10.256,
+    "terminal_ms": 0.081,
+    "individual_batch_bytes": 411040,
+    "sampled_backend_rss_kib": 31484,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-3",
+    "workload": "broad_recheck",
+    "route": "pg_copy",
+    "request_ms": 1544.005438016029,
+    "executor_ms": null,
+    "native_ms": [
+      1392
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 31484,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-3",
+    "workload": "narrow",
+    "route": "direct",
+    "request_ms": 308.523842,
+    "executor_ms": null,
+    "native_ms": [
+      304
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 12.149389,
+    "terminal_ms": 0.002863,
+    "individual_batch_bytes": 65992,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-3",
+    "workload": "narrow",
+    "route": "pg_backend",
+    "request_ms": 297.94056701939553,
+    "executor_ms": 290.465,
+    "native_ms": [
+      273
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 11.371,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 65992,
+    "sampled_backend_rss_kib": 29300,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-3",
+    "workload": "narrow",
+    "route": "pg_copy",
+    "request_ms": 424.9669349810574,
+    "executor_ms": null,
+    "native_ms": [
+      289
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 28896,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-3",
+    "workload": "smalltext",
+    "route": "direct",
+    "request_ms": 1150.350871,
+    "executor_ms": null,
+    "native_ms": [
+      1146
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 36.751439,
+    "terminal_ms": 0.003353,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-3",
+    "workload": "smalltext",
+    "route": "pg_backend",
+    "request_ms": 942.8518979984801,
+    "executor_ms": 921.17,
+    "native_ms": [
+      918
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 33.335,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": 30100,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-3",
+    "workload": "smalltext",
+    "route": "pg_copy",
+    "request_ms": 1000.8125170134008,
+    "executor_ms": null,
+    "native_ms": [
+      933
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 30456,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-3",
+    "workload": "wide1k",
+    "route": "direct",
+    "request_ms": 589.3696980000001,
+    "executor_ms": null,
+    "native_ms": [
+      563
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.435248,
+    "terminal_ms": 0.0034230000000000003,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-3",
+    "workload": "wide1k",
+    "route": "pg_backend",
+    "request_ms": 607.0781580056064,
+    "executor_ms": 593.105,
+    "native_ms": [
+      575
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.315,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": 59952,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-3",
+    "workload": "wide1k",
+    "route": "pg_copy",
+    "request_ms": 615.694200998405,
+    "executor_ms": null,
+    "native_ms": [
+      540
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 64424,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-3",
+    "workload": "broad_recheck",
+    "route": "direct",
+    "request_ms": 979.261381,
+    "executor_ms": null,
+    "native_ms": [
+      975
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 32.914066,
+    "terminal_ms": 0.002794,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-3",
+    "workload": "broad_recheck",
+    "route": "pg_backend",
+    "request_ms": 737.7441019925755,
+    "executor_ms": 716.82,
+    "native_ms": [
+      669
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 9.747,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 411040,
+    "sampled_backend_rss_kib": 32300,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-3",
+    "workload": "broad_recheck",
+    "route": "pg_copy",
+    "request_ms": 1311.6957299935166,
+    "executor_ms": null,
+    "native_ms": [
+      1155
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 32444,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-4",
+    "workload": "narrow",
+    "route": "direct",
+    "request_ms": 308.145626,
+    "executor_ms": null,
+    "native_ms": [
+      305
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 10.421972,
+    "terminal_ms": 0.0032830000000000003,
+    "individual_batch_bytes": 65992,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-4",
+    "workload": "narrow",
+    "route": "pg_backend",
+    "request_ms": 345.5269600090105,
+    "executor_ms": 336.976,
+    "native_ms": [
+      326
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 14.107,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 65992,
+    "sampled_backend_rss_kib": 28628,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-4",
+    "workload": "narrow",
+    "route": "pg_copy",
+    "request_ms": 512.9069540125784,
+    "executor_ms": null,
+    "native_ms": [
+      348
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 29672,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-4",
+    "workload": "smalltext",
+    "route": "direct",
+    "request_ms": 1003.8740260000001,
+    "executor_ms": null,
+    "native_ms": [
+      1001
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 32.661237,
+    "terminal_ms": 0.003352,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-4",
+    "workload": "smalltext",
+    "route": "pg_backend",
+    "request_ms": 1215.769870992517,
+    "executor_ms": 1187.379,
+    "native_ms": [
+      1181
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 44.07,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": 28912,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-4",
+    "workload": "smalltext",
+    "route": "pg_copy",
+    "request_ms": 1144.2258360038977,
+    "executor_ms": null,
+    "native_ms": [
+      1058
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 30040,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-4",
+    "workload": "wide1k",
+    "route": "direct",
+    "request_ms": 677.425331,
+    "executor_ms": null,
+    "native_ms": [
+      649
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.583036,
+    "terminal_ms": 0.003282,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-4",
+    "workload": "wide1k",
+    "route": "pg_backend",
+    "request_ms": 665.5404260091018,
+    "executor_ms": 650.449,
+    "native_ms": [
+      626
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.394,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": 60024,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-4",
+    "workload": "wide1k",
+    "route": "pg_copy",
+    "request_ms": 705.0621229864191,
+    "executor_ms": null,
+    "native_ms": [
+      625
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 57052,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-4",
+    "workload": "broad_recheck",
+    "route": "direct",
+    "request_ms": 924.280844,
+    "executor_ms": null,
+    "native_ms": [
+      921
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 31.052822,
+    "terminal_ms": 0.0028640000000000002,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-baseline-4",
+    "workload": "broad_recheck",
+    "route": "pg_backend",
+    "request_ms": 955.5362059909385,
+    "executor_ms": 932.137,
+    "native_ms": [
+      881
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 11.754,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 411040,
+    "sampled_backend_rss_kib": 32236,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-baseline-4",
+    "workload": "broad_recheck",
+    "route": "pg_copy",
+    "request_ms": 1339.0760490146931,
+    "executor_ms": null,
+    "native_ms": [
+      1197
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 32308,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-4",
+    "workload": "narrow",
+    "route": "direct",
+    "request_ms": 280.271451,
+    "executor_ms": null,
+    "native_ms": [
+      277
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 11.022440999999999,
+    "terminal_ms": 0.003842,
+    "individual_batch_bytes": 65992,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-4",
+    "workload": "narrow",
+    "route": "pg_backend",
+    "request_ms": 304.1827289853245,
+    "executor_ms": 294.683,
+    "native_ms": [
+      292
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 12.917,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 65992,
+    "sampled_backend_rss_kib": 28320,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-4",
+    "workload": "narrow",
+    "route": "pg_copy",
+    "request_ms": 383.7674600072205,
+    "executor_ms": null,
+    "native_ms": [
+      285
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 28804,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-4",
+    "workload": "smalltext",
+    "route": "direct",
+    "request_ms": 1002.604056,
+    "executor_ms": null,
+    "native_ms": [
+      999
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 31.415653000000002,
+    "terminal_ms": 0.003772,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-4",
+    "workload": "smalltext",
+    "route": "pg_backend",
+    "request_ms": 966.8643939949106,
+    "executor_ms": 940.462,
+    "native_ms": [
+      937
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 33.013,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": 28840,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-4",
+    "workload": "smalltext",
+    "route": "pg_copy",
+    "request_ms": 1034.7598060034215,
+    "executor_ms": null,
+    "native_ms": [
+      935
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 29800,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-4",
+    "workload": "wide1k",
+    "route": "direct",
+    "request_ms": 595.428751,
+    "executor_ms": null,
+    "native_ms": [
+      566
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.364362,
+    "terminal_ms": 0.002863,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-4",
+    "workload": "wide1k",
+    "route": "pg_backend",
+    "request_ms": 594.6026260207873,
+    "executor_ms": 578.575,
+    "native_ms": [
+      555
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": 0.396,
+    "terminal_ms": 0.003,
+    "individual_batch_bytes": 8668568,
+    "sampled_backend_rss_kib": 64044,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-4",
+    "workload": "wide1k",
+    "route": "pg_copy",
+    "request_ms": 613.9853369968478,
+    "executor_ms": null,
+    "native_ms": [
+      539
+    ],
+    "native_read_rows": [
+      32768
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 57176,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-4",
+    "workload": "broad_recheck",
+    "route": "direct",
+    "request_ms": 934.719111,
+    "executor_ms": null,
+    "native_ms": [
+      930
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 31.901552,
+    "terminal_ms": 0.003282,
+    "individual_batch_bytes": 410848,
+    "sampled_backend_rss_kib": null,
+    "sampled_backend_threads": null
+  },
+  {
+    "run": "inband-prepared-4",
+    "workload": "broad_recheck",
+    "route": "pg_backend",
+    "request_ms": 776.776496990351,
+    "executor_ms": 749.689,
+    "native_ms": [
+      727
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": 10.279,
+    "terminal_ms": 0.004,
+    "individual_batch_bytes": 411040,
+    "sampled_backend_rss_kib": 58576,
+    "sampled_backend_threads": 2
+  },
+  {
+    "run": "inband-prepared-4",
+    "workload": "broad_recheck",
+    "route": "pg_copy",
+    "request_ms": 1124.8738139984198,
+    "executor_ms": null,
+    "native_ms": [
+      1000
+    ],
+    "native_read_rows": [
+      1000000
+    ],
+    "decode_ms": null,
+    "terminal_ms": null,
+    "individual_batch_bytes": null,
+    "sampled_backend_rss_kib": 58576,
+    "sampled_backend_threads": 2
+  }
+]

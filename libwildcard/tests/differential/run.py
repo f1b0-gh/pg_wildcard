@@ -11,7 +11,7 @@ Exit code 0 only if every view, predicate, sweep and watchlist result agrees.
 import argparse, json, sys
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--antalya-container', help='Owned soc-http-test-* fixture; creates and removes a private test database/user')
+parser.add_argument('--antalya-container', help='Owned fixture; benchmark/bearer fixtures also require ANTALYA_TEST_CONTAINER. Creates and removes a private database/user.')
 args = parser.parse_args()
 spec = json.load(sys.stdin)
 if args.antalya_container:
@@ -74,6 +74,39 @@ if got != exp:
     fail(f"sweep: ch-only={sorted(got-exp)[:5]} rust-only={sorted(exp-got)[:5]}")
 print(f"sweep: {len(exp)} expected hits, {len(got)} from ClickHouse")
 
+# Explicit same-view gate cases, including escaping and bounded fallbacks.
+for case in spec.get("shared_gate_cases", []):
+    got_gate = []
+    for sql, estimate in zip(case["queries"], case["estimated_ast"]):
+        if len(sql.encode()) > case["max_bytes"] or estimate > case["max_ast_nodes"]:
+            fail(f"shared gate {case['name']}: budget exceeded")
+        got_gate.extend((int(r[0]), int(r[1]), r[2]) for r in rows(sql))
+    expected_gate = sorted(tuple(r) for r in case["expected"])
+    if sorted(got_gate) != expected_gate:
+        fail(f"shared gate {case['name']}: exact pairs differ")
+print(f"shared gate: {len(spec.get('shared_gate_cases', []))} cases checked")
+
+# Execute the same exact-pair cases with a real native text index. A plain
+# ASCII gate must be index-eligible; escaped/binary cases must stay complete
+# whether the engine elects to use the index or disables skipping entirely.
+q("CREATE TABLE indexed_gate (id UInt32, v String, INDEX wc_gate_ngrams v TYPE text(tokenizer='ngrams') GRANULARITY 1) ENGINE=MergeTree ORDER BY id")
+q("INSERT INTO indexed_gate SELECT * FROM t")
+for case in spec.get("shared_gate_cases", []):
+    for mode in ("use_skip_indexes=0", "use_skip_indexes=1"):
+        got_indexed=[]
+        for sql in case["queries"]:
+            sql=sql.replace("FROM t\n", "FROM indexed_gate\n")
+            got_indexed.extend(tuple(r) for r in rows(sql+" SETTINGS "+mode))
+        if sorted(got_indexed)!=sorted(tuple(r) for r in case["expected"]):
+            fail(f"indexed gate {case['name']} {mode}: exact pairs differ")
+    if case["name"]=="ascii":
+        for sql in case["queries"]:
+            sql=sql.replace("FROM t\n", "FROM indexed_gate\n")
+            # INDEX_NOT_USED must fail this regression, even when row counts
+            # happen to be correct through a brute-force scan.
+            rows(sql+" SETTINGS force_data_skipping_indices='wc_gate_ngrams'")
+print("indexed gates: exact pairs with/without skipping; ASCII forced-index check passed")
+
 # 4. watchlist materialized view
 w = spec["watchlist"]
 q("DROP TABLE IF EXISTS watch"); q("DROP TABLE IF EXISTS src"); q("DROP TABLE IF EXISTS hits"); q("DROP VIEW IF EXISTS wc_mv")
@@ -116,6 +149,10 @@ for label, projection in [
     if got_update != expected_update:
         fail(f"watchlist {label}: ch-only={sorted(got_update-expected_update)[:5]} exact-only={sorted(expected_update-got_update)[:5]}")
     print(f"watchlist {label}: {len(got_update)} hits, exact={len(expected_update)}")
+
+if "watchlist_join" in spec:
+    from watchlist_join import check as check_watchlist_join
+    check_watchlist_join(spec["watchlist_join"], q, rows, fail)
 
 print("RESULT:", "PASS" if failures == 0 else f"FAIL ({failures})")
 sys.exit(1 if failures else 0)

@@ -1,0 +1,20 @@
+views: 5 x 371 values checked
+predicates: 1711/1711 agree
+sweep: 760 expected hits, 760 from ClickHouse
+shared gate: 14 cases checked
+indexed gates: exact pairs with/without skipping; ASCII forced-index check passed
+watchlist: 760 hits from materialized view
+watchlist stale regex: 7049 hits, exact=7049
+watchlist stale view: 752 hits, exact=752
+watchlist empty defaults: 760 hits, exact=760
+watchlist join plain prefer_columns=0: seven lifecycle phases, exact multisets and projections
+watchlist join qualified prefer_columns=0: seven lifecycle phases, exact multisets and projections
+watchlist join colliding_names prefer_columns=0: seven lifecycle phases, exact multisets and projections
+watchlist join empty_projection prefer_columns=0: seven lifecycle phases, exact multisets and projections
+watchlist join materialized_raw prefer_columns=0: seven lifecycle phases, exact multisets and projections
+watchlist join plain prefer_columns=1: seven lifecycle phases, exact multisets and projections
+watchlist join qualified prefer_columns=1: seven lifecycle phases, exact multisets and projections
+watchlist join colliding_names prefer_columns=1: seven lifecycle phases, exact multisets and projections
+watchlist join empty_projection prefer_columns=1: seven lifecycle phases, exact multisets and projections
+watchlist join materialized_raw prefer_columns=1: seven lifecycle phases, exact multisets and projections
+RESULT: PASS

@@ -186,6 +186,47 @@ pub fn export_pg(
     Ok(())
 }
 
+/// Export observed gram posting lengths for watchlist needle ranking only.
+/// Keys include the view. Missing keys are unknown (never evidence of absence).
+/// Counts omit values that exceeded indexing limits and do not authorize pruning.
+/// Metadata binds the complete path inventory, column, snapshot and view set.
+/// `source_properties` may carry the source Puffin blob's indexing limits.
+pub fn export_gram_frequencies(
+    index: &NgramIndex,
+    column: &str,
+    snapshot_id: i64,
+    source_properties: Option<&std::collections::BTreeMap<String, String>>,
+    dir: &Path,
+) -> Result<(), LakeError> {
+    std::fs::create_dir_all(dir)?;
+    let paths: Vec<_> = index.files.iter().map(|file| file.path.clone()).collect();
+    let coverage = crate::antalya::lake_coverage_id(&paths);
+    let mut output = std::io::BufWriter::new(File::create(dir.join("gram-frequencies.csv"))?);
+    writeln!(output, "gram_key,file_count")?;
+    for (gram, postings) in &index.grams {
+        writeln!(output, "{gram},{}", postings.len())?;
+    }
+    output.flush()?;
+    let metadata = serde_json::json!({
+        "format": "wildcard-gram-file-counts-v1",
+        "coverage_id": coverage,
+        "column": column,
+        "snapshot_id": snapshot_id,
+        "views": index.views.iter().map(|v| v.name()).collect::<Vec<_>>(),
+        "file_count": index.files.len(),
+        "files_with_unindexed_values": index.files.iter().filter(|f| f.has_unindexed).count(),
+        "gram_count": index.grams.len(),
+        "count_semantics": "distinct indexed file ordinals in each Puffin gram posting; unindexed values omitted",
+        "missing_count": "unknown",
+        "usage": "needle ranking only; never evidence of absence or pruning authority",
+        "source_properties": source_properties,
+    });
+    let bytes = serde_json::to_vec_pretty(&metadata)
+        .map_err(|_| LakeError::Invalid("cannot encode gram-frequency metadata"))?;
+    std::fs::write(dir.join("gram-frequencies.json"), bytes)?;
+    Ok(())
+}
+
 /// Export a concrete ClickHouse inventory loader alongside the Postgres CSVs.
 /// Keys bind the complete path set, never the mutable Postgres index name.
 /// Execute `known-schema.sql`, then pipe `known.csv` to clickhouse-client with
@@ -231,6 +272,52 @@ mod tests {
     use parquet::arrow::ArrowWriter;
 
     use super::*;
+
+    #[test]
+    fn frequency_export_counts_files_and_binds_inventory() {
+        use crate::core::grams;
+        use crate::puffin::ngram::NgramIndexBuilder;
+        let mut builder = NgramIndexBuilder::new(&[View::Raw, View::Lower], 8);
+        let a = builder.add_file("s3://bucket/a");
+        let b = builder.add_file("s3://bucket/b");
+        builder.add_value(a, b"ABCabc");
+        builder.add_value(a, b"abcabc");
+        builder.add_value(b, b"ABC");
+        builder.add_value(b, b"abc-too-long");
+        let index = builder.finish();
+        let dir = std::env::temp_dir().join(format!("wc_gram_counts_{}", std::process::id()));
+        let props = std::collections::BTreeMap::from([("max-value-bytes".into(), "8".into())]);
+        export_gram_frequencies(&index, "url", 42, Some(&props), &dir).unwrap();
+        let csv = std::fs::read_to_string(dir.join("gram-frequencies.csv")).unwrap();
+        let key = |view| grams::key(view, 97, 98, 99);
+        assert!(
+            csv.lines()
+                .any(|line| line == format!("{},1", key(View::Raw)))
+        );
+        assert!(
+            csv.lines()
+                .any(|line| line == format!("{},2", key(View::Lower)))
+        );
+        assert_eq!(csv.lines().count(), index.grams.len() + 1);
+        let metadata: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(dir.join("gram-frequencies.json")).unwrap())
+                .unwrap();
+        let paths = index
+            .files
+            .iter()
+            .map(|f| f.path.clone())
+            .collect::<Vec<_>>();
+        assert_eq!(
+            metadata["coverage_id"],
+            crate::antalya::lake_coverage_id(&paths)
+        );
+        assert_eq!(metadata["snapshot_id"], 42);
+        assert_eq!(metadata["column"], "url");
+        assert_eq!(metadata["missing_count"], "unknown");
+        assert_eq!(metadata["files_with_unindexed_values"], 1);
+        assert_eq!(metadata["source_properties"]["max-value-bytes"], "8");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
 
     #[test]
     fn legacy_configuration_budget_precedes_opening_files() {

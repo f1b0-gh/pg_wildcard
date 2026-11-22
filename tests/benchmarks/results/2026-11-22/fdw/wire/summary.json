@@ -1,0 +1,22 @@
+[
+  {
+    "workload": "narrow",
+    "samples": 3,
+    "rows": 1000000,
+    "copy_bytes": 14000021,
+    "process_wall_ms": 717.8741539973998,
+    "rows_per_second": 1393001.8157522662,
+    "first_copy_header_ms": 216.95260399428662,
+    "server_ms": 307
+  },
+  {
+    "workload": "broad_recheck",
+    "samples": 3,
+    "rows": 1000000,
+    "copy_bytes": 56000221,
+    "process_wall_ms": 1561.5034399961587,
+    "rows_per_second": 640408.4514872795,
+    "first_copy_header_ms": 188.3070770127233,
+    "server_ms": 1246
+  }
+]

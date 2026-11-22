@@ -1,0 +1,38 @@
+{
+  "label": "baseline-pg-budget-1048576",
+  "concurrency": 1,
+  "policy": "in_band",
+  "batch_bytes": 1048576,
+  "repeats": 3,
+  "workloads": [
+    "wide1k"
+  ],
+  "routes": [
+    "pg_backend",
+    "pg_copy"
+  ],
+  "engine": "26.8.34.20001.altinityantalya",
+  "machine": {
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu_count": 12,
+    "cpu_model": "AMD Ryzen 5 PRO 4650U with Radeon Graphics",
+    "host_memory_bytes": 15942414336,
+    "python": "3.12.3"
+  },
+  "host_load": [
+    6.49658203125,
+    8.96240234375,
+    12.28173828125
+  ],
+  "pg_pids": [
+    1377
+  ],
+  "direct_setup": [],
+  "pg_setup": [
+    163.9519330001349
+  ],
+  "timer": "warm connections; request through fully written TCP COPY file or all Arrow batches; backend executor TIMING OFF separate; value checks outside timed samples",
+  "memory": "sampled backend RSS/HWM/threads separate from max individual BudgetedBatch; no assertion RSS <= batch budget",
+  "direct_worker_sha256": null,
+  "runner_sha256": "212577948d29713eae349098b34fc496f83991c7907e6e81ffe778f7b96689c7"
+}

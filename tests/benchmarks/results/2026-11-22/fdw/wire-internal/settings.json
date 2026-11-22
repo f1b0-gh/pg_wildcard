@@ -1,0 +1,16 @@
+{
+  "postgres": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "engine": "26.8.34.20001.altinityantalya",
+  "repeats": 3,
+  "sink_location": "container",
+  "remote_timeout_seconds": 60,
+  "copy_deadline_seconds": 70,
+  "sink_chunk_bytes": 1048576,
+  "rows_per_operation": 1000000,
+  "terminal_policy": "flush_first",
+  "batch_bytes": 16777216,
+  "clock_boundary": "Inner psql spawn through completion, TCP loopback PG protocol and container-local chunk consumption; Docker/Python process elapsed is separately recorded. Not identical to EXPLAIN executor or direct-client fetch clocks.",
+  "first_header": "Offset until the complete 19-byte COPY header is received; not HTTP TTFB.",
+  "byte_boundary": "COPY payload only; PostgreSQL message/TCP framing bytes are not counted.",
+  "oracle": "Exact deterministic COPY bytes/header/trailer, successful psql exit, unique native QueryFinish result_rows=1000000. No per-row Python parsing."
+}

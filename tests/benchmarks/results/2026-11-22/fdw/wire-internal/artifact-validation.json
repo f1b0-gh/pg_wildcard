@@ -1,0 +1,5 @@
+{
+  "result": "PASS",
+  "operations": 6,
+  "oracle": "Exact COPY payload length/header/trailer, successful process, unique native QueryFinish and one million result rows."
+}

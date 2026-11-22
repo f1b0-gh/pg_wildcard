@@ -1,0 +1,30 @@
+{
+  "staged_needles": {
+    "update_ms": {
+      "samples": 5,
+      "median": 500.153140979819,
+      "min": 489.05375599861145,
+      "max": 560.1788590138312
+    },
+    "post_update_insert_ms": {
+      "samples": 5,
+      "median": 987.1943479811307,
+      "min": 934.4413409999106,
+      "max": 1021.78826299496
+    }
+  },
+  "production_join": {
+    "update_ms": {
+      "samples": 5,
+      "median": 520.2742559777107,
+      "min": 518.3932869986165,
+      "max": 543.2704729901161
+    },
+    "post_update_insert_ms": {
+      "samples": 5,
+      "median": 78.26225497410633,
+      "min": 76.30448599229567,
+      "max": 82.22817699424922
+    }
+  }
+}

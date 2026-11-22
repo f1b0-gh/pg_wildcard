@@ -74,6 +74,7 @@ jobs:
           cargo metadata --locked --manifest-path fuzz/Cargo.toml --format-version 1 > /dev/null
           python3 -m unittest discover -s tests/ci -v
           python3 -m unittest discover -s tests/operations -v
+          python3 -m unittest discover -s tests/benchmarks -p 'test_*.py' -v
       - run: cargo fmt --manifest-path libwildcard/Cargo.toml --all -- --check
       - name: Backend cache ownership and allocation regressions
         run: |
@@ -84,7 +85,7 @@ jobs:
         run: |
           test ! -e ../antalya-rs
           cargo package --locked --manifest-path libwildcard/Cargo.toml --all-features
-      - uses: EmbarkStudios/cargo-deny-action@70f81531115945ba6eb6b941ec9d39d063438eb9 # v2, cargo-deny 0.21.0
+      - uses: EmbarkStudios/cargo-deny-action@17aeb3c839e42274e2b8adf721c8c65edfdc74dd # v2, cargo-deny 0.21.0
         with:
           command: check licenses
           manifest-path: pg_wildcard/libwildcard/Cargo.toml
@@ -113,6 +114,7 @@ jobs:
           python3 -m pip freeze
           python3 -c 'import chdb; print(chdb.query("SELECT version()", "CSV"))'
       - run: python3 -m unittest discover -s libwildcard/tests/lake -v
+      - run: python3 -m unittest discover -s libwildcard/tests/differential -p 'test_*.py' -v
       - name: Differential tests (Rust vs ClickHouse)
         run: |
           set -euo pipefail
@@ -120,6 +122,21 @@ jobs:
           for seed in 1 42 1234; do
             cargo run --locked -q --manifest-path libwildcard/Cargo.toml --features hot --example difftest_gen -- "$seed" | python3 libwildcard/tests/differential/run.py
           done
+      - name: Benchmark correctness smoke (one percent; timings informational)
+        run: |
+          mkdir -p .local/benchmark-smoke
+          cargo run --locked -q --manifest-path libwildcard/Cargo.toml --features hot --example sweep_benchmark_gen > .local/benchmark-smoke/spec.json
+          python3 tests/benchmarks/smoke.py .local/benchmark-smoke/spec.json --out .local/benchmark-smoke/results
+          for distribution in shared unrelated common short mixed domains urls paths commands; do
+            cargo run --locked -q --manifest-path libwildcard/Cargo.toml --features hot --example sweep_benchmark_gen -- --comparison "$distribution" --indicators 100 --rows 10000 > ".local/benchmark-smoke/comparison-$distribution.json"
+            python3 tests/benchmarks/comparison_smoke.py ".local/benchmark-smoke/comparison-$distribution.json" --require-watchlist-plan > ".local/benchmark-smoke/results/comparison-$distribution.log"
+          done
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: benchmark-smoke
+          path: pg_wildcard/.local/benchmark-smoke/results
+          if-no-files-found: ignore
       - name: Iceberg and Puffin end-to-end
         run: |
           cargo build --locked --manifest-path libwildcard/Cargo.toml --features cold --bin wc-lake --example lake_scale_fixture
@@ -155,19 +172,19 @@ jobs:
           cargo fmt --manifest-path tests/fdw/harness/Cargo.toml -- --check
           cargo test --locked --manifest-path tests/fdw/harness/Cargo.toml
           cargo clippy --locked --manifest-path tests/fdw/harness/Cargo.toml --all-targets -- -D warnings
-      - uses: EmbarkStudios/cargo-deny-action@70f81531115945ba6eb6b941ec9d39d063438eb9 # v2, cargo-deny 0.21.0
+      - uses: EmbarkStudios/cargo-deny-action@17aeb3c839e42274e2b8adf721c8c65edfdc74dd # v2, cargo-deny 0.21.0
         with:
           command: check licenses
           manifest-path: pg_wildcard/Cargo.toml
           arguments: --all-features --locked --config pg_wildcard/deny.toml
           rust-version: '1.99.1'
-      - uses: EmbarkStudios/cargo-deny-action@70f81531115945ba6eb6b941ec9d39d063438eb9 # v2, cargo-deny 0.21.0
+      - uses: EmbarkStudios/cargo-deny-action@17aeb3c839e42274e2b8adf721c8c65edfdc74dd # v2, cargo-deny 0.21.0
         with:
           command: check licenses
           manifest-path: pg_wildcard/tests/transport/Cargo.toml
           arguments: --all-features --locked --config pg_wildcard/deny.toml
           rust-version: '1.99.1'
-      - uses: EmbarkStudios/cargo-deny-action@70f81531115945ba6eb6b941ec9d39d063438eb9 # v2, cargo-deny 0.21.0
+      - uses: EmbarkStudios/cargo-deny-action@17aeb3c839e42274e2b8adf721c8c65edfdc74dd # v2, cargo-deny 0.21.0
         with:
           command: check licenses
           manifest-path: pg_wildcard/tests/fdw/harness/Cargo.toml
