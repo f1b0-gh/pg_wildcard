@@ -583,7 +583,7 @@ mod tests {
             "SELECT string_agg(q, ';') FROM wc_ch_sweep('logs', ARRAY['id'], 'url', ARRAY[1,2]::bigint[], ARRAY['evil\\.com','sqlmap'], ARRAY['lower','lower']) q",
         );
         assert!(
-            q.contains("multiMatchAllIndices(lower(url), wc_pats_lower)"),
+            q.contains("arrayEnumerate(wc_pats_lower)") && !q.contains("multiMatchAllIndices"),
             "{q}"
         );
         let n = Spi::get_one::<i64>("SELECT count(*) FROM wc_ch_watchlist_ddl('mv', 'logs', 'hits', 'watch', ARRAY['id'], 'url')").unwrap().unwrap();

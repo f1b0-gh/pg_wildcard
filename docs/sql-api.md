@@ -78,8 +78,11 @@ Sweep arrays must have equal lengths. Each generated query returns the selected
 columns plus `indicator_id` and `view`; batching groups indicators by view.
 Watchlist DDL creates the indicator table and an insert-time materialized view
 writing to the caller-provided hits table. It does not backfill existing source
-rows or replay them when a watchlist changes. Multi-pattern candidates retain
-an exact `match` recheck.
+rows or replay them when a watchlist changes. Each pattern is checked with exact
+`match` semantics; Hyperscan candidate filtering is not used because its Unicode
+and invalid-byte behavior can miss RE2 matches. This trades multi-pattern
+acceleration for complete results. Sweep batches count the complete escaped SQL
+against their byte budget; a single indicator that cannot fit returns an error.
 
 Column/table identifiers and pattern literals pass through the SQL builders.
 `filter` is a caller-owned SQL expression, not an escaped data value. Only pass
