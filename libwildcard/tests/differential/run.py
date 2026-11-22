@@ -86,6 +86,27 @@ for case in spec.get("shared_gate_cases", []):
         fail(f"shared gate {case['name']}: exact pairs differ")
 print(f"shared gate: {len(spec.get('shared_gate_cases', []))} cases checked")
 
+# Execute the same exact-pair cases with a real native text index. A plain
+# ASCII gate must be index-eligible; escaped/binary cases must stay complete
+# whether the engine elects to use the index or disables skipping entirely.
+q("CREATE TABLE indexed_gate (id UInt32, v String, INDEX wc_gate_ngrams v TYPE text(tokenizer='ngrams') GRANULARITY 1) ENGINE=MergeTree ORDER BY id")
+q("INSERT INTO indexed_gate SELECT * FROM t")
+for case in spec.get("shared_gate_cases", []):
+    for mode in ("use_skip_indexes=0", "use_skip_indexes=1"):
+        got_indexed=[]
+        for sql in case["queries"]:
+            sql=sql.replace("FROM t\n", "FROM indexed_gate\n")
+            got_indexed.extend(tuple(r) for r in rows(sql+" SETTINGS "+mode))
+        if sorted(got_indexed)!=sorted(tuple(r) for r in case["expected"]):
+            fail(f"indexed gate {case['name']} {mode}: exact pairs differ")
+    if case["name"]=="ascii":
+        for sql in case["queries"]:
+            sql=sql.replace("FROM t\n", "FROM indexed_gate\n")
+            # INDEX_NOT_USED must fail this regression, even when row counts
+            # happen to be correct through a brute-force scan.
+            rows(sql+" SETTINGS force_data_skipping_indices='wc_gate_ngrams'")
+print("indexed gates: exact pairs with/without skipping; ASCII forced-index check passed")
+
 # 4. watchlist materialized view
 w = spec["watchlist"]
 q("DROP TABLE IF EXISTS watch"); q("DROP TABLE IF EXISTS src"); q("DROP TABLE IF EXISTS hits"); q("DROP VIEW IF EXISTS wc_mv")

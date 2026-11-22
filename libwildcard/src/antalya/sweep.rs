@@ -3,7 +3,7 @@
 //! ClickHouse's separate expanded-AST and execution limits still apply.
 use super::prefilter::common_required_needles;
 use super::{ChError, SweepItem, ViewColumns, candidate_predicate, ident, predicate, quote};
-use crate::core::verify::Kind;
+use crate::core::{pattern::Piece, verify::Kind};
 
 /// Ten percent below ClickHouse's default `max_ast_elements = 50000`.
 pub const DEFAULT_SWEEP_MAX_AST_NODES: usize = 45_000;
@@ -242,7 +242,16 @@ fn add_common_gate(
     let value = cols.expr(view);
     let gate = needles
         .iter()
-        .map(|n| format!("position({value}, {}) > 0", quote(n)))
+        .map(|n| {
+            // LIKE keeps byte-substring semantics for these proven printable
+            // ASCII grams and is eligible for native n-gram text-index hints.
+            let pattern = super::like_pattern(&[
+                Piece::AnyMany,
+                Piece::Lit(n.as_bytes().to_vec()),
+                Piece::AnyMany,
+            ]);
+            format!("like({value}, {})", quote(&pattern))
+        })
         .collect::<Vec<_>>()
         .join(" AND ");
     let old_suffix = filter.map(|f| format!("\nWHERE {f}")).unwrap_or_default();
@@ -488,8 +497,23 @@ mod tests {
         }
         let mut plan = original.clone();
         assert_eq!(add_common_gate(&mut plan, &list, &cols, None, options).1, 1);
-        assert!(plan.queries[0].contains(&format!("position(v, {}) > 0", quote("a'b"))));
+        assert!(plan.queries[0].contains(&format!("like(v, {})", quote("%a'b%"))));
         assert_eq!(plan.source_scan_count, original.source_scan_count);
+    }
+    #[test]
+    fn common_gate_uses_index_eligible_like_with_literal_escaping() {
+        for (regex, expected) in [
+            ("a%b", r"%a\%b%"),
+            ("a_b", r"%a\_b%"),
+            (r"a\\b", r"%a\\b%"),
+            ("a'b", "%a'b%"),
+        ] {
+            let list = items(&[regex], View::Raw);
+            let actual = plan(&list, SweepOptions::default()).unwrap();
+            let gate = actual.queries[0].rsplit_once("\nWHERE ").unwrap().1;
+            assert_eq!(gate, format!("like(v, {})", quote(expected)));
+            assert!(actual.queries[0].contains(&format!("match(v, {})", quote(regex))));
+        }
     }
     #[test]
     fn user_filter_remains_parenthesized_and_exact_checks_remain() {

@@ -66,8 +66,10 @@ pub fn watchlist_needles_with_frequencies(
     ))
 }
 
-// Every returned gram is required. Reject the whole optional plan on unsupported
-// nodes, anchors, nonprintable bytes or exhausted bounds; never infer an OR gram.
+// Every returned gram is required. Boundary grams cannot be byte needles, but
+// dropping them from a conjunction preserves its mandatory interior grams.
+// Reject unsupported nodes, nonprintable interiors or exhausted bounds; never
+// infer an OR gram.
 fn required_grams(pattern: &str, view: View) -> Option<Vec<grams::GramKey>> {
     if pattern.len() > 8192 {
         return None;
@@ -87,7 +89,13 @@ fn required_grams(pattern: &str, view: View) -> Option<Vec<grams::GramKey>> {
         match query {
             GramQuery::Gram(g) => {
                 let (binding, symbols) = grams::unpack(*g);
-                if binding != Some(view) || !symbols.iter().all(|s| (32..127).contains(s)) {
+                if binding != Some(view) {
+                    return false;
+                }
+                if symbols.contains(&grams::START) || symbols.contains(&grams::END) {
+                    return true;
+                }
+                if !symbols.iter().all(|s| (32..127).contains(s)) {
                     return false;
                 }
                 out.push(*g);
@@ -275,7 +283,6 @@ mod tests {
             vec!["abc", "def"],
             vec!["abc", "abc|def"],
             vec!["abc", "(?i)abc"],
-            vec!["abc", "^abc$"],
         ] {
             assert!(common_required_needles(&common_items(&patterns, View::Raw)).is_none());
         }
@@ -292,7 +299,7 @@ mod tests {
             watchlist_needles("abcdefgh", View::Raw).unwrap(),
             vec!["abc", "bcd", "cde"]
         );
-        for pattern in ["", "a", "é", "abc|xyz", "(?i)abc", "^abc$", "\0", "\u{ff}"] {
+        for pattern in ["", "a", "é", "abc|xyz", "(?i)abc", "\0", "\u{ff}"] {
             assert!(
                 watchlist_needles(pattern, View::Raw).unwrap().is_empty(),
                 "{pattern:?}"
@@ -304,6 +311,53 @@ mod tests {
                 .is_empty()
         );
         assert!(watchlist_needles("(?=x)", View::Raw).is_err());
+    }
+
+    #[test]
+    fn anchored_patterns_keep_required_interior_grams() {
+        for pattern in ["^abc$", r"\Aabc\z", "^abc", "abc$"] {
+            assert_eq!(watchlist_needles(pattern, View::Raw).unwrap(), vec!["abc"]);
+        }
+        assert_eq!(
+            common_required_needles(&common_items(&["^abc$", "abc"], View::Raw)),
+            Some((View::Raw, vec!["abc".into()]))
+        );
+        for pattern in ["^$", "^a$", "^ab$", "^(abc|xyz)$"] {
+            assert!(watchlist_needles(pattern, View::Raw).unwrap().is_empty());
+        }
+    }
+
+    #[test]
+    fn windows_wildcard_compilation_keeps_sound_watchlist_needles() {
+        use crate::core::pattern::{parse_wildcard, to_regex};
+        let wildcard = r"C:\\Users\\*\\Temp\\payload??.exe";
+        let regex = to_regex(&parse_wildcard(wildcard.as_bytes()));
+        let needles = watchlist_needles(&regex, View::Raw).unwrap();
+        assert!(!needles.is_empty());
+        let wildcard_matcher = Matcher::wildcard(wildcard, View::Raw).unwrap();
+        let regex_matcher = Matcher::regex(&regex, View::Raw, false).unwrap();
+        let mut matches = 0;
+        for value in [
+            br"C:\Users\alice\Temp\payload12.exe".as_slice(),
+            br"C:\Users\bob\Temp\payloadAB.exe",
+            br"C:\Users\alice\Temp\payload123.exe",
+            br"C:\Users\alice\Temp\payload12Xexe",
+            br"C:UsersaliceTemppayload12.exe",
+            b"C:\\Users\\\xff\\Temp\\payload12.exe",
+            b"C:\\Users\\a\0b\\Temp\\payload12.exe",
+        ] {
+            assert_eq!(
+                wildcard_matcher.is_match(value),
+                regex_matcher.is_match(value)
+            );
+            if regex_matcher.is_match(value) {
+                matches += 1;
+                for needle in &needles {
+                    assert!(value.windows(needle.len()).any(|w| w == needle.as_bytes()));
+                }
+            }
+        }
+        assert!(matches >= 3);
     }
 
     #[test]
