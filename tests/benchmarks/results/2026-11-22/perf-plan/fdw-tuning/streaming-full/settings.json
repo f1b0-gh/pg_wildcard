@@ -1,0 +1,59 @@
+{
+  "engine": "26.8.34.20001.altinityantalya",
+  "machine": {
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu_count": 12,
+    "cpu_model": "AMD Ryzen 5 PRO 4650U with Radeon Graphics",
+    "host_memory_bytes": 15942414336,
+    "python": "3.12.3"
+  },
+  "engine_cpus": 4,
+  "engine_memory_bytes": 8589934592,
+  "rows": 1000000,
+  "wide_rows": 32768,
+  "configs": [
+    [
+      "flush_first",
+      1024
+    ],
+    [
+      "flush_first",
+      4096
+    ],
+    [
+      "flush_first",
+      16384
+    ],
+    [
+      "in_band",
+      1024
+    ],
+    [
+      "in_band",
+      4096
+    ],
+    [
+      "in_band",
+      16384
+    ]
+  ],
+  "workloads": [
+    "narrow",
+    "smalltext"
+  ],
+  "repeats": 5,
+  "batch_bytes": 16777216,
+  "host_load": [
+    13.51318359375,
+    12.90771484375,
+    12.04296875
+  ],
+  "runner_sha256": "f5ed01d1384cfba209a8a263582f9f5c677e272a8bd5f02dcd68de0dfcd429fc",
+  "worker_sha256": "850028c1ef7b3300bedb1b2d9ca6e1ed018811c5b866769bbc4e479a199c79e1",
+  "pg_cache_policy": "inherited; inspect ProfileEvents",
+  "clocks": "warm persistent clients, full native Arrow body / all confirmed direct batches / backend TIMING OFF / full COPY; value verification and query-log collection outside clocks; overlapping diagnostics",
+  "log_collection": "after all measurement requests; no diagnostic SYSTEM FLUSH between samples",
+  "postgres": "",
+  "extension_sha256": "6c23575ef8e61df9fef3e257783714f706afb904e0f7daab77544f68c08ba036",
+  "query_log_flush_interval_ms": 1000
+}

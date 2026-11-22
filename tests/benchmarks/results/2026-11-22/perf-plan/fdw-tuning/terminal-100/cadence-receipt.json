@@ -1,0 +1,8 @@
+{
+  "original_interval_ms": 1000,
+  "requested_interval_ms": 100,
+  "original_config_sha256": "062c5e2c9df94cfaaca5cba7d277cdac6ad76c61fb84bb27eec2e9f8c70f3619",
+  "started_at": "2026-11-22T21:48:54.708497664Z",
+  "exit_status": 0,
+  "restored": true
+}

@@ -264,3 +264,20 @@ The paired native profiler is `tests/benchmarks/fdw_profile.py`; its direct path
 uses `tests/transport/examples/fdw_profile.rs` with the same SQL, projection and
 query settings. Build both the extension and direct worker with release settings
 for performance comparisons. Results retain raw EXPLAIN and query-log rows.
+
+Controlled [streaming, completion and cache measurements](../tests/benchmarks/results/2026-11-22/perf-plan/fdw-tuning/)
+show why tuning should use the application's complete route. Requested blocks of
+4,096 improved the narrow direct/client and full-COPY controls at the same batch
+budget, while 16,384 was not consistently better for COPY and exceeded the plain
+wide-row budget in one warmup. Start with an explicit `max_block_size=4096` trial
+for broad narrow scans; verify values, completion, actual batch charges and full
+delivery time before adopting it.
+
+On the measured framing-capable Antalya fixture, `terminal_policy 'in_band'`
+was fastest for short selective scans and avoided separate query-log confirmation
+requests. Broad framed responses have different byte/CPU costs. `observe_only`
+can wait for asynchronous log publication; the server's log cadence materially
+affected these small-query controls. Keep `flush_first` as the general default
+and choose a policy only with the required server capability and completion proof.
+Reuse pooled PostgreSQL backends when adaptive preparation matters: preferences
+are backend-local and expire 60 seconds after insertion even when frequently used.

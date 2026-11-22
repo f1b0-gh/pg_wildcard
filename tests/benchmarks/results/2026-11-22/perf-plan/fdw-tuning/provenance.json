@@ -1,0 +1,892 @@
+{
+  "streaming-full/correlated.json.gz": {
+    "source": "streaming-full/correlated.json",
+    "source_sha256": "cdd5daa853f7822eafb5045e0612c73166000329a962c7cabbae52f744633928",
+    "gzip": true
+  },
+  "streaming-full/raw.jsonl.gz": {
+    "source": "streaming-full/raw.jsonl",
+    "source_sha256": "8167c7ebadc3128bb1eacca8f0171d34c6f86d0b164e3438122c98fc5d929eb4",
+    "gzip": true
+  },
+  "streaming-full/pg-query-log.json.gz": {
+    "source": "streaming-full/pg-query-log.json",
+    "source_sha256": "cb90d2d44d388dea23b18b7cf8f05ac9d2f44cdad42fdea6b1d19abaa282c3f0",
+    "gzip": true
+  },
+  "streaming-full/settings.json": {
+    "source": "streaming-full/settings.json",
+    "source_sha256": "13f4e9528453e393162f19f5514ba4e3dbc27b070a5ce505440dae4c32dd34b3",
+    "gzip": false
+  },
+  "streaming-full/cleanup.json": {
+    "source": "streaming-full/cleanup.json",
+    "source_sha256": "d65059a155868d0644921a5c3f85cde614778bbbe94de94b6f45c090a33f19ad",
+    "gzip": false
+  },
+  "streaming-full/cleanup-recovery.json": {
+    "source": "streaming-full/cleanup-recovery.json",
+    "source_sha256": "c21f1fa83aa7686abc58c4c46fb8e33cbfd623ed3234bacb084d5783692fc308",
+    "gzip": false
+  },
+  "streaming-full/correlation-recovery.json": {
+    "source": "streaming-full/correlation-recovery.json",
+    "source_sha256": "00bc263400bbf2b2e20e75d9097068a3840920160fd164dd7ac38d02cd313085",
+    "gzip": false
+  },
+  "streaming-full/failure.json": {
+    "source": "streaming-full/failure.json",
+    "source_sha256": "dc7ed2036665fffc952ae56f9df7ee06a966dc0f8e328f5d6f9ef39981a2a109",
+    "gzip": false
+  },
+  "streaming-full/sources/fdw_values.py.gz": {
+    "source": "streaming-full/sources/fdw_values.py",
+    "source_sha256": "e2b502eb0899423c98a78762f210300695079b52f854c3e204c45430ed6a8679",
+    "gzip": true
+  },
+  "streaming-full/sources/sweeps.py.gz": {
+    "source": "streaming-full/sources/sweeps.py",
+    "source_sha256": "1798a4c5cd9649aca9b0c513a4d8dd446a7a668ad71f1aa13c560dbf2040029a",
+    "gzip": true
+  },
+  "streaming-full/sources/fdw_tuning.py.gz": {
+    "source": "streaming-full/sources/fdw_tuning.py",
+    "source_sha256": "f5ed01d1384cfba209a8a263582f9f5c677e272a8bd5f02dcd68de0dfcd429fc",
+    "gzip": true
+  },
+  "streaming-full/sources/route_workers.py.gz": {
+    "source": "streaming-full/sources/route_workers.py",
+    "source_sha256": "979107fb60d6bc9a465ccab5f6f1aa4e72ec5d66c2be901ea17a98c012d056ee",
+    "gzip": true
+  },
+  "streaming-full/sources/fdw_warm.rs.gz": {
+    "source": "streaming-full/sources/fdw_warm.rs",
+    "source_sha256": "d2e75cf87a1cc1415b8a53224e881b28ff5d37abe09b7229469c61d9a2c79fa6",
+    "gzip": true
+  },
+  "native-uncompressed/correlated.json.gz": {
+    "source": "native-uncompressed/correlated.json",
+    "source_sha256": "0e1743c98b6bca8a1108017b3d9ae1af772f090d18f2101e75516b8775159f85",
+    "gzip": true
+  },
+  "native-uncompressed/raw.jsonl.gz": {
+    "source": "native-uncompressed/raw.jsonl",
+    "source_sha256": "f1de2ab238a08e29f439f05ea7fb98520dbbde3afac4773f6ebf77fdadefffe2",
+    "gzip": true
+  },
+  "native-uncompressed/query-log.json.gz": {
+    "source": "native-uncompressed/query-log.json",
+    "source_sha256": "3d5e94f74d326afb40ad03626111ba4c3d46e31896399075290c9351fd749466",
+    "gzip": true
+  },
+  "native-uncompressed/settings.json": {
+    "source": "native-uncompressed/settings.json",
+    "source_sha256": "78ebe5a7de5349ff2b9b70b19d9a16ba867bed51444b28502a6e5a60920a4109",
+    "gzip": false
+  },
+  "native-uncompressed/cleanup.json": {
+    "source": "native-uncompressed/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "native-uncompressed/sources/fdw_values.py.gz": {
+    "source": "native-uncompressed/sources/fdw_values.py",
+    "source_sha256": "e2b502eb0899423c98a78762f210300695079b52f854c3e204c45430ed6a8679",
+    "gzip": true
+  },
+  "native-uncompressed/sources/sweeps.py.gz": {
+    "source": "native-uncompressed/sources/sweeps.py",
+    "source_sha256": "1798a4c5cd9649aca9b0c513a4d8dd446a7a668ad71f1aa13c560dbf2040029a",
+    "gzip": true
+  },
+  "native-uncompressed/sources/fdw_correlation.py.gz": {
+    "source": "native-uncompressed/sources/fdw_correlation.py",
+    "source_sha256": "7da12b35874596a95581d323bc71fdd127002731c42a9fdc2a0cf0b4925e7d13",
+    "gzip": true
+  },
+  "native-uncompressed/sources/fdw_tuning.py.gz": {
+    "source": "native-uncompressed/sources/fdw_tuning.py",
+    "source_sha256": "22895d548ec68de1116070d619060065873a162a6b2b146cf9c28ca062d9d729",
+    "gzip": true
+  },
+  "native-uncompressed/sources/route_workers.py.gz": {
+    "source": "native-uncompressed/sources/route_workers.py",
+    "source_sha256": "979107fb60d6bc9a465ccab5f6f1aa4e72ec5d66c2be901ea17a98c012d056ee",
+    "gzip": true
+  },
+  "native-uncompressed/sources/fdw_warm.rs.gz": {
+    "source": "native-uncompressed/sources/fdw_warm.rs",
+    "source_sha256": "d2e75cf87a1cc1415b8a53224e881b28ff5d37abe09b7229469c61d9a2c79fa6",
+    "gzip": true
+  },
+  "streaming-wide-inband/correlated.json.gz": {
+    "source": "streaming-wide-inband/correlated.json",
+    "source_sha256": "b90457069358b9bf17e2c85f9ec74fd4663f5eecdd7b4d27546004ef53b516fc",
+    "gzip": true
+  },
+  "streaming-wide-inband/raw.jsonl.gz": {
+    "source": "streaming-wide-inband/raw.jsonl",
+    "source_sha256": "471fcaa6b59eca95c5e399ef60943b88946e32b8420e695842b5e12d949592a0",
+    "gzip": true
+  },
+  "streaming-wide-inband/query-log.json.gz": {
+    "source": "streaming-wide-inband/query-log.json",
+    "source_sha256": "eadf687ba182e15d25a507fd4f3a9838f6e684f3152f5ca2b0175166e4cb71da",
+    "gzip": true
+  },
+  "streaming-wide-inband/settings.json": {
+    "source": "streaming-wide-inband/settings.json",
+    "source_sha256": "1d4a1b20112c6c2f223bab024e81a135935011cd45ef3bb96eb093924c376a0d",
+    "gzip": false
+  },
+  "streaming-wide-inband/cleanup.json": {
+    "source": "streaming-wide-inband/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "streaming-wide-inband/sources/fdw_values.py.gz": {
+    "source": "streaming-wide-inband/sources/fdw_values.py",
+    "source_sha256": "e2b502eb0899423c98a78762f210300695079b52f854c3e204c45430ed6a8679",
+    "gzip": true
+  },
+  "streaming-wide-inband/sources/sweeps.py.gz": {
+    "source": "streaming-wide-inband/sources/sweeps.py",
+    "source_sha256": "1798a4c5cd9649aca9b0c513a4d8dd446a7a668ad71f1aa13c560dbf2040029a",
+    "gzip": true
+  },
+  "streaming-wide-inband/sources/fdw_correlation.py.gz": {
+    "source": "streaming-wide-inband/sources/fdw_correlation.py",
+    "source_sha256": "7da12b35874596a95581d323bc71fdd127002731c42a9fdc2a0cf0b4925e7d13",
+    "gzip": true
+  },
+  "streaming-wide-inband/sources/fdw_tuning.py.gz": {
+    "source": "streaming-wide-inband/sources/fdw_tuning.py",
+    "source_sha256": "22895d548ec68de1116070d619060065873a162a6b2b146cf9c28ca062d9d729",
+    "gzip": true
+  },
+  "streaming-wide-inband/sources/route_workers.py.gz": {
+    "source": "streaming-wide-inband/sources/route_workers.py",
+    "source_sha256": "979107fb60d6bc9a465ccab5f6f1aa4e72ec5d66c2be901ea17a98c012d056ee",
+    "gzip": true
+  },
+  "streaming-wide-inband/sources/fdw_warm.rs.gz": {
+    "source": "streaming-wide-inband/sources/fdw_warm.rs",
+    "source_sha256": "d2e75cf87a1cc1415b8a53224e881b28ff5d37abe09b7229469c61d9a2c79fa6",
+    "gzip": true
+  },
+  "streaming-wide/raw.jsonl.gz": {
+    "source": "streaming-wide/raw.jsonl",
+    "source_sha256": "56a0129faf8f9e7ded4a6897be75fb9ad57f860dfbfd048ffc6aa25ebb502943",
+    "gzip": true
+  },
+  "streaming-wide/settings.json": {
+    "source": "streaming-wide/settings.json",
+    "source_sha256": "2a4e9d240a17ba0811a202f338238bb1c8bbd7c02df8a4af72a3b953f6722947",
+    "gzip": false
+  },
+  "streaming-wide/cleanup.json": {
+    "source": "streaming-wide/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "streaming-wide/failure.json": {
+    "source": "streaming-wide/failure.json",
+    "source_sha256": "28c14714d5601c9be17c987a83b33e448536cc61a35c88073d820724f0015eb0",
+    "gzip": false
+  },
+  "streaming-wide/resource-refusal.json": {
+    "source": "streaming-wide/resource-refusal.json",
+    "source_sha256": "f89a9081b4abf70c866299b8498160e5e871c75b5c9d9b2e5dd28c508779b4bd",
+    "gzip": false
+  },
+  "streaming-wide/sources/fdw_values.py.gz": {
+    "source": "streaming-wide/sources/fdw_values.py",
+    "source_sha256": "e2b502eb0899423c98a78762f210300695079b52f854c3e204c45430ed6a8679",
+    "gzip": true
+  },
+  "streaming-wide/sources/sweeps.py.gz": {
+    "source": "streaming-wide/sources/sweeps.py",
+    "source_sha256": "1798a4c5cd9649aca9b0c513a4d8dd446a7a668ad71f1aa13c560dbf2040029a",
+    "gzip": true
+  },
+  "streaming-wide/sources/fdw_correlation.py.gz": {
+    "source": "streaming-wide/sources/fdw_correlation.py",
+    "source_sha256": "7da12b35874596a95581d323bc71fdd127002731c42a9fdc2a0cf0b4925e7d13",
+    "gzip": true
+  },
+  "streaming-wide/sources/fdw_tuning.py.gz": {
+    "source": "streaming-wide/sources/fdw_tuning.py",
+    "source_sha256": "22895d548ec68de1116070d619060065873a162a6b2b146cf9c28ca062d9d729",
+    "gzip": true
+  },
+  "streaming-wide/sources/route_workers.py.gz": {
+    "source": "streaming-wide/sources/route_workers.py",
+    "source_sha256": "979107fb60d6bc9a465ccab5f6f1aa4e72ec5d66c2be901ea17a98c012d056ee",
+    "gzip": true
+  },
+  "streaming-wide/sources/fdw_warm.rs.gz": {
+    "source": "streaming-wide/sources/fdw_warm.rs",
+    "source_sha256": "d2e75cf87a1cc1415b8a53224e881b28ff5d37abe09b7229469c61d9a2c79fa6",
+    "gzip": true
+  },
+  "compression-paired/correlated.json.gz": {
+    "source": "compression-paired/correlated.json",
+    "source_sha256": "62e57b6364877b958061b47d067f17c948059abcee144296dc99d3eb3be9c854",
+    "gzip": true
+  },
+  "compression-paired/raw.jsonl.gz": {
+    "source": "compression-paired/raw.jsonl",
+    "source_sha256": "78b955d976389d5ad1749dde280cff3f7e488a691689df4e261fbd84f5fd4c01",
+    "gzip": true
+  },
+  "compression-paired/query-log.json.gz": {
+    "source": "compression-paired/query-log.json",
+    "source_sha256": "0e8701e1ffa3168f394e5401082fe1fda809fdd43fb7ec92f8d17f86ff769590",
+    "gzip": true
+  },
+  "compression-paired/settings.json": {
+    "source": "compression-paired/settings.json",
+    "source_sha256": "40018a08660024c2e258e41781c914e823b8a1ea17f9055173948ad35112e536",
+    "gzip": false
+  },
+  "compression-paired/cleanup.json": {
+    "source": "compression-paired/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "compression-paired/sources/main.rs.gz": {
+    "source": "compression-paired/sources/main.rs",
+    "source_sha256": "46174cfe5adecc947d3c9cbd38e077b4629c087345d343fa52f00f0846ba94fd",
+    "gzip": true
+  },
+  "compression-paired/sources/compression-bench.py.gz": {
+    "source": "compression-paired/sources/compression-bench.py",
+    "source_sha256": "3e243929217c2a9e567d7801d781341821fbe85b730f5b2f6453340254b569ac",
+    "gzip": true
+  },
+  "compression-paired/sources/Cargo.lock.gz": {
+    "source": "compression-paired/sources/Cargo.lock",
+    "source_sha256": "323f52380c65a679efad0201e20abdc3d4d3d44298725b4b5ff043635e85d6e3",
+    "gzip": true
+  },
+  "compression-paired/sources/upstream.patch.gz": {
+    "source": "compression-paired/sources/upstream.patch",
+    "source_sha256": "8964bf1b3bdba517401cea24ad2e1a47b2bd90eed5524f9dea86aa516f7f49bc",
+    "gzip": true
+  },
+  "compression-paired/sources/Cargo.toml.gz": {
+    "source": "compression-paired/sources/Cargo.toml",
+    "source_sha256": "94080e2a61211de4ea0e54a1b8b346c9391792219687739a252b3f23785e690c",
+    "gzip": true
+  },
+  "compression-paired/sources/sweeps.py.gz": {
+    "source": "compression-paired/sources/sweeps.py",
+    "source_sha256": "1798a4c5cd9649aca9b0c513a4d8dd446a7a668ad71f1aa13c560dbf2040029a",
+    "gzip": true
+  },
+  "compression-paired/sources/route_workers.py.gz": {
+    "source": "compression-paired/sources/route_workers.py",
+    "source_sha256": "979107fb60d6bc9a465ccab5f6f1aa4e72ec5d66c2be901ea17a98c012d056ee",
+    "gzip": true
+  },
+  "terminal-1000/correlated.json.gz": {
+    "source": "terminal-1000/correlated.json",
+    "source_sha256": "be701b090e07abf49201d2db3b9941ab3d5feb9a0f9e8691a4ee1e322aba3f2c",
+    "gzip": true
+  },
+  "terminal-1000/raw.jsonl.gz": {
+    "source": "terminal-1000/raw.jsonl",
+    "source_sha256": "b5cd82b0adcc27ea65391c7bd195e4d0adccd6c8ae53f109338becb1d2588269",
+    "gzip": true
+  },
+  "terminal-1000/query-log.json.gz": {
+    "source": "terminal-1000/query-log.json",
+    "source_sha256": "bc78294230b05f712aa9f4c85fcd1b5ab18f1155a2fb4211cef7194cdfef041e",
+    "gzip": true
+  },
+  "terminal-1000/settings.json": {
+    "source": "terminal-1000/settings.json",
+    "source_sha256": "06b454721bd4cb471befac11d5ac473e3e5aa332130dfee5a55803bb565e188c",
+    "gzip": false
+  },
+  "terminal-1000/cleanup.json": {
+    "source": "terminal-1000/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "terminal-1000/explain.json.gz": {
+    "source": "terminal-1000/explain.json",
+    "source_sha256": "94a47e8715944944deed77337bcc8cb5354e2b5a65adde151dde60274adb6848",
+    "gzip": true
+  },
+  "terminal-1000/sources/fdw_terminal.py.gz": {
+    "source": "terminal-1000/sources/fdw_terminal.py",
+    "source_sha256": "35bd3e93334bbcd62c87f89e12daf6ad7c763af0806e5b5a300c6fac625fb1b3",
+    "gzip": true
+  },
+  "terminal-1000/sources/fdw_values.py.gz": {
+    "source": "terminal-1000/sources/fdw_values.py",
+    "source_sha256": "e90b80009afa0025ab944591a7c6627bdd53bfdeaa97f148d9d85b5dca2733ef",
+    "gzip": true
+  },
+  "terminal-1000/sources/fdw_correlation.py.gz": {
+    "source": "terminal-1000/sources/fdw_correlation.py",
+    "source_sha256": "7da12b35874596a95581d323bc71fdd127002731c42a9fdc2a0cf0b4925e7d13",
+    "gzip": true
+  },
+  "terminal-1000/sources/fdw_tuning.py.gz": {
+    "source": "terminal-1000/sources/fdw_tuning.py",
+    "source_sha256": "22895d548ec68de1116070d619060065873a162a6b2b146cf9c28ca062d9d729",
+    "gzip": true
+  },
+  "terminal-1000/sources/route_workers.py.gz": {
+    "source": "terminal-1000/sources/route_workers.py",
+    "source_sha256": "979107fb60d6bc9a465ccab5f6f1aa4e72ec5d66c2be901ea17a98c012d056ee",
+    "gzip": true
+  },
+  "terminal-1000/sources/fdw_warm.rs.gz": {
+    "source": "terminal-1000/sources/fdw_warm.rs",
+    "source_sha256": "d2e75cf87a1cc1415b8a53224e881b28ff5d37abe09b7229469c61d9a2c79fa6",
+    "gzip": true
+  },
+  "terminal-100/correlated.json.gz": {
+    "source": "terminal-100/correlated.json",
+    "source_sha256": "2de02361df75660437fc311747fc3be5002a3505a4197d62b890b9ff07dce7ef",
+    "gzip": true
+  },
+  "terminal-100/raw.jsonl.gz": {
+    "source": "terminal-100/raw.jsonl",
+    "source_sha256": "b0e95b55f2e052a5b7afc33613437223192ad4d409cfa56a5b69f20763dc1950",
+    "gzip": true
+  },
+  "terminal-100/query-log.json.gz": {
+    "source": "terminal-100/query-log.json",
+    "source_sha256": "4d22dc7b93bb67fbd69b301eb4ef608623502f62422553ed7cc9b4ce98b5748c",
+    "gzip": true
+  },
+  "terminal-100/settings.json": {
+    "source": "terminal-100/settings.json",
+    "source_sha256": "fbc11117854ead09dc258c1d9f7652332438b0bd2fbe12a76fad7b788dade215",
+    "gzip": false
+  },
+  "terminal-100/cleanup.json": {
+    "source": "terminal-100/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "terminal-100/explain.json.gz": {
+    "source": "terminal-100/explain.json",
+    "source_sha256": "64178c7779c791a5524bbdf6225cde1fd57f3e1aceef7162e722c339f24f3bc7",
+    "gzip": true
+  },
+  "terminal-100/sources/fdw_terminal.py.gz": {
+    "source": "terminal-100/sources/fdw_terminal.py",
+    "source_sha256": "35bd3e93334bbcd62c87f89e12daf6ad7c763af0806e5b5a300c6fac625fb1b3",
+    "gzip": true
+  },
+  "terminal-100/sources/fdw_values.py.gz": {
+    "source": "terminal-100/sources/fdw_values.py",
+    "source_sha256": "e90b80009afa0025ab944591a7c6627bdd53bfdeaa97f148d9d85b5dca2733ef",
+    "gzip": true
+  },
+  "terminal-100/sources/fdw_correlation.py.gz": {
+    "source": "terminal-100/sources/fdw_correlation.py",
+    "source_sha256": "7da12b35874596a95581d323bc71fdd127002731c42a9fdc2a0cf0b4925e7d13",
+    "gzip": true
+  },
+  "terminal-100/sources/fdw_tuning.py.gz": {
+    "source": "terminal-100/sources/fdw_tuning.py",
+    "source_sha256": "22895d548ec68de1116070d619060065873a162a6b2b146cf9c28ca062d9d729",
+    "gzip": true
+  },
+  "terminal-100/sources/route_workers.py.gz": {
+    "source": "terminal-100/sources/route_workers.py",
+    "source_sha256": "979107fb60d6bc9a465ccab5f6f1aa4e72ec5d66c2be901ea17a98c012d056ee",
+    "gzip": true
+  },
+  "terminal-100/sources/fdw_warm.rs.gz": {
+    "source": "terminal-100/sources/fdw_warm.rs",
+    "source_sha256": "d2e75cf87a1cc1415b8a53224e881b28ff5d37abe09b7229469c61d9a2c79fa6",
+    "gzip": true
+  },
+  "cache-paired/0-baseline/correlated.json.gz": {
+    "source": "cache-paired/0-baseline/correlated.json",
+    "source_sha256": "ff15b93ba2fc4587fe9f571efaeb1e714e21e47cf1e02b2e221d6d5145b1ea99",
+    "gzip": true
+  },
+  "cache-paired/0-baseline/raw.jsonl.gz": {
+    "source": "cache-paired/0-baseline/raw.jsonl",
+    "source_sha256": "9a968c2224c1a5026b05502ee74784851335adddf8e05d0b30e5a5edd258201a",
+    "gzip": true
+  },
+  "cache-paired/0-baseline/query-log.json.gz": {
+    "source": "cache-paired/0-baseline/query-log.json",
+    "source_sha256": "09703672efc7bdda8d31b4a7c85a812736fd7b2bcb86f7ebe44e67280fc77218",
+    "gzip": true
+  },
+  "cache-paired/0-baseline/settings.json": {
+    "source": "cache-paired/0-baseline/settings.json",
+    "source_sha256": "6cb6f2b2df90ad907d64b2ce19395de8a9f2e56a6886f18646b3dee5393455f6",
+    "gzip": false
+  },
+  "cache-paired/0-baseline/capacity-summary.json": {
+    "source": "cache-paired/0-baseline/capacity-summary.json",
+    "source_sha256": "fb1bdccf992f339321f75eefa496f314700437c6feedec81374404c6a6af4bde",
+    "gzip": false
+  },
+  "cache-paired/0-baseline/value-controls.json": {
+    "source": "cache-paired/0-baseline/value-controls.json",
+    "source_sha256": "d290803bf0841ef1a446679273a659c280d6acfc4b294649260860184a42289d",
+    "gzip": false
+  },
+  "cache-paired/0-baseline/cleanup.json": {
+    "source": "cache-paired/0-baseline/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "cache-paired/0-candidate/correlated.json.gz": {
+    "source": "cache-paired/0-candidate/correlated.json",
+    "source_sha256": "1c4e4f29c62d353f241332575e957ef9feec45ff8bf3a4d4e58593694fbb3028",
+    "gzip": true
+  },
+  "cache-paired/0-candidate/raw.jsonl.gz": {
+    "source": "cache-paired/0-candidate/raw.jsonl",
+    "source_sha256": "f568b0a9650e195978f02a2bb095ad19eac91baec3f4fe06be441bf46fa135d4",
+    "gzip": true
+  },
+  "cache-paired/0-candidate/query-log.json.gz": {
+    "source": "cache-paired/0-candidate/query-log.json",
+    "source_sha256": "048c46b9f5593b807824b9edf353cdcda64b7b0ccf6ec68d716166451f0d7b91",
+    "gzip": true
+  },
+  "cache-paired/0-candidate/settings.json": {
+    "source": "cache-paired/0-candidate/settings.json",
+    "source_sha256": "db78b2148a5cd002067a7c3457cd2631fa67b0c3a5cf3f07fdcc6ae4aebdabfa",
+    "gzip": false
+  },
+  "cache-paired/0-candidate/capacity-summary.json": {
+    "source": "cache-paired/0-candidate/capacity-summary.json",
+    "source_sha256": "92a380d3212681db7a6990907f4cb678d3adc95c5118ed646b405af1bf724ab7",
+    "gzip": false
+  },
+  "cache-paired/0-candidate/value-controls.json": {
+    "source": "cache-paired/0-candidate/value-controls.json",
+    "source_sha256": "d290803bf0841ef1a446679273a659c280d6acfc4b294649260860184a42289d",
+    "gzip": false
+  },
+  "cache-paired/0-candidate/cleanup.json": {
+    "source": "cache-paired/0-candidate/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "cache-paired/1-baseline/correlated.json.gz": {
+    "source": "cache-paired/1-baseline/correlated.json",
+    "source_sha256": "8f1a9ee285431e9717fd134d7c4b56192f8d5ae7edbecf818bbc1cd1c60e8cb9",
+    "gzip": true
+  },
+  "cache-paired/1-baseline/raw.jsonl.gz": {
+    "source": "cache-paired/1-baseline/raw.jsonl",
+    "source_sha256": "373282aa4fb1ac09ac8db1f5e26300c324442bff3f20fca661fb26fe7b3811e5",
+    "gzip": true
+  },
+  "cache-paired/1-baseline/query-log.json.gz": {
+    "source": "cache-paired/1-baseline/query-log.json",
+    "source_sha256": "dcc2ca25f0e484efd0ce98a4d7eb3889f078caed9d80340c1933fab6b00b9633",
+    "gzip": true
+  },
+  "cache-paired/1-baseline/settings.json": {
+    "source": "cache-paired/1-baseline/settings.json",
+    "source_sha256": "6cb6f2b2df90ad907d64b2ce19395de8a9f2e56a6886f18646b3dee5393455f6",
+    "gzip": false
+  },
+  "cache-paired/1-baseline/capacity-summary.json": {
+    "source": "cache-paired/1-baseline/capacity-summary.json",
+    "source_sha256": "f01957c9aeb806159e2a3ae3b0232fd17930df28c2b982536711982f622aa0a2",
+    "gzip": false
+  },
+  "cache-paired/1-baseline/value-controls.json": {
+    "source": "cache-paired/1-baseline/value-controls.json",
+    "source_sha256": "d290803bf0841ef1a446679273a659c280d6acfc4b294649260860184a42289d",
+    "gzip": false
+  },
+  "cache-paired/1-baseline/cleanup.json": {
+    "source": "cache-paired/1-baseline/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "cache-paired/1-candidate/correlated.json.gz": {
+    "source": "cache-paired/1-candidate/correlated.json",
+    "source_sha256": "aeb7abe2e39effa343b41a77b8611f3040fd9f194a925d91bf733d4bb68938f0",
+    "gzip": true
+  },
+  "cache-paired/1-candidate/raw.jsonl.gz": {
+    "source": "cache-paired/1-candidate/raw.jsonl",
+    "source_sha256": "b72881a5d3d4d227c28d7b216f00a45c847c179b2fdf23aaea544b49fbdcc99d",
+    "gzip": true
+  },
+  "cache-paired/1-candidate/query-log.json.gz": {
+    "source": "cache-paired/1-candidate/query-log.json",
+    "source_sha256": "07955129bac04eb952e7949e8081930367670822bbbe72fcd69972506250bd68",
+    "gzip": true
+  },
+  "cache-paired/1-candidate/settings.json": {
+    "source": "cache-paired/1-candidate/settings.json",
+    "source_sha256": "db78b2148a5cd002067a7c3457cd2631fa67b0c3a5cf3f07fdcc6ae4aebdabfa",
+    "gzip": false
+  },
+  "cache-paired/1-candidate/capacity-summary.json": {
+    "source": "cache-paired/1-candidate/capacity-summary.json",
+    "source_sha256": "4a8f297a58bf5eb4f021899b92ee2c09c138942cc2ba7fdcc0f0217bf8b6ac85",
+    "gzip": false
+  },
+  "cache-paired/1-candidate/value-controls.json": {
+    "source": "cache-paired/1-candidate/value-controls.json",
+    "source_sha256": "d290803bf0841ef1a446679273a659c280d6acfc4b294649260860184a42289d",
+    "gzip": false
+  },
+  "cache-paired/1-candidate/cleanup.json": {
+    "source": "cache-paired/1-candidate/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "cache-paired/2-baseline/correlated.json.gz": {
+    "source": "cache-paired/2-baseline/correlated.json",
+    "source_sha256": "71c76c48e73d5e5ce2462fc0d5170c09efdcc0414912a2d81529aa1ccba8e3f8",
+    "gzip": true
+  },
+  "cache-paired/2-baseline/raw.jsonl.gz": {
+    "source": "cache-paired/2-baseline/raw.jsonl",
+    "source_sha256": "d22aea9fcefd69c0141fc41da7fc1ded96191d4386265f29c155da508db70a33",
+    "gzip": true
+  },
+  "cache-paired/2-baseline/query-log.json.gz": {
+    "source": "cache-paired/2-baseline/query-log.json",
+    "source_sha256": "aa18cb9edf80598353f959792acd0566f2c1db2b48c8e621d49e1d01aab15507",
+    "gzip": true
+  },
+  "cache-paired/2-baseline/settings.json": {
+    "source": "cache-paired/2-baseline/settings.json",
+    "source_sha256": "6cb6f2b2df90ad907d64b2ce19395de8a9f2e56a6886f18646b3dee5393455f6",
+    "gzip": false
+  },
+  "cache-paired/2-baseline/capacity-summary.json": {
+    "source": "cache-paired/2-baseline/capacity-summary.json",
+    "source_sha256": "8be5591e9f453bc338bcd0d2a9a0e945cbdc6c73eb45ab655c4994f8dc186fea",
+    "gzip": false
+  },
+  "cache-paired/2-baseline/value-controls.json": {
+    "source": "cache-paired/2-baseline/value-controls.json",
+    "source_sha256": "d290803bf0841ef1a446679273a659c280d6acfc4b294649260860184a42289d",
+    "gzip": false
+  },
+  "cache-paired/2-baseline/cleanup.json": {
+    "source": "cache-paired/2-baseline/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "cache-paired/2-candidate/correlated.json.gz": {
+    "source": "cache-paired/2-candidate/correlated.json",
+    "source_sha256": "b9ecb0578f4ecf28f516335ebfa374a566221903efc631485d1955ec3a056888",
+    "gzip": true
+  },
+  "cache-paired/2-candidate/raw.jsonl.gz": {
+    "source": "cache-paired/2-candidate/raw.jsonl",
+    "source_sha256": "28ce8c474e044a2afeb15369e2b2267446dc2619ac4bc05874a2c6d79a6c8359",
+    "gzip": true
+  },
+  "cache-paired/2-candidate/query-log.json.gz": {
+    "source": "cache-paired/2-candidate/query-log.json",
+    "source_sha256": "c3ccd68fd344297d4bfd3c72a0a5b6b7304924bb39d15da4837bc3c9ea168b15",
+    "gzip": true
+  },
+  "cache-paired/2-candidate/settings.json": {
+    "source": "cache-paired/2-candidate/settings.json",
+    "source_sha256": "db78b2148a5cd002067a7c3457cd2631fa67b0c3a5cf3f07fdcc6ae4aebdabfa",
+    "gzip": false
+  },
+  "cache-paired/2-candidate/capacity-summary.json": {
+    "source": "cache-paired/2-candidate/capacity-summary.json",
+    "source_sha256": "2bd2f3f6aa78157a831ebf3b82091ab62baab1e6dff3c3256f3d0675dea1fdbe",
+    "gzip": false
+  },
+  "cache-paired/2-candidate/value-controls.json": {
+    "source": "cache-paired/2-candidate/value-controls.json",
+    "source_sha256": "d290803bf0841ef1a446679273a659c280d6acfc4b294649260860184a42289d",
+    "gzip": false
+  },
+  "cache-paired/2-candidate/cleanup.json": {
+    "source": "cache-paired/2-candidate/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "cache-paired/3-baseline/correlated.json.gz": {
+    "source": "cache-paired/3-baseline/correlated.json",
+    "source_sha256": "94839a73dab0ba78b4ffd9785c14087b048de0a54d0e90b2255553fe4477b6d2",
+    "gzip": true
+  },
+  "cache-paired/3-baseline/raw.jsonl.gz": {
+    "source": "cache-paired/3-baseline/raw.jsonl",
+    "source_sha256": "8e365393d4c2d2935c7eb13464a56781abcd8469cc46a02448402539403e7b8e",
+    "gzip": true
+  },
+  "cache-paired/3-baseline/query-log.json.gz": {
+    "source": "cache-paired/3-baseline/query-log.json",
+    "source_sha256": "f9fa3d852bee50e73e01c01e854703bd152703050d12fab694d0b7351f0376af",
+    "gzip": true
+  },
+  "cache-paired/3-baseline/settings.json": {
+    "source": "cache-paired/3-baseline/settings.json",
+    "source_sha256": "6cb6f2b2df90ad907d64b2ce19395de8a9f2e56a6886f18646b3dee5393455f6",
+    "gzip": false
+  },
+  "cache-paired/3-baseline/capacity-summary.json": {
+    "source": "cache-paired/3-baseline/capacity-summary.json",
+    "source_sha256": "36d8b136d616704a76beab4d229a2fc6957e14459dfae8e54cf1e52d196cf311",
+    "gzip": false
+  },
+  "cache-paired/3-baseline/value-controls.json": {
+    "source": "cache-paired/3-baseline/value-controls.json",
+    "source_sha256": "d290803bf0841ef1a446679273a659c280d6acfc4b294649260860184a42289d",
+    "gzip": false
+  },
+  "cache-paired/3-baseline/cleanup.json": {
+    "source": "cache-paired/3-baseline/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "cache-paired/3-candidate/correlated.json.gz": {
+    "source": "cache-paired/3-candidate/correlated.json",
+    "source_sha256": "caed0bfaf6e0508cc22558e383278af13bda2614cd7aded1e7d82418f8dac0e4",
+    "gzip": true
+  },
+  "cache-paired/3-candidate/raw.jsonl.gz": {
+    "source": "cache-paired/3-candidate/raw.jsonl",
+    "source_sha256": "5ad019f76f60323d1598b2e0daf006117fe435c8d97b66a1c661705196dbdfc6",
+    "gzip": true
+  },
+  "cache-paired/3-candidate/query-log.json.gz": {
+    "source": "cache-paired/3-candidate/query-log.json",
+    "source_sha256": "6de7625448c8ae44a5c3dbf7f8fcd2485e8a3507e9a030c41d74e3a858cb1d49",
+    "gzip": true
+  },
+  "cache-paired/3-candidate/settings.json": {
+    "source": "cache-paired/3-candidate/settings.json",
+    "source_sha256": "db78b2148a5cd002067a7c3457cd2631fa67b0c3a5cf3f07fdcc6ae4aebdabfa",
+    "gzip": false
+  },
+  "cache-paired/3-candidate/capacity-summary.json": {
+    "source": "cache-paired/3-candidate/capacity-summary.json",
+    "source_sha256": "c96906ed350d20ba0ed87054067864a6804d68c46cfab70014b99844eea43ce3",
+    "gzip": false
+  },
+  "cache-paired/3-candidate/value-controls.json": {
+    "source": "cache-paired/3-candidate/value-controls.json",
+    "source_sha256": "d290803bf0841ef1a446679273a659c280d6acfc4b294649260860184a42289d",
+    "gzip": false
+  },
+  "cache-paired/3-candidate/cleanup.json": {
+    "source": "cache-paired/3-candidate/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "cache-paired/4-baseline/correlated.json.gz": {
+    "source": "cache-paired/4-baseline/correlated.json",
+    "source_sha256": "c843910df6ee01e0023915ae518ffeb8bd42e20fc5afdfebe279068b1cecc432",
+    "gzip": true
+  },
+  "cache-paired/4-baseline/raw.jsonl.gz": {
+    "source": "cache-paired/4-baseline/raw.jsonl",
+    "source_sha256": "aa59c48e901034ef77ff5b7dbe7df02bc55da63da11852139186fb4b7ffe9bd9",
+    "gzip": true
+  },
+  "cache-paired/4-baseline/query-log.json.gz": {
+    "source": "cache-paired/4-baseline/query-log.json",
+    "source_sha256": "7cbe34752d428119be3226c519c6875b1cbce66b97f47e19a0b3ea4ceb7a3d0c",
+    "gzip": true
+  },
+  "cache-paired/4-baseline/settings.json": {
+    "source": "cache-paired/4-baseline/settings.json",
+    "source_sha256": "6cb6f2b2df90ad907d64b2ce19395de8a9f2e56a6886f18646b3dee5393455f6",
+    "gzip": false
+  },
+  "cache-paired/4-baseline/capacity-summary.json": {
+    "source": "cache-paired/4-baseline/capacity-summary.json",
+    "source_sha256": "ba1c6e3478621b8406290161fd8a066ec75babb8777a33e80559745368e298b6",
+    "gzip": false
+  },
+  "cache-paired/4-baseline/value-controls.json": {
+    "source": "cache-paired/4-baseline/value-controls.json",
+    "source_sha256": "d290803bf0841ef1a446679273a659c280d6acfc4b294649260860184a42289d",
+    "gzip": false
+  },
+  "cache-paired/4-baseline/cleanup.json": {
+    "source": "cache-paired/4-baseline/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "cache-paired/4-candidate/correlated.json.gz": {
+    "source": "cache-paired/4-candidate/correlated.json",
+    "source_sha256": "e615e80614af28009fdd5b6d95d7f507dcbdba6c77d7e14f7853d6ab491f6d01",
+    "gzip": true
+  },
+  "cache-paired/4-candidate/raw.jsonl.gz": {
+    "source": "cache-paired/4-candidate/raw.jsonl",
+    "source_sha256": "d61e3d7464ffaf7a43e27791f21083ea84c1045d7b4129dcd3fe2f85f1afacc8",
+    "gzip": true
+  },
+  "cache-paired/4-candidate/query-log.json.gz": {
+    "source": "cache-paired/4-candidate/query-log.json",
+    "source_sha256": "5f148eac2dafdfec8e73f437948b1ef971837473a9c68c888190b42280e16333",
+    "gzip": true
+  },
+  "cache-paired/4-candidate/settings.json": {
+    "source": "cache-paired/4-candidate/settings.json",
+    "source_sha256": "db78b2148a5cd002067a7c3457cd2631fa67b0c3a5cf3f07fdcc6ae4aebdabfa",
+    "gzip": false
+  },
+  "cache-paired/4-candidate/capacity-summary.json": {
+    "source": "cache-paired/4-candidate/capacity-summary.json",
+    "source_sha256": "d9fb916f6944d478744237d05e5fe72807021f9f5a027df3aa2de142f36a498d",
+    "gzip": false
+  },
+  "cache-paired/4-candidate/value-controls.json": {
+    "source": "cache-paired/4-candidate/value-controls.json",
+    "source_sha256": "d290803bf0841ef1a446679273a659c280d6acfc4b294649260860184a42289d",
+    "gzip": false
+  },
+  "cache-paired/4-candidate/cleanup.json": {
+    "source": "cache-paired/4-candidate/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "cache-paired/candidate-ttl/correlated.json.gz": {
+    "source": "cache-paired/candidate-ttl/correlated.json",
+    "source_sha256": "b7059cb3be6e15cf3206664f84dd0772ec94903c27f6b0a10d093829133576c1",
+    "gzip": true
+  },
+  "cache-paired/candidate-ttl/raw.jsonl.gz": {
+    "source": "cache-paired/candidate-ttl/raw.jsonl",
+    "source_sha256": "b7ba56108918c0290597a8271188dee527342ed512277bc05dad8bbcf3aedf32",
+    "gzip": true
+  },
+  "cache-paired/candidate-ttl/query-log.json.gz": {
+    "source": "cache-paired/candidate-ttl/query-log.json",
+    "source_sha256": "6a9d3d7bbf590b89c537b24d440956ec95d879ed363e439cf4e6bcd61776b319",
+    "gzip": true
+  },
+  "cache-paired/candidate-ttl/settings.json": {
+    "source": "cache-paired/candidate-ttl/settings.json",
+    "source_sha256": "83269324d8f64c827b37e312a0f14479f7ce0833f97fba1e40be220990533717",
+    "gzip": false
+  },
+  "cache-paired/candidate-ttl/capacity-summary.json": {
+    "source": "cache-paired/candidate-ttl/capacity-summary.json",
+    "source_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "gzip": false
+  },
+  "cache-paired/candidate-ttl/value-controls.json": {
+    "source": "cache-paired/candidate-ttl/value-controls.json",
+    "source_sha256": "d290803bf0841ef1a446679273a659c280d6acfc4b294649260860184a42289d",
+    "gzip": false
+  },
+  "cache-paired/candidate-ttl/cleanup.json": {
+    "source": "cache-paired/candidate-ttl/cleanup.json",
+    "source_sha256": "1908edf459bbd0608fbaf437666e7262d179bc54c585dbd556f27ff562b371f1",
+    "gzip": false
+  },
+  "cache-paired/receipts.json": {
+    "source": "cache-paired/receipts.json",
+    "source_sha256": "982bfb0db923aad2fb9785fd815beeb698600384aace37556a8874b718c776e7",
+    "gzip": false
+  },
+  "cache-paired/builds/baseline.json": {
+    "source": "binaries/baseline.json",
+    "source_sha256": "09c2a7be4c0887809dc505ffd0de81171a50cce280fff4509ec4e47aacff74e5",
+    "gzip": false
+  },
+  "cache-paired/builds/candidate.json": {
+    "source": "binaries/candidate.json",
+    "source_sha256": "168481d8d120e81cd7518934a7a4593fefa039be2635a7f804d40b9a7864cede",
+    "gzip": false
+  },
+  "orchestration/cache-paired.py": {
+    "source": "cache-paired.py",
+    "source_sha256": "012af808d5fef16acc68771b1d4ad6fb2d8ab1ac0a4c571fe4d444e278b301a5",
+    "gzip": false
+  },
+  "orchestration/terminal-cadence.py": {
+    "source": "terminal-cadence.py",
+    "source_sha256": "fa6b7c79a70e5d94408778aa069d87fa6065e413609e3fc61841c8a2500d10a6",
+    "gzip": false
+  },
+  "sources/fdw_cache.py.gz": {
+    "source": "tests/benchmarks/fdw_cache.py",
+    "source_sha256": "031466f71df463cef21b5f914885928168fce5ae807fee478e553185c635bf99",
+    "gzip": true
+  },
+  "sources/fdw_terminal.py.gz": {
+    "source": "tests/benchmarks/fdw_terminal.py",
+    "source_sha256": "35bd3e93334bbcd62c87f89e12daf6ad7c763af0806e5b5a300c6fac625fb1b3",
+    "gzip": true
+  },
+  "sources/fdw_tuning.py.gz": {
+    "source": "tests/benchmarks/fdw_tuning.py",
+    "source_sha256": "22895d548ec68de1116070d619060065873a162a6b2b146cf9c28ca062d9d729",
+    "gzip": true
+  },
+  "sources/fdw_correlation.py.gz": {
+    "source": "tests/benchmarks/fdw_correlation.py",
+    "source_sha256": "7da12b35874596a95581d323bc71fdd127002731c42a9fdc2a0cf0b4925e7d13",
+    "gzip": true
+  },
+  "sources/fdw_values.py.gz": {
+    "source": "tests/benchmarks/fdw_values.py",
+    "source_sha256": "e90b80009afa0025ab944591a7c6627bdd53bfdeaa97f148d9d85b5dca2733ef",
+    "gzip": true
+  },
+  "sources/fdw_adaptive.py.gz": {
+    "source": "tests/benchmarks/fdw_adaptive.py",
+    "source_sha256": "922246c11d9594b3d9167f61922dc5e0dd96fdb5355adc41472bba4c0c435c5c",
+    "gzip": true
+  },
+  "sources/fdw_profile.py.gz": {
+    "source": "tests/benchmarks/fdw_profile.py",
+    "source_sha256": "4547206710957399e681db074a7ad5bc032e3b17d27017a1bb89b76215dac6fe",
+    "gzip": true
+  },
+  "sources/route_workers.py.gz": {
+    "source": "tests/benchmarks/route_workers.py",
+    "source_sha256": "979107fb60d6bc9a465ccab5f6f1aa4e72ec5d66c2be901ea17a98c012d056ee",
+    "gzip": true
+  },
+  "sources/run_sweeps.py.gz": {
+    "source": "tests/benchmarks/run_sweeps.py",
+    "source_sha256": "351dbfad99ca15fabb79e178260515cc7bf937676cf9dcc50807f5e854a2a189",
+    "gzip": true
+  },
+  "sources/compare_routes.py.gz": {
+    "source": "tests/benchmarks/compare_routes.py",
+    "source_sha256": "09e935d0bb8c6a68a2251a1601d88591070c371eca1db8e50b7573ff8018ca40",
+    "gzip": true
+  },
+  "sources/comparison.py.gz": {
+    "source": "tests/benchmarks/comparison.py",
+    "source_sha256": "b1797b7b7ae36413c850f8a3f400c1b9bdba614a6bb909c3d3cb3e720bd702b1",
+    "gzip": true
+  },
+  "native-format-discovery.json": {
+    "source": "native-format-discovery.json",
+    "source_sha256": "1f26a5e585426573c6cfc884abd46070e10f303f6dcc9b46355c2b3ea319bc9c",
+    "gzip": false
+  },
+  "terminal-100/cadence-receipt.json": {
+    "source": "terminal-cadence-100/receipt.json",
+    "source_sha256": "f84adee3ca015856a0dfadb73e7ab3d2c5c1a7e895264bbda425ee10c6b34566",
+    "gzip": false
+  },
+  "report.py": {
+    "source": "report.py",
+    "source_sha256": "7f685330457c15c1afcf3adf2311b0e686a4e9fafa9be71113ca4d32e5b970bc",
+    "gzip": false
+  }
+}
