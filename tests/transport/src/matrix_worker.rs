@@ -151,7 +151,7 @@ async fn run() -> Result<(), Error> {
             let terminal_next_ms;
             loop {
                 let next_start = Instant::now();
-                match execution.next().await? {
+                match execution.next_batch().await? {
                     Some(batch) => {
                         first_batch_ms.get_or_insert(start.elapsed().as_secs_f64() * 1000.0);
                         (retained_rows, retained_bytes) = retained(
@@ -175,12 +175,15 @@ async fn run() -> Result<(), Error> {
                 return Err(Error::Unconfirmed);
             }
             let fetch_verified_ms = start.elapsed().as_secs_f64() * 1000.0;
-            let decoded = Decoded::Arrow(batches);
+            // Keep the client byte leases alive while consuming the shared Arrow arrays.
+            let decoded = Decoded::Arrow(batches.iter().map(|batch| (**batch).clone()).collect());
             let consume_start = Instant::now();
             let (rows, digest) = consume(&decoded, scenario.count, Limits::default())?;
             let consumer_wall_ms = consume_start.elapsed().as_secs_f64() * 1000.0;
             let total_wall_ms = start.elapsed().as_secs_f64() * 1000.0;
             bench.validate(scenario, &decoded)?;
+            drop(decoded);
+            drop(batches);
             json!({"query_id":id,"rows":rows,"result_digest":digest,
                 "first_batch_ms":first_batch_ms,"fetch_verified_ms":fetch_verified_ms,
                 "terminal_next_ms":terminal_next_ms,"consumer_wall_ms":consumer_wall_ms,
