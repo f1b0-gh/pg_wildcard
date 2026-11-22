@@ -4,8 +4,8 @@ use std::cmp::Reverse;
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap};
 
 use super::{
-    ChError, GramFileCounts, SweepItem, SweepOptions, SweepPlan, SweepStrategy, ViewColumns, ident,
-    predicate, quote, sweep::expression_ast, sweep_queries_with_options,
+    ChError, GramFileCounts, SweepItem, SweepOptions, SweepPlan, ViewColumns, ident, predicate,
+    quote, sweep::expression_ast, sweep_queries_with_options,
 };
 use crate::core::{View, grams, verify::Kind};
 
@@ -41,9 +41,47 @@ pub enum ByteDispatchGate {
 }
 
 /// Dispatch diagnostics; physical index use must be checked on the target engine.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ByteDispatchStrategy {
+    ConstantCandidates,
+    ByteDispatch,
+}
+
+impl ByteDispatchStrategy {
+    pub fn name(self) -> &'static str {
+        match self {
+            Self::ConstantCandidates => "constant_candidates",
+            Self::ByteDispatch => "byte_dispatch",
+        }
+    }
+}
+
+/// Query diagnostics for the opt-in API, independent of the legacy strategy enum.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ByteDispatchSweepPlan {
+    pub queries: Vec<String>,
+    pub strategy: ByteDispatchStrategy,
+    pub source_scan_count: usize,
+    pub estimated_ast: Vec<usize>,
+    pub exact_only_items: usize,
+}
+
+impl From<SweepPlan> for ByteDispatchSweepPlan {
+    fn from(plan: SweepPlan) -> Self {
+        Self {
+            queries: plan.queries,
+            strategy: ByteDispatchStrategy::ConstantCandidates,
+            source_scan_count: plan.source_scan_count,
+            estimated_ast: plan.estimated_ast,
+            exact_only_items: plan.exact_only_items,
+        }
+    }
+}
+
+/// Dispatch diagnostics; physical index use must be checked on the target engine.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ByteDispatchPlan {
-    pub sweep: SweepPlan,
+    pub sweep: ByteDispatchSweepPlan,
     pub dispatch_groups: usize,
     pub unassigned_items: usize,
     pub index_gate: bool,
@@ -97,6 +135,57 @@ fn helper_prefix(
         .ok_or(ChError::UnbudgetableSweepSql)
 }
 
+// A source projection may repeat columns or use the generated hit labels. Bind
+// its distinct columns in a separate relation and select qualified references:
+// aliases beside hit expressions would either rebind them or fail Code 179.
+// Ordinary projections keep their original SQL and budgets byte for byte.
+fn projection_wrapper(selected: &[String], row: &str, prefix: &str) -> Option<(String, String)> {
+    let mut positions = BTreeMap::new();
+    for (i, col) in selected.iter().enumerate() {
+        positions.entry(col.as_str()).or_insert(i);
+    }
+    let mut counts = BTreeMap::new();
+    for col in positions.keys() {
+        *counts
+            .entry(col.rsplit('.').next().unwrap_or(col))
+            .or_insert(0) += 1;
+    }
+    if positions.len() == selected.len()
+        && counts.values().all(|count| *count == 1)
+        && !counts.contains_key("indicator_id")
+        && !counts.contains_key("view")
+    {
+        return None;
+    }
+    let label = |col: &str| {
+        let stem = col.rsplit('.').next().unwrap_or(col);
+        if counts[stem] > 1 {
+            col.to_owned()
+        } else {
+            stem.to_owned()
+        }
+    };
+    let hits = format!("{prefix}hits");
+    let projected = format!("{prefix}source");
+    let hit_id = format!("{prefix}hit_id");
+    let hit_view = format!("{prefix}hit_view");
+    let fields = positions
+        .iter()
+        .map(|(col, i)| format!("tupleElement({hits}.{row}, {}) AS `{}`", i + 1, label(col)))
+        .collect::<Vec<_>>()
+        .join(", ");
+    let output = selected
+        .iter()
+        .map(|col| format!("{projected}.`{}`, ", label(col)))
+        .collect::<String>();
+    Some((
+        format!(
+            "SELECT {output}{projected}.{hit_id} AS indicator_id, {projected}.{hit_view} AS view\nFROM (SELECT {fields}, {hits}.indicator_id AS {hit_id}, {hits}.view AS {hit_view}\nFROM (\n"
+        ),
+        format!("\n) AS {hits}\n) AS {projected}"),
+    ))
+}
+
 // Isolate source expressions from the default renderer's fixed output aliases.
 fn dense_fallback(
     source: &str,
@@ -136,19 +225,28 @@ fn dense_fallback(
         "WITH {input} AS (SELECT tuple({projection}) AS {row}, {}\nFROM {source}{filter}\n)\n",
         expressions.join(", ")
     );
-    let output = selected
-        .iter()
-        .enumerate()
-        .map(|(i, col)| {
-            format!(
-                "tupleElement({row}, {}) AS {}, ",
-                i + 1,
-                col.rsplit('.').next().unwrap_or(col)
-            )
-        })
-        .collect::<String>();
-    let before = format!("{cte}SELECT {output}indicator_id, view\nFROM (\n");
-    let after = "\n)";
+    let wrapper = projection_wrapper(&selected, &row, &prefix);
+    let output = if wrapper.is_some() {
+        format!("{row}, ")
+    } else {
+        selected
+            .iter()
+            .enumerate()
+            .map(|(i, col)| {
+                format!(
+                    "tupleElement({row}, {}) AS {}, ",
+                    i + 1,
+                    col.rsplit('.').next().unwrap_or(col)
+                )
+            })
+            .collect::<String>()
+    };
+    let mut before = format!("{cte}SELECT {output}indicator_id, view\nFROM (\n");
+    let mut after = "\n)".to_owned();
+    if let Some((outer_before, outer_after)) = wrapper {
+        before = format!("{outer_before}{before}");
+        after.push_str(&outer_after);
+    }
     let bytes = before.len().saturating_add(after.len());
     // Overcharge the trusted wrapper, without interpreting a partial SQL grammar.
     let ast = bytes.saturating_mul(4);
@@ -260,7 +358,7 @@ pub fn sweep_byte_dispatch(
 ) -> Result<ByteDispatchPlan, ChError> {
     let fallback = |reason| {
         Ok(ByteDispatchPlan {
-            sweep: dense_fallback(source, select, cols, items, filter, options)?,
+            sweep: dense_fallback(source, select, cols, items, filter, options)?.into(),
             dispatch_groups: 0,
             unassigned_items: items.len(),
             index_gate: false,
@@ -437,22 +535,30 @@ pub fn sweep_byte_dispatch(
     } else {
         selected.join(", ")
     };
-    let output = selected
-        .iter()
-        .enumerate()
-        .map(|(i, col)| {
-            format!(
-                "tupleElement({row}, {}) AS {}, ",
-                i + 1,
-                col.rsplit('.').next().unwrap_or(col)
-            )
-        })
-        .collect::<String>();
+    let wrapper = projection_wrapper(&selected, &row, &prefix);
+    let wrapper_ast = wrapper.as_ref().map_or(0, |(a, b)| {
+        a.len().saturating_add(b.len()).saturating_mul(4)
+    });
+    let output = if wrapper.is_some() {
+        format!("{row}, ")
+    } else {
+        selected
+            .iter()
+            .enumerate()
+            .map(|(i, col)| {
+                format!(
+                    "tupleElement({row}, {}) AS {}, ",
+                    i + 1,
+                    col.rsplit('.').next().unwrap_or(col)
+                )
+            })
+            .collect::<String>()
+    };
     let base_ast = 320usize
         .saturating_add(selected.len().saturating_mul(8))
         .saturating_add(source.len())
         .saturating_add(filter.map_or(0, |s| s.len().saturating_mul(4)));
-    let mut base_ast = base_ast;
+    let mut base_ast = base_ast.saturating_add(wrapper_ast);
     for expr in [&patterns, &id_list, &matches] {
         base_ast = base_ast.saturating_add(expression_ast(expr)?);
     }
@@ -480,9 +586,12 @@ pub fn sweep_byte_dispatch(
                 expression_ast(&coarse_gate)?,
             )
         };
-        let sql = format!(
+        let mut sql = format!(
             "/* wildcard sweep: strategy=byte_dispatch source_scan_count=1 */\nWITH {patterns} AS {pat}, {id_list} AS {ids}\nSELECT {output}arrayElement({ids}, {idx}) AS indicator_id, 'raw' AS view\nFROM ({input}\n)\nARRAY JOIN {matches} AS {idx}"
         );
+        if let Some((before, after)) = &wrapper {
+            sql = format!("{before}{sql}{after}");
+        }
         Ok((sql, base_ast.saturating_add(gate_ast)))
     };
     let (mut sql, mut ast) = render(index_gate)?;
@@ -500,9 +609,9 @@ pub fn sweep_byte_dispatch(
     }
 
     Ok(ByteDispatchPlan {
-        sweep: SweepPlan {
+        sweep: ByteDispatchSweepPlan {
             queries: vec![sql],
-            strategy: SweepStrategy::ByteDispatch,
+            strategy: ByteDispatchStrategy::ByteDispatch,
             source_scan_count: 1,
             estimated_ast: vec![ast],
             exact_only_items: needles.iter().filter(|g| g.is_empty()).count(),

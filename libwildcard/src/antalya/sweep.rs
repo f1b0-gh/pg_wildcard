@@ -30,15 +30,12 @@ pub enum SweepStrategy {
     /// Constant candidate predicates and exact constant-regex rechecks.
     /// Individual candidates may be omitted to fit the configured limits.
     ConstantCandidates,
-    /// Bounded byte-fragment dispatch followed by exact dynamic regex checks.
-    ByteDispatch,
 }
 
 impl SweepStrategy {
     pub fn name(self) -> &'static str {
         match self {
             Self::ConstantCandidates => "constant_candidates",
-            Self::ByteDispatch => "byte_dispatch",
         }
     }
 }

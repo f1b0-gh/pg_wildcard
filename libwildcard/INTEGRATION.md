@@ -57,6 +57,17 @@ of raw-view rules. It groups rule positions by required byte fragments, selects
 candidate positions with byte substring searches, and applies exact `match()` to
 those positions. Duplicate IDs and source rows retain their multiplicity. This
 is independent of the regex engine and does not change the default sweep API.
+The opt-in result uses `ByteDispatchSweepPlan` and `ByteDispatchStrategy`; the
+original `SweepPlan` and exhaustive `SweepStrategy` remain unchanged.
+
+Selected source values retain their order and multiplicity, including repeated
+columns. Generated hit columns always end the result as `indicator_id` and `view`.
+If selected source names collide with those labels, their result names are
+qualified by a generated source relation. Distinct qualified source identifiers
+sharing a final component retain their full identifier as the source column
+label. Inspect response metadata for those source names; do not treat a source
+`indicator_id` or `view` as the generated match. These projections use an extra
+scope boundary, charged to the SQL/AST budget.
 
 The current limits are 2,000 rules, 255 groups, 64 rules per group, and at most
 256 unassigned rules or 25% of the input. Other views, insufficient coverage and

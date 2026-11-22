@@ -111,6 +111,65 @@ fn byte_dispatch_cases(values: &[Vec<u8>]) -> serde_json::Value {
             "index_gate": plan.index_gate, "expected": expected,
             "ddl": byte_gram_index_ddl("bd", "byte_grams", column).unwrap()}));
     }
+    for (strategy, regex) in [("fallback", ".*"), ("dispatch", "abc")] {
+        for (selection, selected) in [
+            ("indicator", vec!["indicator_id"]),
+            ("view", vec!["view"]),
+            (
+                "duplicates",
+                vec![
+                    "id",
+                    "indicator_id",
+                    "view",
+                    "id",
+                    "bd.indicator_id",
+                    "bd.view",
+                ],
+            ),
+        ] {
+            let items = [SweepItem {
+                id: 17,
+                view: View::Raw,
+                regex: regex.into(),
+            }];
+            let values = [b"abc".as_slice(), b"not-a-match".as_slice()];
+            let plan = sweep_byte_dispatch(
+                "bd",
+                &selected,
+                &ViewColumns::new("v").unwrap(),
+                &items,
+                None,
+                SweepOptions::default(),
+                None,
+            )
+            .unwrap();
+            let matcher = Matcher::regex(regex, View::Raw, false).unwrap();
+            let expected: Vec<_> = values
+                .iter()
+                .enumerate()
+                .filter(|(_, v)| matcher.is_match(v))
+                .map(|(id, v)| {
+                    let value = std::str::from_utf8(v).unwrap();
+                    let mut row: Vec<_> = selected
+                        .iter()
+                        .map(|col| {
+                            if *col == "id" {
+                                json!(id)
+                            } else {
+                                json!(value)
+                            }
+                        })
+                        .collect();
+                    row.extend([json!(17), json!("raw")]);
+                    row
+                })
+                .collect();
+            cases.push(json!({"name":format!("projection_{strategy}_{selection}"),"queries":plan.sweep.queries,"index_gate":plan.index_gate,
+                "projection_types":selected.iter().map(|col|if *col == "id" {"int"} else {"str"}).collect::<Vec<_>>(),
+                "expected":expected,"values_hex":values.iter().map(|v|hex(v)).collect::<Vec<_>>(),
+                "ddl":byte_gram_index_ddl("bd","byte_grams","v").unwrap()}));
+        }
+    }
     // Numeric IDs in benign values must not make the source gate admit every row.
     let items: Vec<_> = (0..100)
         .map(|i| SweepItem {

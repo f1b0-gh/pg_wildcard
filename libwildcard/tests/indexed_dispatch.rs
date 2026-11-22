@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #![cfg(feature = "hot")]
 use libwildcard::antalya::{
-    ByteDispatchFallback, ByteDispatchGate, ChError, SweepItem, SweepOptions, SweepStrategy,
+    ByteDispatchFallback, ByteDispatchGate, ByteDispatchStrategy, ChError, SweepItem, SweepOptions,
     ViewColumns, byte_gram_index_ddl, sweep_byte_dispatch,
 };
 use libwildcard::core::View;
@@ -28,7 +28,7 @@ fn thousand_rules_dispatch_in_one_bounded_query() {
         None,
     )
     .unwrap();
-    assert_eq!(plan.sweep.strategy, SweepStrategy::ByteDispatch);
+    assert_eq!(plan.sweep.strategy, ByteDispatchStrategy::ByteDispatch);
     assert_eq!(plan.sweep.source_scan_count, 1);
     assert!(plan.fallback.is_none());
     assert!(plan.index_gate);
@@ -72,7 +72,10 @@ fn unselective_and_other_views_fall_back_explicitly() {
             None,
         )
         .unwrap();
-        assert_eq!(plan.sweep.strategy, SweepStrategy::ConstantCandidates);
+        assert_eq!(
+            plan.sweep.strategy,
+            ByteDispatchStrategy::ConstantCandidates
+        );
         assert!(plan.fallback.is_some());
         assert!(!plan.index_gate);
     }

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """Production byte-dispatch SQL: full multisets across index lifecycle states."""
 from collections import Counter
+import json
 
 
 def check(spec, q, rows, fail):
@@ -29,7 +30,20 @@ def check(spec, q, rows, fail):
                         settings = (f' SETTINGS use_skip_indexes={skipping}, '
                                     f'prefer_column_name_to_alias={prefer_columns}')
                         try:
-                            actual.update((int(r[0]), int(r[1]), r[2]) for r in rows(sql + settings))
+                            if 'projection_types' in case:
+                                result = json.loads(q(sql + settings).data())
+                                types = case['projection_types'] + ['int', 'str']
+                                actual.update(tuple(int(v) if kind == 'int' else v for v, kind in zip(r, types))
+                                              for r in result['data'])
+                                names = [c['name'] for c in result['meta']]
+                                if names[-2:] != ['indicator_id', 'view'] or any(names.count(n) != 1 for n in names[-2:]):
+                                    fail(f'generated hit columns were renamed/shadowed: {names}')
+                                named = Counter((int(r[0]), r[1]) for r in rows('SELECT indicator_id, view FROM (' + sql + ')' + settings))
+                                wanted = Counter()
+                                for hit, count in expected.items():wanted[hit[-2:]] += count
+                                if named != wanted:fail(f'named generated hit columns differ: {named} != {wanted}')
+                            else:
+                                actual.update((int(r[0]), int(r[1]), r[2]) for r in rows(sql + settings))
                         except Exception as exc:
                             # Native HTTPError exposes the engine explanation in
                             # its response body; these are synthetic test inputs.
