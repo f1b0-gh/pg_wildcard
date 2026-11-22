@@ -57,6 +57,11 @@ retained. `--timing-off` provides an executor-clock overhead control; conversion
 time is intentionally zero in that mode. Every cohort runs the same generated remote SQL
 through each route and correlates its unique query ID to the native query log.
 Post-cohort `SYSTEM FLUSH LOGS` is outside the measured operation.
+Worker processes have a 315-second host deadline. PostgreSQL sessions also use
+a 300-second statement timeout and 10-second lock timeout. On failure, the
+profiler reaps its process group and sampler and terminates only its uniquely
+named PG session. It saves the failed cohort and stops; process cleanup is not
+treated as proof of remote terminal completion, and no next cohort starts.
 
 Raw JSONL includes server rows/bytes/time/memory/ProfileEvents, full PostgreSQL
 EXPLAIN, client stage clocks, and 10 ms sampled process RSS/HWM/thread maxima.
@@ -65,6 +70,9 @@ included; process launch is separately reported. PostgreSQL `wall_ms` is its
 EXPLAIN execution time; direct `wall_ms` starts at fetch. PostgreSQL EXPLAIN
 `TIMING ON` adds instrumentation overhead. Small/short-lived processes may evade
 sampling; missing samples are not zero memory. RSS is not a batch budget.
+The summary keeps unavailable counters/resource peaks as JSON null or empty CSV
+cells. Corresponding `*_samples` columns give the number of actual observations,
+so partial coverage and measured zero remain distinguishable.
 The first decoded batch is not HTTP TTFB, local recheck CPU is not isolated,
 and overlapping phase clocks must never be added or subtracted as exclusive
 stage accounting. See `settings.json` for these measurement contracts.

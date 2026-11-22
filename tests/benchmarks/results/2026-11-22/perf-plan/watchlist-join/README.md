@@ -113,5 +113,8 @@ runner. Reproducing updates uses `updates/runner.py` and a fresh checkout/privat
 directory: its fixed `.local/perf/percolator/update-cost` output must not exist.
 
 The [decision](decision.json) retains the explicit raw-view option and leaves the
-default unchanged. Final whole-stack review remains pending; no universal latency
-improvement or regex-engine ranking is asserted.
+default unchanged. The completed whole-stack review and its five fixes are
+recorded in [review resolution](../review-resolution.md). The source alias fix has
+a separate [qualification and transfer check](../watchlist-alias-fix/README.md);
+these historical timings continue to describe their original source hash.
+No universal latency improvement or regex-engine ranking is asserted.

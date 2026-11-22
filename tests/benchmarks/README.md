@@ -42,6 +42,11 @@ an engine with `python3 tests/benchmarks/fixtures.py start --engine antalya
 contains credentials and must not be copied into results. Stop it with the same
 command using `stop` and omitting `--engine`. Disconnect any profiling PostgreSQL
 container from that owned network before stopping the fixture.
+New fixtures keep configuration and shared files in an exclusively created
+private directory recorded in their state. Existing parent permissions and
+sibling files are preserved. Stop verifies resource labels and artifact ownership;
+Docker inspection failures retain the state for a retry. Legacy states without
+an artifact-directory binding leave sibling XML/shared paths untouched.
 
 Run timed suites sequentially. Record resource limits, engine versions, cache
 settings, exact result checks and failed/censored attempts. Engine and client
