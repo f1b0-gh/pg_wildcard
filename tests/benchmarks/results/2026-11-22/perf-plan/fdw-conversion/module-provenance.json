@@ -1,0 +1,26 @@
+{
+  "scope": "FDW module snapshots; complete binary hashes are in comparison-status.json. This is not an attestation that the entire later working tree was the build input.",
+  "baseline_parent": "ae33a14c923ea16251c756793cbc84c6a754553b",
+  "prepared_change": "pvkslvyz",
+  "modules": [
+    {
+      "path": "pg_wildcard/src/fdw.rs",
+      "baseline_sha256": "33ea4a82b907cd6a04699495f101b9a78d8d2005835b89aebb4ec611f4a33fe0",
+      "baseline_equals_published_parent": true,
+      "prepared_module_sha256": "a61ce7739db6774a09afa1b7fa6d5253c2ff3c4fb014df8074207d50bd17fcfe"
+    },
+    {
+      "path": "pg_wildcard/src/fdw/values.rs",
+      "baseline_sha256": "62a32c21d99b73f80680e9ed1df47d1a61edcf333638d0330302bcc23c564245",
+      "baseline_equals_published_parent": true,
+      "prepared_module_sha256": "19b5b24a144b9c7980d84d5486d91164df373242d9b90bd0dd5a8179716e44ce"
+    },
+    {
+      "path": "pg_wildcard/src/fdw/datum.rs",
+      "baseline_sha256": "eff67c5a66eb9a3705df4b661db1bee162c10333fb61002e4d06bbe4540eaf58",
+      "baseline_equals_published_parent": true,
+      "prepared_module_sha256": "97071c5cdc747569ffce94afcfc7e9ad13a7c8f2492c534bbfa692d19660123b"
+    }
+  ],
+  "runtime_changes": "Prepared typed column views and per-batch buffer ownership; local per-tuple Datum copying and fallback conversions retained."
+}
