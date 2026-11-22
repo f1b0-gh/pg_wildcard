@@ -37,6 +37,10 @@ const SECURITY: &[&str] = &[
     r"C:\Windows\System32\cmd.exe",
     r"\\Server\Share\Tools\Tool.EXE",
     r"C:\Temp\..\Windows\notepad.exe",
+    "abc",
+    "abcx",
+    "abcy",
+    "abc\0def",
     "https://login.evil.com/wp-admin/setup.php",
     "http://LOGIN.EVIL.COM.:8080/%77p-ADMIN/x.PHP?a=1#f",
     "https://user:pass@sub.evil.com:443/path",
@@ -84,8 +88,36 @@ fn shared_gate_cases(values: &[Vec<u8>]) -> Vec<serde_json::Value> {
     let mut cases = Vec::new();
     for (name, patterns, views, filtered, budget) in [
         (
+            "ascii",
+            vec!["abc.*x", "abc.*y"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
+            "anchored",
+            vec![r"\Aabc.*x\z", r"\Aabc.*y\z"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
             "quote",
             vec!["a'b.*x", "a'b.*y"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
+            "percent",
+            vec!["a%b.*x", "a%b.*y"],
+            vec![View::Raw, View::Raw],
+            false,
+            0,
+        ),
+        (
+            "underscore",
+            vec!["a_b.*x", "a_b.*y"],
             vec![View::Raw, View::Raw],
             false,
             0,
@@ -193,7 +225,7 @@ fn shared_gate_cases(values: &[Vec<u8>]) -> Vec<serde_json::Value> {
         let actual_gate = plan
             .queries
             .iter()
-            .any(|q| q.contains("\nWHERE position(") || q.contains("\nWHERE (position("));
+            .any(|q| q.contains("\nWHERE like(") || q.contains("\nWHERE (like("));
         assert_eq!(actual_gate, expect_gate, "{name}");
         let mut expected = Vec::new();
         for (row, value) in values.iter().enumerate() {
@@ -250,6 +282,11 @@ fn main() {
     let mut values: Vec<Vec<u8>> = SECURITY.iter().map(|s| s.as_bytes().to_vec()).collect();
     values.extend([vec![0xc0, b'a'], vec![b'0', 0x80]]);
     values.extend([
+        b"a%b123x".to_vec(),
+        b"a_b456y".to_vec(),
+        b"\xff\0a%b123x".to_vec(),
+        b"\xff\0a_b456y".to_vec(),
+        b"aXb123x".to_vec(),
         b"a'b123x".to_vec(),
         b"a'b456y".to_vec(),
         b"a\\b123x".to_vec(),
@@ -451,6 +488,9 @@ fn main() {
         // Literal NUL patterns are truncated by older native engines; the
         // escaped spelling keeps this binary-value test portable.
         (207, r"\x00"),
+        (208, r"\Aabc\z"),
+        (209, r"\AC:\\Windows\\System32\\cmd\.exe\z"),
+        (210, r"^abc.*def$"),
     ] {
         let m = Matcher::regex(regex, View::Raw, false).unwrap();
         for (row, value) in values.iter().enumerate() {

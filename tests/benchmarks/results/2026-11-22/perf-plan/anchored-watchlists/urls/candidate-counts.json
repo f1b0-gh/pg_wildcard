@@ -1,0 +1,15 @@
+{
+  "counts": {
+    "baseline": {
+      "candidate_pairs": 33007006,
+      "total_pairs": 100000000,
+      "fraction": 0.33007006
+    },
+    "interior_grams": {
+      "candidate_pairs": 10415,
+      "total_pairs": 100000000,
+      "fraction": 0.00010415
+    }
+  },
+  "meaning": "logical necessary-substring passes, not an instrumented regex invocation count; collected outside insertion timers"
+}

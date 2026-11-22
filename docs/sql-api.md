@@ -115,7 +115,10 @@ execution limits; physical reads depend on the source plan and must be measured.
 An optional `WHERE` gate uses up to three grams required by every indicator when
 all indicators share a supported view/AND plan. It is omitted if unsupported,
 alias-sensitive, or unable to fit the remaining byte/AST budgets; exact checks
-and query count are preserved. Filter pushdown remains an engine-plan property.
+and query count are preserved. The gate uses escaped `LIKE` substring predicates,
+which can use native n-gram text indexes while remaining correct without an index.
+Index eligibility does not guarantee useful pruning: inspect `EXPLAIN indexes=1,
+actions=1` and query-log reads, bytes and text-index events for the complete query.
 There is no fixed indicator-count cap or automatic dynamic-regex switch. Short-circuit execution
 depends on ClickHouse settings and expression evaluation; candidates do not
 guarantee that every rejected row avoids regex work.
@@ -125,6 +128,11 @@ writing to the caller-provided hits table. It does not backfill existing source
 rows or replay them when a watchlist changes. `wc_ch_watchlist_insert` returns an
 INSERT with up to three conservative substring needles and their regex/view binding.
 Only supported AND plans supply a needle; other plans use exact matching alone.
+Anchored patterns retain their required interior trigrams: boundary grams are
+omitted from the pre-check, while the exact regex still enforces the anchors.
+This also applies to anchored RE2 compiled from Windows wildcard patterns.
+Existing entries with empty needles remain correct; regenerate their metadata
+with the helper to benefit from improved selection.
 The view filters original indicator indices after each scalar substring check,
 then rechecks the surviving indices exactly. It avoids nested arrays of needles. Default ranking penalizes common URL fragments and punctuation; the
 library frequency-aware API can use the view-aware file counts emitted by
