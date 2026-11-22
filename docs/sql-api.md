@@ -122,7 +122,10 @@ types and limits are documented in the [FDW reference](fdw.md).
 `wc_rewrite_support(internal)` is a planner hook attached to `wc_match`,
 `wc_like` and `wc_regex`, not an application query function. It preserves
 extension predicates on `wildcard_fdw` tables. For other relations, compatible
-forms may become native LIKE or `re2match` calls when pg_re2 is installed;
-derived-column rewrites require a foreign table with the corresponding text
-column. PostgreSQL native operators follow their own collation semantics, so
-this compatibility path is not a replacement for the FDW's explicit checks.
+raw-view forms may become native LIKE or `re2match` calls. Regex rewrites use
+only the matching function owned by the installed `re2` extension (pg_re2),
+resolved in its extension schema independently of `search_path`. Non-raw views
+keep their original calls: a similarly named foreign column does not prove
+that it contains the requested transformation. PostgreSQL native operators
+follow their own collation semantics, so this compatibility path is not a
+replacement for the FDW's explicit checks.
