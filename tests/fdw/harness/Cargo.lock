@@ -1465,6 +1465,7 @@ dependencies = [
  "arrow-ipc",
  "arrow-schema",
  "chrono",
+ "libc",
  "tokio",
  "uuid",
  "wildcard-ch",

@@ -5,6 +5,8 @@ mod adaptive;
 #[cfg(test)]
 #[path = "adaptive_tests.rs"]
 mod adaptive_tests;
+#[path = "signals.rs"]
+mod signals;
 use antalya_rs::{AntalyaClient, BudgetedBatch, Config, Credentials, Endpoint, Query};
 use std::{
     cell::RefCell,
@@ -102,13 +104,7 @@ impl Session {
         CACHE.with(|cell| {
             let mut cache = cell.borrow_mut();
             if cache.is_none() {
-                let runtime = tokio::runtime::Builder::new_multi_thread()
-                    .worker_threads(1)
-                    // System DNS uses spawn_blocking; abort cannot stop a running lookup.
-                    .max_blocking_threads(4)
-                    .enable_all()
-                    .build()
-                    .map_err(|_| "cannot create Antalya runtime")?;
+                let runtime = signals::build_runtime()?;
                 *cache = Some(Cache {
                     runtime: Arc::new(runtime),
                     limiter: Arc::new(Semaphore::new(4)),
