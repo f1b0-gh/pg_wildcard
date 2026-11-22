@@ -31,6 +31,8 @@ pub enum ChError {
     PatternTooLong(#[from] crate::core::pattern::PatternTooLong),
     #[error("invalid or oversized candidate range")]
     Range,
+    #[error("a sweep query cannot fit within {0} bytes")]
+    QueryTooLarge(usize),
     #[error("invalid identifier '{0}'")]
     Identifier(String),
     #[error(transparent)]
@@ -241,16 +243,19 @@ pub fn view_columns_ddl(table: &str, col: &str, views: &[View]) -> Result<Vec<St
 }
 
 fn hit_array(view_sql: &str, view: View, ids: &str, pats: &str) -> String {
+    // Hyperscan is not a sound candidate filter for RE2: Unicode versions and
+    // invalid UTF-8 handling differ. Enumerate all indicators for exact checks,
+    // including dynamic watchlist patterns, until a safe subset is established.
     format!(
-        "arrayMap(i -> (arrayElement({ids}, i), '{v}'), arrayFilter(i -> match({view_sql}, arrayElement({pats}, i)), multiMatchAllIndices({view_sql}, {pats})))",
+        "arrayMap(i -> (arrayElement({ids}, i), '{v}'), arrayFilter(i -> match({view_sql}, arrayElement({pats}, i)), arrayEnumerate({pats})))",
         v = view.name()
     )
 }
 
 /// IOC sweep queries, batched so each stays under `max_bytes` of SQL
 /// (ClickHouse `max_query_size` defaults to 256 KiB). Each returns
-/// `(select_cols..., indicator_id, view)`. Hyperscan finds candidate
-/// indicators; `match()` re-checks each one exactly.
+/// `(select_cols..., indicator_id, view)`. Every indicator is checked with
+/// `match()`; an item that cannot fit in one query returns `QueryTooLarge`.
 pub fn sweep_queries(
     source: &str,
     select: &[&str],
@@ -264,53 +269,80 @@ pub fn sweep_queries(
     for it in items {
         re2::to_rust(&it.regex)?;
     }
-    let mut batches: Vec<Vec<&SweepItem>> = vec![Vec::new()];
-    let mut size = 0;
-    for it in items {
-        let cost = it.regex.len() + 24;
-        if size + cost > max_bytes.saturating_sub(2048)
-            && batches.last().is_some_and(|batch| !batch.is_empty())
-        {
-            batches.push(Vec::new());
-            size = 0;
-        }
-        batches.last_mut().ok_or(ChError::Range)?.push(it);
-        size += cost;
-    }
+    // Count the rendered SQL, including quoting, identifiers, view expressions
+    // and the caller's filter. Delimiters are the only non-payload growth when
+    // appending to an existing view. Work stays linear in emitted SQL size.
+    let mut batch = BTreeMap::new();
+    let base_bytes = sweep_sql(&source, &select, cols, &batch, filter).len();
+    let mut size = base_bytes;
+    let mut view_overheads = BTreeMap::new();
     let mut out = Vec::new();
-    for batch in batches.into_iter().filter(|b| !b.is_empty()) {
-        let mut by_view: BTreeMap<View, Vec<&SweepItem>> = BTreeMap::new();
-        for it in batch {
-            by_view.entry(it.view).or_default().push(it);
+    for item in items {
+        let overhead = *view_overheads.entry(item.view).or_insert_with(|| {
+            let empty_view = BTreeMap::from([(item.view, Vec::new())]);
+            sweep_sql(&source, &select, cols, &empty_view, filter).len() - base_bytes
+        });
+        let payload = quote(&item.regex).len() + item.id.to_string().len();
+        let cost = if batch.contains_key(&item.view) {
+            payload + 4 // comma and space in both the ID and pattern arrays
+        } else {
+            overhead + payload + if batch.is_empty() { 0 } else { 6 }
+        };
+        if size.checked_add(cost).is_none_or(|n| n > max_bytes) {
+            if !batch.is_empty() {
+                out.push(sweep_sql(&source, &select, cols, &batch, filter));
+                batch.clear();
+            }
+            size = base_bytes
+                .checked_add(overhead)
+                .and_then(|n| n.checked_add(payload))
+                .filter(|&n| n <= max_bytes)
+                .ok_or(ChError::QueryTooLarge(max_bytes))?;
+        } else {
+            size += cost;
         }
-        let mut with = Vec::new();
-        let mut arrays = Vec::new();
-        for (view, its) in &by_view {
-            let n = view.name();
-            let ids: Vec<String> = its.iter().map(|i| i.id.to_string()).collect();
-            let pats: Vec<String> = its.iter().map(|i| quote(&i.regex)).collect();
-            with.push(format!("[{}] AS wc_ids_{n}", ids.join(", ")));
-            with.push(format!("[{}] AS wc_pats_{n}", pats.join(", ")));
-            arrays.push(hit_array(
-                &cols.expr(*view),
-                *view,
-                &format!("wc_ids_{n}"),
-                &format!("wc_pats_{n}"),
-            ));
-        }
-        let mut sql = format!(
-            "WITH {}\nSELECT {}{}tupleElement(wc_hit, 1) AS indicator_id, tupleElement(wc_hit, 2) AS view\nFROM {source}\nARRAY JOIN arrayConcat({}) AS wc_hit",
-            with.join(", "),
-            select.join(", "),
-            if select.is_empty() { "" } else { ", " },
-            arrays.join(",\n  ")
-        );
-        if let Some(f) = filter {
-            sql.push_str(&format!("\nWHERE {f}"));
-        }
-        out.push(sql);
+        batch.entry(item.view).or_insert_with(Vec::new).push(item);
     }
+    if !batch.is_empty() {
+        out.push(sweep_sql(&source, &select, cols, &batch, filter));
+    }
+    debug_assert!(out.iter().all(|sql| sql.len() <= max_bytes));
     Ok(out)
+}
+
+fn sweep_sql(
+    source: &str,
+    select: &[String],
+    cols: &ViewColumns,
+    by_view: &BTreeMap<View, Vec<&SweepItem>>,
+    filter: Option<&str>,
+) -> String {
+    let mut with = Vec::new();
+    let mut arrays = Vec::new();
+    for (view, its) in by_view {
+        let n = view.name();
+        let ids: Vec<String> = its.iter().map(|i| i.id.to_string()).collect();
+        let pats: Vec<String> = its.iter().map(|i| quote(&i.regex)).collect();
+        with.push(format!("[{}] AS wc_ids_{n}", ids.join(", ")));
+        with.push(format!("[{}] AS wc_pats_{n}", pats.join(", ")));
+        arrays.push(hit_array(
+            &cols.expr(*view),
+            *view,
+            &format!("wc_ids_{n}"),
+            &format!("wc_pats_{n}"),
+        ));
+    }
+    let mut sql = format!(
+        "WITH {}\nSELECT {}{}tupleElement(wc_hit, 1) AS indicator_id, tupleElement(wc_hit, 2) AS view\nFROM {source}\nARRAY JOIN arrayConcat({}) AS wc_hit",
+        with.join(", "),
+        select.join(", "),
+        if select.is_empty() { "" } else { ", " },
+        arrays.join(",\n  ")
+    );
+    if let Some(f) = filter {
+        sql.push_str(&format!("\nWHERE {f}"));
+    }
+    sql
 }
 
 /// DDL for the watchlist table in ClickHouse (filled from Postgres).
@@ -503,6 +535,53 @@ mod tests {
         .unwrap();
         assert!(qs.len() > 1);
         assert!(qs.iter().all(|q| q.len() < 8 << 10));
+    }
+
+    #[test]
+    fn sweep_sql_budget_counts_escaping_and_fixed_sql() {
+        let cols = ViewColumns::new("v").unwrap();
+        let items: Vec<_> = View::ALL
+            .iter()
+            .cycle()
+            .take(12)
+            .enumerate()
+            .map(|(i, view)| SweepItem {
+                id: i as i64,
+                view: *view,
+                regex: "\0".repeat(500),
+            })
+            .collect();
+        let qs = sweep_queries("logs", &["id"], &cols, &items, None, 7000).unwrap();
+        assert!(
+            qs.iter().all(|q| q.len() <= 7000),
+            "{:?}",
+            qs.iter().map(String::len).collect::<Vec<_>>()
+        );
+        let one = sweep_queries("logs", &["id"], &cols, &items[..1], None, 10000)
+            .unwrap()
+            .remove(0);
+        assert_eq!(
+            sweep_queries("logs", &["id"], &cols, &items[..1], None, one.len()).unwrap(),
+            vec![one.clone()]
+        );
+        assert!(sweep_queries("logs", &["id"], &cols, &items[..1], None, one.len() - 1).is_err());
+        assert!(
+            sweep_queries(
+                "logs",
+                &["id"],
+                &cols,
+                &items[..1],
+                Some(&"1".repeat(8000)),
+                7000
+            )
+            .is_err()
+        );
+        assert!(sweep_queries("logs", &["id"], &cols, &items[..1], None, 0).is_err());
+        assert!(
+            sweep_queries("logs", &[], &cols, &[], None, 0)
+                .unwrap()
+                .is_empty()
+        );
     }
 
     #[test]

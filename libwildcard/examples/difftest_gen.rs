@@ -31,6 +31,9 @@ fn hex(b: &[u8]) -> String {
 }
 
 const SECURITY: &[&str] = &[
+    "Ა",
+    "ꭰ",
+    "ՠ",
     r"C:\Windows\System32\cmd.exe",
     r"\\Server\Share\Tools\Tool.EXE",
     r"C:\Temp\..\Windows\notepad.exe",
@@ -109,6 +112,7 @@ fn main() {
         b"?",
     ];
     let mut values: Vec<Vec<u8>> = SECURITY.iter().map(|s| s.as_bytes().to_vec()).collect();
+    values.extend([vec![0xc0, b'a'], vec![b'0', 0x80]]);
     for _ in 0..300 {
         let n = (r.next() % 10) as usize;
         values.push((0..n).flat_map(|_| r.pick(tokens).to_vec()).collect());
@@ -281,6 +285,26 @@ fn main() {
             id,
             view: s.view,
             regex: s.regex,
+        });
+    }
+    // Unicode folds newer than the candidate engine must still reach RE2.
+    for (id, regex) in [
+        (200, "(?i)ა"),
+        (201, "(?i)Ꭰ"),
+        (202, r"\ba"),
+        (203, r"\B"),
+        (204, r"\p{L}"),
+    ] {
+        let m = Matcher::regex(regex, View::Raw, false).unwrap();
+        for (row, value) in values.iter().enumerate() {
+            if m.is_match(value) {
+                expected_hits.push(json!([row, id, "raw"]));
+            }
+        }
+        items.push(SweepItem {
+            id,
+            view: View::Raw,
+            regex: regex.into(),
         });
     }
     let sweeps = sweep_queries("t", &["id"], &cols, &items, None, 200_000).unwrap();
