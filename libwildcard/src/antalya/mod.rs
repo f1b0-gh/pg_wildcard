@@ -14,7 +14,10 @@ use thiserror::Error;
 mod adaptive;
 pub mod identities;
 mod lake_filter;
-pub use lake_filter::lake_path_filter;
+pub use lake_filter::{
+    LakeFilterStrategy, LakePathFilter, MAX_LAKE_FILTER_BYTES, lake_coverage_id, lake_path_filter,
+    lake_path_filter_with_inventory,
+};
 mod prefilter;
 mod storage;
 pub use adaptive::{CandidateDecision, PlanEstimate, choose_candidate, native_plan_estimate};
@@ -446,21 +449,33 @@ pub fn lake_query_with_coverage(
     candidates: &[String],
     extra: Option<&str>,
 ) -> Result<String, ChError> {
+    lake_query_with_inventory(table, select, predicate, indexed, candidates, extra, None)
+        .map(|(sql, _)| sql)
+}
+
+/// Coverage-safe lake query with an optional content-addressed server inventory.
+/// Returns the selected strategy, including a visible 64 KiB fallback reason.
+/// See [`lake_path_filter_with_inventory`] for the loader's trust contract.
+pub fn lake_query_with_inventory(
+    table: &str,
+    select: &str,
+    predicate: &str,
+    indexed: &[String],
+    candidates: &[String],
+    extra: Option<&str>,
+    known_table: Option<&str>,
+) -> Result<(String, LakeFilterStrategy), ChError> {
     ident(table)?;
-    {
-        let known: std::collections::BTreeSet<_> = indexed.iter().collect();
-        if candidates.iter().any(|path| !known.contains(path)) {
-            return Err(ChError::Range);
-        }
-    }
-    let Some(guard) = lake_path_filter(indexed, candidates) else {
-        return lake_query(table, select, predicate, None, extra)?.ok_or(ChError::Range);
+    let filter = lake_path_filter_with_inventory(indexed, candidates, known_table)?;
+    let guard = match (filter.condition, extra) {
+        (Some(guard), Some(extra)) => Some(format!("({guard}) AND ({extra})")),
+        (Some(guard), None) => Some(guard),
+        (None, Some(extra)) => Some(extra.to_string()),
+        (None, None) => None,
     };
-    let guard = match extra {
-        Some(filter) => format!("({guard}) AND ({filter})"),
-        None => guard,
-    };
-    lake_query(table, select, predicate, None, Some(&guard))?.ok_or(ChError::Range)
+    let sql =
+        lake_query(table, select, predicate, None, guard.as_deref())?.ok_or(ChError::Range)?;
+    Ok((sql, filter.strategy))
 }
 
 #[cfg(test)]

@@ -31,7 +31,7 @@ values make the whole file a candidate. NULL values do not match the strict
 search predicates. `prune` prints candidates within the supplied inventory;
 it does not enumerate unknown current files.
 
-`sql` accepts `--where EXPR` and `--prune off`. `--select` and `--where` are
+`sql` accepts `--where EXPR`, `--prune off` and `--known-table TABLE`. `--select` and `--where` are
 trusted SQL fragments, not data literals. The generated SQL retains the exact
 matching predicate.
 
@@ -55,11 +55,39 @@ COMMIT;
 The [SQL functions](sql-api.md) query these tables. A foreign table's `lake_index`
 option enables file-level pruning automatically for supported predicates.
 
+For large inventories, load the exported ClickHouse inventory artifacts as well:
+
+```bash
+clickhouse-client --multiquery < /tmp/http-url-index/known-schema.sql
+clickhouse-client --query="$(cat /tmp/http-url-index/known-insert.sql)" < /tmp/http-url-index/known.csv
+wc-lake sql urls.puffin --table lake.http --kind wildcard --view decoded \
+  --pattern '*/wp-admin/*' --known-table wc_lake_known
+```
+
+`export-pg --known-table db.inventory` selects a different validated table name.
+The CLI creates files only; the two `clickhouse-client` commands perform the
+remote load. Set the FDW table option `lake_known_table 'wc_lake_known'` to use
+that inventory during planning without making a planner network request.
+
+The server table has `(index_name String, path String)` columns. Here
+`index_name` is a versioned SHA-256 digest of the sorted, deduplicated,
+length-framed path inventory, also written to `coverage-id.txt`; it is **not**
+the mutable PostgreSQL index name passed to `--name`. Always load the generated
+rows unchanged. Different inventories receive different keys, so a newer
+superset cannot exclude files unknown to an older local index. An incomplete
+load or absent generation widens the scan safely. A missing table is an engine
+error. Treat the loader and sidecar as trusted; manually inserting foreign paths
+under an existing digest violates the coverage contract.
+
 ## Input and memory limits
 
 The file index builder accepts at most 128 files, 64 KiB of indexed paths,
-1 million distinct grams and 1 million postings. Values are limited to at most
-8192 bytes. An overlong value or exhausted gram/posting budget marks its file
+1 million distinct grams and 1 million postings. `inspect`, `prune`, `sql` and
+`export-pg` accept `--large-inventory on` for externally assembled large indexes:
+this opts into at most 65,536 files and 8 MiB of paths, while retaining the
+16 MiB sidecar, 32 MiB decompressed blob, 128 MiB decoded backing and 1 million
+gram/posting limits. Default reads and the Parquet builder remain at 128 files
+and 64 KiB of paths. Values are limited to at most 8192 bytes. An overlong value or exhausted gram/posting budget marks its file
 for unconditional rechecking; it must remain a candidate. Short values after an
 overlong value are still indexed. Invalid configuration and excess file/path
 counts are errors before Parquet inputs are opened.
@@ -94,7 +122,7 @@ concurrent callers and caller-owned inputs contribute additional memory.
 
 ## Coverage and snapshot rules
 
-The CLI `sql` command uses `lake_query_with_coverage`: it excludes only known
+The CLI `sql` command uses `lake_query_with_inventory`: it excludes only known
 impossible immutable files. Its guard keeps files outside the indexed inventory,
 even when no known file is a candidate. An unknown file must remain searchable;
 an empty candidate list is not evidence that the current table is empty.
@@ -105,8 +133,13 @@ appended or rewritten files with new paths remain searchable even when no
 indexed file is a candidate. `wc_lake_candidates` still reports candidates only
 within the stored inventory; it is not a complete list of current files.
 Missing indexed views and patterns without usable grams disable path pruning.
-An emitted path filter larger than 64 KiB also disables path pruning; exact
-matching and any additional query restrictions remain in place.
+With a server inventory configured, the generator chooses the shorter of the
+inline exclusions and `(_path NOT IN (SELECT path FROM inventory WHERE
+index_name = '<coverage digest>') OR _path IN (<candidates>))`. Selective
+queries therefore transmit only candidates; dense queries can transmit the few
+excluded paths. If both escaped guards exceed 64 KiB, path pruning is disabled;
+exact matching and additional restrictions remain in place. The CLI reports
+the choice or budget fallback on stderr, and the FDW reports it in EXPLAIN.
 
 The stored `snapshot_id` describes the imported index, not a verified current
 remote snapshot. These file-level exclusions do not need a matching snapshot

@@ -122,8 +122,8 @@ jobs:
           done
       - name: Iceberg and Puffin end-to-end
         run: |
-          cargo build --locked --manifest-path libwildcard/Cargo.toml --features cold --bin wc-lake
-          python3 libwildcard/tests/lake/iceberg_e2e.py libwildcard/target/debug/wc-lake
+          cargo build --locked --manifest-path libwildcard/Cargo.toml --features cold --bin wc-lake --example lake_scale_fixture
+          python3 libwildcard/tests/lake/iceberg_e2e.py libwildcard/target/debug/wc-lake libwildcard/target/debug/examples/lake_scale_fixture
 
   consumer:
     name: Companion transport and FDW

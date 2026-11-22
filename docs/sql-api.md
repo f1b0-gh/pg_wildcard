@@ -153,6 +153,10 @@ wc_lake_candidates(index_name text, pattern text, kind text = 'wildcard',
 wc_lake_sql(index_name text, lake_table text, select_list text, pattern text,
              kind text = 'wildcard', view text = 'raw',
              extra_where text = NULL, materialized boolean = false) → text
+wc_lake_sql_with_inventory(index_name text, lake_table text, select_list text,
+             pattern text, known_table text, kind text = 'wildcard',
+             view text = 'raw', extra_where text = NULL,
+             materialized boolean = false) → text
 ```
 
 All table columns are non-null. The file and gram tables reference
@@ -165,8 +169,17 @@ unindexed values. A missing requested view or an `ALL` plan returns every
 indexed path. It does not discover new files in the remote table.
 `wc_lake_sql` retains the exact predicate and excludes only known impossible
 files. Unknown paths remain searchable even when no indexed file is a candidate;
-path guards exceeding 64 KiB fall back to an unrestricted file scan. Its
-`select_list` and `extra_where` are trusted SQL fragments. Indexed paths must
+path guards exceeding 64 KiB fall back to an unrestricted file scan, with a
+comment explaining the fallback in the returned SQL.
+
+`wc_lake_sql_with_inventory` chooses the shorter bounded guard: inline excluded
+paths, or a remote known-inventory subquery plus inline candidates. Load the
+inventory artifacts from `wc-lake export-pg --known-table database.table` into
+ClickHouse and pass that table name. Its `index_name` stores a digest of the exact
+indexed path set, not the PostgreSQL index name. Missing or partial generations
+only widen the scan; never insert foreign paths under an existing digest. Both
+forms retain the exact row predicate. The FDW equivalent is `lake_known_table`.
+Both functions' `select_list` and `extra_where` are trusted SQL fragments. Indexed paths must
 identify immutable files;
 see [lake coverage](lake.md#coverage-and-snapshot-rules).
 

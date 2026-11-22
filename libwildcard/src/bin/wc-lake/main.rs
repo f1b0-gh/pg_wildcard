@@ -14,8 +14,8 @@
 //! wc-lake segment-budget idx.puffin...
 //! wc-lake inspect idx.puffin
 //! wc-lake prune   idx.puffin --kind wildcard|like|regex|iregex --view decoded --pattern P
-//! wc-lake sql     idx.puffin --table db.http --select 'ts, url' --kind K --view V --pattern P [--where EXPR] [--prune off]
-//! wc-lake export-pg idx.puffin --name http_url --out-dir DIR
+//! wc-lake sql     idx.puffin --table db.http --select 'ts, url' --kind K --view V --pattern P [--where EXPR] [--prune off] [--known-table wc_lake_known] [--large-inventory on]
+//! wc-lake export-pg idx.puffin --name http_url --out-dir DIR [--known-table wc_lake_known] [--large-inventory on]
 //! wc-lake stats-json idx.puffin --statistics-path s3://.../wc-<snapshot>.puffin
 //! ```
 
@@ -90,6 +90,7 @@ impl Args {
 
 fn load(
     path: &str,
+    large_inventory: Option<&String>,
 ) -> Result<
     (
         libwildcard::puffin::puffin::BlobMetadata,
@@ -98,8 +99,12 @@ fn load(
     String,
 > {
     let bytes = read_index_file(path)?;
-    read_first_index(&bytes)
-        .map_err(|e| e.to_string())?
+    let read = match large_inventory.map(String::as_str) {
+        None | Some("off") => read_first_index(&bytes),
+        Some("on") => libwildcard::puffin::read_first_index_large_inventory(&bytes),
+        Some(_) => return Err("--large-inventory must be on or off".into()),
+    };
+    read.map_err(|e| e.to_string())?
         .ok_or_else(|| format!("{path}: no wildcard-ngram-v1 blob"))
 }
 
@@ -261,7 +266,10 @@ fn run(cmd: &str, a: &Args) -> Result<(), String> {
             );
         }
         "inspect" => {
-            let (meta, idx) = load(a.pos.first().ok_or("missing file")?)?;
+            let (meta, idx) = load(
+                a.pos.first().ok_or("missing file")?,
+                a.opt.get("large-inventory"),
+            )?;
             println!(
                 "{}",
                 serde_json::to_string_pretty(&meta).map_err(|e| e.to_string())?
@@ -274,7 +282,10 @@ fn run(cmd: &str, a: &Args) -> Result<(), String> {
             }
         }
         "prune" | "sql" => {
-            let (meta, idx) = load(a.pos.first().ok_or("missing file")?)?;
+            let (meta, idx) = load(
+                a.pos.first().ok_or("missing file")?,
+                a.opt.get("large-inventory"),
+            )?;
             let kind: Kind = a.get("kind")?.parse()?;
             let view: View = a.get("view")?.parse()?;
             let pattern = a.get("pattern")?;
@@ -308,15 +319,18 @@ fn run(cmd: &str, a: &Args) -> Result<(), String> {
                         .iter()
                         .map(|file| file.path.clone())
                         .collect::<Vec<_>>();
-                    libwildcard::antalya::lake_query_with_coverage(
+                    let (sql, strategy) = libwildcard::antalya::lake_query_with_inventory(
                         a.get("table")?,
                         a.get("select").unwrap_or("*"),
                         &pred,
                         &indexed,
                         &files,
                         a.opt.get("where").map(String::as_str),
+                        a.opt.get("known-table").map(String::as_str),
                     )
-                    .map_err(|e| e.to_string())?
+                    .map_err(|e| e.to_string())?;
+                    eprintln!("lake path guard: {}", strategy.description());
+                    sql
                 } else {
                     libwildcard::antalya::lake_query(
                         a.get("table")?,
@@ -332,13 +346,25 @@ fn run(cmd: &str, a: &Args) -> Result<(), String> {
             }
         }
         "export-pg" => {
-            let (meta, idx) = load(a.pos.first().ok_or("missing file")?)?;
+            let (meta, idx) = load(
+                a.pos.first().ok_or("missing file")?,
+                a.opt.get("large-inventory"),
+            )?;
             let column = meta.properties.get("column").cloned().unwrap_or_default();
             export_pg(
                 &idx,
                 &column,
                 meta.snapshot_id,
                 a.get("name")?,
+                std::path::Path::new(a.get("out-dir")?),
+            )
+            .map_err(|e| e.to_string())?;
+            libwildcard::lake::export_known_inventory(
+                &idx,
+                a.opt
+                    .get("known-table")
+                    .map(String::as_str)
+                    .unwrap_or("wc_lake_known"),
                 std::path::Path::new(a.get("out-dir")?),
             )
             .map_err(|e| e.to_string())?;
