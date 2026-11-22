@@ -177,10 +177,14 @@ fn rule_join(
     } else {
         format!("{}, ", select.join(", "))
     };
+    // Drop unprojected source columns before referencing helper aliases. With
+    // prefer_column_name_to_alias=1, a hidden source column could otherwise
+    // supply the keys for a different value and suppress a true match.
     format!(
         "CREATE MATERIALIZED VIEW IF NOT EXISTS {name} TO {hits} AS\n\
          SELECT {p}src.* EXCEPT ({p}value, {p}key), {p}rule.id AS indicator_id, {raw} AS view\n\
-         FROM (\n  SELECT {projection}{value} AS {p}value, arrayJoin({keys}) AS {p}key\n  FROM {source}\n) AS {p}src\n\
+         FROM (\n  SELECT *, arrayJoin({keys}) AS {p}key\n  FROM (\n    \
+         SELECT {projection}{value} AS {p}value FROM {source}\n  )\n) AS {p}src\n\
          ALL INNER JOIN (\n  SELECT id, regex, {p}needles, \
          arrayJoin([{anchor}, {overflow}]) AS {p}key\n  FROM (\n    \
          SELECT id, regex, {needles} AS {p}needles\n    \

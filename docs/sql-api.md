@@ -158,6 +158,9 @@ The old DDL helper and the new helper's default retain staged matching. Unknown
 strategies, empty views and duplicate views are errors.
 The diagnostics describe the generated statement. `CREATE ... IF NOT EXISTS`
 does not replace an existing materialized view or migrate its strategy.
+The join projects the selected fields and raw value before computing its helper
+keys. Unprojected source columns therefore cannot override helper aliases when
+ClickHouse uses `prefer_column_name_to_alias=1`.
 
 The join extracts at most 255 source keys from values up to 256 bytes; longer
 values and rules with missing/stale metadata retain exact matching through

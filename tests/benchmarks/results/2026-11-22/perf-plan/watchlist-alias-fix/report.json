@@ -1,0 +1,50 @@
+[
+  {
+    "family": "shared",
+    "rows": 1000000,
+    "indicators": 1000,
+    "pairs": 10000,
+    "summary": {
+      "before_alias_fix": {
+        "samples": 5,
+        "median_ms": 4992.558778001694,
+        "min_ms": 4598.943641000005,
+        "max_ms": 6092.55260899954
+      },
+      "isolated_projection": {
+        "samples": 5,
+        "median_ms": 4837.077645001045,
+        "min_ms": 4641.55176299937,
+        "max_ms": 5183.696050000435
+      }
+    },
+    "median_ratio_change_percent": -3.1142574362015063,
+    "median_paired_change_percent": -3.1142574362015063,
+    "investigation_required": false,
+    "raw_sha256": "162db9216ac7167ed187c6f26a370e931a68488668e046d34b0974019f699475"
+  },
+  {
+    "family": "unrelated",
+    "rows": 1000000,
+    "indicators": 1000,
+    "pairs": 10000,
+    "summary": {
+      "before_alias_fix": {
+        "samples": 5,
+        "median_ms": 4743.550188999507,
+        "min_ms": 4439.621482000803,
+        "max_ms": 5257.04920499993
+      },
+      "isolated_projection": {
+        "samples": 5,
+        "median_ms": 4754.20731200029,
+        "min_ms": 4620.622311000261,
+        "max_ms": 4939.349222999226
+      }
+    },
+    "median_ratio_change_percent": 0.22466554745215195,
+    "median_paired_change_percent": 0.22466554745215195,
+    "investigation_required": false,
+    "raw_sha256": "904fb1e6bf17edd95d61eb22827f38412229ca15106dc9c89b13d26ae306cce2"
+  }
+]
