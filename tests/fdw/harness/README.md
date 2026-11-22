@@ -3,8 +3,8 @@
 
 This test-only Cargo workspace includes the production FDW transport and value
 decoder by path. It adds no production dependency or second implementation.
-It needs the sibling `antalya-rs` checkout in [build setup](../../../docs/build.md),
-but no running PostgreSQL server. Run from the repository root:
+It uses the published `antalya-rs` 0.1.0 crate in [build setup](../../../docs/build.md)
+and needs no running PostgreSQL server. Run from the repository root:
 
 ```sh
 cargo test --locked --manifest-path tests/fdw/harness/Cargo.toml
@@ -12,7 +12,8 @@ cargo clippy --locked --manifest-path tests/fdw/harness/Cargo.toml --all-targets
 ```
 
 For PostgreSQL 18.6 native planner and completion checks, install the extension in
-an owned PostgreSQL container, set PG_OPT_CONTAINER and PG_OPT_SOCKET, then run:
+an owned PostgreSQL container, prepare a sibling `antalya-rs` source checkout
+for its fixture script, set PG_OPT_CONTAINER and PG_OPT_SOCKET, then run:
 
 ```sh
 python3 ../antalya-rs/scripts/fixture.py python3 tests/fdw/optimization.py

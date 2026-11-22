@@ -7,7 +7,7 @@ license = "Apache-2.0"
 publish = false
 [workspace]
 [dependencies]
-antalya-rs = { path = "../../../../antalya-rs" }
+antalya-rs = { version = "=0.1.0" }
 arrow-array = "=59.3.3"
 arrow-schema = "=59.3.3"
 chrono = { version = "0.4", default-features = false, features = ["std"] }

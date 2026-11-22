@@ -78,8 +78,8 @@ release is assumed by these instructions.
 ## PostgreSQL
 
 The extension targets PostgreSQL **18.6** with pgrx **0.19.4**. Building the
-outer workspace requires the separate `antalya-rs` companion checkout; see the
-[build guide](docs/build.md) for its layout and CI configuration.
+outer workspace uses the published `antalya-rs` 0.1.0 client from crates.io; see
+the [build guide](docs/build.md) for prerequisites and CI configuration.
 
 After installing and creating the extension:
 

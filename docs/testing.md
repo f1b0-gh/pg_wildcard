@@ -3,17 +3,17 @@
 
 Run commands from the repository root unless stated otherwise. Use Rust 1.99.1
 and the checked-in lockfiles. [Build setup](build.md) covers the compiler,
-PostgreSQL and companion-client prerequisites.
+PostgreSQL and registry-client prerequisites.
 
 | Suite | Location | Requirements |
 | --- | --- | --- |
 | Library unit, property and integration tests | `libwildcard/src`, `libwildcard/tests/*.rs` | Rust; no PostgreSQL or companion checkout |
 | Rust/ClickHouse semantic parity | `libwildcard/tests/differential` | Rust, Python 3, chDB |
 | Iceberg/Puffin end-to-end | `libwildcard/tests/lake` | Rust, Python 3, chDB, PyIceberg, PyArrow |
-| Compatibility crates | `crates/wildcard-*` | Root workspace and companion checkout |
-| HTTP/Arrow transport regressions | `tests/transport` | Rust and companion checkout |
-| FDW transport and value decoders | `tests/fdw/harness` | Rust and companion checkout; no PostgreSQL server |
-| Extension and FDW integration | `pg_wildcard`, `tests/fdw` | PostgreSQL, pgrx, companion checkout; chDB or owned Antalya fixture |
+| Compatibility crates | `crates/wildcard-*` | Root workspace |
+| HTTP/Arrow transport regressions | `tests/transport` | Rust |
+| FDW transport and value decoders | `tests/fdw/harness` | Rust; no PostgreSQL server |
+| Extension and FDW integration | `pg_wildcard`, `tests/fdw` | PostgreSQL, pgrx; chDB or owned Antalya fixture |
 | Operations tooling | `tests/operations` | Python 3 standard library; native checks also need an owned Antalya fixture |
 
 ## Standalone library
@@ -78,7 +78,8 @@ different contracts; one does not replace the other.
 
 ## Consumer and transport tests
 
-These Cargo workspaces require the configured sibling `antalya-rs` checkout:
+These Cargo workspaces use the published `antalya-rs` 0.1.0 crate; no sibling
+checkout is required:
 
 ```sh
 cargo test --locked -p wildcard-core -p wildcard-ch -p wildcard-puffin -p wildcard-lake
@@ -125,11 +126,10 @@ requests. Standalone default/all-feature tests, formatting, Clippy, package
 verification, license checks, seeded ClickHouse parity and the Iceberg/Puffin
 end-to-end test run without an Antalya checkout. The backend matcher-cache tests
 also run directly with `rustc --test`, without PostgreSQL or a companion.
-The separate consumer job checks
-out the pinned Antalya source and runs compatibility crates, HTTP/Arrow transport
-and the PostgreSQL-independent FDW harness. A missing or inaccessible companion
-fails that check; it is never reported as a successful skipped test. See
-[companion configuration](build.md#github-actions-configuration). The quality
+The separate consumer job resolves the published Antalya client and runs
+compatibility crates, HTTP/Arrow transport and the PostgreSQL-independent FDW
+harness without a companion checkout. See
+[CI configuration](build.md#github-actions-configuration). The quality
 job also runs locked Cargo metadata resolution for the fuzz workspace, so a
 stale fuzz lockfile fails without requiring a nightly fuzz build.
 
@@ -157,7 +157,7 @@ pins; CI logs the resolved transitive packages and ClickHouse engine version.
 Those Python packages do not determine the Rust Arrow ABI. The
 [dependency policy checker](../tools/check_dependency_policy.py) validates exact
 Arrow/Parquet manifest constraints and every retained lockfile, including
-transitive/test dependencies, against the qualified ClickHouse adapter set:
+transitive/test dependencies, against the qualified Antalya/ClickHouse client set:
 
 ```sh
 python3 -m unittest discover -s tests/ci -v
@@ -166,10 +166,9 @@ python3 tools/check_dependency_policy.py
 python3 tools/check_dependency_policy.py --companion ../antalya-rs
 ```
 
-[Dependabot](../.github/dependabot.yml) groups Arrow, Parquet, ClickHouse and its
-Arrow adapter. Automatic Arrow/Parquet major updates are excluded until an
+[Dependabot](../.github/dependabot.yml) groups Arrow, Parquet, ClickHouse and
+Antalya. Automatic Arrow/Parquet major updates are excluded until an
 explicit migration is qualified. A coordinated version update must also update
 the policy checker and all affected lockfiles; grouping alone is not evidence
-of compatibility. While Antalya remains a sibling source dependency, Dependabot
-may require manual lockfile regeneration for consumer manifests. The standalone
-library is independently resolvable.
+of compatibility. All consumer manifests resolve the published Antalya client
+from crates.io. The standalone library is independently resolvable.

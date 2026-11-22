@@ -15,6 +15,20 @@ class DependencyPolicyTests(unittest.TestCase):
         self.assertTrue(policy.check_manifest({"dependencies": {"arrow-array": "59.3.3"}}))
         self.assertTrue(policy.check_manifest({"dependencies": {"parquet": {"version": "=60.0.0"}}}))
 
+    def test_antalya_release_requires_an_exact_version(self):
+        self.assertEqual(policy.check_manifest({"dependencies": {
+            "antalya-rs": {"version": "=0.1.0", "features": ["tls"]}
+        }}), [])
+        self.assertTrue(policy.check_manifest({"dependencies": {
+            "antalya-rs": {"version": "0.1.0"}
+        }}))
+        self.assertTrue(policy.check_manifest({"dependencies": {
+            "antalya-rs": {"path": "../antalya-rs"}
+        }}))
+        self.assertTrue(policy.check_lock({"package": [
+            {"name": "antalya-rs", "version": "0.2.0"}
+        ]}))
+
     def test_target_dev_aliases_and_workspace_inheritance_are_checked(self):
         manifest = {"target": {"cfg(unix)": {"dev-dependencies": {
             "renamed": {"package": "arrow-array", "version": "=60.0.0"}
@@ -30,7 +44,7 @@ class DependencyPolicyTests(unittest.TestCase):
         self.assertTrue(policy.check_lock({"package": packages}, require_arrow=True))
         self.assertTrue(policy.check_lock({"package": []}, require_arrow=True))
 
-    def test_adapter_and_client_versions_are_checked_together(self):
+    def test_antalya_and_clickhouse_versions_are_checked_together(self):
         packages = [{"name": name, "version": version}
                     for name, version in policy.COUPLED.items()]
         self.assertEqual(policy.check_lock({"package": packages}, require_client=True), [])

@@ -7,7 +7,7 @@ import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
 ARROW_VERSION = "59.3.3"
-COUPLED = {"clickhouse": "0.15.3", "clickhouse-ext-arrow": "0.2.0"}
+COUPLED = {"antalya-rs": "0.1.0", "clickhouse": "0.15.3"}
 
 
 def expected_version(name):
@@ -95,7 +95,7 @@ def main():
         parser.exit(1, "\n".join(errors) + "\n")
     print(f"Dependency policy passed: {len(manifests)} manifests, {len(locks)} lockfiles; "
           f"Arrow/Parquet {ARROW_VERSION}, ClickHouse {COUPLED['clickhouse']}, "
-          f"adapter {COUPLED['clickhouse-ext-arrow']}.")
+          f"Antalya client {COUPLED['antalya-rs']}.")
 
 
 if __name__ == "__main__":

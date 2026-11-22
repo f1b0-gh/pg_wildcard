@@ -1,8 +1,10 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # FDW qualification
 
-Build with the pinned pgrx 0.19.4 / PostgreSQL 18.6 toolchain and a sibling
-`antalya-rs` checkout. The FDW consumes Arrow using shared bearer authentication.
+Build with the pinned pgrx 0.19.4 / PostgreSQL 18.6 toolchain and the published
+`antalya-rs` 0.1.0 crate. The FDW consumes Arrow using shared bearer authentication.
+The native-engine commands below additionally need a sibling `antalya-rs` source
+checkout for `scripts/fixture.py`; it is not used as a Cargo dependency.
 Run from the pg_wildcard workspace:
 
 ```bash

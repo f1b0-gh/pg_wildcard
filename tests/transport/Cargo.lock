@@ -34,6 +34,8 @@ dependencies = [
 [[package]]
 name = "antalya-rs"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3bc1afbdfb6d217b4670615038ba391a65f5cf422378213c727470dfb1d7fa09"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -41,7 +43,6 @@ dependencies = [
  "arrow-schema",
  "base64",
  "clickhouse",
- "clickhouse-ext-arrow",
  "flatbuffers",
  "hyper",
  "hyper-util",
@@ -266,12 +267,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cityhash-rs"
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93a719913643003b84bd13022b4b7e703c09342cd03b679c4641c7d2e50dc34d"
-
-[[package]]
 name = "clickhouse"
 version = "0.15.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -280,7 +275,6 @@ dependencies = [
  "bnum",
  "bstr",
  "bytes",
- "cityhash-rs",
  "clickhouse-macros",
  "clickhouse-types",
  "futures-channel",
@@ -290,31 +284,13 @@ dependencies = [
  "http-body-util",
  "hyper",
  "hyper-util",
- "lz4_flex",
  "rand 0.9.5",
  "serde",
  "serde_json",
  "thiserror",
  "tokio",
  "tracing",
- "twox-hash",
  "url",
-]
-
-[[package]]
-name = "clickhouse-ext-arrow"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7de76b03b1c69f5ca61f8b4389fd9945e2c36957c157f060846aaad86a8f55fe"
-dependencies = [
- "arrow-array",
- "arrow-buffer",
- "arrow-ipc",
- "arrow-schema",
- "arrow-select",
- "clickhouse",
- "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -468,7 +444,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e35d6e78f4cebb90e51d543db8fe41528851d6deeef6ef21ebd4bfdc1e784776"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1306,7 +1282,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1607,10 +1583,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
- "getrandom 0.3.4",
+ "getrandom 0.4.3",
  "once_cell",
  "rustix",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1746,19 +1722,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "63e71662fa4b2a2c3a26f570f037eb95bb1f85397f3cd8076caed2f026a6d100"
 dependencies = [
  "pin-project-lite",
- "tracing-attributes",
  "tracing-core",
-]
-
-[[package]]
-name = "tracing-attributes"
-version = "0.1.31"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7490cfa5ec963746568740651ac6781f701c9c5ea257c58e057f3ba8cf69e8da"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.119",
 ]
 
 [[package]]
@@ -1781,9 +1745,6 @@ name = "twox-hash"
 version = "2.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "86a801b3cea342a06d468c8710662aa29e5e05e4f5c0d62f00bbb7f2ad7941c2"
-dependencies = [
- "rand 0.10.4",
-]
 
 [[package]]
 name = "typenum"

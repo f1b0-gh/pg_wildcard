@@ -8,7 +8,7 @@
 | Rust | 1.99.1, pinned in both workspaces |
 | Arrow / Parquet | 59.3.3 in the retained lockfiles |
 | PostgreSQL extension | PostgreSQL 18.6, pgrx 0.19.4, C compiler, Clang/libclang and server headers |
-| Remote FDW transport | A compatible `antalya-rs` companion checkout using Arrow 59.3.3 |
+| Remote FDW transport | Published `antalya-rs` 0.1.0 using Arrow 59.3.3 |
 | Python integration tests | Python 3.12 and the dependencies in the [testing guide](testing.md) |
 
 The matching library has no PostgreSQL or network-client dependency. Compression
@@ -37,20 +37,11 @@ and `wc-lake`. See [consumer integration](../libwildcard/INTEGRATION.md).
 
 ## PostgreSQL workspace
 
-Obtain a reviewed revision of the separate Apache-2.0 `antalya-rs` client and
-place the two checkouts beside each other:
-
-```text
-workspace/
-  antalya-rs/
-  pg_wildcard/
-    libwildcard/
-```
-
-The workspace manifest uses `../antalya-rs`. Keep one canonical path to each
-package in a Cargo dependency graph; symlink aliases can create duplicate Rust
-types. The client must provide the APIs used by the FDW and resolve Arrow 59.3.3.
-A matching crate version alone is not an API or engine compatibility guarantee.
+The workspace uses the Apache-2.0 [`antalya-rs` 0.1.0](https://crates.io/crates/antalya-rs/0.1.0)
+release from crates.io, pinned as `=0.1.0` with TLS enabled. The transport and FDW
+test workspaces use the same release. Cargo downloads the client; no sibling
+checkout is needed. Commit all three consumer lockfiles when updating the
+client, and qualify its API and Arrow compatibility with the transport tests.
 
 Install the pinned pgrx CLI, then select your PostgreSQL 18.6 installation:
 
@@ -78,35 +69,22 @@ feature or CI matrix entry is not proof of a successful deployment.
 
 ## GitHub Actions configuration
 
-The standalone library and ClickHouse parity jobs do not need the companion
-repository. The automatic consumer job and manual PostgreSQL workflow check out
-[`f1b0-gh/antalya-rs`](https://github.com/f1b0-gh/antalya-rs) at reviewed commit
-`6a0f8723df13ebdb305902ee8ff2f04706a26181`. The current dependency is a source
-checkout; CI does not assume an Antalya crate has been published.
+Consumer and PostgreSQL jobs resolve the client from crates.io using the
+checked-in lockfiles. Standalone library jobs need no network-client dependency. The consumer job verifies compatibility crates, JSON/Arrow
+transport, the PostgreSQL-independent FDW harness and dependency licenses.
+The manual PostgreSQL workflow runs extension qualification across supported
+server majors. No companion repository variables or checkout token are required.
 
-To qualify another reviewed source revision, set both repository variables:
-
-- `ANTALYA_RS_REPOSITORY`: the real `owner/repository` name.
-- `ANTALYA_RS_REVISION`: its full 40-character commit SHA.
-
-For a private companion, configure a dedicated read credential named
-`ANTALYA_RS_TOKEN` in **both Actions secrets and Dependabot secrets** on this
-repository. Dependabot-triggered pull requests do not receive Actions secrets.
-Grant that credential read access to the companion repository; the ordinary
-`GITHUB_TOKEN` is scoped to this repository and does not grant access to another
-private repository. Public companion checkouts use the default token with
-read-only contents permission.
-
-Credentials are not persisted in either checkout. Fork pull requests cannot
-read private repository secrets; if the companion is inaccessible, the consumer
-check fails instead of silently skipping its tests. Configure public read access
-or arrange a trusted qualification run before relying on that check.
-
-The source SHA and dependency-policy check identify the tested client; a matching
-crate version alone does not establish API or engine compatibility. The token is
-only for source checkout; remote query authentication is configured separately.
+The dependency-policy check pins Antalya 0.1.0, ClickHouse 0.15.3 and Arrow/Parquet
+59.3.3. Registry checksums identify the release; transport tests establish API
+compatibility. Remote query authentication is configured separately.
 See [tests and CI](testing.md#operations-publication-and-ci) for automatic versus
 manual checks and their prerequisites.
+
+Optional native-engine tests still use `scripts/fixture.py` from a separately
+prepared [`antalya-rs` source checkout](https://github.com/f1b0-gh/antalya-rs).
+That checkout supplies test tooling only; Cargo continues using the registry
+release. See [FDW qualification](../tests/fdw/README.md).
 
 ## Licensing and distribution
 
