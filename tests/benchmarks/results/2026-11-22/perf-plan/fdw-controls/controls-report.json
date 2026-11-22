@@ -1,0 +1,511 @@
+{
+  "cases": [
+    {
+      "case": "policy-flush_first",
+      "workload": "narrow",
+      "route": "direct",
+      "policy": "flush_first",
+      "batch_bytes": 16777216,
+      "samples": 3,
+      "request_ms": {
+        "median": 361.395764,
+        "min": 267.86938100000003,
+        "max": 414.903116
+      },
+      "executor_ms": null,
+      "diagnostics": {
+        "first_batch_ms": {
+          "median": 7.477612,
+          "min": 5.559807,
+          "max": 19.736215
+        },
+        "decode_ms": {
+          "median": 17.691944,
+          "min": 13.748164000000001,
+          "max": 21.985208
+        },
+        "framing_ms": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "terminal_ms": {
+          "median": 49.710852,
+          "min": 45.301556,
+          "max": 49.970236
+        },
+        "control_requests": {
+          "median": 2,
+          "min": 2,
+          "max": 2
+        },
+        "peak_individual_batch_bytes": {
+          "median": 16184,
+          "min": 16184,
+          "max": 16440
+        }
+      },
+      "max_sampled_backend_rss_bytes": null,
+      "monitor_errors": []
+    },
+    {
+      "case": "policy-flush_first",
+      "workload": "narrow",
+      "route": "pg_backend",
+      "policy": "flush_first",
+      "batch_bytes": 16777216,
+      "samples": 3,
+      "request_ms": {
+        "median": 470.9790659999271,
+        "min": 389.8716460000742,
+        "max": 544.727592000072
+      },
+      "executor_ms": {
+        "median": 465.55,
+        "min": 360.724,
+        "max": 523.55
+      },
+      "diagnostics": {
+        "first_batch_ms": {
+          "median": 8.579,
+          "min": 4.944,
+          "max": 10.124
+        },
+        "decode_ms": {
+          "median": 18.231,
+          "min": 16.679,
+          "max": 20.174
+        },
+        "framing_ms": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "terminal_ms": {
+          "median": 43.986,
+          "min": 32.29,
+          "max": 44.077
+        },
+        "control_requests": {
+          "median": 2,
+          "min": 2,
+          "max": 2
+        },
+        "peak_individual_batch_bytes": {
+          "median": 16184,
+          "min": 16184,
+          "max": 16440
+        }
+      },
+      "max_sampled_backend_rss_bytes": 27496448,
+      "monitor_errors": []
+    },
+    {
+      "case": "policy-flush_first",
+      "workload": "narrow",
+      "route": "pg_copy",
+      "policy": "flush_first",
+      "batch_bytes": 16777216,
+      "samples": 3,
+      "request_ms": {
+        "median": 643.4317240000382,
+        "min": 640.1661419999982,
+        "max": 912.383446000149
+      },
+      "executor_ms": null,
+      "diagnostics": {},
+      "max_sampled_backend_rss_bytes": 27496448,
+      "monitor_errors": []
+    },
+    {
+      "case": "policy-observe_first",
+      "workload": "narrow",
+      "route": "direct",
+      "policy": "observe_first",
+      "batch_bytes": 16777216,
+      "samples": 3,
+      "request_ms": {
+        "median": 585.916482,
+        "min": 427.05397,
+        "max": 694.3917769999999
+      },
+      "executor_ms": null,
+      "diagnostics": {
+        "first_batch_ms": {
+          "median": 20.363975,
+          "min": 17.315911,
+          "max": 29.955575000000003
+        },
+        "decode_ms": {
+          "median": 23.564664999999998,
+          "min": 19.598340999999998,
+          "max": 29.937088
+        },
+        "framing_ms": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "terminal_ms": {
+          "median": 138.314604,
+          "min": 77.056668,
+          "max": 170.72642299999998
+        },
+        "control_requests": {
+          "median": 3,
+          "min": 3,
+          "max": 3
+        },
+        "peak_individual_batch_bytes": {
+          "median": 114488,
+          "min": 65992,
+          "max": 128568
+        }
+      },
+      "max_sampled_backend_rss_bytes": null,
+      "monitor_errors": []
+    },
+    {
+      "case": "policy-observe_first",
+      "workload": "narrow",
+      "route": "pg_backend",
+      "policy": "observe_first",
+      "batch_bytes": 16777216,
+      "samples": 3,
+      "request_ms": {
+        "median": 1119.7301130000596,
+        "min": 775.6825750000189,
+        "max": 1120.0532889999977
+      },
+      "executor_ms": {
+        "median": 1081.289,
+        "min": 758.573,
+        "max": 1106.646
+      },
+      "diagnostics": {
+        "first_batch_ms": {
+          "median": 18.5,
+          "min": 5.352,
+          "max": 26.815
+        },
+        "decode_ms": {
+          "median": 28.613,
+          "min": 23.935,
+          "max": 45.074
+        },
+        "framing_ms": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "terminal_ms": {
+          "median": 178.395,
+          "min": 177.892,
+          "max": 263.234
+        },
+        "control_requests": {
+          "median": 3,
+          "min": 3,
+          "max": 3
+        },
+        "peak_individual_batch_bytes": {
+          "median": 77368,
+          "min": 65848,
+          "max": 80056
+        }
+      },
+      "max_sampled_backend_rss_bytes": 27930624,
+      "monitor_errors": []
+    },
+    {
+      "case": "policy-observe_first",
+      "workload": "narrow",
+      "route": "pg_copy",
+      "policy": "observe_first",
+      "batch_bytes": 16777216,
+      "samples": 3,
+      "request_ms": {
+        "median": 1552.6145620001444,
+        "min": 1439.256389000093,
+        "max": 1653.121037000119
+      },
+      "executor_ms": null,
+      "diagnostics": {},
+      "max_sampled_backend_rss_bytes": 27930624,
+      "monitor_errors": []
+    },
+    {
+      "case": "policy-observe_only",
+      "workload": "narrow",
+      "route": "direct",
+      "policy": "observe_only",
+      "batch_bytes": 16777216,
+      "samples": 3,
+      "request_ms": {
+        "median": 1160.420201,
+        "min": 1026.819029,
+        "max": 1777.691548
+      },
+      "executor_ms": null,
+      "diagnostics": {
+        "first_batch_ms": {
+          "median": 16.844763,
+          "min": 6.375016,
+          "max": 23.804007
+        },
+        "decode_ms": {
+          "median": 21.507182999999998,
+          "min": 15.007954999999999,
+          "max": 28.315243
+        },
+        "framing_ms": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "terminal_ms": {
+          "median": 829.1185859999999,
+          "min": 756.667472,
+          "max": 1241.926571
+        },
+        "control_requests": {
+          "median": 9,
+          "min": 9,
+          "max": 9
+        },
+        "peak_individual_batch_bytes": {
+          "median": 131128,
+          "min": 121656,
+          "max": 131128
+        }
+      },
+      "max_sampled_backend_rss_bytes": null,
+      "monitor_errors": []
+    },
+    {
+      "case": "policy-observe_only",
+      "workload": "narrow",
+      "route": "pg_backend",
+      "policy": "observe_only",
+      "batch_bytes": 16777216,
+      "samples": 3,
+      "request_ms": {
+        "median": 1131.5371549999327,
+        "min": 878.3048889999918,
+        "max": 1431.7936259999442
+      },
+      "executor_ms": {
+        "median": 1108.383,
+        "min": 868.807,
+        "max": 1415.859
+      },
+      "diagnostics": {
+        "first_batch_ms": {
+          "median": 5.387,
+          "min": 3.763,
+          "max": 8.218
+        },
+        "decode_ms": {
+          "median": 25.869,
+          "min": 13.563,
+          "max": 33.362
+        },
+        "framing_ms": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "terminal_ms": {
+          "median": 571.745,
+          "min": 522.718,
+          "max": 729.147
+        },
+        "control_requests": {
+          "median": 7,
+          "min": 7,
+          "max": 7
+        },
+        "peak_individual_batch_bytes": {
+          "median": 88888,
+          "min": 65992,
+          "max": 115768
+        }
+      },
+      "max_sampled_backend_rss_bytes": 28004352,
+      "monitor_errors": []
+    },
+    {
+      "case": "policy-observe_only",
+      "workload": "narrow",
+      "route": "pg_copy",
+      "policy": "observe_only",
+      "batch_bytes": 16777216,
+      "samples": 3,
+      "request_ms": {
+        "median": 1638.2492740001453,
+        "min": 1533.0645650001316,
+        "max": 1960.6064740000875
+      },
+      "executor_ms": null,
+      "diagnostics": {},
+      "max_sampled_backend_rss_bytes": 28004352,
+      "monitor_errors": []
+    },
+    {
+      "case": "policy-in_band",
+      "workload": "narrow",
+      "route": "direct",
+      "policy": "in_band",
+      "batch_bytes": 16777216,
+      "samples": 3,
+      "request_ms": {
+        "median": 478.508013,
+        "min": 330.444931,
+        "max": 549.988123
+      },
+      "executor_ms": null,
+      "diagnostics": {
+        "first_batch_ms": {
+          "median": 17.229528000000002,
+          "min": 9.646861,
+          "max": 21.660129
+        },
+        "decode_ms": {
+          "median": 18.730674999999998,
+          "min": 11.515080000000001,
+          "max": 19.493176000000002
+        },
+        "framing_ms": {
+          "median": 23.352971,
+          "min": 15.976766999999999,
+          "max": 28.556028
+        },
+        "terminal_ms": {
+          "median": 0.0029340000000000004,
+          "min": 0.0027930000000000003,
+          "max": 0.009569
+        },
+        "control_requests": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "peak_individual_batch_bytes": {
+          "median": 65992,
+          "min": 65992,
+          "max": 65992
+        }
+      },
+      "max_sampled_backend_rss_bytes": null,
+      "monitor_errors": []
+    },
+    {
+      "case": "policy-in_band",
+      "workload": "narrow",
+      "route": "pg_backend",
+      "policy": "in_band",
+      "batch_bytes": 16777216,
+      "samples": 3,
+      "request_ms": {
+        "median": 444.3132199999127,
+        "min": 366.5891840000768,
+        "max": 710.0625339999169
+      },
+      "executor_ms": {
+        "median": 420.292,
+        "min": 360.452,
+        "max": 698.145
+      },
+      "diagnostics": {
+        "first_batch_ms": {
+          "median": 5.77,
+          "min": 4.796,
+          "max": 17.421
+        },
+        "decode_ms": {
+          "median": 15.705,
+          "min": 13.349,
+          "max": 31.422
+        },
+        "framing_ms": {
+          "median": 22.785,
+          "min": 17.654,
+          "max": 43.299
+        },
+        "terminal_ms": {
+          "median": 0.003,
+          "min": 0.002,
+          "max": 0.004
+        },
+        "control_requests": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "peak_individual_batch_bytes": {
+          "median": 65992,
+          "min": 65992,
+          "max": 65992
+        }
+      },
+      "max_sampled_backend_rss_bytes": 26812416,
+      "monitor_errors": []
+    },
+    {
+      "case": "policy-in_band",
+      "workload": "narrow",
+      "route": "pg_copy",
+      "policy": "in_band",
+      "batch_bytes": 16777216,
+      "samples": 3,
+      "request_ms": {
+        "median": 731.6190239998832,
+        "min": 548.3085160001337,
+        "max": 734.8572270000204
+      },
+      "executor_ms": null,
+      "diagnostics": {},
+      "max_sampled_backend_rss_bytes": 27758592,
+      "monitor_errors": []
+    }
+  ],
+  "refusals": [
+    {
+      "case": "budget-1048576",
+      "policy": "in_band",
+      "batch_bytes": 1048576,
+      "classification": "direct value-control data resource refusal before measured samples",
+      "typed_error": "Context { phase: Data, cause: LimitExceeded }",
+      "private_log_sha256": "cdc2bfa8b85d0367c0e96e5cb91740b9a56cf944dc93ced9f3da0e9ca8cfd6c6",
+      "cleanup_confirmed": true
+    },
+    {
+      "case": "budget-4194304",
+      "policy": "in_band",
+      "batch_bytes": 4194304,
+      "classification": "direct value-control data resource refusal before measured samples",
+      "typed_error": "Context { phase: Data, cause: LimitExceeded }",
+      "private_log_sha256": "cdc2bfa8b85d0367c0e96e5cb91740b9a56cf944dc93ced9f3da0e9ca8cfd6c6",
+      "cleanup_confirmed": true
+    },
+    {
+      "case": "pg-budget-1048576",
+      "policy": "in_band",
+      "batch_bytes": 1048576,
+      "classification": "PG full-COPY precontrol data resource refusal before measured samples",
+      "typed_error": "wildcard_fdw: Antalya Data: configured resource limit exceeded",
+      "private_log_sha256": "ef1361eccb4dd9bb65f83abbcc64db6e014cc3c1063b14d7805c7799cc99ade9",
+      "cleanup_confirmed": true
+    },
+    {
+      "case": "pg-budget-4194304",
+      "policy": "in_band",
+      "batch_bytes": 4194304,
+      "classification": "PG full-COPY precontrol data resource refusal before measured samples",
+      "typed_error": "wildcard_fdw: Antalya Data: configured resource limit exceeded",
+      "private_log_sha256": "ef1361eccb4dd9bb65f83abbcc64db6e014cc3c1063b14d7805c7799cc99ade9",
+      "cleanup_confirmed": true
+    }
+  ],
+  "pending": []
+}

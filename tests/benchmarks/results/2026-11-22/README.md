@@ -77,3 +77,16 @@ Follow-up issues cover [conversion](https://github.com/f1b0-gh/pg_wildcard/issue
 [streaming attribution](https://github.com/f1b0-gh/pg_wildcard/issues/18),
 [terminal confirmation](https://github.com/f1b0-gh/pg_wildcard/issues/19), and
 [cold adaptive preparation](https://github.com/f1b0-gh/pg_wildcard/issues/20).
+
+The separate [bounded byte-index write experiment](perf-plan/native-index-write-cost/README.md)
+contains five paired native INSERT trials, settled storage, and all twenty
+original server profiles. It measures a private index layout: the incremental
+write median was 6.40 times the plain layout. It does not establish query pruning
+or enable an automatic production index migration. Missing start-time provenance
+is explicitly recorded.
+
+The [completed performance-plan evidence](perf-plan/README.md) adds the full
+19-case search matrix, including bounded stress refusals, indexed-layout costs,
+and FDW concurrency/policy/budget controls. It preserves the substantial
+unrelated-rule gap to Elastic wildcard and cases where the native index does not
+reduce reads. Ten reports reproduce from sanitized payloads without engine access.

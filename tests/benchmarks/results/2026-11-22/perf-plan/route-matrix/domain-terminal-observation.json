@@ -1,0 +1,176 @@
+{
+  "case": "domains-current-100-c1",
+  "rows": 1000000,
+  "indicator_entries": 100,
+  "raw_sha256": "b00dde73ac560bb1e4766fafc62a744151a3abd9876814cc7265e32bc684a9db",
+  "scope": "recorded diagnostics from five completed samples per selected route; no query replay",
+  "interpretation": "terminal/body/decode/request clocks can overlap; no subtraction into exclusive stages; first batch is not network TTFB; COPY has no equivalent EXPLAIN diagnostics here",
+  "follow_up": "https://github.com/f1b0-gh/pg_wildcard/issues/19",
+  "samples": [
+    {
+      "route": "native",
+      "repeat": 0,
+      "request_ms": 554.3346220001695
+    },
+    {
+      "route": "direct",
+      "repeat": 0,
+      "request_ms": 1661.4953679999999,
+      "recorded_execution": {
+        "body_wait_ms": 529.752355,
+        "decode_ms": 4.169015,
+        "first_batch_ms": 196.497061,
+        "peak_individual_batch_bytes": 4848,
+        "query_id": "comparison-direct-0693fee3-0843-4187-a05a-4d4d46a69c70",
+        "terminal_ms": 1121.586597,
+        "wire_bytes": 147760
+      }
+    },
+    {
+      "route": "pg_backend",
+      "repeat": 0,
+      "request_ms": 617.4244779995206,
+      "executor_ms": 614.63,
+      "recorded_execution": {
+        "FDW last query ID": "wildcard-a7524f98-5fdb-4673-9a05-b2cfdc654678",
+        "FDW first batch": 235.364,
+        "FDW Arrow decode": 4.862,
+        "FDW framing decode": 0.0,
+        "FDW terminal confirmation": 29.185,
+        "FDW data control requests": 2
+      }
+    },
+    {
+      "route": "direct",
+      "repeat": 1,
+      "request_ms": 740.357172,
+      "recorded_execution": {
+        "body_wait_ms": 681.272482,
+        "decode_ms": 4.653091,
+        "first_batch_ms": 271.669087,
+        "peak_individual_batch_bytes": 4848,
+        "query_id": "comparison-direct-3ed0f1a1-57c6-4dea-aa99-1b278861429a",
+        "terminal_ms": 43.854744000000004,
+        "wire_bytes": 147760
+      }
+    },
+    {
+      "route": "pg_backend",
+      "repeat": 1,
+      "request_ms": 1727.5256430002628,
+      "executor_ms": 1724.436,
+      "recorded_execution": {
+        "FDW last query ID": "wildcard-5897c89e-efe3-4f33-82cb-035ba7cb40ad",
+        "FDW first batch": 260.089,
+        "FDW Arrow decode": 4.975,
+        "FDW framing decode": 0.0,
+        "FDW terminal confirmation": 1086.912,
+        "FDW data control requests": 13
+      }
+    },
+    {
+      "route": "native",
+      "repeat": 1,
+      "request_ms": 573.2276210001146
+    },
+    {
+      "route": "direct",
+      "repeat": 2,
+      "request_ms": 590.726317,
+      "recorded_execution": {
+        "body_wait_ms": 547.280984,
+        "decode_ms": 4.066972000000001,
+        "first_batch_ms": 204.579817,
+        "peak_individual_batch_bytes": 4848,
+        "query_id": "comparison-direct-07f0b34c-089a-489c-80c3-0fd454f3319c",
+        "terminal_ms": 33.390814,
+        "wire_bytes": 147760
+      }
+    },
+    {
+      "route": "pg_backend",
+      "repeat": 2,
+      "request_ms": 1706.948385999567,
+      "executor_ms": 1704.266,
+      "recorded_execution": {
+        "FDW last query ID": "wildcard-0f002dcb-27f2-4f01-ac16-2c38cc1249ad",
+        "FDW first batch": 256.584,
+        "FDW Arrow decode": 4.869,
+        "FDW framing decode": 0.0,
+        "FDW terminal confirmation": 1076.147,
+        "FDW data control requests": 13
+      }
+    },
+    {
+      "route": "native",
+      "repeat": 2,
+      "request_ms": 585.3113519988256
+    },
+    {
+      "route": "pg_backend",
+      "repeat": 3,
+      "request_ms": 1653.436173000955,
+      "executor_ms": 1651.029,
+      "recorded_execution": {
+        "FDW last query ID": "wildcard-117421bb-0975-4f93-885d-8907326135b2",
+        "FDW first batch": 230.186,
+        "FDW Arrow decode": 4.753,
+        "FDW framing decode": 0.0,
+        "FDW terminal confirmation": 1075.77,
+        "FDW data control requests": 13
+      }
+    },
+    {
+      "route": "native",
+      "repeat": 3,
+      "request_ms": 608.1784719990537
+    },
+    {
+      "route": "direct",
+      "repeat": 3,
+      "request_ms": 626.60202,
+      "recorded_execution": {
+        "body_wait_ms": 577.042788,
+        "decode_ms": 4.205045999999999,
+        "first_batch_ms": 231.946222,
+        "peak_individual_batch_bytes": 4848,
+        "query_id": "comparison-direct-54f0f790-7eec-4eca-b75c-29d15245a4b4",
+        "terminal_ms": 39.044244,
+        "wire_bytes": 147760
+      }
+    },
+    {
+      "route": "native",
+      "repeat": 4,
+      "request_ms": 584.2105419997097
+    },
+    {
+      "route": "direct",
+      "repeat": 4,
+      "request_ms": 644.490032,
+      "recorded_execution": {
+        "body_wait_ms": 598.201846,
+        "decode_ms": 4.333068,
+        "first_batch_ms": 255.19564300000002,
+        "peak_individual_batch_bytes": 4848,
+        "query_id": "comparison-direct-5b9dc5b1-66d5-42fc-badc-a74600a74b96",
+        "terminal_ms": 35.333681,
+        "wire_bytes": 147760
+      }
+    },
+    {
+      "route": "pg_backend",
+      "repeat": 4,
+      "request_ms": 1725.2540860008594,
+      "executor_ms": 1721.825,
+      "recorded_execution": {
+        "FDW last query ID": "wildcard-ecda6025-2531-4e0a-b204-b19efc6c62d1",
+        "FDW first batch": 294.218,
+        "FDW Arrow decode": 5.164,
+        "FDW framing decode": 0.0,
+        "FDW terminal confirmation": 1069.321,
+        "FDW data control requests": 13
+      }
+    }
+  ]
+}

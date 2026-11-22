@@ -1,0 +1,295 @@
+{
+  "label": "baseline-c32",
+  "concurrency": 32,
+  "policy": "in_band",
+  "batch_bytes": 16777216,
+  "repeats": 1,
+  "workloads": [
+    "narrow",
+    "wide1k"
+  ],
+  "routes": [
+    "direct",
+    "pg_backend",
+    "pg_copy"
+  ],
+  "engine": "26.8.34.20001.altinityantalya",
+  "machine": {
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu_count": 12,
+    "cpu_model": "AMD Ryzen 5 PRO 4650U with Radeon Graphics",
+    "host_memory_bytes": 15942422528,
+    "python": "3.12.3"
+  },
+  "host_load": [
+    28.02001953125,
+    18.14453125,
+    16.70947265625
+  ],
+  "pg_pids": [
+    18530,
+    18538,
+    18546,
+    18554,
+    18562,
+    18570,
+    18578,
+    18586,
+    18594,
+    18602,
+    18610,
+    18618,
+    18626,
+    18634,
+    18642,
+    18650,
+    18658,
+    18666,
+    18674,
+    18683,
+    18691,
+    18699,
+    18707,
+    18714,
+    18721,
+    18728,
+    18736,
+    18744,
+    18752,
+    18759,
+    18767,
+    18774
+  ],
+  "direct_setup": [
+    {
+      "process_ms": 52.965063019655645,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 43.13526,
+      "ready": true
+    },
+    {
+      "process_ms": 49.16479700477794,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 43.095729,
+      "ready": true
+    },
+    {
+      "process_ms": 21.69464001781307,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 14.672904,
+      "ready": true
+    },
+    {
+      "process_ms": 17.322564002824947,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.428944,
+      "ready": true
+    },
+    {
+      "process_ms": 16.754247015342116,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.416232,
+      "ready": true
+    },
+    {
+      "process_ms": 30.550052993930876,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 20.552487000000003,
+      "ready": true
+    },
+    {
+      "process_ms": 17.417622002540156,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.920294,
+      "ready": true
+    },
+    {
+      "process_ms": 18.83377297781408,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.467428,
+      "ready": true
+    },
+    {
+      "process_ms": 16.76625999971293,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.01051,
+      "ready": true
+    },
+    {
+      "process_ms": 15.987991006113589,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.364269,
+      "ready": true
+    },
+    {
+      "process_ms": 14.199643017491326,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 10.114625,
+      "ready": true
+    },
+    {
+      "process_ms": 14.40470400848426,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 10.26451,
+      "ready": true
+    },
+    {
+      "process_ms": 15.882387000601739,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.097396,
+      "ready": true
+    },
+    {
+      "process_ms": 31.289907987229526,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 18.731801,
+      "ready": true
+    },
+    {
+      "process_ms": 17.544039990752935,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.312166,
+      "ready": true
+    },
+    {
+      "process_ms": 16.917959990678355,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.968835,
+      "ready": true
+    },
+    {
+      "process_ms": 17.019232996972278,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.281224,
+      "ready": true
+    },
+    {
+      "process_ms": 16.285735997371376,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.512547,
+      "ready": true
+    },
+    {
+      "process_ms": 24.9441190098878,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 16.026545,
+      "ready": true
+    },
+    {
+      "process_ms": 17.883549007819965,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 12.207282,
+      "ready": true
+    },
+    {
+      "process_ms": 26.692166982684284,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 18.251416,
+      "ready": true
+    },
+    {
+      "process_ms": 19.174749992089346,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.863791,
+      "ready": true
+    },
+    {
+      "process_ms": 19.183479977073148,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 12.388876,
+      "ready": true
+    },
+    {
+      "process_ms": 16.992971999570727,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.828520000000001,
+      "ready": true
+    },
+    {
+      "process_ms": 18.97353000822477,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 12.696747,
+      "ready": true
+    },
+    {
+      "process_ms": 31.299756024964154,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 22.811512,
+      "ready": true
+    },
+    {
+      "process_ms": 17.79680300387554,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.922739,
+      "ready": true
+    },
+    {
+      "process_ms": 21.591131982859224,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 11.647903,
+      "ready": true
+    },
+    {
+      "process_ms": 18.443347013089806,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 13.548001000000001,
+      "ready": true
+    },
+    {
+      "process_ms": 25.63354599988088,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 13.082633,
+      "ready": true
+    },
+    {
+      "process_ms": 27.08587600500323,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 14.64832,
+      "ready": true
+    },
+    {
+      "process_ms": 17.06505101174116,
+      "client": "antalya-rs 0.1.0",
+      "client_setup_ms": 12.731529,
+      "ready": true
+    }
+  ],
+  "pg_setup": [
+    262.15334198786877,
+    283.18810000200756,
+    270.4206029884517,
+    286.7692660074681,
+    303.39828398427926,
+    336.8810020037927,
+    330.77561602112837,
+    336.9722909992561,
+    267.608354013646,
+    270.06789899314754,
+    254.5783839887008,
+    312.81063801725395,
+    295.9892729995772,
+    278.6538579966873,
+    285.0291929789819,
+    286.888711998472,
+    277.6618709904142,
+    272.36590298707597,
+    326.2491310015321,
+    344.32705500512384,
+    345.9600009955466,
+    257.05519298207946,
+    321.50234800064936,
+    274.25853299791925,
+    261.0670180001762,
+    270.83535701967776,
+    258.3795720129274,
+    269.8092150094453,
+    281.9182980165351,
+    278.28831202350557,
+    275.38050900329836,
+    289.41657999530435
+  ],
+  "timer": "warm connections; request through fully written TCP COPY file or all Arrow batches; backend executor TIMING OFF separate; value checks outside timed samples",
+  "memory": "sampled backend RSS/HWM/threads separate from max individual BudgetedBatch; no assertion RSS <= batch budget",
+  "direct_worker_sha256": "9d9701ca07d70951571ce7b890b0835b9f9538230e51381f0ee9dece345cf90b",
+  "runner_sha256": "212577948d29713eae349098b34fc496f83991c7907e6e81ffe778f7b96689c7"
+}
