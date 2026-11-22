@@ -6,7 +6,7 @@
 //! `wc_regex` calls (compiled by `wildcard-ch` into exactly equivalent
 //! ClickHouse SQL, optionally on materialized view columns), plus simple
 //! comparisons, `LIKE` and NULL tests; and it prunes Iceberg data files with
-//! the Puffin n-gram index (`_path IN (...)`). Every clause is also kept as a
+//! the Puffin n-gram index (excluding only known non-candidates). Every clause is also kept as a
 //! local qual, preventing extra rows from an over-selecting remote predicate. Exact
 //! pushdown is required separately to avoid false negatives.
 //!
@@ -263,6 +263,7 @@ unsafe fn like_call(
     relid: pg_sys::Oid,
     scanrelid: u32,
     index_column: &str,
+    materialized: bool,
 ) -> Option<WcCall> {
     unsafe {
         if n.is_null() || (*n).type_ != pg_sys::NodeTag::T_OpExpr {
@@ -287,10 +288,12 @@ unsafe fn like_call(
         predicates::like(&pattern)?;
         let view = if col == index_column {
             View::Raw
-        } else {
+        } else if materialized {
             View::ALL
                 .into_iter()
                 .find(|v| col == format!("{index_column}_{}", v.name()))?
+        } else {
+            return None;
         };
         Some(WcCall {
             column: index_column.to_string(),
@@ -410,13 +413,15 @@ unsafe fn deparse(
     }
 }
 
-/// `_path IN (...)` from the Puffin index, intersected over every pushed
-/// wc_* call on the indexed column. Returns (condition, summary for EXPLAIN).
+/// Exclude known non-candidates, retaining unknown files. Intersect candidates
+/// over every pushed wc_* call on the indexed column; bound the emitted guard.
+/// Returns (condition, summary for EXPLAIN).
 unsafe fn lake_filter(
     index: &str,
     quals: &[*mut pg_sys::Node],
     relid: pg_sys::Oid,
     scanrelid: u32,
+    materialized: bool,
 ) -> Option<(String, String)> {
     unsafe {
         let column: String = Spi::get_one_with_args(
@@ -425,20 +430,16 @@ unsafe fn lake_filter(
         )
         .ok()
         .flatten()?;
-        let total: i64 = Spi::get_one_with_args(
-            "SELECT count(*) FROM wc_lake_file WHERE index_name = $1",
-            &[index.into()],
-        )
-        .ok()
-        .flatten()
-        .unwrap_or(0);
+        let mut indexed = Vec::new();
         let mut set: Option<BTreeSet<String>> = None;
         for &q in quals {
-            let call =
-                wc_call(q, relid, scanrelid).or_else(|| like_call(q, relid, scanrelid, &column));
+            let call = wc_call(q, relid, scanrelid)
+                .or_else(|| like_call(q, relid, scanrelid, &column, materialized));
             if let Some(c) = call.filter(|c| c.column == column) {
-                let (files, used) = crate::lake_candidates(index, &c.pattern, c.kind, c.view);
+                let (known, files, used) =
+                    crate::lake_candidates_with_coverage(index, &c.pattern, c.kind, c.view);
                 if used {
+                    indexed = known;
                     let s: BTreeSet<String> = files.into_iter().collect();
                     set = Some(match set {
                         None => s,
@@ -448,12 +449,14 @@ unsafe fn lake_filter(
             }
         }
         let set = set?;
-        let summary = format!("{} of {} data files (index {index})", set.len(), total);
-        if set.is_empty() {
-            return Some(("0".into(), summary));
-        }
-        let list: Vec<String> = set.iter().map(|p| wildcard_ch::quote(p)).collect();
-        Some((format!("_path IN ({})", list.join(", ")), summary))
+        let candidates: Vec<String> = set.into_iter().collect();
+        let condition = wildcard_ch::lake_path_filter(&indexed, &candidates)?;
+        let summary = format!(
+            "{} of {} indexed files; unknown files retained (index {index})",
+            candidates.len(),
+            indexed.len()
+        );
+        Some((condition, summary))
     }
 }
 
@@ -566,7 +569,8 @@ unsafe extern "C-unwind" fn get_foreign_plan(
             .collect();
         let mut lake_summary = String::new();
         if let Some(index) = o.get("lake_index")
-            && let Some((cond, summary)) = lake_filter(index, &quals, relid, scanrelid)
+            && let Some((cond, summary)) =
+                lake_filter(index, &quals, relid, scanrelid, materialized)
         {
             pushed.insert(0, cond);
             lake_summary = summary;
@@ -602,7 +606,7 @@ unsafe extern "C-unwind" fn get_foreign_plan(
                 let call = wc_call(q, relid, scanrelid).or_else(|| {
                     names
                         .iter()
-                        .find_map(|name| like_call(q, relid, scanrelid, name))
+                        .find_map(|name| like_call(q, relid, scanrelid, name, materialized))
                 });
                 if let Some(call) = call {
                     let cols = if materialized {

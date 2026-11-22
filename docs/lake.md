@@ -99,13 +99,19 @@ impossible immutable files. Its guard keeps files outside the indexed inventory,
 even when no known file is a candidate. An unknown file must remain searchable;
 an empty candidate list is not evidence that the current table is empty.
 
-The PostgreSQL `wc_lake_sql` function and FDW `lake_index` option instead use
-candidate allowlists. They do **not** add unknown-file fallback or validate the
-remote snapshot automatically. Use them only when the loaded inventory covers
-the queried snapshot. Pin the FDW's `iceberg_snapshot_id` setting where supported,
-and verify that it matches the index; otherwise omit `lake_index` and search
-unpruned, or use coverage-aware SQL externally. Reading a newer snapshot through
-an old allowlist can miss matches. Local rechecks cannot repair that omission.
+The PostgreSQL `wc_lake_sql` function and FDW `lake_index` option likewise retain
+unknown files. They emit `_path NOT IN (...)` for known impossible files, so
+appended or rewritten files with new paths remain searchable even when no
+indexed file is a candidate. `wc_lake_candidates` still reports candidates only
+within the stored inventory; it is not a complete list of current files.
+Missing indexed views and patterns without usable grams disable path pruning.
+An emitted path filter larger than 64 KiB also disables path pruning; exact
+matching and any additional query restrictions remain in place.
+
+The stored `snapshot_id` describes the imported index, not a verified current
+remote snapshot. These file-level exclusions do not need a matching snapshot
+because they apply only to known immutable files. They do not authenticate the
+table, paths, or index contents.
 
 All reuse and exclusion depend on immutable paths. An overwritten object at the
 same path invalidates its index. Snapshot metadata in an index is supplied by

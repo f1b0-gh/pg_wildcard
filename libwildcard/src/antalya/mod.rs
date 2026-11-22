@@ -13,6 +13,8 @@ use crate::core::pattern::Piece;
 use thiserror::Error;
 mod adaptive;
 pub mod identities;
+mod lake_filter;
+pub use lake_filter::lake_path_filter;
 mod prefilter;
 mod storage;
 pub use adaptive::{CandidateDecision, PlanEstimate, choose_candidate, native_plan_estimate};
@@ -398,6 +400,8 @@ pub fn lake_query(
 /// `indexed` is the exact inventory of the supplied index, not an assertion that
 /// it describes the entire current table. Candidates must be a subset of it.
 /// Iceberg file paths must be immutable; this does not authenticate an index.
+/// If the escaped path guard would exceed 64 KiB, query all files while keeping
+/// the exact predicate and `extra` filter.
 pub fn lake_query_with_coverage(
     table: &str,
     select: &str,
@@ -407,26 +411,14 @@ pub fn lake_query_with_coverage(
     extra: Option<&str>,
 ) -> Result<String, ChError> {
     ident(table)?;
-    let known: std::collections::BTreeSet<_> = indexed.iter().collect();
-    let chosen: std::collections::BTreeSet<_> = candidates.iter().collect();
-    if !chosen.is_subset(&known) {
-        return Err(ChError::Range);
+    {
+        let known: std::collections::BTreeSet<_> = indexed.iter().collect();
+        if candidates.iter().any(|path| !known.contains(path)) {
+            return Err(ChError::Range);
+        }
     }
-    if known == chosen {
+    let Some(guard) = lake_path_filter(indexed, candidates) else {
         return lake_query(table, select, predicate, None, extra)?.ok_or(ChError::Range);
-    }
-    let quoted = |paths: &std::collections::BTreeSet<&String>| {
-        paths
-            .iter()
-            .map(|p| quote(p))
-            .collect::<Vec<_>>()
-            .join(", ")
-    };
-    let unknown = format!("_path NOT IN ({})", quoted(&known));
-    let guard = if chosen.is_empty() {
-        unknown
-    } else {
-        format!("({unknown} OR _path IN ({}))", quoted(&chosen))
     };
     let guard = match extra {
         Some(filter) => format!("({guard}) AND ({filter})"),

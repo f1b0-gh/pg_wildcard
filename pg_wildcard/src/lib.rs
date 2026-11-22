@@ -366,10 +366,21 @@ pub(crate) fn lake_candidates(
     kind: Kind,
     view: View,
 ) -> (Vec<String>, bool) {
+    let (_, candidates, used) = lake_candidates_with_coverage(index_name, pattern, kind, view);
+    (candidates, used)
+}
+
+/// Retain the inventory that justifies exclusions alongside its candidates.
+pub(crate) fn lake_candidates_with_coverage(
+    index_name: &str,
+    pattern: &str,
+    kind: Kind,
+    view: View,
+) -> (Vec<String>, Vec<String>, bool) {
     let idx = lake_load(index_name);
     let m = matcher(pattern, kind, view);
     if !idx.views.contains(&view) || m.plan.is_all() {
-        return (idx.paths, false);
+        return (idx.paths.clone(), idx.paths, false);
     }
     let grams: Vec<i64> = m.plan.grams().into_iter().map(|g| g as i64).collect();
     let postings: HashMap<u64, Vec<u32>> = Spi::connect(|client| {
@@ -393,12 +404,11 @@ pub(crate) fn lake_candidates(
     ids.extend(&idx.unindexed);
     ids.sort_unstable();
     ids.dedup();
-    (
-        ids.into_iter()
-            .map(|i| idx.paths[i as usize].clone())
-            .collect(),
-        true,
-    )
+    let candidates = ids
+        .into_iter()
+        .map(|i| idx.paths[i as usize].clone())
+        .collect();
+    (idx.paths, candidates, true)
 }
 
 /// Data files of a lake index that may contain matches (all files when the
@@ -413,8 +423,8 @@ fn wc_lake_candidates(
     SetOfIterator::new(lake_candidates(index_name, pattern, kind_arg(kind), view_arg(view)).0)
 }
 
-/// Antalya/ClickHouse query over an Iceberg table restricted to candidate
-/// files. NULL when no file can match.
+/// Antalya/ClickHouse query excluding only known impossible immutable files.
+/// Files outside the imported inventory always remain eligible.
 #[pg_extern(stable)]
 #[allow(clippy::too_many_arguments)]
 fn wc_lake_sql(
@@ -435,19 +445,27 @@ fn wc_lake_sql(
     .ok()
     .flatten()
     .unwrap_or_else(|| error!("pg_wildcard: unknown lake index '{index_name}'"));
-    let (files, used) = lake_candidates(index_name, pattern, k, v);
+    let (indexed, files, used) = lake_candidates_with_coverage(index_name, pattern, k, v);
     let pred = ch(wildcard_ch::column_predicate(
         &cols_arg(&column, materialized),
         k,
         pattern,
         v,
     ));
+    let guard = used
+        .then(|| wildcard_ch::lake_path_filter(&indexed, &files))
+        .flatten();
+    let extra = match (guard, extra_where) {
+        (Some(guard), Some(extra)) => Some(format!("({guard}) AND ({extra})")),
+        (Some(guard), None) => Some(guard),
+        (None, extra) => extra.map(str::to_owned),
+    };
     ch(wildcard_ch::lake_query(
         lake_table,
         select_list,
         &pred,
-        if used { Some(files.as_slice()) } else { None },
-        extra_where,
+        None,
+        extra.as_deref(),
     ))
 }
 
@@ -642,12 +660,60 @@ mod tests {
         assert_eq!(c, "s3://l/f0.parquet,s3://l/f2.parquet"); // f2 has unindexed values
         let q = s("SELECT wc_lake_sql('t', 'lake.http', 'url', '*evil.com*')");
         assert!(
-            q.contains("_path IN ('s3://l/f0.parquet', 's3://l/f2.parquet')")
+            q.contains("_path NOT IN ('s3://l/f1.parquet')")
                 && q.contains("like(url, '%evil.com%')"),
             "{q}"
         );
         let c = s("SELECT count(*)::text FROM wc_lake_candidates('t', '*ab*')");
         assert_eq!(c, "3"); // no usable gram: every file
+    }
+
+    #[pg_test]
+    fn lake_sql_keeps_appended_files_and_exact_rechecks() {
+        Spi::run("INSERT INTO wc_lake_index VALUES ('coverage', 'url', 'raw', 1)").unwrap();
+        Spi::run("INSERT INTO wc_lake_file VALUES ('coverage', 0, 'old', 1, false), ('coverage', 1, 'unindexed', 1, true)").unwrap();
+        Spi::run("CREATE TEMP TABLE lake_current (_path text, url text)").unwrap();
+        Spi::run("INSERT INTO lake_current VALUES ('old', 'ordinary'), ('unindexed', 'evil.test'), ('new', 'evil.test'), ('new', 'ordinary')").unwrap();
+
+        // PostgreSQL also accepts these path/LIKE expressions, so execute the
+        // generated query to test rows, including the exact matching recheck.
+        let query = s("SELECT wc_lake_sql('coverage', 'lake_current', '_path', '*evil.test*')");
+        assert_eq!(
+            s(&format!(
+                "SELECT string_agg(_path, ',' ORDER BY _path) FROM ({query}) q"
+            )),
+            "new,unindexed"
+        );
+
+        // No indexed candidates still says nothing about newer files.
+        Spi::run("DELETE FROM lake_current WHERE _path = 'unindexed'").unwrap();
+        Spi::run("UPDATE wc_lake_file SET has_unindexed = false WHERE index_name = 'coverage'")
+            .unwrap();
+        let query = s("SELECT wc_lake_sql('coverage', 'lake_current', '_path', '*evil.test*')");
+        assert_eq!(s(&query), "new");
+
+        // Empty inventory, unavailable view, and gram-free patterns all widen.
+        Spi::run("DELETE FROM wc_lake_file WHERE index_name = 'coverage'").unwrap();
+        let query = s("SELECT wc_lake_sql('coverage', 'lake_current', '_path', '*evil.test*')");
+        assert_eq!(s(&query), "new");
+        Spi::run("INSERT INTO wc_lake_file VALUES ('coverage', 0, 'old', 1, false)").unwrap();
+        for args in ["'*evil.test*', 'wildcard', 'lower'", "'*il*'"] {
+            let query = s(&format!(
+                "SELECT wc_lake_sql('coverage', 'lake_current', '_path', {args})"
+            ));
+            assert!(!query.contains("_path NOT IN"), "{query}");
+            assert_eq!(s(&query), "new");
+        }
+    }
+
+    #[pg_test]
+    fn lake_sql_widens_when_path_filter_exceeds_budget() {
+        Spi::run("INSERT INTO wc_lake_index VALUES ('large', 'url', 'raw', 1)").unwrap();
+        Spi::run("INSERT INTO wc_lake_file SELECT 'large', 0, repeat('x', 65536), 1, false")
+            .unwrap();
+        let query = s("SELECT wc_lake_sql('large', 'lake.http', 'url', '*evil.test*')");
+        assert!(!query.contains("_path"), "oversized guard must widen");
+        assert!(query.contains("like(url, '%evil.test%')"));
     }
 }
 

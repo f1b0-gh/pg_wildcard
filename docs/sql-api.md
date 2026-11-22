@@ -109,9 +109,11 @@ All table columns are non-null. The file and gram tables reference
 `wc_lake_candidates` returns indexed candidate paths, including files with
 unindexed values. A missing requested view or an `ALL` plan returns every
 indexed path. It does not discover new files in the remote table.
-`wc_lake_sql` retains the exact predicate and returns NULL when a usable plan
-has no indexed candidate files. Its `select_list` and `extra_where` are trusted
-SQL fragments. The caller must ensure the index covers the queried snapshot;
+`wc_lake_sql` retains the exact predicate and excludes only known impossible
+files. Unknown paths remain searchable even when no indexed file is a candidate;
+path guards exceeding 64 KiB fall back to an unrestricted file scan. Its
+`select_list` and `extra_where` are trusted SQL fragments. Indexed paths must
+identify immutable files;
 see [lake coverage](lake.md#coverage-and-snapshot-rules).
 
 ## Foreign wrapper and planner support
