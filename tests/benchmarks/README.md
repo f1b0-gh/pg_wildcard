@@ -242,3 +242,38 @@ requires `pg_backend` for query correlation. Resource refusal or failed cleanup
 makes the run fail and retains raw/pending evidence. Such a partial run is not
 a complete performance cohort. Retained-batch budgets do not bound process RSS,
 and host activity and engine caches must be considered when interpreting timings.
+
+## FDW streaming, terminal and cache experiments
+
+The ownership-checked `fdw_tuning.py` runner varies requested block sizes without
+raising the 16 MiB output-batch budget. It distinguishes native HTTP, direct
+published antalya-rs, PostgreSQL backend requests and complete binary COPY.
+`fdw_terminal.py` adds a small-result control and eight genuine Parquet files,
+imports a CLI-built Puffin index, and requires native counters proving one versus
+eight files read. The Parquet control does not measure Iceberg metadata or deletes.
+Both runners exclude a warmup and rotate measured configurations.
+
+```sh
+python3 tests/benchmarks/fdw_terminal.py \
+  --state .local/perf/antalya.json --pg-container OWNED_PG \
+  --worker tests/transport/target/release/examples/fdw_warm \
+  --cli libwildcard/target/debug/wc-lake --repeats 5 \
+  --expected-flush-ms 1000 --output .local/perf/terminal
+python3 tests/benchmarks/fdw_cache.py \
+  --state .local/perf/antalya.json --pg-container OWNED_PG \
+  --rounds 5 --output .local/perf/cache
+```
+
+Use the Python environment with PyArrow for the terminal runner. The owned PG
+fixture must mount this repository at `/workspace`; the psql client reads the
+private CSV exports within a transaction. Output directories must be new. Record
+the loaded query-log cadence: `--expected-flush-ms` checks the fixture configuration
+but does not change or reload it. Change cadence and restart the owned native
+fixture outside timing, then restore it. Read actual file counters, not only
+`read_rows`, before attributing lake gains to pruning.
+
+The cache runner exercises eight reused keys interleaved with forty new keys,
+persistent versus fresh backends, settings identities and actual 30/61-second
+insertion-expiry checks. Cold and warm phases are intentional; connection setup
+is recorded separately from query time. Keep the same release-build flags when
+comparing cache implementations. Never run builds or tests during timing.
