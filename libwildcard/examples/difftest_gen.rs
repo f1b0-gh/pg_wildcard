@@ -111,6 +111,52 @@ fn byte_dispatch_cases(values: &[Vec<u8>]) -> serde_json::Value {
             "index_gate": plan.index_gate, "expected": expected,
             "ddl": byte_gram_index_ddl("bd", "byte_grams", column).unwrap()}));
     }
+    // Numeric IDs in benign values must not make the source gate admit every row.
+    let items: Vec<_> = (0..100)
+        .map(|i| SweepItem {
+            id: i,
+            view: View::Raw,
+            regex: format!("evil{i:04}\\.example"),
+        })
+        .collect();
+    let mut selective_values: Vec<Vec<u8>> = (0..100)
+        .flat_map(|i| {
+            [
+                format!("evil{i:04}.example").into_bytes(),
+                format!("benign{i:04}suffix").into_bytes(),
+            ]
+        })
+        .collect();
+    selective_values.extend([
+        [vec![b'x'; 8193], b"evil0001.example".to_vec()].concat(),
+        vec![b'x'; 8193], // Overflow widens even when no rule matches.
+        b"\xffevil0002.example\x00".to_vec(),
+    ]);
+    let plan = sweep_byte_dispatch(
+        "bd",
+        &["id"],
+        &ViewColumns::new("v").unwrap(),
+        &items,
+        None,
+        SweepOptions::default(),
+        None,
+    )
+    .unwrap();
+    let mut expected = Vec::new();
+    for item in &items {
+        let matcher = Matcher::regex(&item.regex, item.view, false).unwrap();
+        for (id, value) in selective_values.iter().enumerate() {
+            if matcher.is_match(value) {
+                expected.push(json!([id, item.id, "raw"]));
+            }
+        }
+    }
+    cases.push(
+        json!({"name": "numeric_selectivity", "queries": plan.sweep.queries,
+        "index_gate": plan.index_gate, "expected": expected, "candidate_rows": 103,
+        "values_hex": selective_values.iter().map(|v| hex(v)).collect::<Vec<_>>(),
+        "ddl": byte_gram_index_ddl("bd", "byte_grams", "v").unwrap()}),
+    );
     json!({"values_hex": values.iter().map(|v| hex(v)).collect::<Vec<_>>(), "cases": cases})
 }
 

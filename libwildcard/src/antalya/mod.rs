@@ -14,7 +14,8 @@ use thiserror::Error;
 mod adaptive;
 mod indexed_dispatch;
 pub use indexed_dispatch::{
-    ByteDispatchFallback, ByteDispatchPlan, byte_gram_index_ddl, sweep_byte_dispatch,
+    ByteDispatchFallback, ByteDispatchGate, ByteDispatchPlan, byte_gram_index_ddl,
+    sweep_byte_dispatch,
 };
 pub mod identities;
 mod lake_filter;

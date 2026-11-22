@@ -266,6 +266,7 @@ pub fn build(variant: &str, count: usize, rows: usize) -> Result<Value, String> 
                 "index_ddl":byte_gram_index_ddl("bench","v_byte_grams","v").map_err(|e|e.to_string())?,
                 "strategy":dispatch.sweep.strategy.name(),"groups":dispatch.dispatch_groups,
                 "unassigned":dispatch.unassigned_items,"index_gate":dispatch.index_gate,
+                "gate_strategy":format!("{:?}",dispatch.gate_strategy),
                 "fallback":dispatch.fallback.map(|r| format!("{r:?}")),
                 "estimated_ast":dispatch.sweep.estimated_ast},
             "diagnostics":{"source_queries":plan.source_scan_count,"estimated_ast":plan.estimated_ast,"exact_only_items":plan.exact_only_items},

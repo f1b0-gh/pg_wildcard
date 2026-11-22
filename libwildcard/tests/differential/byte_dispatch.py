@@ -6,9 +6,9 @@ from collections import Counter
 def check(spec, q, rows, fail):
     for case in spec['cases']:
         q('CREATE TABLE bd (id UInt32, v String, view String, indicator_id String, '
-          '_wc_dispatch0_value String) ENGINE=MergeTree ORDER BY id')
-        values = [f"({i}," + ','.join([f"unhex('{h}')"] * 4) + ')'
-                  for i, h in enumerate(spec['values_hex'])]
+          '_wc_dispatch0_value String, _wc_dispatch0_tokens Array(String)) ENGINE=MergeTree ORDER BY id')
+        values = [f"({i}," + ','.join([f"unhex('{h}')"] * 4) + ", ['wrong'])"
+                  for i, h in enumerate(case.get('values_hex', spec['values_hex']))]
         for offset in range(0, len(values), 64):
             # Preserve duplicate source rows as well as duplicate rule IDs.
             q('INSERT INTO bd VALUES ' + ','.join(values[offset:offset + 64] * 2))
@@ -36,6 +36,13 @@ def check(spec, q, rows, fail):
                             detail = exc.read(4096).decode(errors='replace') if hasattr(exc, 'read') else str(exc)
                             raise RuntimeError(f"byte dispatch {case['name']} {phase} "
                                                f"{settings}: {detail}") from exc
+                    if 'candidate_rows' in case:
+                        # This renderer's explicit gated source precedes ARRAY JOIN.
+                        source = case['queries'][0].split('\nFROM (', 1)[1].rsplit('\n)\nARRAY JOIN ', 1)[0]
+                        candidates = int(rows('SELECT count() FROM (' + source + ')' + settings)[0][0])
+                        if candidates != case['candidate_rows'] * 2:
+                            fail(f"byte dispatch {case['name']}: candidate rows {candidates}, "
+                                 f"expected {case['candidate_rows'] * 2}")
                     if actual != expected:
                         fail(f"byte dispatch {case['name']} {phase} skip={skipping} "
                              f"prefer_columns={prefer_columns}: "

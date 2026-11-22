@@ -29,6 +29,17 @@ pub enum ByteDispatchFallback {
     QueryBudget,
 }
 
+/// Source-gate strength; all variants retain the exact per-rule recheck.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ByteDispatchGate {
+    /// A rule has no proven required fragment, or dispatch fell back entirely.
+    Disabled,
+    /// Up to three required fragments per rule, OR across rules and overflow.
+    RequiredFragments,
+    /// The conjunction gate exceeded a query budget; one fragment per rule fits.
+    SingleFragmentBudget,
+}
+
 /// Dispatch diagnostics; physical index use must be checked on the target engine.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ByteDispatchPlan {
@@ -36,6 +47,7 @@ pub struct ByteDispatchPlan {
     pub dispatch_groups: usize,
     pub unassigned_items: usize,
     pub index_gate: bool,
+    pub gate_strategy: ByteDispatchGate,
     pub fallback: Option<ByteDispatchFallback>,
 }
 
@@ -228,7 +240,9 @@ fn dispatch(needles: &[Vec<String>]) -> Option<Dispatch> {
 /// Every dispatched rule retains its exact RE2 check. Duplicate IDs/rules keep
 /// their multiplicity. No token-index metadata is used to establish semantics.
 ///
-/// An optional gate uses the same bounded expression as `byte_gram_index_ddl`.
+/// An optional gate requires up to three proven fragments per rule (OR across
+/// rules), using the bounded expression from `byte_gram_index_ddl`. If this gate
+/// exceeds a query budget, it widens to one fragment per rule before dense fallback.
 /// Long values pass via an overflow sentinel. Any rule without a required gram
 /// disables this gate; that rule still reaches exact matching. Optional file
 /// counts rank proven grams only, and may safely be absent or stale.
@@ -250,6 +264,7 @@ pub fn sweep_byte_dispatch(
             dispatch_groups: 0,
             unassigned_items: items.len(),
             index_gate: false,
+            gate_strategy: ByteDispatchGate::Disabled,
             fallback: Some(reason),
         })
     };
@@ -277,6 +292,7 @@ pub fn sweep_byte_dispatch(
     }
     let mut needles = Vec::with_capacity(items.len());
     let mut gate_keys = BTreeSet::new();
+    let mut conjunctions = BTreeSet::new();
     let mut index_gate = true;
     for item in items {
         let _ = predicate(
@@ -291,6 +307,9 @@ pub fn sweep_byte_dispatch(
         let ranked = super::prefilter::select_needles(required.clone(), frequencies);
         if let Some(needle) = ranked.first() {
             gate_keys.insert(needle.clone());
+            let mut keys = ranked;
+            keys.sort();
+            conjunctions.insert(keys);
         } else {
             index_gate = false;
         }
@@ -381,32 +400,38 @@ pub fn sweep_byte_dispatch(
             .collect::<Vec<_>>()
             .join(",")
     );
-    let gate = if index_gate {
-        let mut encoded: Vec<_> = gate_keys
-            .iter()
-            .map(|key| {
-                key.as_bytes()
-                    .iter()
-                    .map(|b| format!("{b:02X}"))
-                    .collect::<String>()
-            })
-            .collect();
-        encoded.push(OVERFLOW_TOKEN.into());
-        format!(
-            "hasAny({}, [{}])",
-            byte_tokens(&value),
-            encoded
+    let encode = |key: &str| {
+        quote(
+            &key.as_bytes()
                 .iter()
-                .map(|g| quote(g))
-                .collect::<Vec<_>>()
-                .join(",")
+                .map(|b| format!("{b:02X}"))
+                .collect::<String>(),
         )
+    };
+    let tokens = format!("{prefix}tokens");
+    let token_expr = byte_tokens(&val);
+    let coarse_gate = if index_gate {
+        let mut encoded: Vec<_> = gate_keys.iter().map(|key| encode(key)).collect();
+        encoded.push(quote(OVERFLOW_TOKEN));
+        format!("hasAny({}, [{}])", byte_tokens(&value), encoded.join(","))
     } else {
         "1".into()
     };
-    let filter_sql = filter
-        .map(|f| format!(" AND (\n{f}\n)"))
-        .unwrap_or_default();
+    let refined_gate = if index_gate {
+        let mut clauses = vec![format!("hasAny({tokens}, [{}])", quote(OVERFLOW_TOKEN))];
+        clauses.extend(conjunctions.iter().map(|keys| {
+            format!(
+                "hasAll({tokens}, [{}])",
+                keys.iter()
+                    .map(|key| encode(key))
+                    .collect::<Vec<_>>()
+                    .join(",")
+            )
+        }));
+        clauses.join(" OR ")
+    } else {
+        "1".into()
+    };
     let projection = if selected.is_empty() {
         "1".into()
     } else {
@@ -423,19 +448,57 @@ pub fn sweep_byte_dispatch(
             )
         })
         .collect::<String>();
-    let sql = format!(
-        "/* wildcard sweep: strategy=byte_dispatch source_scan_count=1 */\nWITH {patterns} AS {pat}, {id_list} AS {ids}\nSELECT {output}arrayElement({ids}, {idx}) AS indicator_id, 'raw' AS view\nFROM (SELECT tuple({projection}) AS {row}, {value} AS {val}\nFROM {source}\nWHERE ({gate}){filter_sql}\n)\nARRAY JOIN {matches} AS {idx}"
-    );
-    let mut ast = 256usize
+    let base_ast = 320usize
         .saturating_add(selected.len().saturating_mul(8))
         .saturating_add(source.len())
         .saturating_add(filter.map_or(0, |s| s.len().saturating_mul(4)));
-    for expr in [&patterns, &id_list, &matches, &gate] {
-        ast = ast.saturating_add(expression_ast(expr)?);
+    let mut base_ast = base_ast;
+    for expr in [&patterns, &id_list, &matches] {
+        base_ast = base_ast.saturating_add(expression_ast(expr)?);
+    }
+    let render = |refined: bool| -> Result<(String, usize), ChError> {
+        let (input, gate_ast) = if refined {
+            // Bind tokens outside the physical source scope. A hidden source
+            // column with this alias cannot shadow it under prefer_column_name_to_alias.
+            let filter = filter
+                .map(|f| format!("\nWHERE (\n{f}\n)"))
+                .unwrap_or_default();
+            (
+                format!(
+                    "WITH {token_expr} AS {tokens}\nSELECT {row}, {val}\nFROM (SELECT tuple({projection}) AS {row}, {value} AS {val}\nFROM {source}{filter}\n)\nWHERE ({refined_gate})"
+                ),
+                expression_ast(&refined_gate)?.saturating_add(expression_ast(&token_expr)?),
+            )
+        } else {
+            let filter = filter
+                .map(|f| format!(" AND (\n{f}\n)"))
+                .unwrap_or_default();
+            (
+                format!(
+                    "SELECT tuple({projection}) AS {row}, {value} AS {val}\nFROM {source}\nWHERE ({coarse_gate}){filter}"
+                ),
+                expression_ast(&coarse_gate)?,
+            )
+        };
+        let sql = format!(
+            "/* wildcard sweep: strategy=byte_dispatch source_scan_count=1 */\nWITH {patterns} AS {pat}, {id_list} AS {ids}\nSELECT {output}arrayElement({ids}, {idx}) AS indicator_id, 'raw' AS view\nFROM ({input}\n)\nARRAY JOIN {matches} AS {idx}"
+        );
+        Ok((sql, base_ast.saturating_add(gate_ast)))
+    };
+    let (mut sql, mut ast) = render(index_gate)?;
+    let mut gate_strategy = if index_gate {
+        ByteDispatchGate::RequiredFragments
+    } else {
+        ByteDispatchGate::Disabled
+    };
+    if index_gate && (sql.len() > options.max_bytes || ast > options.max_ast_nodes) {
+        (sql, ast) = render(false)?;
+        gate_strategy = ByteDispatchGate::SingleFragmentBudget;
     }
     if sql.len() > options.max_bytes || ast > options.max_ast_nodes {
         return fallback(ByteDispatchFallback::QueryBudget);
     }
+
     Ok(ByteDispatchPlan {
         sweep: SweepPlan {
             queries: vec![sql],
@@ -447,6 +510,7 @@ pub fn sweep_byte_dispatch(
         dispatch_groups: dispatch.groups.len(),
         unassigned_items: dispatch.unassigned.len(),
         index_gate,
+        gate_strategy,
         fallback: None,
     })
 }

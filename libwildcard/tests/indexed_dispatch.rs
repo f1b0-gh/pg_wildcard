@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 #![cfg(feature = "hot")]
 use libwildcard::antalya::{
-    ByteDispatchFallback, ChError, SweepItem, SweepOptions, SweepStrategy, ViewColumns,
-    byte_gram_index_ddl, sweep_byte_dispatch,
+    ByteDispatchFallback, ByteDispatchGate, ChError, SweepItem, SweepOptions, SweepStrategy,
+    ViewColumns, byte_gram_index_ddl, sweep_byte_dispatch,
 };
 use libwildcard::core::View;
 
@@ -32,6 +32,7 @@ fn thousand_rules_dispatch_in_one_bounded_query() {
     assert_eq!(plan.sweep.source_scan_count, 1);
     assert!(plan.fallback.is_none());
     assert!(plan.index_gate);
+    assert_eq!(plan.gate_strategy, ByteDispatchGate::RequiredFragments);
     assert!((1..=255).contains(&plan.dispatch_groups));
     assert!(plan.sweep.queries[0].contains("multiSearchAllPositions("));
     assert!(plan.sweep.queries[0].contains("match("));
@@ -105,14 +106,32 @@ fn budget_widening_and_invalid_input_keep_the_exact_contract() {
         ..SweepOptions::default()
     };
     let plan = sweep_byte_dispatch("events", &["id"], &cols, &items, None, options, None).unwrap();
-    assert_eq!(plan.fallback, Some(ByteDispatchFallback::QueryBudget));
+    assert_eq!(plan.fallback, None);
+    assert_eq!(plan.gate_strategy, ByteDispatchGate::SingleFragmentBudget);
+    assert!(plan.sweep.queries[0].len() <= options.max_bytes);
+    assert!(plan.sweep.queries[0].contains("match("));
+    let smaller = SweepOptions {
+        max_bytes: plan.sweep.queries[0].len() - 1,
+        ..options
+    };
+    let dense = sweep_byte_dispatch("events", &["id"], &cols, &items, None, smaller, None).unwrap();
+    assert_eq!(dense.fallback, Some(ByteDispatchFallback::QueryBudget));
+    assert_eq!(dense.gate_strategy, ByteDispatchGate::Disabled);
     assert!(
-        plan.sweep
+        dense
+            .sweep
             .queries
             .iter()
-            .all(|q| q.len() <= options.max_bytes)
+            .all(|q| q.len() <= smaller.max_bytes)
     );
-    assert!(plan.sweep.queries[0].contains("match("));
+    let ast_limited = SweepOptions {
+        max_ast_nodes: full.sweep.estimated_ast[0] - 1,
+        ..SweepOptions::default()
+    };
+    let coarse =
+        sweep_byte_dispatch("events", &["id"], &cols, &items, None, ast_limited, None).unwrap();
+    assert_eq!(coarse.gate_strategy, ByteDispatchGate::SingleFragmentBudget);
+    assert!(coarse.sweep.estimated_ast[0] <= ast_limited.max_ast_nodes);
     let invalid = [SweepItem {
         regex: "(?=x)".into(),
         ..items[0].clone()

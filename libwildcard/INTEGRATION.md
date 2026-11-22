@@ -64,6 +64,14 @@ SQL/AST budget exhaustion return the existing constant-candidate plan with an
 explicit fallback reason. A rule with no required fragment is still checked
 exactly and disables the optional source index gate.
 
+The source gate requires up to three proven fragments for each rule, with OR
+between rules. This avoids admitting a row merely because it shares one common
+fragment, such as digits in a benign URL. Long values bypass this gate. If the
+conjunctions exceed the SQL or parsed-AST budget, the planner widens to one
+fragment per rule before considering dense fallback. `gate_strategy` reports
+`RequiredFragments`, `SingleFragmentBudget` or `Disabled`; `index_gate` only says
+whether a source gate was emitted, not whether the engine used an index.
+
 `byte_gram_index_ddl(table, index, column)` emits an explicit fragment-array text
 index for the matching raw column. Existing parts require `MATERIALIZE INDEX`.
 The expression extracts six-character windows from hex-encoded bytes, preserving
