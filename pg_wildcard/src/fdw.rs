@@ -715,6 +715,14 @@ struct Column {
     target: Option<values::Target>,
 }
 
+// Drop typed buffer handles before releasing their retained-byte charge. Keeping
+// the token and prepared handles together covers replacement, rescan and errors.
+struct PreparedBatch {
+    columns: Vec<values::PreparedColumn>,
+    rows: usize,
+    _batch: BudgetedBatch,
+}
+
 struct ScanState {
     sql: String,
     candidate_sql: Option<String>,
@@ -723,13 +731,14 @@ struct ScanState {
     session: transport::Session,
     stream: Option<transport::Stream>,
     started: bool,
-    batch: Option<BudgetedBatch>,
+    batch: Option<PreparedBatch>,
     schema: Option<arrow_schema::SchemaRef>,
     batch_row: usize,
     columns: Vec<Column>,
     rows: u64,
     metrics: transport::StreamMetrics,
     conversion: std::time::Duration,
+    batch_preparation: std::time::Duration,
     row_timing: bool,
 }
 
@@ -852,6 +861,7 @@ unsafe extern "C-unwind" fn begin_foreign_scan(node: *mut pg_sys::ForeignScanSta
             rows: 0,
             metrics: transport::StreamMetrics::default(),
             conversion: std::time::Duration::ZERO,
+            batch_preparation: std::time::Duration::ZERO,
             row_timing: false,
         };
         let state = PgMemoryContexts::CurrentMemoryContext.leak_and_drop_on_delete(state);
@@ -895,7 +905,7 @@ unsafe extern "C-unwind" fn iterate_foreign_scan(
         loop {
             if s.batch
                 .as_ref()
-                .is_some_and(|batch| s.batch_row < batch.num_rows())
+                .is_some_and(|batch| s.batch_row < batch.rows)
             {
                 break;
             }
@@ -943,8 +953,26 @@ unsafe extern "C-unwind" fn iterate_foreign_scan(
                             "wildcard_fdw: Arrow schema changed or was not delivered before data"
                         );
                     }
-                    s.batch = Some(batch);
+                    let preparation_start = conversion_timer(s.row_timing, std::time::Instant::now);
+                    let columns = s
+                        .columns
+                        .iter()
+                        .filter_map(|col| col.target)
+                        .enumerate()
+                        .map(|(remote, target)| {
+                            values::PreparedColumn::new(batch.column(remote).as_ref(), target)
+                        })
+                        .collect::<Result<Vec<_>, _>>()
+                        .unwrap_or_else(|e| error!("wildcard_fdw: {e}"));
+                    s.batch = Some(PreparedBatch {
+                        columns,
+                        rows: batch.num_rows(),
+                        _batch: batch,
+                    });
                     s.batch_row = 0;
+                    if let Some(start) = preparation_start {
+                        s.batch_preparation = s.batch_preparation.saturating_add(start.elapsed());
+                    }
                 }
             }
         }
@@ -961,11 +989,12 @@ unsafe extern "C-unwind" fn iterate_foreign_scan(
         PgMemoryContexts::For((*(*node).ss.ps.ps_ExprContext).ecxt_per_tuple_memory).switch_to(
             |_| {
                 for (i, col) in s.columns.iter_mut().enumerate() {
-                    let Some(target) = col.target else {
+                    let Some(_) = col.target else {
                         nulls[i] = true;
                         continue;
                     };
-                    let input = values::input(batch.column(remote).as_ref(), s.batch_row, target)
+                    let input = batch.columns[remote]
+                        .input(s.batch_row)
                         .unwrap_or_else(|e| error!("wildcard_fdw: {e}"));
                     remote += 1;
                     match input {
@@ -1135,6 +1164,10 @@ unsafe extern "C-unwind" fn explain_foreign_scan(
                 (
                     c"FDW producer queue wait",
                     m.producer_send_wait.as_secs_f64() * 1000.0,
+                ),
+                (
+                    c"FDW batch preparation",
+                    s.batch_preparation.as_secs_f64() * 1000.0,
                 ),
                 (c"FDW row conversion", s.conversion.as_secs_f64() * 1000.0),
             ] {

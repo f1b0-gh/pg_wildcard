@@ -9,7 +9,7 @@ use std::ffi::{CString, c_char};
 ///
 /// # Safety
 /// The caller must run on the backend thread in a context that outlives use of
-/// the returned Datum. `value` must satisfy `values::input` validation, and `finfo`,
+/// the returned Datum. `value` must satisfy `PreparedColumn::input` validation, and `finfo`,
 /// `ioparam` and `typmod` must describe that column's PostgreSQL input function.
 pub unsafe fn into_datum(
     value: Value<'_>,
@@ -18,6 +18,9 @@ pub unsafe fn into_datum(
     typmod: i32,
 ) -> pg_sys::Datum {
     let datum = match value {
+        // Both borrowed slices use one pgrx-guarded allocation and copy. Keep
+        // the guard: even NO_OOM allocation APIs can ERROR for invalid sizes
+        // or context-specific restrictions, crossing live Rust batch owners.
         Value::Text(value) => value.into_datum(),
         Value::Bytes(value) => value.into_datum(),
         Value::Bool(value) => value.into_datum(),
@@ -117,7 +120,7 @@ mod tests {
 
     #[pg_test]
     fn fdw_datums_own_text_and_binary_after_arrow_is_released() {
-        use crate::fdw::values::{Target, input};
+        use crate::fdw::values::{PreparedColumn, Target};
         use arrow_array::{BinaryArray, StringArray};
         let mut context = pgrx::PgMemoryContexts::new("fdw datum lifetime test");
         // SAFETY: this owned context outlives both allocations and decoding.
@@ -127,14 +130,22 @@ mod tests {
                 let text = {
                     let source = StringArray::from(vec!["évidence"]);
                     convert(
-                        input(&source, 0, Target::Text).unwrap().unwrap(),
+                        PreparedColumn::new(&source, Target::Text)
+                            .unwrap()
+                            .input(0)
+                            .unwrap()
+                            .unwrap(),
                         pg_sys::TEXTOID,
                     )
                 };
                 let binary = {
                     let source = BinaryArray::from(vec![b"a\0\xff\\x".as_slice()]);
                     convert(
-                        input(&source, 0, Target::Bytes).unwrap().unwrap(),
+                        PreparedColumn::new(&source, Target::Bytes)
+                            .unwrap()
+                            .input(0)
+                            .unwrap()
+                            .unwrap(),
                         pg_sys::BYTEAOID,
                     )
                 };
@@ -158,7 +169,7 @@ mod tests {
 
     #[pg_test]
     fn fdw_temporal_fallback_keeps_epoch_and_fractional_precision() {
-        use crate::fdw::values::{Target, input};
+        use crate::fdw::values::{PreparedColumn, Target};
         use arrow_array::{Date32Array, TimestampMicrosecondArray};
         let date = Date32Array::from(vec![0]);
         let timestamp = TimestampMicrosecondArray::from(vec![-1]).with_timezone("UTC");
@@ -175,7 +186,11 @@ mod tests {
             assert_eq!(
                 Date::from_datum(
                     convert(
-                        input(&date, 0, Target::Date).unwrap().unwrap(),
+                        PreparedColumn::new(&date, Target::Date)
+                            .unwrap()
+                            .input(0)
+                            .unwrap()
+                            .unwrap(),
                         pg_sys::DATEOID
                     ),
                     false,
@@ -185,7 +200,11 @@ mod tests {
             assert_eq!(
                 Timestamp::from_datum(
                     convert(
-                        input(&timestamp, 0, Target::Timestamp).unwrap().unwrap(),
+                        PreparedColumn::new(&timestamp, Target::Timestamp)
+                            .unwrap()
+                            .input(0)
+                            .unwrap()
+                            .unwrap(),
                         pg_sys::TIMESTAMPOID,
                     ),
                     false,
@@ -195,7 +214,11 @@ mod tests {
             assert_eq!(
                 TimestampWithTimeZone::from_datum(
                     convert(
-                        input(&timestamp, 0, Target::TimestampTz).unwrap().unwrap(),
+                        PreparedColumn::new(&timestamp, Target::TimestampTz)
+                            .unwrap()
+                            .input(0)
+                            .unwrap()
+                            .unwrap(),
                         pg_sys::TIMESTAMPTZOID,
                     ),
                     false,

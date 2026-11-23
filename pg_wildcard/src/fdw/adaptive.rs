@@ -185,11 +185,14 @@ async fn estimate(
             valid = false;
             continue;
         }
-        match super::super::values::input(
+        let Ok(prepared) = super::super::values::PreparedColumn::new(
             batch.column(0).as_ref(),
-            0,
             super::super::values::Target::Text,
-        ) {
+        ) else {
+            valid = false;
+            continue;
+        };
+        match prepared.input(0) {
             Ok(Some(super::super::values::Value::Text(text))) if text.len() <= 262144 => {
                 // The estimate is parsed after the stream finishes, so retain
                 // a bounded owned copy before this Arrow batch is released.

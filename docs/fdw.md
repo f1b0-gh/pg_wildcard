@@ -184,7 +184,13 @@ poll and destroy the asynchronous task.
 
 The PostgreSQL database must use UTF-8. Initial Arrow schema validation also
 applies to empty results; schemas must stay identical between batches. Only
-required columns are decoded.
+required columns are decoded. Each retained batch prepares typed Arrow handles
+once. Text checks inspect only the covered slice of the byte buffer; a possible
+NUL selects exact checks for each non-NULL value. Validated Arrow string arrays
+reuse their UTF-8 guarantee, while binary-to-text conversion still validates
+UTF-8. Prepared handles retain the batch byte charge until they are dropped.
+Output text and bytea are copied through pgrx's guarded allocation boundary into
+the PostgreSQL context for the current tuple, so they never borrow batch storage.
 
 | PostgreSQL type | Accepted Arrow representation |
 | --- | --- |
@@ -234,11 +240,14 @@ preferences probe again. Preferences never contain rows or completion evidence.
 Unknown plans use exact SQL; authentication, transport and confirmation errors
 still fail. Preparation, execution and completion share the deadline.
 
-`EXPLAIN ANALYZE` reports generated SQL and scan/transport counters. Row conversion
-timing is collected only when executor timing is requested. With `TIMING OFF`,
-zero conversion time means unmeasured. Body-wait time includes server execution
-and scheduling; it is not pure network latency. Diagnostic clocks overlap and
-must not be added as independent components of ordinary query latency.
+`EXPLAIN ANALYZE` reports generated SQL and scan/transport counters.
+`FDW batch preparation` measures typed-handle preparation and batch NUL scans
+separately from `FDW row conversion`, which excludes that work. Both timings are collected
+only when executor timing is requested; `FDW row timing enabled` applies to both.
+With `TIMING OFF`, both are zero and unmeasured, with no clock reads at either
+boundary. Body-wait time includes server execution and scheduling; it is not
+pure network latency. Diagnostic clocks overlap and must not be added as
+independent components of ordinary query latency.
 
 See [testing](testing.md) for native and chDB checks and [operations](operations.md)
 for deployment requirements.
