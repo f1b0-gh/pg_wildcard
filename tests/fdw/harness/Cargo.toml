@@ -8,7 +8,7 @@ publish = false
 [workspace]
 [dependencies]
 libc = "0.2"
-antalya-rs = { version = "=0.1.0" }
+antalya-rs = { version = "=0.1.1" }
 arrow-array = "=59.3.3"
 arrow-schema = "=59.3.3"
 chrono = { version = "0.4", default-features = false, features = ["std"] }

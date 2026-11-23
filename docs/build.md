@@ -8,7 +8,7 @@
 | Rust | 1.99.1, pinned in both workspaces |
 | Arrow / Parquet | 59.3.3 in the retained lockfiles |
 | PostgreSQL extension | PostgreSQL 18.6, pgrx 0.19.4, C compiler, Clang/libclang and server headers |
-| Remote FDW transport | Published `antalya-rs` 0.1.0 using Arrow 59.3.3 |
+| Remote FDW transport | Published `antalya-rs` 0.1.1 using Arrow 59.3.3 |
 | Python integration tests | Python 3.12 and the dependencies in the [testing guide](testing.md) |
 
 The matching library has no PostgreSQL or network-client dependency. Compression
@@ -40,6 +40,10 @@ and `wc-lake`. See [consumer integration](../libwildcard/INTEGRATION.md).
 as needed. `pg_wildcard 0.2.1` is the PostgreSQL extension source package and depends
 directly on that library. Compatibility wrappers remain private re-exports.
 
+The current checkout uses `antalya-rs 0.1.1`. The published `pg_wildcard 0.2.1`
+archive still pins `antalya-rs 0.1.0`; the client update requires a new extension
+release. `libwildcard` has no client dependency.
+
 The extension is installed with cargo-pgrx from its extracted source package,
 not with `cargo install pg_wildcard`. It includes its control file, test fixtures,
 license and notices. Run the PostgreSQL build commands below from the extracted
@@ -48,8 +52,8 @@ package directory, omitting `-p pg_wildcard`. PostgreSQL headers and the matchin
 
 ## PostgreSQL workspace
 
-The workspace uses the Apache-2.0 [`antalya-rs` 0.1.0](https://crates.io/crates/antalya-rs/0.1.0)
-release from crates.io, pinned as `=0.1.0` with TLS enabled. The transport and FDW
+The workspace uses the Apache-2.0 [`antalya-rs` 0.1.1](https://crates.io/crates/antalya-rs/0.1.1)
+release from crates.io, pinned as `=0.1.1` with TLS enabled. The transport and FDW
 test workspaces use the same release. Cargo downloads the client; no sibling
 checkout is needed. Commit all three consumer lockfiles when updating the
 client, and qualify its API and Arrow compatibility with the transport tests.
@@ -94,7 +98,7 @@ transport, the PostgreSQL-independent FDW harness and dependency licenses.
 The manual PostgreSQL workflow runs extension qualification across supported
 server majors. No companion repository variables or checkout token are required.
 
-The dependency-policy check pins Antalya 0.1.0, ClickHouse 0.15.3 and Arrow/Parquet
+The dependency-policy check pins Antalya 0.1.1, ClickHouse 0.15.3 and Arrow/Parquet
 59.3.3. Registry checksums identify the release; transport tests establish API
 compatibility. Remote query authentication is configured separately.
 See [tests and CI](testing.md#operations-publication-and-ci) for automatic versus

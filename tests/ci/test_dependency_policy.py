@@ -17,10 +17,10 @@ class DependencyPolicyTests(unittest.TestCase):
 
     def test_antalya_release_requires_an_exact_version(self):
         self.assertEqual(policy.check_manifest({"dependencies": {
-            "antalya-rs": {"version": "=0.1.0", "features": ["tls"]}
+            "antalya-rs": {"version": "=0.1.1", "features": ["tls"]}
         }}), [])
         self.assertTrue(policy.check_manifest({"dependencies": {
-            "antalya-rs": {"version": "0.1.0"}
+            "antalya-rs": {"version": "0.1.1"}
         }}))
         self.assertTrue(policy.check_manifest({"dependencies": {
             "antalya-rs": {"path": "../antalya-rs"}

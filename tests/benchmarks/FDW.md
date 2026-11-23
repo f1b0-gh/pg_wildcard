@@ -9,7 +9,7 @@ cargo build --locked --release --manifest-path tests/transport/Cargo.toml --feat
 ```
 
 `CARGO_TARGET_DIR` changes the resulting direct-worker location. Both paths use
-published `antalya-rs =0.1.0`. The direct worker consumes/drops every Arrow batch;
+published `antalya-rs =0.1.1`. The direct worker consumes/drops every Arrow batch;
 the PostgreSQL path additionally converts tuples and runs its exact local qual.
 EXPLAIN consumes those rows without serializing a million PostgreSQL protocol
 rows to an application; application result transfer is outside this benchmark.

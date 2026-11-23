@@ -7,7 +7,7 @@ import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
 ARROW_VERSION = "59.3.3"
-COUPLED = {"antalya-rs": "0.1.0", "clickhouse": "0.15.3"}
+COUPLED = {"antalya-rs": "0.1.1", "clickhouse": "0.15.3"}
 
 
 def expected_version(name):

@@ -4,7 +4,7 @@
 This independent, unpublished Cargo workspace exercises JSON and Arrow HTTP
 transport, framing and completion checks, input limits, credential redaction,
 connection reuse and worker error handling. It uses the published `antalya-rs`
-0.1.0 crate described in [build setup](../../docs/build.md).
+0.1.1 crate described in [build setup](../../docs/build.md).
 
 From the repository root:
 

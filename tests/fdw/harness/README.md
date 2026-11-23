@@ -3,7 +3,7 @@
 
 This test-only Cargo workspace includes the production FDW transport and value
 decoder by path. It adds no production dependency or second implementation.
-It uses the published `antalya-rs` 0.1.0 crate in [build setup](../../../docs/build.md)
+It uses the published `antalya-rs` 0.1.1 crate in [build setup](../../../docs/build.md)
 and needs no running PostgreSQL server. Run from the repository root:
 
 ```sh

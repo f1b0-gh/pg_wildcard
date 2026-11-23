@@ -1,6 +1,10 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Archived benchmark evidence
 
+These assets cover the historical runs listed below. They do not contain the
+[current requalification](README.md#current-requalification), whose raw evidence
+has not been uploaded.
+
 Run from the repository root with Python 3.12 or newer:
 
 ```sh
