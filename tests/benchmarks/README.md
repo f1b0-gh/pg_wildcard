@@ -33,6 +33,22 @@ See [sweep reproduction](../../libwildcard/tests/benchmarks/README.md),
 Detailed experiments and private engine state belong in `.local/`; only the
 requested sanitized raw measurements, settings and their summaries are committed.
 
+## Measured performance
+
+**These are local-machine measurements, not yet a reproducible benchmark.**
+They have not been independently reproduced or validated in a controlled
+benchmark environment.
+
+- [Matched engine and route comparison](results/2026-11-22/perf-plan/byte-dispatch/):
+  one million documents, 1,000 rules, native Antalya, direct client, PostgreSQL and
+  Elasticsearch; includes index/ingestion costs, raw profiles and reproduction.
+- [Published antalya-rs 0.1.1 codec measurements](results/2026-11-23/antalya-0.1.1/):
+  Zstd reduced Arrow response bytes by 61% without a consistent latency benefit.
+  These separate direct/PG cohorts do not replace the matched engine comparison;
+  PG compression used a benchmark-only patch.
+- [FDW tuning and profiling](results/2026-11-22/perf-plan/fdw-tuning/):
+  block sizes, terminal policies, selective lake completion and adaptive-cache churn.
+
 ## Owned fixtures
 
 `fixtures.py` creates isolated Docker networks and containers from locally cached,
