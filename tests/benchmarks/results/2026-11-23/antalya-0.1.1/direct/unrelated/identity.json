@@ -1,0 +1,10 @@
+{
+  "workload": "unrelated",
+  "rows": 1000000,
+  "indicators": 1000,
+  "corpus_sha256": "7b521c2f2a5021e408a3e7b1057b971108edc482ccb403a62aaa9321c7a8a889",
+  "pattern_sha256": "72a1b8b37029adca943d44020982f8d77493ffa62bcce7c6bce5e73b875b59df",
+  "spec_sha256": "28fb5b4050496fabf8af86f5b7596a1a9e73d0b6161b343716622032bb630a4b",
+  "engine": "26.8.34.20001.altinityantalya",
+  "database": "wc_benchmark_fd09fba4eaa147ed8a8b015aea8f86f5"
+}

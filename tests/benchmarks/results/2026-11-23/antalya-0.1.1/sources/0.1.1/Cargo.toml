@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+[package]
+name = "sweep-release-011"
+version = "0.1.1"
+edition = "2024"
+license = "Apache-2.0"
+publish = false
+[workspace]
+[features]
+v011 = []
+[[bin]]
+name = "sweep-release-011"
+path = "main.rs"
+[dependencies]
+antalya-rs = { version = "=0.1.1", default-features = false, features = ["arrow"] }
+arrow-array = "=59.3.3"
+arrow-schema = "=59.3.3"
+arrow-ipc = { version = "=59.3.3", default-features = false }
+reqwest = { version = "=0.13.5", default-features = false, features = ["rustls"] }
+tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread", "time"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.11"
+uuid = { version = "1", features = ["v4"] }
+libc = "0.2"
+

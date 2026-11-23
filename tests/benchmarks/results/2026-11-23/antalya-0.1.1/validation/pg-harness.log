@@ -1,0 +1,83 @@
+    Updating crates.io index
+     Locking 1 package to highest Rust 1.99.1 compatible version
+    Updating antalya-rs v0.1.0 -> v0.1.1
+    Blocking waiting for file lock on build directory
+   Compiling tokio v1.54.1
+   Compiling arrow-buffer v59.3.3
+   Compiling aho-corasick v1.1.5
+   Compiling idna v1.1.0
+   Compiling http-body-util v0.1.5
+   Compiling url v2.5.8
+   Compiling regex-automata v0.4.19
+   Compiling arrow-data v59.3.3
+   Compiling arrow-array v59.3.3
+   Compiling hyper v1.12.0
+   Compiling tower v0.5.3
+   Compiling regex v1.13.2
+   Compiling libwildcard v0.2.0 (/home/fimbault/codex/pg_wildcard/.local/perf/antalya-0.1.1/pg-source/libwildcard)
+   Compiling tower-http v0.6.11
+   Compiling hyper-util v0.1.21
+   Compiling arrow-select v59.3.3
+   Compiling wildcard-core v0.2.0 (/home/fimbault/codex/pg_wildcard/.local/perf/antalya-0.1.1/pg-source/crates/wildcard-core)
+   Compiling wildcard-ch v0.2.0 (/home/fimbault/codex/pg_wildcard/.local/perf/antalya-0.1.1/pg-source/crates/wildcard-ch)
+   Compiling clickhouse v0.15.3
+   Compiling reqwest v0.13.5
+   Compiling arrow-ipc v59.3.3
+   Compiling antalya-rs v0.1.1
+   Compiling wildcard-fdw-transport-tests v0.1.0 (/home/fimbault/codex/pg_wildcard/.local/perf/antalya-0.1.1/pg-source/tests/fdw/harness)
+    Finished `release` profile [optimized] target(s) in 2m 13s
+     Running unittests src/lib.rs (.local/review-pg/target/release/deps/wildcard_fdw_transport_tests-914874b99f459d55)
+
+running 43 tests
+test predicates::tests::postgres_like_escapes_are_canonical_and_bounded ... ok
+test transport::adaptive::tests::cache_hits_keep_hot_preferences_during_cold_key_churn ... ok
+test predicates::tests::temporal_epoch_conversion_preserves_microseconds ... ok
+test transport::adaptive::tests::cache_binds_both_queries_settings_and_insertion_ttl ... ok
+test transport::adaptive::tests::cache_is_bounded_and_large_keys_are_not_retained ... ok
+test transport::adaptive::tests::cache_recency_does_not_extend_insertion_ttl ... ok
+test transport::adaptive::tests::probe_budget_is_enforced_locally_even_if_server_ignores_settings ... ok
+test transport::profile_tests::bounded_batch_configuration ... ok
+test transport::profile_tests::unfinished_rescan_clears_first_batch_offset ... ok
+test transport::adaptive_tests::cancellation_during_probe_releases_task_and_scan_permit ... ok
+test transport::signals::tests::creator_mask_is_restored_during_unwinding ... ok
+test transport::profile_tests::rescan_offsets_are_not_summed_and_peak_is_maximum ... ok
+test transport::tests::abort_before_first_poll_publishes_unconfirmed_and_releases_admission ... ok
+test transport::signals::tests::workers_block_backend_signals_and_creator_mask_is_restored ... ok
+test transport::tests::auth_and_settings_fail_closed ... ok
+test transport::tests::benchmark_codec_is_validated_and_part_of_client_identity ... ok
+test transport::tests::block_size_setting_is_bounded ... ok
+test transport::signals::tests::backend_origin_blocking_workers_block_signals_before_work ... ok
+test transport::tests::cache_and_concurrency_are_bounded ... ok
+test transport::tests::full_queue_preserves_data_then_exact_terminal_without_holding_admission ... ok
+test transport::adaptive_tests::first_probe_authentication_failure_does_not_dispatch_data ... ok
+test transport::tests::notification_receive_does_not_hide_failure_after_provisional_batch ... ok
+test transport::tests::producer_panic_discards_queue_and_fails_closed ... ok
+test transport::adaptive_tests::late_probe_terminal_failure_does_not_dispatch_data ... ok
+test transport::tests::receiver_close_before_abort_cannot_confirm_a_blocked_send ... ok
+test transport::tests::block_size_reaches_transport_without_changing_safety_limits ... ok
+test transport::tests::schema_only_http_stream_delivers_schema_before_confirmed_eof ... ok
+test values::tests::all_supported_string_layouts_keep_the_field_limit ... ok
+test transport::adaptive_tests::confirmed_unknown_plan_falls_back_exact_and_caches_the_preference ... ok
+test values::tests::empty_results_still_require_the_schema_contract ... ok
+test values::tests::numeric_values_preserve_width_sign_and_special_floats ... ok
+test values::tests::text_and_bytes_borrow_arrow_storage ... ok
+test values::tests::typed_conversion_retains_validation_before_nulls_and_narrowing ... ok
+test values::tests::evidence_is_preserved_or_rejected ... ok
+test transport::adaptive_tests::synchronous_work_cannot_complete_after_the_shared_deadline ... ok
+test transport::tests::notification_receive_handles_queued_events_disconnect_and_interrupts ... ok
+test transport::tests::deadline_reclaims_unread_queue_and_permit_without_consumer_polling ... ok
+test transport::tests::dropped_scan_acknowledges_task_cancellation_before_replacement ... ok
+test transport::adaptive_tests::plan_cache_isolated_by_credentials_and_effective_settings ... ok
+test transport::tests::provisional_batch_retains_budget_and_never_hides_failure_or_disconnect ... ok
+test transport::tests::aborted_blocking_jobs_keep_their_four_runtime_slots_until_exit ... ok
+test transport::adaptive_tests::probes_and_data_share_one_deadline ... ok
+test transport::tests::bounded_close_clears_queue_but_keeps_permit_until_task_destruction ... ok
+
+test result: ok. 43 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.01s
+
+   Doc-tests wildcard_fdw_transport_tests
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
