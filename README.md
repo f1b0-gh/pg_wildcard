@@ -96,18 +96,15 @@ not establish FDW compatibility. See the [FDW guide](docs/fdw.md).
 
 ## Measured performance
 
-The latest indexed comparison (2026-11-22) searches **one million documents with
-1,000 case-sensitive wildcard rules**, returning the same **10,000 exact
-row/indicator/view pairs** on every route. These are substring searches in
-URL-shaped wildcard fields:
+This comparison searches **one million documents with 1,000 wildcard rules**,
+returning the same **10,000 exact row/indicator/view pairs** on every route.
+The URL-shaped fields contain either shared literals (`*evil0000.example*`,
+`*evil0001.example*`) or unrelated literals (`*e220a8397b1dcdaf*`, etc.).
+These are substring searches, not exact hash lookups.
 
-- **Shared structure:** `*evil0000.example*`, `*evil0001.example*`, etc.
-- **Unrelated literals:** `*e220a8397b1dcdaf*`, `*6e789e6aa1b965f4*`, etc., matching
-  independent synthetic URL labels. These are not exact hash lookups.
+Median complete-request latency in milliseconds (2026-11-22):
 
-Median complete-request latency in milliseconds, with all results consumed:
-
-| Route | Shared structure (ms) | Unrelated literals (ms) |
+| Route | Shared structure | Unrelated literals |
 |---|---:|---:|
 | Native Antalya HTTP, refined byte index | 1,982.730 | 2,730.355 |
 | Direct published `antalya-rs` 0.1.0 | 2,657.454 | 3,672.923 |
@@ -116,90 +113,31 @@ Median complete-request latency in milliseconds, with all results consumed:
 | Elasticsearch wildcard, 1 search at a time | 4,171.747 | 5,557.454 |
 | Elasticsearch wildcard, up to 4 concurrent searches | 1,478.538 | 2,126.603 |
 
-Elasticsearch's `_msearch` parameter `max_concurrent_searches` limits how many
-individual rule searches can run at once within each batch; it is not a thread
-count ([API definition](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-msearch)).
-The native, direct-client and PostgreSQL routes use one combined query, with
-Antalya configured for `max_threads=4`. Each route runs one complete sweep at a
-time; the PG route is not a four-client test or a single-threaded search control.
-
-**Elasticsearch with four concurrent searches is faster in both fixtures.**
-This compares latency at fixed data-engine CPU limits. It does not establish
-which approach scales better across cores: that would require runs at different
-CPU limits with corresponding parallelism settings.
+**Elasticsearch's four-search mode is faster in both fixtures.** Its
+[`_msearch` concurrency](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-msearch)
+counts concurrent rule searches. Antalya executes one combined query with
+`max_threads=4`. This comparison does not establish multicore scaling.
 
 ### Methodology and limits
 
-- **Setup:** Antalya 26.8.34.20001, Elasticsearch 9.5.6 and PostgreSQL 18.6.
-  Each data-engine container was configured with four CPUs and an 8 GiB limit;
-  Elasticsearch's heap was set to 4 GiB.
-- **Queries:** identical documents and rules, with every result pair checked.
-  Native/direct/PG execute one query against the same byte-indexed source.
-  Elasticsearch batches 1,000 per-rule searches against a `wildcard` field
-  using `_msearch`.
-- **Sampling:** one excluded warmup, then five repetitions in rotating route
-  order, after loading and compaction. Host activity and filesystem caches were
-  uncontrolled.
-- **Timing:** PostgreSQL backend measurements use `EXPLAIN ANALYZE` with row
-  timing off; full COPY includes delivery over TCP. These PG queries consume
-  computed match pairs without local `wc_*` rechecks. Subtracting route medians
-  does not isolate client or FDW overhead.
-- **Caches:** native/direct and Elasticsearch query caches were disabled. PG
-  inherited the fixture settings; its profiles recorded condition-cache misses
-  and no hits.
+**These are local-machine measurements, not yet a reproducible benchmark.**
+They have not been independently reproduced or validated in a controlled
+benchmark environment.
 
-The table excludes ingestion and index construction. See the
-[ingestion controls](tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/cost/report.md)
-for those measurements, and the
-[shared](tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/routes/full-shared/report.md)
-and [unrelated](tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/routes/full-unrelated/report.md)
-reports for individual timings, ranges and detailed settings.
+- **Setup:** Antalya 26.8.34.20001, Elasticsearch 9.5.6, PostgreSQL 18.6;
+  four CPUs and 8 GiB per data engine, with a 4 GiB Elasticsearch heap.
+  Direct/PG use `antalya-rs` 0.1.0 and uncompressed Arrow.
+- **Sampling:** one excluded warmup, five repetitions, rotating route order,
+  one sweep at a time. Host activity and filesystem caches were uncontrolled.
+- **Timing:** backend requests use `EXPLAIN ANALYZE` with row timing off;
+  COPY includes TCP delivery. These computed-pair queries have no local
+  `wc_*` recheck. Subtracting route medians does not isolate FDW overhead.
+- **Scope:** wildcard fields and opt-in byte indexing. Ingestion and index
+  construction are measured separately; keyword and hash lookups are excluded.
 
-The byte-index strategy is opt-in. Requiring up to three necessary fragments
-together per rule reduced unrelated-case candidates from 921,471 to 13,407,
-preserving all 10,000 exact pairs. Forced-index checks and saved `PREWHERE` plans
-establish index use; logical `read_rows` alone does not measure physical I/O.
-The refined filter regressed on the small smoke fixture, so a speedup is not
-guaranteed. Keyword, typed and hash fields are outside this wildcard comparison.
-
-See the [full evidence and reproduction guide](tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/)
-for SQL, settings, raw profiles, corpus/result hashes, source provenance and an
-offline report verifier, or the [benchmark harness](tests/benchmarks/README.md)
-to run new measurements.
-
-Separate [FDW tuning results](tests/benchmarks/results/2026-11-22/perf-plan/fdw-tuning/)
-cover block sizes, selective lake completion and adaptive-cache churn. They keep
-direct published antalya-rs, backend execution and full COPY separate. The cache
-fix raised hot-preference hits from 80% to 100% in five interleaved hot/new-key
-trials, removing 16 repeated probes per round without extending expiry. The
-Arrow Zstd measurements used a development build and showed both wins and
-regressions; they do not change the Elasticsearch comparison above.
-
-### Published antalya-rs 0.1.1 follow-up
-
-A [November 23 rerun](tests/benchmarks/results/2026-11-23/antalya-0.1.1/)
-uses published [`antalya-rs` 0.1.1](https://crates.io/crates/antalya-rs/0.1.1)
-on the same million-document, 1,000-rule workloads. Median milliseconds,
-**uncompressed → Zstd**:
-
-| Route using 0.1.1 | Shared structure | Unrelated literals |
-|---|---:|---:|
-| Direct client | 2,829 → 2,438 | 2,045 → 2,461 |
-| PostgreSQL backend execution | 2,317 → 2,389 | 2,516 → 2,562 |
-| Full PostgreSQL binary COPY | 2,379 → 2,414 | 2,442 → 2,498 |
-
-Zstd reduced Arrow response bytes from **262,920 to 101,840 (61%)**. Latency
-changes were mixed for direct access and slightly slower through PostgreSQL.
-There is no consistent latency benefit in this run; terminal-confirmation timing
-and shared-host variation are substantial. The linked evidence includes all
-six samples per variant, ranges and a fresh uncompressed 0.1.0 direct control.
-
-Direct and PG were measured in separate cohorts; compare codecs within each
-route. These results do not replace the matched Elasticsearch comparison above.
-The PG follow-up uses a recorded benchmark-only compression patch: pg_wildcard
-still pins `=0.1.0` and has no released FDW compression option. Uncompressed Arrow
-remains the client default. Every direct/COPY sample returned the exact expected
-pairs; backend execution was checked against full-COPY precontrols.
+See the [detailed results and methodology](tests/benchmarks/README.md#measured-performance)
+for SQL, exact-result checks, cache settings, sample ranges, ingestion costs and
+scripts for rerunning the experiments.
 
 ## Documentation
 
