@@ -29,15 +29,15 @@ cargo package --locked --manifest-path libwildcard/Cargo.toml --all-features
 The default output directory is `libwildcard/target`. `CARGO_TARGET_DIR` overrides
 it. The package is self-contained: it has its own manifest, lockfile, toolchain,
 license, sources and tests. Building the extracted source package requires no
-parent workspace or sibling checkout. The crates.io library package is `libwildcard 0.2.0`.
+parent workspace or sibling checkout. The crates.io library package is `libwildcard 0.2.1`.
 
 Use `hot` for SQL generation, `puffin` for index codecs and `cold` for all modules
 and `wc-lake`. See [consumer integration](../libwildcard/INTEGRATION.md).
 
 ## Crates.io packages
 
-`libwildcard 0.2.0` is the standalone Rust library; select `hot`, `puffin` or `cold`
-as needed. `pg_wildcard 0.2.0` is the PostgreSQL extension source package and depends
+`libwildcard 0.2.1` is the standalone Rust library; select `hot`, `puffin` or `cold`
+as needed. `pg_wildcard 0.2.1` is the PostgreSQL extension source package and depends
 directly on that library. Compatibility wrappers remain private re-exports.
 
 The extension is installed with cargo-pgrx from its extracted source package,
@@ -73,6 +73,11 @@ as a non-root user. In the intended database, enable the extension explicitly:
 ```sql
 CREATE EXTENSION pg_wildcard;
 ```
+
+For an existing 0.2.0 installation, install the new library and SQL files, then
+reconnect and run `ALTER EXTENSION pg_wildcard UPDATE TO '0.2.1'`. The upgrade
+script preserves the SQL API; existing sessions must reconnect to load the new
+shared library.
 
 The extension also declares PostgreSQL 14–17 features for compatibility checks.
 Each server major requires a separate build and test run; the presence of a

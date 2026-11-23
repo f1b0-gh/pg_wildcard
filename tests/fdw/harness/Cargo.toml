@@ -14,7 +14,7 @@ arrow-schema = "=59.3.3"
 chrono = { version = "0.4", default-features = false, features = ["std"] }
 tokio = { version = "1.54.1", features = ["rt-multi-thread", "sync", "time"] }
 uuid = { version = "1", features = ["v4"] }
-libwildcard = { path = "../../../libwildcard", version = "0.2.0", default-features = false, features = ["hot"] }
+libwildcard = { path = "../../../libwildcard", version = "0.2.1", default-features = false, features = ["hot"] }
 
 [dev-dependencies]
 arrow-ipc = "=59.3.3"
