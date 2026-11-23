@@ -102,28 +102,26 @@ The URL-shaped fields contain either shared literals (`*evil0000.example*`,
 `*evil0001.example*`) or unrelated literals (`*e220a8397b1dcdaf*`, etc.).
 These are substring searches, not exact hash lookups.
 
-Historical matched comparison, before the 0.2.1 FDW changes:
-median complete-request latency in milliseconds (2026-11-22).
+The first two numeric columns show historical matched sweep medians in
+milliseconds (2026-11-22), before the 0.2.1 FDW changes. The final column shows
+paired median latency reductions from the **0.2.1 FDW follow-up** (2026-11-23),
+using a separate broad-recheck workload returning one million rows.
 
-| Route | Shared structure | Unrelated literals |
-|---|---:|---:|
-| Native Antalya HTTP, refined byte index | 1,982.730 | 2,730.355 |
-| Direct published `antalya-rs` 0.1.0 | 2,657.454 | 3,672.923 |
-| PostgreSQL backend request through FDW | 2,742.254 | 3,702.678 |
-| Full PostgreSQL binary COPY through FDW | 3,119.934 | 3,458.408 |
-| Elasticsearch wildcard, 1 search at a time | 4,171.747 | 5,557.454 |
-| Elasticsearch wildcard, up to 4 concurrent searches | 1,478.538 | 2,126.603 |
+| Route | Shared structure (ms) | Unrelated literals (ms) | 0.2.1 broad-recheck follow-up: paired reduction |
+|---|---:|---:|---|
+| Native Antalya HTTP, refined byte index | 1,982.730 | 2,730.355 | — |
+| Direct published `antalya-rs` 0.1.0 | 2,657.454 | 3,672.923 | Unchanged control |
+| PostgreSQL backend request through FDW | 2,742.254 | 3,702.678 | **15.1%** (backend executor) |
+| Full PostgreSQL binary COPY through FDW | 3,119.934 | 3,458.408 | **24.7%** (complete COPY) |
+| Elasticsearch wildcard, 1 search at a time | 4,171.747 | 5,557.454 | — |
+| Elasticsearch wildcard, up to 4 concurrent searches | 1,478.538 | 2,126.603 | — |
+
+[Results, ranges and before/after flamegraphs](tests/benchmarks/results/2026-11-23/fdw-overhead/).
 
 **Elasticsearch's four-search mode is faster in both fixtures.** Its
 [`_msearch` concurrency](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-msearch)
 counts concurrent rule searches. Antalya executes one combined query with
 `max_threads=4`. This comparison does not establish multicore scaling.
-
-The **0.2.1 FDW follow-up** used separate million-row broad-recheck queries:
-paired median reductions were **15% backend / 25% complete COPY**, with mixed
-results elsewhere. Estimated non-matcher CPU fell **29%**, below the 50% target.
-These measurements do not update the Elastic comparison above.
-[Results, ranges and before/after flamegraphs](tests/benchmarks/results/2026-11-23/fdw-overhead/).
 
 ### Methodology and limits
 
@@ -131,12 +129,12 @@ These measurements do not update the Elastic comparison above.
 They have not been independently reproduced or validated in a controlled
 benchmark environment.
 
-- **Setup:** Antalya 26.8.34.20001, Elasticsearch 9.5.6, PostgreSQL 18.6;
+- **Sweep setup:** Antalya 26.8.34.20001, Elasticsearch 9.5.6, PostgreSQL 18.6;
   four CPUs and 8 GiB per data engine, with a 4 GiB Elasticsearch heap.
   Direct/PG use `antalya-rs` 0.1.0 and uncompressed Arrow.
-- **Sampling:** one excluded warmup, five repetitions, rotating route order,
+- **Sweep sampling:** one excluded warmup, five repetitions, rotating route order,
   one sweep at a time. Host activity and filesystem caches were uncontrolled.
-- **Timing:** backend requests use `EXPLAIN ANALYZE` with row timing off;
+- **Sweep timing:** backend requests use `EXPLAIN ANALYZE` with row timing off;
   COPY includes TCP delivery. These computed-pair queries have no local
   `wc_*` recheck. Subtracting route medians does not isolate FDW overhead.
 - **Scope:** wildcard fields and opt-in byte indexing. Ingestion and index
