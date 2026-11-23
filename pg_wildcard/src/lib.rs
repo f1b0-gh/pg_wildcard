@@ -23,6 +23,7 @@ use pgrx::prelude::*;
 
 mod fdw;
 mod matcher_cache;
+mod matcher_callsite;
 mod matcher_config;
 mod support;
 
@@ -88,25 +89,47 @@ fn wildcard_version() -> &'static str {
 
 /// Elasticsearch-style wildcard (`*`, `?`) on the whole value, ClickHouse semantics.
 #[pg_extern(immutable, parallel_safe, strict)]
-fn wc_match(value: &str, pattern: &str, view: default!(&str, "'raw'")) -> bool {
-    matcher(pattern, Kind::Wildcard, view_arg(view)).is_match(value.as_bytes())
+fn wc_match(
+    value: matcher_callsite::TextDatum<'_>,
+    pattern: matcher_callsite::TextDatum<'_>,
+    view: default!(matcher_callsite::TextDatum<'_>, "'raw'"),
+    fcinfo: pg_sys::FunctionCallInfo,
+) -> bool {
+    // SAFETY: pgrx supplies the live call context and non-null text arguments.
+    unsafe { matcher_callsite::is_match(fcinfo, value, pattern, Kind::Wildcard, view) }
 }
 
 /// SQL LIKE on a view, ClickHouse semantics.
 #[pg_extern(immutable, parallel_safe, strict)]
-fn wc_like(value: &str, pattern: &str, view: default!(&str, "'raw'")) -> bool {
-    matcher(pattern, Kind::Like, view_arg(view)).is_match(value.as_bytes())
+fn wc_like(
+    value: matcher_callsite::TextDatum<'_>,
+    pattern: matcher_callsite::TextDatum<'_>,
+    view: default!(matcher_callsite::TextDatum<'_>, "'raw'"),
+    fcinfo: pg_sys::FunctionCallInfo,
+) -> bool {
+    // SAFETY: pgrx supplies the live call context and non-null text arguments.
+    unsafe { matcher_callsite::is_match(fcinfo, value, pattern, Kind::Like, view) }
 }
 
 /// RE2 regex search (as ClickHouse `match`), linear time.
 #[pg_extern(immutable, parallel_safe, strict)]
 fn wc_regex(
-    value: &str,
-    pattern: &str,
+    value: matcher_callsite::TextDatum<'_>,
+    pattern: matcher_callsite::TextDatum<'_>,
     case_insensitive: default!(bool, false),
-    view: default!(&str, "'raw'"),
+    view: default!(matcher_callsite::TextDatum<'_>, "'raw'"),
+    fcinfo: pg_sys::FunctionCallInfo,
 ) -> bool {
-    matcher(pattern, Kind::Regex { case_insensitive }, view_arg(view)).is_match(value.as_bytes())
+    // SAFETY: pgrx supplies the live call context and non-null text arguments.
+    unsafe {
+        matcher_callsite::is_match(
+            fcinfo,
+            value,
+            pattern,
+            Kind::Regex { case_insensitive },
+            view,
+        )
+    }
 }
 
 /// RE2 regex search on binary data.
@@ -709,6 +732,160 @@ mod tests {
              ('a%b','a\\%b','raw',true), ('axb','a\\%b','raw',false),
              ('aéb','a_b','raw',true), ('A','a','lower',true)
              ) AS t(v,p,view,expected)"
+        ));
+    }
+
+    #[pg_test]
+    fn matcher_callsites_follow_generic_parameters_and_join_rescans() {
+        Spi::run(
+            "SET LOCAL plan_cache_mode = force_generic_plan; \
+            PREPARE wc_site_params(text, text, boolean, text) AS \
+            SELECT bool_and(wc_match(v, $1, $4) = (i = 1) \
+                AND wc_like(v, $2, $4) = (i = 1) \
+                AND wc_regex(v, '^' || left($1, 1), $3, $4) = (i = 1)) \
+            FROM (VALUES (1, 'ABC'), (2, 'XYZ')) AS t(i,v)",
+        )
+        .unwrap();
+        for _ in 0..8 {
+            assert!(b("EXECUTE wc_site_params('A*', 'A%', false, 'raw')"));
+            assert!(b("EXECUTE wc_site_params('a*', 'a%', false, 'lower')"));
+            assert!(!b("EXECUTE wc_site_params('a*', 'a%', true, 'raw')"));
+        }
+        Spi::run("DEALLOCATE wc_site_params").unwrap();
+        // Keep flags as a direct Param too, and change them between executions.
+        Spi::run(
+            "PREPARE wc_site_flags(boolean) AS \
+            SELECT wc_regex(v, '^a', $1, 'raw') FROM (VALUES ('ABC')) AS t(v)",
+        )
+        .unwrap();
+        assert!(b("EXECUTE wc_site_flags(true)"));
+        assert!(!b("EXECUTE wc_site_flags(false)"));
+        Spi::run("DEALLOCATE wc_site_flags").unwrap();
+        assert!(b("SELECT bool_and(wc_match(v,p,view) = expected) FROM \
+            (VALUES ('ABC'), ('XYZ')) AS vals(v) CROSS JOIN \
+            (VALUES ('a*','lower'), ('A*','raw'), ('x*','lower')) AS rules(p,view) \
+            CROSS JOIN LATERAL (SELECT CASE WHEN p = 'x*' THEN v = 'XYZ' \
+                ELSE v = 'ABC' END AS expected) AS e"));
+    }
+
+    #[pg_test]
+    fn matcher_callsites_handle_short_plain_compressed_and_external_text() {
+        Spi::run(
+            "CREATE TEMP TABLE wc_site_short(v text); \
+            INSERT INTO wc_site_short VALUES (''), ('é'), ('ABC'), ('abcé'); \
+            CREATE TEMP TABLE wc_site_plain(v text); \
+            ALTER TABLE wc_site_plain ALTER COLUMN v SET STORAGE PLAIN; \
+            INSERT INTO wc_site_plain VALUES (''), ('é'), ('ABC'), (repeat('a', 1024) || 'é'); \
+            CREATE TEMP TABLE wc_site_compressed(v text); \
+            ALTER TABLE wc_site_compressed ALTER COLUMN v SET STORAGE EXTENDED; \
+            INSERT INTO wc_site_compressed VALUES (repeat('a', 100000) || 'é'); \
+            CREATE TEMP TABLE wc_site_external(v text); \
+            ALTER TABLE wc_site_external ALTER COLUMN v SET STORAGE EXTERNAL; \
+            INSERT INTO wc_site_external SELECT string_agg(md5(i::text), '') || 'é' \
+                FROM generate_series(1,4096) AS t(i)",
+        )
+        .unwrap();
+        // A raw view can be rewritten to PostgreSQL LIKE by our support
+        // function. Keep these expressions on the extension's actual wrappers.
+        let plan = Spi::get_one::<pgrx::Json>(
+            "EXPLAIN (VERBOSE, FORMAT JSON) SELECT \
+            wc_match(v, '*é', 'lower'), wc_like(v, '%é', 'lower'), \
+            wc_regex(v, 'é$', false, 'lower') FROM wc_site_short",
+        )
+        .unwrap()
+        .unwrap()
+        .0
+        .to_string();
+        for function in ["wc_match(", "wc_like(", "wc_regex("] {
+            assert!(plan.contains(function), "matcher absent from plan: {plan}");
+        }
+        assert!(b(
+            "SELECT bool_and(pg_column_size(v) = octet_length(v) + 1) FROM wc_site_short"
+        ));
+        assert!(b(
+            "SELECT bool_and(wc_match(v, '*é', 'lower') = (right(v, 1) = 'é') \
+            AND wc_like(v, '%é', 'lower') = (right(v, 1) = 'é') \
+            AND wc_regex(v, 'é$', false, 'lower') = (right(v, 1) = 'é')) FROM wc_site_short"
+        ));
+        assert!(b(
+            "SELECT bool_and(pg_column_size(v) < octet_length(v)) FROM wc_site_compressed"
+        ));
+        assert!(b(
+            "SELECT bool_and(wc_match(v, '*é', 'lower') = (right(v, 1) = 'é') \
+            AND wc_like(v, '%é', 'lower') = (right(v, 1) = 'é') \
+            AND wc_regex(v, 'é$', false, 'lower') = (right(v, 1) = 'é')) FROM \
+            (SELECT v FROM wc_site_plain UNION ALL SELECT v FROM wc_site_compressed \
+             UNION ALL SELECT v FROM wc_site_external) AS inputs"
+        ));
+        assert!(b(
+            "SELECT bool_and(wc_match(v, '*é', 'lower') AND wc_like(v, '%é', 'lower') \
+            AND wc_regex(v, 'é$', false, 'lower')) FROM wc_site_external"
+        ));
+        assert!(b(
+            "SELECT bool_and(wc_match(v, '*é', 'lower') AND wc_like(v, '%é', 'lower') \
+            AND wc_regex(v, 'é$', false, 'lower')) FROM wc_site_compressed"
+        ));
+        assert!(b(
+            "SELECT wc_match(NULL, '*') IS NULL AND wc_like('x', NULL) IS NULL \
+            AND wc_regex('x', 'x', NULL) IS NULL AND wc_match('x', '*', NULL) IS NULL"
+        ));
+    }
+
+    #[pg_test]
+    fn matcher_callsites_obey_limits_during_execution_and_after_errors() {
+        Spi::run(
+            "SET LOCAL pg_wildcard.matcher_cache_entries = 0; \
+            SET LOCAL pg_wildcard.matcher_cache_kb = '1MB'",
+        )
+        .unwrap();
+        let before = Spi::get_one::<i64>("SELECT hits FROM wc_matcher_cache_stats()")
+            .unwrap()
+            .unwrap();
+        Spi::run("SET LOCAL pg_wildcard.matcher_cache_entries = 1").unwrap();
+        assert!(b(
+            "SELECT bool_and(wc_match(i::text, '*', 'lower')) FROM generate_series(1,100) AS t(i)"
+        ));
+        let after = Spi::get_one::<i64>("SELECT hits FROM wc_matcher_cache_stats()")
+            .unwrap()
+            .unwrap();
+        assert_eq!(
+            after - before,
+            99,
+            "constant call-site hits remain observable"
+        );
+        assert!(b("SELECT bool_and(wc_match(i::text, '*', 'lower') \
+            AND wc_like(i::text, '%', 'lower') AND wc_regex(i::text, '[0-9]+', false, 'lower')) \
+            FROM generate_series(1,100) AS t(i)"));
+        assert!(b(
+            "SELECT entries <= 1 AND charged_bytes <= 1048576 FROM wc_matcher_cache_stats()"
+        ));
+        // The volatile function forces limits to change inside a live call site.
+        Spi::run(
+            "CREATE FUNCTION pg_temp.wc_site_input(i integer) RETURNS text \
+            LANGUAGE plpgsql VOLATILE AS $$ BEGIN \
+            PERFORM set_config('pg_wildcard.matcher_cache_entries', \
+                CASE WHEN i % 2 = 0 THEN '0' ELSE '1' END, true); \
+            RETURN i::text; END $$",
+        )
+        .unwrap();
+        assert!(b(
+            "SELECT bool_and(wc_match(pg_temp.wc_site_input(i), '*', 'lower')) \
+            FROM generate_series(1,100) AS t(i)"
+        ));
+        assert!(b(
+            "SELECT entries = 0 AND charged_bytes = 0 FROM wc_matcher_cache_stats()"
+        ));
+        Spi::run(
+            "DO $$ BEGIN FOR i IN 1..20 LOOP \
+            BEGIN PERFORM wc_regex(t.n::text, '[', false, 'lower') FROM generate_series(1,3) AS t(n); \
+            EXCEPTION WHEN OTHERS THEN \
+              IF SQLERRM NOT LIKE 'pg_wildcard:%' THEN RAISE; END IF; \
+            END; END LOOP; END $$",
+        )
+        .unwrap();
+        assert!(b(
+            "SELECT bool_and(wc_regex(i::text, '[0-9]+', false, 'lower')) \
+            FROM generate_series(1,10) AS t(i)"
         ));
     }
 

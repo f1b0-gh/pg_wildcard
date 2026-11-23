@@ -46,6 +46,9 @@ benchmark environment.
   Zstd reduced Arrow response bytes by 61% without a consistent latency benefit.
   These separate direct/PG cohorts do not replace the matched engine comparison;
   PG compression used a benchmark-only patch.
+- [FDW batch conversion and matcher call sites](results/2026-11-23/fdw-overhead/):
+  matched before/after results and flamegraphs; broad rechecks improve in this
+  local run, while the 50% overhead target remains unmet.
 - [FDW tuning and profiling](results/2026-11-22/perf-plan/fdw-tuning/):
   block sizes, terminal policies, selective lake completion and adaptive-cache churn.
 

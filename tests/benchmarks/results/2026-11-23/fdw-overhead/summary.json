@@ -1,0 +1,984 @@
+{
+  "binary_sha256": {
+    "baseline": "a625b3f57403153e67f19dfe30e5373b942f05285e326518501bdb9af92fb844",
+    "optimized": "6cdc02fff366ac2c55ebc8d6082f523e01de569112f6aff06761596a8237d763"
+  },
+  "cohort_order": [
+    "baseline-0",
+    "optimized-0",
+    "optimized-1",
+    "baseline-1",
+    "baseline-2",
+    "optimized-2",
+    "optimized-3",
+    "baseline-3",
+    "baseline-4",
+    "optimized-4"
+  ],
+  "direct_worker_sha256": "7729b40a840c2ef3c4a7aa8641ca7be65067531e573260a83458ddf438656736",
+  "half_overhead_target": [
+    {
+      "conclusion": "single profile per binary; insufficient to establish halved true non-matcher overhead",
+      "half_proxy_point_estimate_observed": false,
+      "optimized_over_baseline_non_matcher_cpu_proxy": 0.8961474036850923,
+      "proxy_reduction_percent": 10.385259631490772,
+      "workload": "narrow"
+    },
+    {
+      "conclusion": "single profile per binary; insufficient to establish halved true non-matcher overhead",
+      "half_proxy_point_estimate_observed": false,
+      "optimized_over_baseline_non_matcher_cpu_proxy": 0.755625,
+      "proxy_reduction_percent": 24.4375,
+      "workload": "smalltext"
+    },
+    {
+      "conclusion": "single profile per binary; insufficient to establish halved true non-matcher overhead",
+      "half_proxy_point_estimate_observed": false,
+      "optimized_over_baseline_non_matcher_cpu_proxy": 0.9559471365638766,
+      "proxy_reduction_percent": 4.405286343612335,
+      "workload": "wide1k"
+    },
+    {
+      "conclusion": "single profile per binary; insufficient to establish halved true non-matcher overhead",
+      "half_proxy_point_estimate_observed": false,
+      "optimized_over_baseline_non_matcher_cpu_proxy": 0.7057747117349095,
+      "proxy_reduction_percent": 29.422528826509055,
+      "workload": "broad_recheck"
+    }
+  ],
+  "host_load": {
+    "by_label": {
+      "baseline": {
+        "fifteen_minutes": {
+          "max": 12.84521484375,
+          "median": 12.1953125,
+          "min": 10.736328125,
+          "n": 60
+        },
+        "five_minutes": {
+          "max": 11.5029296875,
+          "median": 10.360107421875,
+          "min": 8.29541015625,
+          "n": 60
+        },
+        "one_minute": {
+          "max": 14.59716796875,
+          "median": 8.08056640625,
+          "min": 5.8955078125,
+          "n": 60
+        }
+      },
+      "optimized": {
+        "fifteen_minutes": {
+          "max": 12.501953125,
+          "median": 11.81103515625,
+          "min": 10.4384765625,
+          "n": 60
+        },
+        "five_minutes": {
+          "max": 10.56884765625,
+          "median": 9.616455078125,
+          "min": 7.93017578125,
+          "n": 60
+        },
+        "one_minute": {
+          "max": 12.35107421875,
+          "median": 7.165771484375,
+          "min": 6.31591796875,
+          "n": 60
+        }
+      }
+    },
+    "scope": "Host 1/5/15-minute load averages recorded after each measured route sample; warmups excluded; observations are correlated and are not CPU utilization."
+  },
+  "latency": [
+    {
+      "request_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 1.1601752347959635,
+          "median": 0.915031875071959,
+          "min": 0.8971025983987694,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 10.289740160123062,
+          "median": 8.496812492804096,
+          "min": -16.017523479596353,
+          "n": 5
+        }
+      },
+      "request_ms": {
+        "baseline": {
+          "max": 418.19780099999997,
+          "median": 258.202559,
+          "min": 247.943679,
+          "n": 5
+        },
+        "optimized": {
+          "max": 382.664318,
+          "median": 241.609344,
+          "min": 232.703477,
+          "n": 5
+        }
+      },
+      "route": "direct",
+      "workload": "narrow"
+    },
+    {
+      "executor_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 1.0100836492414738,
+          "median": 0.9241703823541018,
+          "min": 0.9007184734370842,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 9.928152656291578,
+          "median": 7.5829617645898235,
+          "min": -1.0083649241473758,
+          "n": 5
+        }
+      },
+      "executor_ms": {
+        "baseline": {
+          "max": 577.172,
+          "median": 304.116,
+          "min": 250.752,
+          "n": 5
+        },
+        "optimized": {
+          "max": 582.992,
+          "median": 281.055,
+          "min": 237.541,
+          "n": 5
+        }
+      },
+      "request_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 1.0094459778043616,
+          "median": 0.9235245455940057,
+          "min": 0.8993213477361298,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 10.067865226387019,
+          "median": 7.647545440599435,
+          "min": -0.9445977804361627,
+          "n": 5
+        }
+      },
+      "request_ms": {
+        "baseline": {
+          "max": 585.0534599958337,
+          "median": 311.78367100073956,
+          "min": 256.42709500243654,
+          "n": 5
+        },
+        "optimized": {
+          "max": 590.5798619933194,
+          "median": 287.12437899957877,
+          "min": 242.47659200045746,
+          "n": 5
+        }
+      },
+      "route": "pg_backend",
+      "workload": "narrow"
+    },
+    {
+      "request_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 1.3073522787993825,
+          "median": 0.96562539474065,
+          "min": 0.6676362347324564,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 33.23637652675436,
+          "median": 3.437460525934999,
+          "min": -30.735227879938254,
+          "n": 5
+        }
+      },
+      "request_ms": {
+        "baseline": {
+          "max": 601.4653989986982,
+          "median": 373.8331799977459,
+          "min": 352.91027600032976,
+          "n": 5
+        },
+        "optimized": {
+          "max": 786.327159999928,
+          "median": 360.98281200247584,
+          "min": 322.30074499966577,
+          "n": 5
+        }
+      },
+      "route": "pg_copy",
+      "workload": "narrow"
+    },
+    {
+      "request_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 1.1408515486415765,
+          "median": 1.0619139218421658,
+          "min": 0.8148433725549034,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 18.515662744509665,
+          "median": -6.191392184216582,
+          "min": -14.085154864157644,
+          "n": 5
+        }
+      },
+      "request_ms": {
+        "baseline": {
+          "max": 1108.0916240000001,
+          "median": 870.644082,
+          "min": 786.000216,
+          "n": 5
+        },
+        "optimized": {
+          "max": 950.18373,
+          "median": 902.921116,
+          "min": 801.219114,
+          "n": 5
+        }
+      },
+      "route": "direct",
+      "workload": "smalltext"
+    },
+    {
+      "executor_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 1.121861288535385,
+          "median": 1.0857150695257838,
+          "min": 0.9038542761391293,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 9.614572386087072,
+          "median": -8.571506952578378,
+          "min": -12.186128853538492,
+          "n": 5
+        }
+      },
+      "executor_ms": {
+        "baseline": {
+          "max": 906.811,
+          "median": 817.683,
+          "min": 779.244,
+          "n": 5
+        },
+        "optimized": {
+          "max": 910.257,
+          "median": 857.648,
+          "min": 788.413,
+          "n": 5
+        }
+      },
+      "request_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 1.1178498386784839,
+          "median": 1.0805086297284245,
+          "min": 0.8994056937780682,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 10.059430622193178,
+          "median": -8.050862972842454,
+          "min": -11.784983867848386,
+          "n": 5
+        }
+      },
+      "request_ms": {
+        "baseline": {
+          "max": 926.7841740002041,
+          "median": 843.0296480000834,
+          "min": 801.3167600001907,
+          "n": 5
+        },
+        "optimized": {
+          "max": 932.2616279969225,
+          "median": 874.9920969930827,
+          "min": 806.8769250021433,
+          "n": 5
+        }
+      },
+      "route": "pg_backend",
+      "workload": "smalltext"
+    },
+    {
+      "request_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 0.986506036557745,
+          "median": 0.9039872541783829,
+          "min": 0.6167007295052532,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 38.329927049474676,
+          "median": 9.601274582161711,
+          "min": 1.3493963442254953,
+          "n": 5
+        }
+      },
+      "request_ms": {
+        "baseline": {
+          "max": 1433.7131200009026,
+          "median": 972.8488880064106,
+          "min": 950.921734001895,
+          "n": 5
+        },
+        "optimized": {
+          "max": 953.0009690060979,
+          "median": 884.1719270058093,
+          "min": 843.1118149965187,
+          "n": 5
+        }
+      },
+      "route": "pg_copy",
+      "workload": "smalltext"
+    },
+    {
+      "request_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 1.3563762311336174,
+          "median": 1.0106709791495807,
+          "min": 0.6049582816194751,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 39.50417183805249,
+          "median": -1.0670979149580706,
+          "min": -35.63762311336174,
+          "n": 5
+        }
+      },
+      "request_ms": {
+        "baseline": {
+          "max": 832.738581,
+          "median": 493.36466,
+          "min": 463.963145,
+          "n": 5
+        },
+        "optimized": {
+          "max": 629.308582,
+          "median": 503.772101,
+          "min": 433.21610100000004,
+          "n": 5
+        }
+      },
+      "route": "direct",
+      "workload": "wide1k"
+    },
+    {
+      "executor_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 1.1020456454865761,
+          "median": 0.9328910859031749,
+          "min": 0.7522558674542161,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 24.774413254578388,
+          "median": 6.710891409682507,
+          "min": -10.204564548657613,
+          "n": 5
+        }
+      },
+      "executor_ms": {
+        "baseline": {
+          "max": 727.658,
+          "median": 531.226,
+          "min": 460.637,
+          "n": 5
+        },
+        "optimized": {
+          "max": 547.385,
+          "median": 507.643,
+          "min": 495.576,
+          "n": 5
+        }
+      },
+      "request_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 1.1065242094337315,
+          "median": 0.9355700499557399,
+          "min": 0.7555233135960269,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 24.447668640397314,
+          "median": 6.442995004426011,
+          "min": -10.652420943373153,
+          "n": 5
+        }
+      },
+      "request_ms": {
+        "baseline": {
+          "max": 743.344585003797,
+          "median": 543.9647549937945,
+          "min": 471.2655580005958,
+          "n": 5
+        },
+        "optimized": {
+          "max": 561.6141640057322,
+          "median": 521.4667489999556,
+          "min": 508.9171330037061,
+          "n": 5
+        }
+      },
+      "route": "pg_backend",
+      "workload": "wide1k"
+    },
+    {
+      "request_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 1.215589106829323,
+          "median": 0.8804743965302526,
+          "min": 0.5583424166983588,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 44.16575833016412,
+          "median": 11.952560346974739,
+          "min": -21.558910682932297,
+          "n": 5
+        }
+      },
+      "request_ms": {
+        "baseline": {
+          "max": 909.8772130018915,
+          "median": 583.1519019993721,
+          "min": 552.4650639999891,
+          "n": 5
+        },
+        "optimized": {
+          "max": 693.1897999966168,
+          "median": 526.7769159981981,
+          "min": 508.0230420062435,
+          "n": 5
+        }
+      },
+      "route": "pg_copy",
+      "workload": "wide1k"
+    },
+    {
+      "request_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 1.3419202178044782,
+          "median": 0.965269583754926,
+          "min": 0.8877002876837268,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 11.229971231627323,
+          "median": 3.4730416245074003,
+          "min": -34.192021780447824,
+          "n": 5
+        }
+      },
+      "request_ms": {
+        "baseline": {
+          "max": 953.0345030000001,
+          "median": 839.704778,
+          "min": 762.416647,
+          "n": 5
+        },
+        "optimized": {
+          "max": 1023.1023130000001,
+          "median": 849.169306,
+          "min": 745.406173,
+          "n": 5
+        }
+      },
+      "route": "direct",
+      "workload": "broad_recheck"
+    },
+    {
+      "executor_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 1.0692978222625429,
+          "median": 0.8490851885254763,
+          "min": 0.6815991083967838,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 31.840089160321618,
+          "median": 15.091481147452368,
+          "min": -6.9297822262542885,
+          "n": 5
+        }
+      },
+      "executor_ms": {
+        "baseline": {
+          "max": 976.219,
+          "median": 730.697,
+          "min": 706.559,
+          "n": 5
+        },
+        "optimized": {
+          "max": 755.522,
+          "median": 665.39,
+          "min": 620.424,
+          "n": 5
+        }
+      },
+      "request_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 1.0718160604848757,
+          "median": 0.8518476674257003,
+          "min": 0.6887027712466546,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 31.129722875334544,
+          "median": 14.815233257429972,
+          "min": -7.1816060484875655,
+          "n": 5
+        }
+      },
+      "request_ms": {
+        "baseline": {
+          "max": 999.4025300038629,
+          "median": 754.4562820039573,
+          "min": 723.7760000061826,
+          "n": 5
+        },
+        "optimized": {
+          "max": 775.754741000128,
+          "median": 688.2912920045783,
+          "min": 642.6818239997374,
+          "n": 5
+        }
+      },
+      "route": "pg_backend",
+      "workload": "broad_recheck"
+    },
+    {
+      "request_change": {
+        "every_pair_at_least_half": false,
+        "paired_optimized_over_baseline": {
+          "max": 1.01273292152797,
+          "median": 0.753181321780207,
+          "min": 0.6880776406012749,
+          "n": 5
+        },
+        "paired_reduction_percent": {
+          "max": 31.192235939872514,
+          "median": 24.681867821979296,
+          "min": -1.2732921527969898,
+          "n": 5
+        }
+      },
+      "request_ms": {
+        "baseline": {
+          "max": 1437.328731000889,
+          "median": 1223.6677190012415,
+          "min": 1140.564834997349,
+          "n": 5
+        },
+        "optimized": {
+          "max": 1226.3387709972449,
+          "median": 988.9937619955163,
+          "min": 859.052129999327,
+          "n": 5
+        }
+      },
+      "route": "pg_copy",
+      "workload": "broad_recheck"
+    }
+  ],
+  "limitations": [
+    "Five alternating pairs; warmups excluded. Paired ratios use cohort index, not pooled medians. No significance claim.",
+    "Direct control consumes Arrow batches; PG executor is EXPLAIN ANALYZE TIMING OFF; COPY includes full binary delivery. These are different scopes.",
+    "Profile CPU includes profiling overhead and twenty scans. Do not compare it to unprofiled wall time as if clocks were interchangeable.",
+    "Sample categories are inclusive and overlap. Inlining, unresolved frames, and truncated stacks can hide matcher work.",
+    "Any-unresolved counts include system-library and PostgreSQL frames, not just extension frames. A stack counts once even with several unresolved frames; unresolved work cannot be assigned confidently.",
+    "Both profiles use perf --no-inline with exact saved ELF symbols and DWARF unwinding; no synthetic inline expansion. Resolved symbols alone cannot recover inlined Matcher::is_match boundaries.",
+    "Single CPU profile per workload/binary cannot establish a robust halving of true non-matcher overhead.",
+    "Shared-host background activity is not controlled by this report; host-load ranges describe recorded conditions, not causal attribution.",
+    "Exact-value controls are persisted runner attestations; raw COPY/Arrow payloads are not retained for independent value replay.",
+    "SHA consistency does not itself prove build reproducibility; source commits and flags are recorded in build-provenance.json."
+  ],
+  "non_matcher_definition": "Non-matcher sampled share = weight of stacks with neither a visible Matcher::is_match frame nor a regex, regex_automata, or aho_corasick frame / total folded stack weight. The intended boundary excludes the whole Matcher::is_match call, including its view/scratch work; engine frames also identify matcher samples when that caller is inlined or missing. The JSON reports complements of visible Matcher::is_match alone and engine frames alone separately, plus their union used for the proxy. This complement includes PostgreSQL, FDW, transport, conversion, wrapper, view/cache work, unresolved frames, and matcher work hidden by inlining or incomplete unwinding. It is not an exclusive stage measurement. Both binaries use perf --no-inline and exact saved ELF symbols: recorded DWARF-unwound frames have no synthetic inline-frame expansion. Therefore even fully resolved ELF symbols do not reveal all inlined Matcher::is_match work; the complements cannot exactly isolate everything outside that call. Estimated non-matcher user CPU/row = process user CPU/row times that share. cycles:u sampling and process CPU ticks measure different quantities; this multiplication is an attribution proxy, not exact CPU accounting. System CPU is reported separately and is not apportioned by user-only samples.",
+  "profile_symbolization": {
+    "perf_version": "perf version 6.12.117",
+    "symbolization": "perf --no-inline with exact saved ELF: real DWARF-unwound frames; no synthetic inline expansion"
+  },
+  "profiles": [
+    {
+      "attribution": {
+        "inclusive_counts": {
+          "antalya_rs": 362,
+          "arrow_ipc": 65,
+          "base64": 125,
+          "callsite_or_cache": 0,
+          "conversion": 122,
+          "fdw_scan": 617,
+          "local_wrapper": 0,
+          "matcher_call": 0,
+          "matcher_call_or_engine": 0,
+          "matcher_engine": 0,
+          "unresolved_any": 813,
+          "unresolved_extension": 0
+        },
+        "inclusive_percent": {
+          "antalya_rs": 22.470515207945375,
+          "arrow_ipc": 4.034761018001241,
+          "base64": 7.759155803848541,
+          "callsite_or_cache": 0.0,
+          "conversion": 7.572936064556177,
+          "fdw_scan": 38.2991930477964,
+          "local_wrapper": 0.0,
+          "matcher_call": 0.0,
+          "matcher_call_or_engine": 0.0,
+          "matcher_engine": 0.0,
+          "unresolved_any": 50.46554934823091,
+          "unresolved_extension": 0.0
+        },
+        "non_matcher_sampled_share": 1.0,
+        "outside_engine_share": 1.0,
+        "outside_visible_matcher_call_share": 1.0,
+        "samples": 1611
+      },
+      "label": "baseline",
+      "non_matcher_user_cpu_proxy_us_per_row": 0.2985,
+      "rows": 20000000,
+      "system_cpu_us_per_row": 0.0955,
+      "total_cpu_us_per_row": 0.394,
+      "user_cpu_us_per_row": 0.2985,
+      "workload": "narrow"
+    },
+    {
+      "attribution": {
+        "inclusive_counts": {
+          "antalya_rs": 1261,
+          "arrow_ipc": 208,
+          "base64": 473,
+          "callsite_or_cache": 0,
+          "conversion": 757,
+          "fdw_scan": 1879,
+          "local_wrapper": 0,
+          "matcher_call": 0,
+          "matcher_call_or_engine": 0,
+          "matcher_engine": 0,
+          "unresolved_any": 1231,
+          "unresolved_extension": 0
+        },
+        "inclusive_percent": {
+          "antalya_rs": 32.458172458172456,
+          "arrow_ipc": 5.353925353925354,
+          "base64": 12.175032175032175,
+          "callsite_or_cache": 0.0,
+          "conversion": 19.485199485199487,
+          "fdw_scan": 48.36550836550836,
+          "local_wrapper": 0.0,
+          "matcher_call": 0.0,
+          "matcher_call_or_engine": 0.0,
+          "matcher_engine": 0.0,
+          "unresolved_any": 31.685971685971687,
+          "unresolved_extension": 0.0
+        },
+        "non_matcher_sampled_share": 1.0,
+        "outside_engine_share": 1.0,
+        "outside_visible_matcher_call_share": 1.0,
+        "samples": 3885
+      },
+      "label": "baseline",
+      "non_matcher_user_cpu_proxy_us_per_row": 0.8,
+      "rows": 20000000,
+      "system_cpu_us_per_row": 0.1895,
+      "total_cpu_us_per_row": 0.9895,
+      "user_cpu_us_per_row": 0.8,
+      "workload": "smalltext"
+    },
+    {
+      "attribution": {
+        "inclusive_counts": {
+          "antalya_rs": 433,
+          "arrow_ipc": 1,
+          "base64": 234,
+          "callsite_or_cache": 0,
+          "conversion": 57,
+          "fdw_scan": 146,
+          "local_wrapper": 0,
+          "matcher_call": 0,
+          "matcher_call_or_engine": 0,
+          "matcher_engine": 0,
+          "unresolved_any": 163,
+          "unresolved_extension": 0
+        },
+        "inclusive_percent": {
+          "antalya_rs": 65.30920060331825,
+          "arrow_ipc": 0.1508295625942685,
+          "base64": 35.294117647058826,
+          "callsite_or_cache": 0.0,
+          "conversion": 8.597285067873303,
+          "fdw_scan": 22.021116138763198,
+          "local_wrapper": 0.0,
+          "matcher_call": 0.0,
+          "matcher_call_or_engine": 0.0,
+          "matcher_engine": 0.0,
+          "unresolved_any": 24.58521870286576,
+          "unresolved_extension": 0.0
+        },
+        "non_matcher_sampled_share": 1.0,
+        "outside_engine_share": 1.0,
+        "outside_visible_matcher_call_share": 1.0,
+        "samples": 663
+      },
+      "label": "baseline",
+      "non_matcher_user_cpu_proxy_us_per_row": 3.4637451171875,
+      "rows": 655360,
+      "system_cpu_us_per_row": 0.91552734375,
+      "total_cpu_us_per_row": 4.3792724609375,
+      "user_cpu_us_per_row": 3.4637451171875,
+      "workload": "wide1k"
+    },
+    {
+      "attribution": {
+        "inclusive_counts": {
+          "antalya_rs": 736,
+          "arrow_ipc": 43,
+          "base64": 356,
+          "callsite_or_cache": 0,
+          "conversion": 710,
+          "fdw_scan": 1573,
+          "local_wrapper": 948,
+          "matcher_call": 273,
+          "matcher_call_or_engine": 273,
+          "matcher_engine": 173,
+          "unresolved_any": 1912,
+          "unresolved_extension": 3
+        },
+        "inclusive_percent": {
+          "antalya_rs": 18.90572823015669,
+          "arrow_ipc": 1.1045466221423068,
+          "base64": 9.1446185461084,
+          "callsite_or_cache": 0.0,
+          "conversion": 18.237862830721806,
+          "fdw_scan": 40.40585666581043,
+          "local_wrapper": 24.351399948625737,
+          "matcher_call": 7.012586694066273,
+          "matcher_call_or_engine": 7.012586694066273,
+          "matcher_engine": 4.443873619316722,
+          "unresolved_any": 49.11379398921141,
+          "unresolved_extension": 0.07706139224248652
+        },
+        "non_matcher_sampled_share": 0.9298741330593373,
+        "outside_engine_share": 0.9555612638068328,
+        "outside_visible_matcher_call_share": 0.9298741330593373,
+        "samples": 3893
+      },
+      "label": "baseline",
+      "non_matcher_user_cpu_proxy_us_per_row": 0.8522296429488826,
+      "rows": 20000000,
+      "system_cpu_us_per_row": 0.049,
+      "total_cpu_us_per_row": 0.9655,
+      "user_cpu_us_per_row": 0.9165,
+      "workload": "broad_recheck"
+    },
+    {
+      "attribution": {
+        "inclusive_counts": {
+          "antalya_rs": 371,
+          "arrow_ipc": 72,
+          "base64": 112,
+          "callsite_or_cache": 0,
+          "conversion": 62,
+          "fdw_scan": 534,
+          "local_wrapper": 0,
+          "matcher_call": 0,
+          "matcher_call_or_engine": 0,
+          "matcher_engine": 0,
+          "unresolved_any": 684,
+          "unresolved_extension": 0
+        },
+        "inclusive_percent": {
+          "antalya_rs": 26.845151953690305,
+          "arrow_ipc": 5.209840810419681,
+          "base64": 8.104196816208393,
+          "callsite_or_cache": 0.0,
+          "conversion": 4.486251808972503,
+          "fdw_scan": 38.63965267727931,
+          "local_wrapper": 0.0,
+          "matcher_call": 0.0,
+          "matcher_call_or_engine": 0.0,
+          "matcher_engine": 0.0,
+          "unresolved_any": 49.493487698986975,
+          "unresolved_extension": 0.0
+        },
+        "non_matcher_sampled_share": 1.0,
+        "outside_engine_share": 1.0,
+        "outside_visible_matcher_call_share": 1.0,
+        "samples": 1382
+      },
+      "label": "optimized",
+      "non_matcher_user_cpu_proxy_us_per_row": 0.2675,
+      "rows": 20000000,
+      "system_cpu_us_per_row": 0.098,
+      "total_cpu_us_per_row": 0.36550000000000005,
+      "user_cpu_us_per_row": 0.2675,
+      "workload": "narrow"
+    },
+    {
+      "attribution": {
+        "inclusive_counts": {
+          "antalya_rs": 1139,
+          "arrow_ipc": 172,
+          "base64": 426,
+          "callsite_or_cache": 0,
+          "conversion": 222,
+          "fdw_scan": 1280,
+          "local_wrapper": 0,
+          "matcher_call": 0,
+          "matcher_call_or_engine": 0,
+          "matcher_engine": 0,
+          "unresolved_any": 1071,
+          "unresolved_extension": 0
+        },
+        "inclusive_percent": {
+          "antalya_rs": 37.07682291666667,
+          "arrow_ipc": 5.598958333333334,
+          "base64": 13.8671875,
+          "callsite_or_cache": 0.0,
+          "conversion": 7.2265625,
+          "fdw_scan": 41.66666666666667,
+          "local_wrapper": 0.0,
+          "matcher_call": 0.0,
+          "matcher_call_or_engine": 0.0,
+          "matcher_engine": 0.0,
+          "unresolved_any": 34.86328125,
+          "unresolved_extension": 0.0
+        },
+        "non_matcher_sampled_share": 1.0,
+        "outside_engine_share": 1.0,
+        "outside_visible_matcher_call_share": 1.0,
+        "samples": 3072
+      },
+      "label": "optimized",
+      "non_matcher_user_cpu_proxy_us_per_row": 0.6045,
+      "rows": 20000000,
+      "system_cpu_us_per_row": 0.159,
+      "total_cpu_us_per_row": 0.7635000000000001,
+      "user_cpu_us_per_row": 0.6045,
+      "workload": "smalltext"
+    },
+    {
+      "attribution": {
+        "inclusive_counts": {
+          "antalya_rs": 394,
+          "arrow_ipc": 0,
+          "base64": 196,
+          "callsite_or_cache": 0,
+          "conversion": 55,
+          "fdw_scan": 172,
+          "local_wrapper": 0,
+          "matcher_call": 0,
+          "matcher_call_or_engine": 0,
+          "matcher_engine": 0,
+          "unresolved_any": 206,
+          "unresolved_extension": 0
+        },
+        "inclusive_percent": {
+          "antalya_rs": 60.708782742681045,
+          "arrow_ipc": 0.0,
+          "base64": 30.20030816640986,
+          "callsite_or_cache": 0.0,
+          "conversion": 8.47457627118644,
+          "fdw_scan": 26.502311248073962,
+          "local_wrapper": 0.0,
+          "matcher_call": 0.0,
+          "matcher_call_or_engine": 0.0,
+          "matcher_engine": 0.0,
+          "unresolved_any": 31.741140215716484,
+          "unresolved_extension": 0.0
+        },
+        "non_matcher_sampled_share": 1.0,
+        "outside_engine_share": 1.0,
+        "outside_visible_matcher_call_share": 1.0,
+        "samples": 649
+      },
+      "label": "optimized",
+      "non_matcher_user_cpu_proxy_us_per_row": 3.3111572265625,
+      "rows": 655360,
+      "system_cpu_us_per_row": 0.8544921875,
+      "total_cpu_us_per_row": 4.1656494140625,
+      "user_cpu_us_per_row": 3.3111572265625,
+      "workload": "wide1k"
+    },
+    {
+      "attribution": {
+        "inclusive_counts": {
+          "antalya_rs": 685,
+          "arrow_ipc": 38,
+          "base64": 334,
+          "callsite_or_cache": 377,
+          "conversion": 205,
+          "fdw_scan": 1128,
+          "local_wrapper": 505,
+          "matcher_call": 272,
+          "matcher_call_or_engine": 272,
+          "matcher_engine": 147,
+          "unresolved_any": 1469,
+          "unresolved_extension": 3
+        },
+        "inclusive_percent": {
+          "antalya_rs": 23.53951890034364,
+          "arrow_ipc": 1.3058419243986255,
+          "base64": 11.47766323024055,
+          "callsite_or_cache": 12.955326460481102,
+          "conversion": 7.0446735395189,
+          "fdw_scan": 38.76288659793815,
+          "local_wrapper": 17.353951890034363,
+          "matcher_call": 9.347079037800688,
+          "matcher_call_or_engine": 9.347079037800688,
+          "matcher_engine": 5.051546391752577,
+          "unresolved_any": 50.48109965635739,
+          "unresolved_extension": 0.10309278350515465
+        },
+        "non_matcher_sampled_share": 0.9065292096219931,
+        "outside_engine_share": 0.9494845360824742,
+        "outside_visible_matcher_call_share": 0.9065292096219931,
+        "samples": 2910
+      },
+      "label": "optimized",
+      "non_matcher_user_cpu_proxy_us_per_row": 0.6014821305841924,
+      "rows": 20000000,
+      "system_cpu_us_per_row": 0.048,
+      "total_cpu_us_per_row": 0.7115,
+      "user_cpu_us_per_row": 0.6635,
+      "workload": "broad_recheck"
+    }
+  ],
+  "schema_version": 1,
+  "settings": {
+    "engine": "26.8.34.20001.altinityantalya",
+    "machine": {
+      "cpu_count": 12,
+      "cpu_model": "AMD Ryzen 5 PRO 4650U with Radeon Graphics",
+      "host_memory_bytes": 15942414336,
+      "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+      "python": "3.12.3"
+    },
+    "runner_sha256": "ac27dbb1af042a89baf17c08cdc438d5bc5a55e5dbca9ee823baeeefc761d7d6"
+  },
+  "verification": "passed"
+}

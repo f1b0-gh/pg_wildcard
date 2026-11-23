@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "source_commit": "439aada360f54b3e4a099b613d001957dc4b2c6d",
+  "url": "https://github.com/f1b0-gh/pg_wildcard/releases/download/benchmark-evidence-2026-11-23/fdw-overhead-439aada360f5.tar.gz",
+  "sha256": "2d1f35a429ac334498e93579772663b6c455bed5c9031fa915189d4d2f175e95",
+  "size": 1508690,
+  "tar_size": 27381760,
+  "files": 118,
+  "unpacked_size": 27284947,
+  "verifiers": [
+    "tests/benchmarks/results/2026-11-23/fdw-overhead/verify.py"
+  ],
+  "legacy_reproduction": false
+}

@@ -3,7 +3,7 @@
 
 use std::collections::{HashMap, hash_map::RandomState};
 use std::hash::{BuildHasher, Hash};
-use std::rc::Rc;
+use std::rc::{Rc, Weak};
 
 pub(crate) const CACHE_CAP: usize = 256;
 /// Accounted retained bytes, not process RSS or an allocator-exact heap bound.
@@ -79,6 +79,16 @@ impl<K: Copy + Eq + Hash, V> MatcherCache<K, V> {
             charged_bytes: self.charged_bytes,
             ..self.counters
         }
+    }
+
+    /// Call sites retain only weak references obtained from this cache. Apply
+    /// current limits before this lookup; eviction then invalidates the hint.
+    /// As with ordinary lookups, callers must not retain the returned strong
+    /// reference beyond their current matching operation.
+    pub(crate) fn get_callsite(&mut self, cached: &Weak<V>) -> Option<Rc<V>> {
+        let value = cached.upgrade()?;
+        self.counters.hits = self.counters.hits.saturating_add(1);
+        Some(value)
     }
 
     pub(crate) fn get_or_compile<E>(
@@ -205,6 +215,28 @@ mod tests {
     fn get(c: &mut MatcherCache<(u8, u8), String>, p: &str, k: (u8, u8)) -> Rc<String> {
         c.get_or_compile(p, k, || Ok::<_, ()>(format!("{p}:{k:?}")), |v| v.capacity())
             .unwrap()
+    }
+
+    #[test]
+    fn callsite_hits_do_not_pin_evicted_matchers() {
+        let mut cache = MatcherCache::default();
+        cache.set_limits(1, 4096);
+        let first = get(&mut cache, "first", (0, 0));
+        let site = Rc::downgrade(&first);
+        drop(first);
+        assert!(cache.get_callsite(&site).is_some());
+        assert_eq!(cache.stats().hits, 1);
+        get(&mut cache, "second", (0, 0));
+        assert!(cache.get_callsite(&site).is_none());
+        assert!(site.upgrade().is_none());
+        assert_eq!(cache.stats().entries, 1);
+        assert_eq!(cache.stats().hits, 1);
+
+        let second = Rc::downgrade(&get(&mut cache, "second", (0, 0)));
+        cache.set_limits(0, 4096);
+        assert!(cache.get_callsite(&second).is_none());
+        assert_eq!(cache.stats().charged_bytes, 0);
+        assert_eq!(cache.stats().entries, 0);
     }
 
     #[test]
