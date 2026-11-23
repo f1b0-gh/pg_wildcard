@@ -1,6 +1,11 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Comparable wildcard route matrix
 
+Complete raw evidence and the original hash manifests are preserved in the
+[checksummed release archive](../../../../ARTIFACTS.md). From the repository root,
+run `python3 tools/verify_benchmark_artifacts.py` to verify this historical run.
+
+
 This matrix preserves the full planned scope: shared, unrelated, common-gram,
 short/no-gram and mixed-view fixtures at 100/1000 indicators over one million
 rows; matched four-client controls for shared/unrelated/common-1000; the current
@@ -9,7 +14,7 @@ outcomes, not completed query timings. Semantic exclusions have no fabricated
 Elastic comparison. See [the validated route table](matrix-report.md).
 The [index tradeoff report](index-tradeoffs.md) separates query reads from
 single-observation setup, insertion and settled-storage costs.
-The [domain confirmation observations](domain-terminal-observation.json) preserve
+The [domain confirmation observations](../../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/perf-plan/route-matrix/domain-terminal-observation.json`) preserve
 individual direct/PG terminal diagnostics alongside native request clocks. They
 support the existing terminal-confirmation follow-up without subtracting clocks
 into exclusive PostgreSQL overhead.

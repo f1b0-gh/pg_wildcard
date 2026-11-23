@@ -1,6 +1,11 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Measured search and FDW routes — 2026-11-22
 
+Complete raw evidence and the original hash manifests are preserved in the
+[checksummed release archive](../../ARTIFACTS.md). From the repository root,
+run `python3 tools/verify_benchmark_artifacts.py` to verify this historical run.
+
+
 The results distinguish native engine SQL, direct published `antalya-rs`,
 PostgreSQL backend execution, PostgreSQL protocol delivery, and Elasticsearch.
 All are synthetic measurements on a shared development host. Raw records,

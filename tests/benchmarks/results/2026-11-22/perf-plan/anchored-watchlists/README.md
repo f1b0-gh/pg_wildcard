@@ -1,6 +1,11 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Anchored watchlist insertion measurements
 
+Complete raw evidence and the original hash manifests are preserved in the
+[checksummed release archive](../../../../ARTIFACTS.md). From the repository root,
+run `python3 tools/verify_benchmark_artifacts.py` to verify this historical run.
+
+
 An actual ClickHouse materialized view checks 100 indicators on one million
 synthetic rows. Only required-substring metadata changes between variants;
 source values, regexes, view bindings and materialized-view SQL are identical.
@@ -15,7 +20,7 @@ canaries precede timing. Only completed five-pair families are included below.
 No Elastic percolator timing is included. Ordinary Elastic searches over already
 indexed documents perform a different operation and are not compared here.
 The command-line variants have identical metadata and SQL, verified in
-[input-comparison.json](input-comparison.json); their timing variation is an
+[input-comparison.json](../../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/perf-plan/anchored-watchlists/input-comparison.json`); their timing variation is an
 unchanged-input control, not a claimed optimization benefit.
 
 | Family | Strategy | Measured n | Insertion seconds: median [range] | Exact pairs |
@@ -40,7 +45,7 @@ regex invocations. Query peak memory is not backend RSS or a batch-budget bound.
 The engine is pinned by image digest in [provenance.json](provenance.json), with
 4 CPUs and 8 GiB. The host is shared, and filesystem caches are uncontrolled;
 these are warm observations, not cold-cache results. The first domain baseline
-warmup exceeded its 60-second budget: [censored-60s.json](censored-60s.json).
+warmup exceeded its 60-second budget: [censored-60s.json](../../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/perf-plan/anchored-watchlists/censored-60s.json`).
 The fresh comparison used the existing 300-second ingestion budget. That failed
 attempt contributes no completed timing sample and is not hidden in the median.
 

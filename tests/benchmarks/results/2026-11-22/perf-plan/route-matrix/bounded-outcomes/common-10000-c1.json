@@ -1,6 +1,0 @@
-{
-  "case": "common-10000-c1",
-  "status": "censored_generation_budget",
-  "generator_timeout_seconds": 60,
-  "reason": "bounded stress fixture generation did not finish; no query timing or correctness claim"
-}

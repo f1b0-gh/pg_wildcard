@@ -1,6 +1,11 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Published Antalya 0.1.1 compression rerun — 2026-11-23
 
+Complete raw evidence and the original hash manifests are preserved in the
+[checksummed release archive](../../../ARTIFACTS.md). From the repository root,
+run `python3 tools/verify_benchmark_artifacts.py` to verify this historical run.
+
+
 Zstd reduces the Arrow hit-pair response from **262,920 to 101,840 bytes (61.3%)**
 in both workloads, confirmed in the direct client and PostgreSQL EXPLAIN metrics.
 Latency changes are mixed. These measurements do not establish a consistent
@@ -39,7 +44,7 @@ it is not a measurement of free conversion.
 The current FDW pins 0.1.0. PG numbers here use a **benchmark-only patch**, not a
 released FDW option: published 0.1.1 plus server `arrow_compression=none|zstd`,
 validated and included in the client-cache identity. Both PG codecs use the same
-release binary. See [patch](benchmark-fdw.patch) and [build identity](pg-build.json).
+release binary. See [patch](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-23/antalya-0.1.1/benchmark-fdw.patch`) and [build identity](pg-build.json).
 
 ## Settings and limits
 
@@ -77,12 +82,12 @@ and discussion stay in `.local/`. No credentials or private worker logs are incl
 Run the offline verifier from the repository root:
 
 ```sh
-python3 tests/benchmarks/results/2026-11-23/antalya-0.1.1/verify.py
+python3 tools/verify_benchmark_artifacts.py
 ```
 
 To repeat direct measurements, copy `sources/` into a fresh
 `.local/perf/<run-name>/` directory (exactly this depth). The scripts resolve the
-repository root from that location and load the original committed workload files.
+repository root from that location and load the original archived workload files.
 Use the recorded base commit and pinned Rust toolchain. Set `CARGO_TARGET_DIR` to
 `$PWD/.local/review-pg/target`, build each copied manifest with `--release --locked`,
 adding `--features v011` only for 0.1.1. Start the pinned owned Antalya fixture with
@@ -97,7 +102,7 @@ extension into an **owned disposable PostgreSQL 18.6 fixture**, using the reposi
 at `/workspace`, support the existing `PgWorker` psql protocol and reach the native
 fixture's private network. Create `.local/perf/execution/` for the psql output
 files, set `WILDCARD_BENCH_PG_CONTAINER` explicitly and run the copied `pg_run.py` after builds/tests finish. Stop only owned fixtures and restore
-any previously installed extension/network state, as in [cleanup receipt](cleanup.json).
+any previously installed extension/network state, as in [cleanup receipt](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-23/antalya-0.1.1/cleanup.json`).
 
 Changing completion policy, data shape, returning raw documents, or testing a
 remote network requires a new labelled cohort; these numbers do not predict it.

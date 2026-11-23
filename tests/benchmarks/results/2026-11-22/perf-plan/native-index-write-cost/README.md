@@ -1,6 +1,11 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Bounded byte-index write costs
 
+Complete raw evidence and the original hash manifests are preserved in the
+[checksummed release archive](../../../../ARTIFACTS.md). From the repository root,
+run `python3 tools/verify_benchmark_artifacts.py` to verify this historical run.
+
+
 Five paired, alternating-order trials on fresh MergeTree tables, each receiving
 900,000 initial rows followed by 100,000 incremental rows. Every completed table
 has the same one-million-row corpus digest. OPTIMIZE FINAL precedes storage

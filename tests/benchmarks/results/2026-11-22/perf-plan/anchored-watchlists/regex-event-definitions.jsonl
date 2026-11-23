@@ -1,2 +1,0 @@
-{"engine":"26.8.34.20001.altinityantalya","event":"RegexpLocalCacheHit","description":"Number of times we fetched compiled regular expression from a local cache."}
-{"engine":"26.8.34.20001.altinityantalya","event":"RegexpLocalCacheMiss","description":"Number of times we failed to fetch compiled regular expression from a local cache."}

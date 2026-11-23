@@ -7,7 +7,7 @@ license = "Apache-2.0"
 repository = "https://github.com/f1b0-gh/pg_wildcard"
 readme = "README.md"
 description = "Wildcard search for Antalya hot storage and Iceberg cold data"
-exclude = [".local/**", ".venv/**", "**/__pycache__/**", "*.log", "target/**", "wc_iceberg_*/**"]
+exclude = [".local/**", ".venv/**", "**/__pycache__/**", "*.log", "target/**", "wc_iceberg_*/**", "tests/benchmarks/**"]
 
 [features]
 default = []

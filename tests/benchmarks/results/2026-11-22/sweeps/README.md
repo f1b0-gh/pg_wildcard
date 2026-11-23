@@ -1,6 +1,11 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Native sweeps and ingest: 1M rows × 1,000 indicators
 
+Complete raw evidence and the original hash manifests are preserved in the
+[checksummed release archive](../../../ARTIFACTS.md). From the repository root,
+run `python3 tools/verify_benchmark_artifacts.py` to verify this historical run.
+
+
 The final sweep uses two source queries and a shared prefilter proved necessary
 for every indicator. It took **4.043 seconds**, versus **13.958 seconds** for the
 previous fixed-64 batching, with the same 10,000 exact row/indicator/view pairs.
@@ -102,13 +107,13 @@ including both timeout failures. Each failed query was canceled/finished and its
 owned database removed before the next variant. Extra prototype runs are
 identified by their separate logs and specification hashes.
 
-[specs/index.json](specs/index.json) maps each measured generator hash to its
+[specs/index.json](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/sweeps/specs/index.json`) maps each measured generator hash to its
 compressed **exact SQL specification**, including rejected variants. The hash
 contract and original file hashes are explicit. Decompress the selected file
 and run `libwildcard/tests/benchmarks/sweeps.py` with the strategy named in its
 sample records. The original `spec.json.gz` predates the final code; current
 `sweep_benchmark_gen` emits the promoted forms and frozen legacy baselines.
-[Final production specification](spec-final-production.json.gz) and
+[Final production specification](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/sweeps/spec-final-production.json.gz`) and
 [nine SQL identity checks](production-sql-identity.json) tie the committed
 generator to the exact measured forms.
 Early metadata `diagnostics` describe that specification's primary generated

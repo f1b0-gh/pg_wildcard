@@ -1,6 +1,11 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # FDW concurrency, terminal policies and batch limits
 
+Complete raw evidence and the original hash manifests are preserved in the
+[checksummed release archive](../../../../ARTIFACTS.md). From the repository root,
+run `python3 tools/verify_benchmark_artifacts.py` to verify this historical run.
+
+
 These are baseline-library controls following the rejected conversion experiment.
 No regex engine, terminal policy default or batch setting was changed by them.
 Native source values and returned projections are identical across the three

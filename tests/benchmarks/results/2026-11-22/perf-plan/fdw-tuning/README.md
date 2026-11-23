@@ -1,6 +1,11 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # FDW streaming, completion and adaptive-cache controls
 
+Complete raw evidence and the original hash manifests are preserved in the
+[checksummed release archive](../../../../ARTIFACTS.md). From the repository root,
+run `python3 tools/verify_benchmark_artifacts.py` to verify this historical run.
+
+
 This campaign addresses issues #18–20. PostgreSQL continues using published
 antalya-rs **0.1.0**. A separate modified-client experiment evaluates the opt-in
 Zstd option in [antalya-rs #14](https://github.com/f1b0-gh/antalya-rs/pull/14);
@@ -155,10 +160,11 @@ unknown-plan and authentication-failure tests remain in the qualification suite.
 
 ## Reproduce and inspect
 
-`python3 verify.py` verifies every payload hash and exact file membership, checks
+From the repository root, `python3 tools/verify_benchmark_artifacts.py` restores
+the archived bundle and invokes its original `verify.py`. That verifier checks every payload hash and exact file membership, checks
 full cohorts, row/completion/value contracts, actual file pruning and cache
 boundaries, then regenerates [tables.md](tables.md) and [report.json](report.json)
-offline. Run from this directory or use the script's absolute path. Gzip payloads
+offline after the pinned archive is cached. Gzip payloads
 retain original selected synthetic observations; `provenance.json` records their
 uncompressed source hashes. Private fixture state, credentials and diagnostics
 are excluded. Detailed working notes remain in `.local/`.

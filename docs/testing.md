@@ -161,6 +161,15 @@ harness without a companion checkout. See
 job also runs locked Cargo metadata resolution for the fuzz workspace, so a
 stale fuzz lockfile fails without requiring a nightly fuzz build.
 
+Historical raw benchmark evidence is a separate checksummed release download.
+Run `python3 tools/verify_benchmark_artifacts.py` to hydrate and verify it, or
+dispatch the [archived evidence workflow](../.github/workflows/benchmark-evidence.yml).
+The original three verifiers and ten-report reproduction run from disposable
+copies under `.local/`. Normal tests do not download evidence. See
+[artifact verification](../tests/benchmarks/ARTIFACTS.md) for offline use, retained
+extractions and the automatic 256 KiB file / 2 MiB PR blob limits scoped to
+`tests/benchmarks/results/`.
+
 For branch protection, require these exact automatic check names:
 
 - `Standalone library (default)`

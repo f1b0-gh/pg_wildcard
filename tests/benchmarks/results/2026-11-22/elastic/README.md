@@ -1,6 +1,11 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Elasticsearch 9.5.6: 1M URLs × 1,000 literal indicators
 
+Complete raw evidence and the original hash manifests are preserved in the
+[checksummed release archive](../../../ARTIFACTS.md). From the repository root,
+run `python3 tools/verify_benchmark_artifacts.py` to verify this historical run.
+
+
 Every sweep returned the same **10,000 indicator–row pairs**, checking all row IDs
 per indicator. Three ordered repeats, seconds:
 

@@ -1,6 +1,11 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Indexed byte-fragment dispatch
 
+Complete raw evidence and the original hash manifests are preserved in the
+[checksummed release archive](../../../../ARTIFACTS.md). From the repository root,
+run `python3 tools/verify_benchmark_artifacts.py` to verify this historical run.
+
+
 The opt-in raw-view dispatch uses a bounded byte-fragment text index to narrow
 source rows, then routes each candidate to possible indicators and checks exact
 regex matches. The default sweep strategy and regex engine are unchanged. Only
@@ -127,7 +132,7 @@ settings, then regenerates reports offline in a temporary directory. Run from th
 repository root:
 
 ```sh
-python3 tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/verify.py
+python3 tools/verify_benchmark_artifacts.py
 ```
 
 Post-review qualification preserves selected source fields that collide with hit

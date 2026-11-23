@@ -1,6 +1,11 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Performance plan evidence and decisions
 
+Complete raw evidence and the original hash manifests are preserved in the
+[checksummed release archive](../../../ARTIFACTS.md). From the repository root,
+run `python3 tools/verify_benchmark_artifacts.py` to verify this historical run.
+
+
 These experiments separate ordinary wildcard searches, incoming-event watchlists
 and PostgreSQL delivery. They do not establish a single engine speed ranking.
 Only explicitly admitted wildcard fields/observables enter these workloads;
@@ -272,11 +277,11 @@ the export records that transformation and the original private artifact hash.
 
 Ten route/index/domain/FDW reports regenerate byte-for-byte from the sanitized
 bundles and public repository helpers, without private fixture state or engine
-access. See [the reproduction receipt](reproduction/receipt.json). From the
+access. See [the reproduction receipt](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/perf-plan/reproduction/receipt.json`). From the
 repository root, run:
 
 ```sh
-python3 tests/benchmarks/results/2026-11-22/perf-plan/reproduction/reproduce-reports.py tests/benchmarks/results/2026-11-22/perf-plan
+python3 tools/verify_benchmark_artifacts.py
 ```
 
 The helper verifies manifests and regenerates reports in a temporary directory

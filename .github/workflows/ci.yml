@@ -60,6 +60,7 @@ jobs:
         with:
           path: pg_wildcard
           persist-credentials: false
+          fetch-depth: 0
       - uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc
         with:
           toolchain: '1.99.1'
@@ -75,9 +76,17 @@ jobs:
           python3 -m unittest discover -s tests/ci -v
           python3 -m unittest discover -s tests/operations -v
           python3 -m unittest discover -s tests/benchmarks -p 'test_*.py' -v
-          python3 tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/verify.py
-          python3 tests/benchmarks/results/2026-11-22/perf-plan/fdw-tuning/verify.py
-          python3 tests/benchmarks/results/2026-11-23/antalya-0.1.1/verify.py
+      - name: Committed artifact size policy
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [[ -n "$PR_HEAD_SHA" ]]; then
+            base=$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")
+            python3 tools/check_artifact_size.py --base "$base" --head "$PR_HEAD_SHA"
+          else
+            python3 tools/check_artifact_size.py
+          fi
       - run: cargo fmt --manifest-path libwildcard/Cargo.toml --all -- --check
       - name: Backend cache ownership and allocation regressions
         run: |
