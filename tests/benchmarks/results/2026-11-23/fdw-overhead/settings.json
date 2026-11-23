@@ -1,0 +1,26 @@
+{
+  "engine": "antalya",
+  "image": "altinityinfra/clickhouse-server@sha256:0989fbcd21552463cff9ef8d7a44bd2213a2c8e1879816f856a744a14b28e77a",
+  "version": "26.8.34.20001.altinityantalya",
+  "cpus": 4,
+  "memory_bytes": 8589934592,
+  "postgres": "18.6",
+  "published_baseline_commit": "0ef4fc1837399278597d381c4741ff4df7edb027",
+  "client": "published antalya-rs 0.1.0",
+  "terminal_policy": "in_band",
+  "batch_bytes": 16777216,
+  "max_block_size": 1024,
+  "max_threads": 2,
+  "matched_harness": "tests/benchmarks/results/2026-11-22/perf-plan/fdw-conversion/runners/fdw-benchmark.py",
+  "methodology": "local shared machine; warm observations, not a reproducible benchmark; no builds during measured cohorts",
+  "candidate_commit": "439aada360f54b3e4a099b613d001957dc4b2c6d",
+  "repeats": 5,
+  "profiling": "20 scans per workload/binary; cycles:u199Hz DWARF16384; perf --no-inline",
+  "qualification": {
+    "postgres_tests": 86,
+    "fdw_assertions": 58,
+    "report_tests": 14,
+    "status": "passed"
+  },
+  "excluded_attempt": "First profile stopped during symbolization because addr2line was missing. Failed postprocessor reset owned PG sessions; its narrow recording is excluded. Both complete profile sets were collected fresh with --no-inline after an offline symbolization check. Latency cohorts preceded this failure and all completed successfully."
+}
