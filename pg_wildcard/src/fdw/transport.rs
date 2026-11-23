@@ -967,7 +967,7 @@ mod tests {
     #[test]
     fn notification_receive_does_not_hide_failure_after_provisional_batch() {
         let (options, fixture) = http_fixture(
-            include_bytes!("../../../tests/fdw/one-u64.arrow"),
+            include_bytes!("../../tests/fixtures/one-u64.arrow"),
             br#"{"data":[{"starts":"1","finishes":"0","errors":"1","cancelled":"0","read_rows":"1","read_bytes":"8","result_rows":"1"}]}"#,
         );
         let session = Session::from_options(&options).unwrap();
@@ -1074,7 +1074,7 @@ mod tests {
     fn provisional_batch_retains_budget_and_never_hides_failure_or_disconnect() {
         // Generated locally with pyarrow: one UInt64 column named n, one row containing 1.
         let (options, fixture) = http_fixture(
-            include_bytes!("../../../tests/fdw/one-u64.arrow"),
+            include_bytes!("../../tests/fixtures/one-u64.arrow"),
             br#"{"data":[{"starts":"1","finishes":"0","errors":"1","cancelled":"0","read_rows":"1","read_bytes":"8","result_rows":"1"}]}"#,
         );
         let mut session = Session::from_options(&options).unwrap();
@@ -1288,7 +1288,7 @@ mod tests {
         assert!(make_query("SELECT 1", Some("max_block_size=4096")).is_ok());
         for (setting, expected) in [(None, "1024"), (Some("max_block_size=4096"), "4096")] {
             let (options, fixture) = http_fixture_block_size(
-                include_bytes!("../../../tests/fdw/empty-u64.arrow"),
+                include_bytes!("../../tests/fixtures/empty-u64.arrow"),
                 br#"{"data":[{"starts":"1","finishes":"1","errors":"0","cancelled":"0","read_rows":"0","read_bytes":"0","result_rows":"0"}]}"#,
                 Some(expected),
             );
@@ -1309,7 +1309,7 @@ mod tests {
     #[test]
     fn schema_only_http_stream_delivers_schema_before_confirmed_eof() {
         let (options, fixture) = http_fixture(
-            include_bytes!("../../../tests/fdw/empty-u64.arrow"),
+            include_bytes!("../../tests/fixtures/empty-u64.arrow"),
             br#"{"data":[{"starts":"1","finishes":"1","errors":"0","cancelled":"0","read_rows":"0","read_bytes":"0","result_rows":"0"}]}"#,
         );
         let session = Session::from_options(&options).unwrap();

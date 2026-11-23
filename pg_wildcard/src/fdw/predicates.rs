@@ -8,8 +8,8 @@ pub fn like(pattern: &str) -> Option<String> {
     if pattern.bytes().rev().take_while(|&b| b == b'\\').count() % 2 != 0 {
         return None;
     }
-    let pieces = wildcard_core::pattern::parse_like_checked(pattern.as_bytes()).ok()?;
-    Some(wildcard_ch::like_pattern(&pieces))
+    let pieces = libwildcard::core::pattern::parse_like_checked(pattern.as_bytes()).ok()?;
+    Some(libwildcard::antalya::like_pattern(&pieces))
 }
 
 /// Convert the PostgreSQL 2000 epoch to exact Unix microseconds. Only send

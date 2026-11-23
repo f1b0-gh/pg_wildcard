@@ -112,7 +112,7 @@ impl Fixture {
                         (401, "text/plain", &b"refused"[..])
                     } else {
                         let body = if !probe {
-                            &include_bytes!("../../../tests/fdw/one-u64.arrow")[..]
+                            &include_bytes!("../../tests/fixtures/one-u64.arrow")[..]
                         } else if matches!(behavior, Behavior::Unknown) {
                             unknown.as_slice()
                         } else if sql.contains(" PREWHERE ") {

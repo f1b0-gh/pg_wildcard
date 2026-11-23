@@ -68,8 +68,8 @@ cargo package --locked --all-features
 cargo build --locked --features cold --bin wc-lake
 ```
 
-Source packaging is supported; these instructions do not assume publication on
-crates.io. See [consumer integration](INTEGRATION.md) and [tests](tests/README.md).
+Use `libwildcard = "0.2.0"` from crates.io, or build its self-contained source
+package. See [consumer integration](INTEGRATION.md) and [tests](tests/README.md).
 
 ## Optional hot-storage helpers
 

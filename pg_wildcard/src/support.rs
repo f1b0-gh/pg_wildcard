@@ -16,11 +16,11 @@
 
 use std::ffi::{CStr, CString};
 
+use libwildcard::core::View;
+use libwildcard::core::verify::{self, Kind};
 use pgrx::pg_sys;
 use pgrx::prelude::*;
 use pgrx::{Internal, PgList};
-use wildcard_core::View;
-use wildcard_core::verify::{self, Kind};
 
 const TEXT_LIKE_OP: u32 = 1209; // ~~(text, text)
 
@@ -195,7 +195,7 @@ unsafe fn simplify(req: *mut pg_sys::SupportRequestSimplify) -> Option<*mut pg_s
         match kind {
             Kind::Wildcard | Kind::Like => {
                 let pieces = verify::pieces_for_checked(kind, pattern.as_bytes(), view).ok()?;
-                let like = wildcard_ch::like_pattern(&pieces);
+                let like = libwildcard::antalya::like_pattern(&pieces);
                 let op = pg_sys::make_opclause(
                     pg_sys::Oid::from(TEXT_LIKE_OP),
                     pg_sys::BOOLOID,
@@ -208,7 +208,7 @@ unsafe fn simplify(req: *mut pg_sys::SupportRequestSimplify) -> Option<*mut pg_s
                 Some(op as *mut pg_sys::Node)
             }
             Kind::Regex { case_insensitive } => {
-                wildcard_core::re2::to_rust(&pattern).ok()?;
+                libwildcard::core::re2::to_rust(&pattern).ok()?;
                 let oid = re2match_oid();
                 if oid == pg_sys::InvalidOid {
                     return None;

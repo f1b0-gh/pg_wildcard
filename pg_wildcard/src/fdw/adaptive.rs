@@ -146,7 +146,7 @@ pub(super) async fn select(
     } else {
         None
     };
-    let decision = wildcard_ch::choose_candidate(base, alternate);
+    let decision = libwildcard::antalya::choose_candidate(base, alternate);
     p.selected = decision.use_candidate();
     p.reason = decision.reason();
     cache.lock().unwrap_or_else(|e| e.into_inner()).put(
@@ -165,7 +165,7 @@ async fn estimate(
     sql: &str,
     settings: Option<&str>,
     p: &mut Preparation,
-) -> Result<Option<wildcard_ch::PlanEstimate>, Error> {
+) -> Result<Option<libwildcard::antalya::PlanEstimate>, Error> {
     // SQL is an internally generated alternative, not an analyst-provided EXPLAIN.
     let query = super::make_query(&format!("EXPLAIN json=1, indexes=1 {sql}"), settings)
         .map_err(|_| Error::InvalidRequest)?
@@ -200,7 +200,8 @@ async fn estimate(
     }
     p.execution(execution.metrics());
     Ok(if valid {
-        json.as_deref().and_then(wildcard_ch::native_plan_estimate)
+        json.as_deref()
+            .and_then(libwildcard::antalya::native_plan_estimate)
     } else {
         None
     })

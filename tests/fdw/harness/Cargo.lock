@@ -1514,20 +1514,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "wildcard-ch"
-version = "0.2.0"
-dependencies = [
- "libwildcard",
-]
-
-[[package]]
-name = "wildcard-core"
-version = "0.2.0"
-dependencies = [
- "libwildcard",
-]
-
-[[package]]
 name = "wildcard-fdw-transport-tests"
 version = "0.1.0"
 dependencies = [
@@ -1537,10 +1523,9 @@ dependencies = [
  "arrow-schema",
  "chrono",
  "libc",
+ "libwildcard",
  "tokio",
  "uuid",
- "wildcard-ch",
- "wildcard-core",
 ]
 
 [[package]]

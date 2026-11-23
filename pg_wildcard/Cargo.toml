@@ -5,6 +5,9 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
+repository = "https://github.com/f1b0-gh/pg_wildcard"
+readme = "README.md"
+exclude = [".local/**", "target/**", "*.log"]
 
 [lib]
 crate-type = ["cdylib", "lib"]
@@ -20,8 +23,7 @@ pg_test = []
 
 [dependencies]
 libc = "0.2"
-wildcard-core.workspace = true
-wildcard-ch.workspace = true
+libwildcard = { workspace = true, features = ["hot"] }
 antalya-rs.workspace = true
 arrow-array.workspace = true
 arrow-schema.workspace = true
