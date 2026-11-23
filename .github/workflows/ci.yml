@@ -77,6 +77,7 @@ jobs:
           python3 -m unittest discover -s tests/benchmarks -p 'test_*.py' -v
           python3 tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/verify.py
           python3 tests/benchmarks/results/2026-11-22/perf-plan/fdw-tuning/verify.py
+          python3 tests/benchmarks/results/2026-11-23/antalya-0.1.1/verify.py
       - run: cargo fmt --manifest-path libwildcard/Cargo.toml --all -- --check
       - name: Backend cache ownership and allocation regressions
         run: |

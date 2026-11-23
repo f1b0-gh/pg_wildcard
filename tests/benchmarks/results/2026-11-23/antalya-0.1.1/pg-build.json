@@ -1,0 +1,13 @@
+{
+  "base_commit": "8ae6be1a40664e5bb242cc75407226e69ed5a6ba",
+  "production_changes": false,
+  "purpose": "benchmark-only server codec selection and published 0.1.1 dependency",
+  "patch_sha256": "cefada929e78245431f0b96205bba871f4b5001a06fdd318e7229d04954441fc",
+  "extension_sha256": "d080dd2740f602c0cb8fdf2066029023ed0c7bbac31b12bfc495fda59fc4420d",
+  "profile": "release opt-level=3 lto=fat codegen-units=1 panic=unwind",
+  "original_extension_sha256": "6c23575ef8e61df9fef3e257783714f706afb904e0f7daab77544f68c08ba036",
+  "root_lock_changes": [
+    "antalya-rs 0.1.0 -> 0.1.1",
+    "tempfile 3.27.0 dependency edge getrandom 0.3.4 -> 0.4.3; same resolved packages present; both codecs share this one build"
+  ]
+}

@@ -1,0 +1,8 @@
+    Updating crates.io index
+     Locking 1 package to highest Rust 1.99.1 compatible version
+    Updating antalya-rs v0.1.0 -> v0.1.1
+ Downloading crates ...
+  Downloaded antalya-rs v0.1.1
+   Compiling antalya-rs v0.1.1
+   Compiling sweep-release-011 v0.1.1 (/home/fimbault/codex/pg_wildcard/.local/perf/antalya-0.1.1/0.1.1)
+    Finished `release` profile [optimized] target(s) in 37.42s

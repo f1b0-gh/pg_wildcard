@@ -1,0 +1,10 @@
+{
+  "workload": "shared",
+  "rows": 1000000,
+  "indicators": 1000,
+  "corpus_sha256": "843a3e1627c609db8844db2a95203fd76ca0bf9b4a143694bc0b2159688eb082",
+  "pattern_sha256": "7bd1b79c8d66249616b9b9e1c6468a9b745bcb3a52b86a461961c25ee17b3e7a",
+  "spec_sha256": "aff51a71d1a9001ebea5d0c066dc872cc8e796d3c0f50c41e8ed53d0b4a29e52",
+  "engine": "26.8.34.20001.altinityantalya",
+  "database": "wc_benchmark_cd8eb66100624610b5dd2461dcd11076"
+}

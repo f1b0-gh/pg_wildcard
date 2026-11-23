@@ -1,0 +1,26 @@
+{
+  "runner_sha256": "b44d559dd74c5b6024a1802b7eb75d742cdb68076c852799a38b13da60c597b4",
+  "machine": {
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu_count": 12,
+    "cpu_model": "AMD Ryzen 5 PRO 4650U with Radeon Graphics",
+    "host_memory_bytes": 15942414336,
+    "python": "3.12.3"
+  },
+  "client": "published antalya-rs 0.1.1",
+  "extension": "8ae6be1 + recorded benchmark-only compression option patch",
+  "engine_image": "altinityinfra/clickhouse-server@sha256:0989fbcd21552463cff9ef8d7a44bd2213a2c8e1879816f856a744a14b28e77a",
+  "engine_resources": {
+    "cpus": 4,
+    "memory_bytes": 8589934592
+  },
+  "repeats": 6,
+  "warmups": 1,
+  "terminal": "flush_first",
+  "max_batch_bytes": 16777216,
+  "retained_bytes": 67108864,
+  "order": "base order then reversed each round",
+  "backend_clock": "EXPLAIN ANALYZE Execution Time",
+  "copy_clock": "persistent psql request through complete binary COPY file, excludes decode/hash",
+  "query_log": "correlated after each sample outside clock; one fresh QueryFinish required"
+}

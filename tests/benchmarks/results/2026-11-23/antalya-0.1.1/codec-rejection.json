@@ -1,0 +1,14 @@
+[
+  {
+    "version": "010",
+    "codec": "zstd",
+    "exit_code": 1,
+    "error": "Error: \"0.1.0 only supports none\""
+  },
+  {
+    "version": "011",
+    "codec": "lz4",
+    "exit_code": 1,
+    "error": "Error: \"invalid codec\""
+  }
+]

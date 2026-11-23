@@ -175,12 +175,31 @@ trials, removing 16 repeated probes per round without extending expiry. The
 Arrow Zstd measurements used a development build and showed both wins and
 regressions; they do not change the Elasticsearch comparison above.
 
-That opt-in compression support is now published in
-[`antalya-rs` 0.1.1](https://crates.io/crates/antalya-rs/0.1.1), with uncompressed
-Arrow remaining the default. pg_wildcard still pins `=0.1.0` and does not yet
-expose the Zstd option through its FDW. The direct-client and PostgreSQL timings
-above were measured using 0.1.0; the separate compression results remain
-measurements of a development build.
+### Published antalya-rs 0.1.1 follow-up
+
+A [November 23 rerun](tests/benchmarks/results/2026-11-23/antalya-0.1.1/)
+uses published [`antalya-rs` 0.1.1](https://crates.io/crates/antalya-rs/0.1.1)
+on the same million-document, 1,000-rule workloads. Median milliseconds,
+**uncompressed → Zstd**:
+
+| Route using 0.1.1 | Shared structure | Unrelated literals |
+|---|---:|---:|
+| Direct client | 2,829 → 2,438 | 2,045 → 2,461 |
+| PostgreSQL backend execution | 2,317 → 2,389 | 2,516 → 2,562 |
+| Full PostgreSQL binary COPY | 2,379 → 2,414 | 2,442 → 2,498 |
+
+Zstd reduced Arrow response bytes from **262,920 to 101,840 (61%)**. Latency
+changes were mixed for direct access and slightly slower through PostgreSQL.
+There is no consistent latency benefit in this run; terminal-confirmation timing
+and shared-host variation are substantial. The linked evidence includes all
+six samples per variant, ranges and a fresh uncompressed 0.1.0 direct control.
+
+Direct and PG were measured in separate cohorts; compare codecs within each
+route. These results do not replace the matched Elasticsearch comparison above.
+The PG follow-up uses a recorded benchmark-only compression patch: pg_wildcard
+still pins `=0.1.0` and has no released FDW compression option. Uncompressed Arrow
+remains the client default. Every direct/COPY sample returned the exact expected
+pairs; backend execution was checked against full-COPY precontrols.
 
 ## Documentation
 

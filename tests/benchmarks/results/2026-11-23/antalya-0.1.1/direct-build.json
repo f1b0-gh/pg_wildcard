@@ -1,0 +1,65 @@
+{
+  "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+  "packages": {
+    "0.1.0": {
+      "lock_sha256": "e77220b70065e3fd95466eb501ef5e218c815ea53c6e65011814639ba1eec9b3",
+      "source_sha256": "56e069886bda1b2770af78ebe4eb88bf3178f0066c1092500275400d200c8cbd",
+      "antalya_package": {
+        "name": "antalya-rs",
+        "version": "0.1.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "3bc1afbdfb6d217b4670615038ba391a65f5cf422378213c727470dfb1d7fa09",
+        "dependencies": [
+          "arrow-array",
+          "arrow-buffer",
+          "arrow-ipc",
+          "arrow-schema",
+          "base64",
+          "clickhouse",
+          "flatbuffers",
+          "hyper",
+          "hyper-util",
+          "reqwest",
+          "serde",
+          "serde_json",
+          "tempfile",
+          "tokio",
+          "tower-service",
+          "uuid"
+        ]
+      },
+      "reproduction_command": "cargo build --release --locked --manifest-path .local/perf/antalya-0.1.1/0.1.0/Cargo.toml"
+    },
+    "0.1.1": {
+      "lock_sha256": "97eb976a2d9173de6f6af31c76052d2127fdee42e2b3b662f357eec20135442d",
+      "source_sha256": "56e069886bda1b2770af78ebe4eb88bf3178f0066c1092500275400d200c8cbd",
+      "antalya_package": {
+        "name": "antalya-rs",
+        "version": "0.1.1",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "7e62072e6ded6a106097979df75e37d70f02ab61d2b4a45db5afdf0421e24ebd",
+        "dependencies": [
+          "arrow-array",
+          "arrow-buffer",
+          "arrow-ipc",
+          "arrow-schema",
+          "base64",
+          "clickhouse",
+          "flatbuffers",
+          "hyper",
+          "hyper-util",
+          "reqwest",
+          "serde",
+          "serde_json",
+          "tempfile",
+          "tokio",
+          "tower-service",
+          "uuid"
+        ]
+      },
+      "reproduction_command": "cargo build --release --locked --features v011 --manifest-path .local/perf/antalya-0.1.1/0.1.1/Cargo.toml"
+    }
+  },
+  "transitive_dependencies_identical": true,
+  "worker_source_identical": true
+}
