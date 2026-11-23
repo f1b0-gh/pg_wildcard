@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 //! Per-backend cache configuration and counters; never called by FDW workers.
 
+use libwildcard::core::{Matcher, verify::Kind, views::View};
 use pgrx::guc::{GucContext, GucFlags, GucRegistry, GucSetting};
 use pgrx::prelude::*;
-use wildcard_core::{Matcher, verify::Kind, views::View};
 
 use crate::matcher_cache::{CACHE_BYTES, CACHE_CAP, MatcherCache};
 

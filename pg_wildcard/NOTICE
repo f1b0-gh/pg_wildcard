@@ -1,0 +1,9 @@
+pg_wildcard
+Copyright 2026 The pg_wildcard Authors
+
+This product is licensed under the Apache License, Version 2.0.
+
+The PostgreSQL adapter uses the separately licensed Apache-2.0 antalya-rs client.
+
+Development-only libfuzzer-sys is licensed (MIT OR Apache-2.0) AND NCSA.
+Third-party dependencies retain their own licenses and notices.

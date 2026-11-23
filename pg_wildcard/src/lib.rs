@@ -15,11 +15,11 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
+use libwildcard::antalya::{SweepItem, ViewColumns};
+use libwildcard::core::verify::Kind;
+use libwildcard::core::views::{self, View};
+use libwildcard::core::{Matcher, indicator, re2};
 use pgrx::prelude::*;
-use wildcard_ch::{SweepItem, ViewColumns};
-use wildcard_core::verify::Kind;
-use wildcard_core::views::{self, View};
-use wildcard_core::{Matcher, indicator, re2};
 
 mod fdw;
 mod matcher_cache;
@@ -75,7 +75,7 @@ fn cols_arg(col: &str, materialized: bool) -> ViewColumns {
     r.unwrap_or_else(|e| error!("pg_wildcard: {e}"))
 }
 
-fn ch<T>(r: Result<T, wildcard_ch::ChError>) -> T {
+fn ch<T>(r: Result<T, libwildcard::antalya::ChError>) -> T {
     r.unwrap_or_else(|e| error!("pg_wildcard: {e}"))
 }
 
@@ -190,7 +190,7 @@ fn wc_indicator(
 /// ClickHouse expression for a view of a column.
 #[pg_extern(immutable, parallel_safe, strict)]
 fn wc_ch_view_expr(col: &str, view: &str) -> String {
-    wildcard_ch::view_expr(&ch(wildcard_ch::ident(col)), view_arg(view))
+    libwildcard::antalya::view_expr(&ch(libwildcard::antalya::ident(col)), view_arg(view))
 }
 
 /// ClickHouse boolean expression equivalent to wc_match / wc_like / wc_regex.
@@ -203,7 +203,7 @@ fn wc_ch_predicate(
     view: default!(&str, "'raw'"),
     materialized: default!(bool, false),
 ) -> String {
-    ch(wildcard_ch::column_predicate(
+    ch(libwildcard::antalya::column_predicate(
         &cols_arg(col, materialized),
         kind_arg(kind),
         pattern,
@@ -218,7 +218,7 @@ fn wc_ch_view_columns_ddl(
     col: &str,
     views: default!(&str, "'raw,lower,decoded,revdomain'"),
 ) -> SetOfIterator<'static, String> {
-    SetOfIterator::new(ch(wildcard_ch::view_columns_ddl(
+    SetOfIterator::new(ch(libwildcard::antalya::view_columns_ddl(
         table,
         col,
         &views_arg(views),
@@ -253,7 +253,7 @@ fn wc_ch_sweep(
         })
         .collect();
     let sel: Vec<&str> = select_cols.iter().map(String::as_str).collect();
-    let qs = ch(wildcard_ch::sweep_queries(
+    let qs = ch(libwildcard::antalya::sweep_queries(
         source,
         &sel,
         &cols_arg(col, materialized),
@@ -305,13 +305,13 @@ fn wc_ch_sweep_plan(
         })
         .collect();
     let sel: Vec<_> = select_cols.iter().map(String::as_str).collect();
-    let plan = ch(wildcard_ch::sweep_queries_with_options(
+    let plan = ch(libwildcard::antalya::sweep_queries_with_options(
         source,
         &sel,
         &cols_arg(col, materialized),
         &items,
         filter,
-        wildcard_ch::SweepOptions {
+        libwildcard::antalya::SweepOptions {
             max_bytes: max_query_bytes as usize,
             max_ast_nodes: max_ast_nodes as usize,
         },
@@ -341,7 +341,7 @@ fn wc_ch_watchlist_ddl(
     materialized: default!(bool, false),
 ) -> SetOfIterator<'static, String> {
     let sel: Vec<&str> = select_cols.iter().map(String::as_str).collect();
-    let mv = ch(wildcard_ch::watchlist_mv(
+    let mv = ch(libwildcard::antalya::watchlist_mv(
         name,
         source,
         hits,
@@ -350,7 +350,10 @@ fn wc_ch_watchlist_ddl(
         &cols_arg(col, materialized),
         &views_arg(views),
     ));
-    SetOfIterator::new(vec![ch(wildcard_ch::watchlist_table_ddl(watch)), mv])
+    SetOfIterator::new(vec![
+        ch(libwildcard::antalya::watchlist_table_ddl(watch)),
+        mv,
+    ])
 }
 
 /// Watchlist DDL with explicit strategy selection and conservative fallback.
@@ -378,12 +381,12 @@ fn wc_ch_watchlist_plan(
     ),
 > {
     let strategy = match requested_strategy {
-        "staged_needles" => wildcard_ch::WatchlistStrategy::StagedNeedles,
-        "rule_anchor_join" => wildcard_ch::WatchlistStrategy::RuleAnchorJoin,
+        "staged_needles" => libwildcard::antalya::WatchlistStrategy::StagedNeedles,
+        "rule_anchor_join" => libwildcard::antalya::WatchlistStrategy::RuleAnchorJoin,
         _ => error!("pg_wildcard: unknown watchlist strategy"),
     };
     let sel: Vec<_> = select_cols.iter().map(String::as_str).collect();
-    let plan = ch(wildcard_ch::watchlist_plan(
+    let plan = ch(libwildcard::antalya::watchlist_plan(
         name,
         source,
         hits,
@@ -394,7 +397,7 @@ fn wc_ch_watchlist_plan(
         strategy,
     ));
     TableIterator::new(std::iter::once((
-        ch(wildcard_ch::watchlist_table_ddl(watch)),
+        ch(libwildcard::antalya::watchlist_table_ddl(watch)),
         plan.sql,
         plan.strategy.name().to_owned(),
         plan.fallback.map(|f| f.name().to_owned()),
@@ -411,7 +414,7 @@ fn wc_ch_watchlist_insert(
     regex: &str,
     view: default!(&str, "'raw'"),
 ) -> String {
-    ch(wildcard_ch::watchlist_insert_sql(
+    ch(libwildcard::antalya::watchlist_insert_sql(
         watch,
         &SweepItem {
             id,
@@ -636,13 +639,13 @@ fn lake_sql(
     .flatten()
     .unwrap_or_else(|| error!("pg_wildcard: unknown lake index '{index_name}'"));
     let (indexed, files, _) = lake_candidates_with_coverage(index_name, pattern, k, v);
-    let pred = ch(wildcard_ch::column_predicate(
+    let pred = ch(libwildcard::antalya::column_predicate(
         &cols_arg(&column, materialized),
         k,
         pattern,
         v,
     ));
-    let (query, strategy) = ch(wildcard_ch::lake_query_with_inventory(
+    let (query, strategy) = ch(libwildcard::antalya::lake_query_with_inventory(
         lake_table,
         select_list,
         &pred,
@@ -651,7 +654,7 @@ fn lake_sql(
         extra_where,
         known_table,
     ));
-    if strategy == wildcard_ch::LakeFilterStrategy::FilterBudgetExceeded {
+    if strategy == libwildcard::antalya::LakeFilterStrategy::FilterBudgetExceeded {
         format!("/* pg_wildcard: {} */\n{query}", strategy.description())
     } else {
         query
@@ -862,8 +865,9 @@ mod tests {
         Spi::run("INSERT INTO wc_lake_index VALUES ('t', 'url', 'raw', 1)").unwrap();
         Spi::run("INSERT INTO wc_lake_file VALUES ('t', 0, 's3://l/f0.parquet', 10, false), ('t', 1, 's3://l/f1.parquet', 10, false), ('t', 2, 's3://l/f2.parquet', 10, true)").unwrap();
         // index every raw gram of the two sample values
-        let grams =
-            |v: &str| wildcard_core::grams::value_grams(wildcard_core::View::Raw, v.as_bytes());
+        let grams = |v: &str| {
+            libwildcard::core::grams::value_grams(libwildcard::core::View::Raw, v.as_bytes())
+        };
         let mut all: std::collections::BTreeMap<u64, Vec<i32>> = Default::default();
         for (ord, v) in [(0, "https://evil.com/x"), (1, "https://good.example/y")] {
             for g in grams(v) {

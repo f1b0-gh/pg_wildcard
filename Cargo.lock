@@ -1673,12 +1673,11 @@ dependencies = [
  "arrow-schema",
  "chrono",
  "libc",
+ "libwildcard",
  "pgrx",
  "pgrx-tests",
  "tokio",
  "uuid",
- "wildcard-ch",
- "wildcard-core",
 ]
 
 [[package]]

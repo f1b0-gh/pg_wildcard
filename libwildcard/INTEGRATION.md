@@ -1,12 +1,14 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Consumer integration
 
-Use this package from an explicit source path or its verified source archive:
+Use the standalone package from crates.io:
 
 ```toml
 [dependencies]
-libwildcard = { path = "path/to/libwildcard", default-features = false, features = ["hot"] }
+libwildcard = { version = "0.2.0", default-features = false, features = ["hot"] }
 ```
+
+For local development, replace the version with `path = "path/to/libwildcard"`.
 
 Select `hot` for SQL generation, `puffin` for codecs or `cold` for Parquet indexing
 and the CLI. Default features provide only matching, gram planning and indicator

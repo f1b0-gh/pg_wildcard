@@ -62,7 +62,7 @@ Add it to an application by source path, selecting only the features you need:
 
 ```toml
 [dependencies]
-libwildcard = { path = "path/to/pg_wildcard/libwildcard", features = ["hot"] }
+libwildcard = { version = "0.2.0", features = ["hot"] }
 ```
 
 ```rust

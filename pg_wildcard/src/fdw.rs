@@ -28,12 +28,12 @@ mod transport;
 mod values;
 use antalya_rs::BudgetedBatch;
 
+use libwildcard::antalya::ViewColumns;
+use libwildcard::core::View;
+use libwildcard::core::verify::Kind;
 use pgrx::pg_sys;
 use pgrx::prelude::*;
 use pgrx::{FromDatum, PgList, PgMemoryContexts};
-use wildcard_ch::ViewColumns;
-use wildcard_core::View;
-use wildcard_core::verify::Kind;
 
 // ------------------------------------------------------------------ options
 
@@ -195,12 +195,14 @@ fn ch_literal(text: &str, ty: pg_sys::Oid) -> Option<String> {
         } else {
             "false".into()
         }),
-        pg_sys::TEXTOID | pg_sys::VARCHAROID | pg_sys::NAMEOID => Some(wildcard_ch::quote(text)),
+        pg_sys::TEXTOID | pg_sys::VARCHAROID | pg_sys::NAMEOID => {
+            Some(libwildcard::antalya::quote(text))
+        }
         pg_sys::TIMESTAMPOID | pg_sys::TIMESTAMPTZOID => Some(format!(
             "fromUnixTimestamp64Micro({}, 'UTC')",
             text.parse::<i64>().ok()?
         )),
-        pg_sys::DATEOID => Some(format!("toDate32({})", wildcard_ch::quote(text))),
+        pg_sys::DATEOID => Some(format!("toDate32({})", libwildcard::antalya::quote(text))),
         _ => None,
     }
 }
@@ -385,7 +387,7 @@ unsafe fn deparse(
                     return None;
                 }
                 let literal = if ch_op.contains("LIKE") {
-                    wildcard_ch::quote(&predicates::like(&text)?)
+                    libwildcard::antalya::quote(&predicates::like(&text)?)
                 } else {
                     ch_literal(&text, ty)?
                 };
@@ -408,7 +410,7 @@ unsafe fn deparse(
                     ViewColumns::new(&c.column)
                 }
                 .ok()?;
-                wildcard_ch::column_predicate(&cols, c.kind, &c.pattern, c.view).ok()
+                libwildcard::antalya::column_predicate(&cols, c.kind, &c.pattern, c.view).ok()
             }
             _ => None,
         }
@@ -453,9 +455,12 @@ unsafe fn lake_filter(
         }
         let set = set?;
         let candidates: Vec<String> = set.into_iter().collect();
-        let filter =
-            wildcard_ch::lake_path_filter_with_inventory(&indexed, &candidates, known_table)
-                .unwrap_or_else(|_| error!("wildcard_fdw: invalid lake inventory configuration"));
+        let filter = libwildcard::antalya::lake_path_filter_with_inventory(
+            &indexed,
+            &candidates,
+            known_table,
+        )
+        .unwrap_or_else(|_| error!("wildcard_fdw: invalid lake inventory configuration"));
         let summary = format!(
             "{} of {} indexed files; unknown files retained (index {index}); {}",
             candidates.len(),
@@ -616,7 +621,7 @@ unsafe extern "C-unwind" fn get_foreign_plan(
             if names.len() > 64
                 || names
                     .iter()
-                    .any(|n| wildcard_ch::ident(n).is_err() || n.contains('.'))
+                    .any(|n| libwildcard::antalya::ident(n).is_err() || n.contains('.'))
             {
                 error!("wildcard_fdw: invalid candidate_columns");
             }
@@ -635,7 +640,7 @@ unsafe extern "C-unwind" fn get_foreign_plan(
                     if let Ok(cols) = cols {
                         let expr = cols.expr(call.view);
                         if names.contains(&expr.as_str())
-                            && let Ok(Some(filter)) = wildcard_ch::candidate_predicate(
+                            && let Ok(Some(filter)) = libwildcard::antalya::candidate_predicate(
                                 &expr,
                                 call.kind,
                                 &call.pattern,
