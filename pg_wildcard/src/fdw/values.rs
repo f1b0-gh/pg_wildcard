@@ -197,6 +197,36 @@ impl PreparedColumn {
             DataType::Timestamp(TimeUnit::Nanosecond, _) => typed!(TimestampNanosecondArray, Nanos),
             _ => return Err("unsupported Arrow/PostgreSQL type pairing"),
         };
+        // Arrow checks UTF-8 and every offset's character boundary before
+        // exposing str values. A valid aggregate buffer alone is insufficient:
+        // two Binary rows may split one multibyte codepoint. Its validator also
+        // scans the whole retained buffer, so only try full-coverage columns.
+        // Failure is an optimization miss, never a batch error: invalid bytes
+        // may belong to a NULL or to a row the executor will not consume.
+        macro_rules! promote {
+            ($array:ident, $text:ty, $text_variant:ident, $fallback:ident) => {{
+                let offsets = $array.value_offsets();
+                if target == Target::Text
+                    && $array.null_count() < $array.len()
+                    && offsets[0] == 0
+                    && offsets[$array.len()] as usize == $array.value_data().len()
+                {
+                    match <$text>::try_from_binary($array.clone()) {
+                        Ok(text) => PreparedArray::$text_variant(text),
+                        Err(_) => PreparedArray::$fallback($array),
+                    }
+                } else {
+                    PreparedArray::$fallback($array)
+                }
+            }};
+        }
+        let array = match array {
+            PreparedArray::Binary(array) => promote!(array, StringArray, Utf8, Binary),
+            PreparedArray::LargeBinary(array) => {
+                promote!(array, LargeStringArray, LargeUtf8, LargeBinary)
+            }
+            other => other,
+        };
         Ok(Self {
             array,
             target,
@@ -474,6 +504,127 @@ mod tests {
 
     // These cases catch incorrect offset scans, eager rejection of NULs in
     // other/null rows, lost Arrow ownership, and skipped binary UTF-8 checks.
+    #[test]
+    fn binary_text_promotes_ascii_and_unicode_without_copying_payload() {
+        macro_rules! check {
+            ($binary:ty, $utf8:ident) => {{
+                let (prepared, ascii_ptr, unicode_ptr) = {
+                    let source = <$binary>::from(vec![
+                        Some(b"ascii".as_slice()),
+                        Some("évidence".as_bytes()),
+                        None,
+                        Some(b"bad\0".as_slice()),
+                        Some(b"".as_slice()),
+                    ]);
+                    (
+                        PreparedColumn::new(&source, Target::Text).unwrap(),
+                        source.value(0).as_ptr(),
+                        source.value(1).as_ptr(),
+                    )
+                };
+                // Promotion is the optimization contract: subsequent rows use
+                // Arrow's validated string accessor without UTF-8 rescanning.
+                assert!(matches!(&prepared.array, PreparedArray::$utf8(_)));
+                let Some(Value::Text(ascii)) = prepared.input(0).unwrap() else {
+                    panic!("expected text")
+                };
+                let Some(Value::Text(unicode)) = prepared.input(1).unwrap() else {
+                    panic!("expected text")
+                };
+                assert_eq!(ascii, "ascii");
+                assert_eq!(unicode, "évidence");
+                assert_eq!(ascii.as_ptr(), ascii_ptr);
+                assert_eq!(unicode.as_ptr(), unicode_ptr);
+                assert_eq!(prepared.input(2), Ok(None));
+                assert_eq!(
+                    prepared.input(3),
+                    Err("NUL bytes cannot be represented as PostgreSQL text; use bytea")
+                );
+                assert_eq!(prepared.input(4), Ok(Some(Value::Text(""))));
+            }};
+        }
+        check!(BinaryArray, Utf8);
+        check!(LargeBinaryArray, LargeUtf8);
+    }
+
+    #[test]
+    fn binary_text_split_codepoints_keep_per_value_errors() {
+        macro_rules! check {
+            ($binary:ty, $fallback:ident) => {{
+                let source = <$binary>::from(vec![b"\xc3".as_slice(), b"\xa9", b"ok"]);
+                assert!(std::str::from_utf8(source.value_data()).is_ok());
+                let prepared = PreparedColumn::new(&source, Target::Text).unwrap();
+                assert!(matches!(&prepared.array, PreparedArray::$fallback(_)));
+                for row in 0..2 {
+                    assert_eq!(
+                        prepared.input(row),
+                        Err("invalid UTF-8 cannot be represented as PostgreSQL text; use bytea")
+                    );
+                }
+                assert_eq!(prepared.input(2), Ok(Some(Value::Text("ok"))));
+            }};
+        }
+        check!(BinaryArray, Binary);
+        check!(LargeBinaryArray, LargeBinary);
+    }
+
+    #[test]
+    fn binary_text_invalid_null_payload_keeps_other_rows_valid() {
+        macro_rules! check {
+            ($binary:ty, $fallback:ident) => {{
+                let validity =
+                    <$binary>::from(vec![Some(b"a".as_slice()), None, Some(b"b".as_slice())])
+                        .nulls()
+                        .cloned();
+                let source = <$binary>::from(vec![b"first".as_slice(), b"\xff", b"last"]);
+                let source = <$binary>::from(
+                    source
+                        .to_data()
+                        .into_builder()
+                        .nulls(validity)
+                        .build()
+                        .unwrap(),
+                );
+                let prepared = PreparedColumn::new(&source, Target::Text).unwrap();
+                assert!(matches!(&prepared.array, PreparedArray::$fallback(_)));
+                assert_eq!(prepared.input(0), Ok(Some(Value::Text("first"))));
+                assert_eq!(prepared.input(1), Ok(None));
+                assert_eq!(prepared.input(2), Ok(Some(Value::Text("last"))));
+            }};
+        }
+        check!(BinaryArray, Binary);
+        check!(LargeBinaryArray, LargeBinary);
+    }
+
+    #[test]
+    fn binary_text_promotion_skips_uncovered_buffers_bytea_and_all_nulls() {
+        macro_rules! check {
+            ($binary:ty, $fallback:ident) => {{
+                let source =
+                    <$binary>::from(vec![b"prefix".as_slice(), "évidence".as_bytes(), b"suffix"]);
+                for slice in [source.slice(1, 1), source.slice(0, 2)] {
+                    let prepared = PreparedColumn::new(&slice, Target::Text).unwrap();
+                    assert!(matches!(&prepared.array, PreparedArray::$fallback(_)));
+                    for row in 0..slice.len() {
+                        assert_eq!(prepared.input(row), input(&slice, row, Target::Text));
+                    }
+                }
+                let bytes = PreparedColumn::new(&source, Target::Bytes).unwrap();
+                assert!(matches!(&bytes.array, PreparedArray::$fallback(_)));
+                assert_eq!(
+                    bytes.input(1),
+                    Ok(Some(Value::Bytes("évidence".as_bytes())))
+                );
+                let source = <$binary>::from(vec![None::<&[u8]>]);
+                let nulls = PreparedColumn::new(&source, Target::Text).unwrap();
+                assert!(matches!(&nulls.array, PreparedArray::$fallback(_)));
+                assert_eq!(nulls.input(0), Ok(None));
+            }};
+        }
+        check!(BinaryArray, Binary);
+        check!(LargeBinaryArray, LargeBinary);
+    }
+
     #[test]
     fn prepared_null_payloads_do_not_poison_other_rows() {
         let validity = StringArray::from(vec![Some("a"), None, Some("b")])

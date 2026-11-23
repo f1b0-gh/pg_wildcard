@@ -187,8 +187,12 @@ applies to empty results; schemas must stay identical between batches. Only
 required columns are decoded. Each retained batch prepares typed Arrow handles
 once. Text checks inspect only the covered slice of the byte buffer; a possible
 NUL selects exact checks for each non-NULL value. Validated Arrow string arrays
-reuse their UTF-8 guarantee, while binary-to-text conversion still validates
-UTF-8. Prepared handles retain the batch byte charge until they are dropped.
+reuse their UTF-8 guarantee. Binary text columns covering their entire value
+buffer can share validated Arrow string handles after Arrow checks UTF-8 and
+all value boundaries once. If that check fails or the column covers only part
+of its buffer, conversion retains per-value UTF-8 checks; a bad value or NULL
+payload never rejects other rows during preparation. Prepared handles retain
+the batch byte charge until they are dropped.
 Output text and bytea are copied through pgrx's guarded allocation boundary into
 the PostgreSQL context for the current tuple, so they never borrow batch storage.
 
