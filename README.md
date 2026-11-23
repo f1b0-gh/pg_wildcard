@@ -78,7 +78,7 @@ release is assumed by these instructions.
 ## PostgreSQL
 
 The extension targets PostgreSQL **18.6** with pgrx **0.19.4**. Building the
-outer workspace uses the published `antalya-rs` 0.1.0 client from crates.io; see
+outer workspace currently pins the published `antalya-rs` client to `=0.1.0`; see
 the [build guide](docs/build.md) for prerequisites and CI configuration.
 
 After installing and creating the extension:
@@ -113,46 +113,47 @@ Median complete-request latency in milliseconds, with all results consumed:
 | Direct published `antalya-rs` 0.1.0 | 2,657.454 | 3,672.923 |
 | PostgreSQL backend request through FDW | 2,742.254 | 3,702.678 |
 | Full PostgreSQL binary COPY through FDW | 3,119.934 | 3,458.408 |
-| Elasticsearch wildcard, `_msearch` concurrency 1 | 4,171.747 | 5,557.454 |
-| Elasticsearch wildcard, `_msearch` concurrency 4 | 1,478.538 | 2,126.603 |
+| Elasticsearch wildcard, 1 search at a time | 4,171.747 | 5,557.454 |
+| Elasticsearch wildcard, up to 4 concurrent searches | 1,478.538 | 2,126.603 |
 
-**Elasticsearch at concurrency four remains faster in both fixtures.** The native,
-direct-client and PostgreSQL routes measure different operations and must remain
-separate. These two synthetic workloads do not establish a general engine ranking.
+Elasticsearch's `_msearch` parameter `max_concurrent_searches` limits how many
+individual rule searches can run at once within each batch; it is not a thread
+count ([API definition](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-msearch)).
+The native, direct-client and PostgreSQL routes use one combined query, with
+Antalya configured for `max_threads=4`. Each route runs one complete sweep at a
+time; the PG route is not a four-client test or a single-threaded search control.
+
+**Elasticsearch with four concurrent searches is faster in both fixtures.**
+This compares latency at fixed data-engine CPU limits. It does not establish
+which approach scales better across cores: that would require runs at different
+CPU limits with corresponding parallelism settings.
 
 ### Methodology and limits
 
-- **Engines and resources:** Antalya 26.8.34.20001 and Elasticsearch 9.5.6 each
-  have four CPUs and an 8 GiB container limit; Elasticsearch has a 4 GiB heap.
-  PostgreSQL 18.6 and the direct client add resources outside those engine limits.
-- **Matching and indexes:** identical raw documents and rules, with complete
-  result-pair checks. Native/direct/PG share the same byte-indexed source and
-  execute one source query per sweep. Both Elasticsearch routes use the same
-  `wildcard` field index, with 1,000 per-rule searches batched in `_msearch`.
-  This measures neither BM25 scoring nor percolation.
-- **Sampling:** one excluded warmup followed by five measured repetitions in
-  rotating route order, after ingestion and compaction. Shared-host activity
-  and filesystem caches were uncontrolled; these are warm observations.
-  [Shared](tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/routes/full-shared/report.md)
-  and [unrelated](tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/routes/full-unrelated/report.md)
-  reports retain ranges and individual observations.
-- **Route boundaries:** the direct route uses published `antalya-rs`, not raw
-  HTTP. PG backend timing uses `EXPLAIN ANALYZE` with per-row timing off; full
-  COPY includes delivery over TCP. These PG queries consume generated exact
-  pairs without additional local `wc_*` rechecks. Transport, server and backend
-  clocks overlap; subtracting route medians does not isolate overhead. Separate
-  [FDW profiles and flamegraphs](tests/benchmarks/results/2026-11-22/perf-plan/fdw-conversion/)
-  cover broad local rechecks and conversion.
-- **Query caches:** native/direct explicitly disable the condition cache;
-  Elasticsearch disables request/query caches. PG inherits the fixture policy:
-  its saved profiles record two condition-cache misses per query and no recorded
-  hits. The reports correct the original metadata's blanket cache-disable claim.
-- **Indexing cost:** the table excludes index construction and ingestion. Separate
-  [matched-fsync ingestion controls](tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/cost/report.md)
-  use identical 2,000-document batches, 900,000 initial plus 100,000 incremental
-  documents, and confirmed search visibility. They are single observations,
-  not throughput medians; earlier unequal-durability setup times cannot rank
-  ingestion speed.
+- **Setup:** Antalya 26.8.34.20001, Elasticsearch 9.5.6 and PostgreSQL 18.6.
+  Each data-engine container was configured with four CPUs and an 8 GiB limit;
+  Elasticsearch's heap was set to 4 GiB.
+- **Queries:** identical documents and rules, with every result pair checked.
+  Native/direct/PG execute one query against the same byte-indexed source.
+  Elasticsearch batches 1,000 per-rule searches against a `wildcard` field
+  using `_msearch`.
+- **Sampling:** one excluded warmup, then five repetitions in rotating route
+  order, after loading and compaction. Host activity and filesystem caches were
+  uncontrolled.
+- **Timing:** PostgreSQL backend measurements use `EXPLAIN ANALYZE` with row
+  timing off; full COPY includes delivery over TCP. These PG queries consume
+  computed match pairs without local `wc_*` rechecks. Subtracting route medians
+  does not isolate client or FDW overhead.
+- **Caches:** native/direct and Elasticsearch query caches were disabled. PG
+  inherited the fixture settings; its profiles recorded condition-cache misses
+  and no hits.
+
+The table excludes ingestion and index construction. See the
+[ingestion controls](tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/cost/report.md)
+for those measurements, and the
+[shared](tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/routes/full-shared/report.md)
+and [unrelated](tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/routes/full-unrelated/report.md)
+reports for individual timings, ranges and detailed settings.
 
 The byte-index strategy is opt-in. Requiring up to three necessary fragments
 together per rule reduced unrelated-case candidates from 921,471 to 13,407,
@@ -171,8 +172,15 @@ cover block sizes, selective lake completion and adaptive-cache churn. They keep
 direct published antalya-rs, backend execution and full COPY separate. The cache
 fix raised hot-preference hits from 80% to 100% in five interleaved hot/new-key
 trials, removing 16 repeated probes per round without extending expiry. The
-upstream Arrow Zstd experiment is an opt-in modified-client result, with both
-wins and regressions; it does not change the Elasticsearch comparison above.
+Arrow Zstd measurements used a development build and showed both wins and
+regressions; they do not change the Elasticsearch comparison above.
+
+That opt-in compression support is now published in
+[`antalya-rs` 0.1.1](https://crates.io/crates/antalya-rs/0.1.1), with uncompressed
+Arrow remaining the default. pg_wildcard still pins `=0.1.0` and does not yet
+expose the Zstd option through its FDW. The direct-client and PostgreSQL timings
+above were measured using 0.1.0; the separate compression results remain
+measurements of a development build.
 
 ## Documentation
 
