@@ -30,27 +30,101 @@ they are filters alongside the wildcard search, not additional wildcard targets.
 
 See [sweep reproduction](../../libwildcard/tests/benchmarks/README.md),
 [FDW profiling](FDW.md), and [measurement summaries](results/2026-11-22/).
-Settings, summaries, harnesses and provenance remain in Git; complete raw evidence
-lives in checksummed release assets. [Verify and inspect the evidence](ARTIFACTS.md)
-with `python3 tools/verify_benchmark_artifacts.py` from the repository root.
-Detailed experiments and private engine state belong in `.local/`.
+For the archived runs, settings, summaries, harnesses and provenance remain in
+Git; their raw evidence is available in checksummed release assets.
+[Verify archived evidence](ARTIFACTS.md) with
+`python3 tools/verify_benchmark_artifacts.py` from the repository root.
+Evidence for the current requalification has not been uploaded. Detailed
+experiments and private engine state belong in `.local/`.
 
-## Measured performance
+## Current requalification
 
-**These are local-machine measurements, not yet a reproducible benchmark.**
-They have not been independently reproduced or validated in a controlled
-benchmark environment.
+The [current performance matrix](../../README.md#measured-performance) replaces
+the older headline measurements. The 2026-11-23 run uses canonical
+`libwildcard 0.2.1`, current `pg_wildcard 0.2.1` sources and published
+`antalya-rs 0.1.1`. The registry extension archive still pins client 0.1.0;
+this candidate has not been released.
+
+### Sweep protocol
+
+- Shared and unrelated literal workloads each contain one million documents,
+  1,000 wildcard rules and exactly 10,000 row/indicator/view pairs. All six
+  routes have one excluded warmup and six measured repetitions in rotating
+  order, with one sweep at a time. Full-value controls establish exact results.
+- Antalya 26.8.34.20001 and Elasticsearch 9.5.6 each have four CPUs and 8 GiB;
+  Elasticsearch has a 4 GiB heap. PostgreSQL remains 18.6 with pgrx 0.19.4.
+  Native queries use `max_threads=4`, `max_block_size=8192`; Arrow uses
+  `flush_first` and no compression. Elasticsearch search concurrency is 1 or 4.
+- Native/direct disable result and condition caches; Elasticsearch disables
+  request/query caches. PG inherits fixture settings: all recorded PG queries
+  have two condition-cache misses and no hits. Text-index and filesystem caches
+  remain uncontrolled.
+- PostgreSQL requests use `EXPLAIN ANALYZE` with row timing off; the table reports
+  the complete request clock. Executor medians are separately recorded:
+  1,973.769 ms for shared literals and 2,618.015 ms for unrelated literals.
+  Binary COPY includes complete delivery and consumption. Generated pair
+  queries do not add a local `wc_*` predicate.
+- Ingestion timings use unequal default fsync acknowledgment durability and
+  do not establish a cross-engine ingestion ranking.
+
+### Paired FDW protocol
+
+Six rounds cover all six orders of current FDW/client 0.1.0, predecessor
+FDW/client 0.1.1 and current FDW/client 0.1.1. Each workload and route has one
+excluded warmup per cohort. Workloads return one million rows except the wide
+projection (32,768). Broad recheck preserves the local `wc_match` filter.
+Settings are `in_band`, uncompressed Arrow, a 16 MiB batch budget,
+`max_threads=2` and `max_block_size=1024`.
+
+The root README reports the optimization comparison at fixed client 0.1.1.
+The following comparison holds current FDW code fixed to measure the client
+update. Values are **median round-paired reduction % [minimum, maximum]**.
+Positive means lower latency; negative means slower. These are medians of
+paired percentages, not ratios of pooled medians.
+
+| Workload | Client 0.1.0 → 0.1.1: executor | Client 0.1.0 → 0.1.1: complete COPY |
+|---|---:|---:|
+| Narrow | 18.53 [1.09, 47.78] | 15.43 [-13.25, 30.76] |
+| Short text | -0.33 [-16.41, 49.77] | 3.35 [-22.17, 51.20] |
+| Wide, 1 KiB | 3.69 [-43.06, 35.99] | 8.46 [-0.26, 40.31] |
+| Broad recheck | 7.85 [-73.79, 47.62] | 11.27 [-91.39, 42.83] |
+
+The unchanged direct 0.1.1 worker in both optimization cohorts is a variability
+control. Its changes cannot be attributed to FDW optimizations. Paired PostgreSQL
+binaries use matched release profiles: fat LTO, one codegen unit and debug level 1.
+The extracted extension package was built independently with its package defaults;
+that build verifies packaging and was not substituted into the timing cohorts.
+
+### Evidence and limits
+
+These are local shared-machine observations. No builds or tests ran during
+timing, but unrelated host activity and filesystem caches were uncontrolled.
+An independent recalculation verified the aggregates; the measurements have
+not been independently reproduced in a controlled benchmark environment.
+Overlapping clocks and route medians must not be subtracted to infer isolated
+FDW overhead. The results do not establish a consistent optimization gain.
+
+Local evidence is retained under `.local/final-matrix-20261123/`: source and
+binary hashes, raw samples, exact-value controls, native QueryFinish records,
+verification scripts, final matrix and fixture-restoration receipt. The checks
+cover 432 FDW records, 72 full-value controls and 84 sweep records, including
+warmups. Seven intentionally corrupted evidence cases are rejected by the
+verifier. This evidence is not included in the archived release assets below;
+those downloads cannot verify the new tables.
+
+## Archived measurements
+
+These runs retain their original versions, settings and conclusions. They are
+historical context, not measurements of the current candidate.
 
 - [Matched engine and route comparison](results/2026-11-22/perf-plan/byte-dispatch/):
-  one million documents, 1,000 rules, native Antalya, direct client, PostgreSQL and
-  Elasticsearch; includes index/ingestion costs, raw profiles and reproduction.
-- [Published antalya-rs 0.1.1 codec measurements](results/2026-11-23/antalya-0.1.1/):
-  Zstd reduced Arrow response bytes by 61% without a consistent latency benefit.
-  These separate direct/PG cohorts do not replace the matched engine comparison;
-  PG compression used a benchmark-only patch.
-- [FDW batch conversion and matcher call sites](results/2026-11-23/fdw-overhead/):
-  matched before/after results and flamegraphs; broad rechecks improve in this
-  local run, while the 50% overhead target remains unmet.
+  earlier million-document sweeps, including index/ingestion observations.
+- [Antalya 0.1.1 codec experiment](results/2026-11-23/antalya-0.1.1/):
+  Zstd reduced Arrow response bytes by 61% without a consistent latency benefit;
+  PostgreSQL compression required an experimental patch.
+- [FDW conversion and matcher experiment](results/2026-11-23/fdw-overhead/):
+  earlier paired measurements and flamegraphs. Its broad-recheck gains are not
+  confirmed as consistent gains by the current requalification.
 - [FDW tuning and profiling](results/2026-11-22/perf-plan/fdw-tuning/):
   block sizes, terminal policies, selective lake completion and adaptive-cache churn.
 
@@ -155,7 +229,8 @@ cargo build --release --locked --manifest-path tests/transport/Cargo.toml \
 python3 tests/benchmarks/compare_routes.py .local/comparison.json \
   --native-state .local/perf/antalya.json --elastic-state .local/perf/elasticsearch.json \
   --pg-container OWNED_PG --direct-worker tests/transport/target/release/examples/sweep_route \
-  --out .local/perf/comparison --repeats 5 --concurrency 1
+  --layout byte_dispatch --ingest-durability defaults \
+  --out .local/perf/comparison --repeats 6 --concurrency 1
 ```
 
 PostgreSQL backend samples consume tuples with `TIMING OFF`; full COPY samples

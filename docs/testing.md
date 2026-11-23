@@ -104,7 +104,7 @@ python3 -m unittest discover -s libwildcard/tests/differential -p 'test_*.py' -v
 
 ## Consumer and transport tests
 
-These Cargo workspaces use the published `antalya-rs` 0.1.0 crate; no sibling
+These Cargo workspaces use the published `antalya-rs` 0.1.1 crate; no sibling
 checkout is required:
 
 ```sh

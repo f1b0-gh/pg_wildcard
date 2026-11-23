@@ -17,7 +17,7 @@ rust-version = "1.99.1"
 
 [workspace.dependencies]
 libwildcard = { path = "libwildcard", version = "0.2.1", default-features = false }
-antalya-rs = { version = "=0.1.0", features = ["tls"] }
+antalya-rs = { version = "=0.1.1", features = ["tls"] }
 wildcard-core = { path = "crates/wildcard-core" }
 wildcard-ch = { path = "crates/wildcard-ch" }
 wildcard-puffin = { path = "crates/wildcard-puffin" }
@@ -29,7 +29,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 lz4_flex = { version = "0.14", default-features = false, features = ["frame", "std"] }
 zstd = "0.14"
-# Shared with antalya-rs 0.1.0 / lo-sqlcoord.
+# Shared with antalya-rs 0.1.1 / lo-sqlcoord.
 parquet = { version = "=59.3.3", default-features = false, features = ["arrow", "snap", "zstd", "lz4"] }
 arrow-array = "=59.3.3"
 arrow-schema = "=59.3.3"

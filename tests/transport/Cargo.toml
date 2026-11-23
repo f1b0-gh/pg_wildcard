@@ -21,7 +21,7 @@ name = "engine-worker"
 path = "src/engine_worker.rs"
 
 [dependencies]
-antalya-rs = { version = "=0.1.0", default-features = false }
+antalya-rs = { version = "=0.1.1", default-features = false }
 arrow-array = "=59.3.3"
 arrow-schema = "=59.3.3"
 arrow-ipc = { version = "=59.3.3", default-features = false }

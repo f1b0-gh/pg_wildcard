@@ -33,9 +33,9 @@ dependencies = [
 
 [[package]]
 name = "antalya-rs"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3bc1afbdfb6d217b4670615038ba391a65f5cf422378213c727470dfb1d7fa09"
+checksum = "7e62072e6ded6a106097979df75e37d70f02ab61d2b4a45db5afdf0421e24ebd"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
