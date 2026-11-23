@@ -1342,7 +1342,7 @@ dependencies = [
 
 [[package]]
 name = "libwildcard"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "arrow-array",
  "arrow-schema",
@@ -1665,7 +1665,7 @@ dependencies = [
 
 [[package]]
 name = "pg_wildcard"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "antalya-rs",
  "arrow-array",
@@ -3070,7 +3070,7 @@ dependencies = [
 
 [[package]]
 name = "wildcard-ch"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "libwildcard",
  "serde_json",
@@ -3079,14 +3079,14 @@ dependencies = [
 
 [[package]]
 name = "wildcard-core"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "libwildcard",
 ]
 
 [[package]]
 name = "wildcard-lake"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "arrow-array",
  "arrow-schema",
@@ -3101,7 +3101,7 @@ dependencies = [
 
 [[package]]
 name = "wildcard-puffin"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "libwildcard",
  "thiserror",

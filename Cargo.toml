@@ -10,13 +10,13 @@ members = [
 ]
 
 [workspace.package]
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 license = "Apache-2.0"
 rust-version = "1.99.1"
 
 [workspace.dependencies]
-libwildcard = { path = "libwildcard", version = "0.2.0", default-features = false }
+libwildcard = { path = "libwildcard", version = "0.2.1", default-features = false }
 antalya-rs = { version = "=0.1.0", features = ["tls"] }
 wildcard-core = { path = "crates/wildcard-core" }
 wildcard-ch = { path = "crates/wildcard-ch" }

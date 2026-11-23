@@ -58,11 +58,11 @@ cargo test --locked --manifest-path libwildcard/Cargo.toml --all-features
 cargo build --locked --manifest-path libwildcard/Cargo.toml --features cold --bin wc-lake
 ```
 
-Add it to an application by source path, selecting only the features you need:
+Add the published library to your application, selecting only the features you need:
 
 ```toml
 [dependencies]
-libwildcard = { version = "0.2.0", features = ["hot"] }
+libwildcard = { version = "0.2.1", features = ["hot"] }
 ```
 
 ```rust
@@ -72,8 +72,8 @@ let matcher = Matcher::wildcard("*/wp-admin/*.php", View::Decoded)?;
 assert!(matcher.is_match(b"GET /%77p-ADMIN/a.PHP"));
 ```
 
-Use the library's source package for an independent distribution. No crates.io
-release is assumed by these instructions.
+Both [`libwildcard`](https://crates.io/crates/libwildcard) and
+[`pg_wildcard`](https://crates.io/crates/pg_wildcard) are published as **0.2.1**.
 
 ## PostgreSQL
 
@@ -102,7 +102,8 @@ The URL-shaped fields contain either shared literals (`*evil0000.example*`,
 `*evil0001.example*`) or unrelated literals (`*e220a8397b1dcdaf*`, etc.).
 These are substring searches, not exact hash lookups.
 
-Median complete-request latency in milliseconds (2026-11-22):
+Historical matched comparison, before the 0.2.1 FDW changes:
+median complete-request latency in milliseconds (2026-11-22).
 
 | Route | Shared structure | Unrelated literals |
 |---|---:|---:|
@@ -117,6 +118,12 @@ Median complete-request latency in milliseconds (2026-11-22):
 [`_msearch` concurrency](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-msearch)
 counts concurrent rule searches. Antalya executes one combined query with
 `max_threads=4`. This comparison does not establish multicore scaling.
+
+The **0.2.1 FDW follow-up** used separate million-row broad-recheck queries:
+paired median reductions were **15% backend / 25% complete COPY**, with mixed
+results elsewhere. Estimated non-matcher CPU fell **29%**, below the 50% target.
+These measurements do not update the Elastic comparison above.
+[Results, ranges and before/after flamegraphs](tests/benchmarks/results/2026-11-23/fdw-overhead/).
 
 ### Methodology and limits
 

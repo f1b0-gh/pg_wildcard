@@ -68,7 +68,7 @@ cargo package --locked --all-features
 cargo build --locked --features cold --bin wc-lake
 ```
 
-Use `libwildcard = "0.2.0"` from crates.io, or build its self-contained source
+Use `libwildcard = "0.2.1"` from crates.io, or build its self-contained source
 package. See [consumer integration](INTEGRATION.md) and [tests](tests/README.md).
 
 ## Optional hot-storage helpers

@@ -3,7 +3,7 @@
 
 PostgreSQL extension for wildcard security-string searches, indicator handling,
 ClickHouse/Antalya SQL generation, Arrow FDW scans and conservative lake pruning.
-The canonical matcher and query generator are provided by `libwildcard 0.2.0`;
+The canonical matcher and query generator are provided by `libwildcard 0.2.1`;
 the extension uses the published `antalya-rs 0.1.0` transport.
 
 ## Build and install
@@ -26,6 +26,15 @@ Then enable the extension in the intended database:
 CREATE EXTENSION pg_wildcard;
 SELECT wc_match('https://example.org/admin', '*/admin', 'raw');
 ```
+
+To upgrade an existing 0.2.0 installation, install the 0.2.1 shared library and
+SQL files, reconnect so the backend loads the new library, then run:
+
+```sql
+ALTER EXTENSION pg_wildcard UPDATE TO '0.2.1';
+```
+
+SQL signatures are unchanged. The update records the new extension version.
 
 The package also declares PostgreSQL 14–17 features; each server major requires its
 own build and qualification. The FDW requires an Antalya endpoint and a bearer

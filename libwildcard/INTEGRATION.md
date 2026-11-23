@@ -5,7 +5,7 @@ Use the standalone package from crates.io:
 
 ```toml
 [dependencies]
-libwildcard = { version = "0.2.0", default-features = false, features = ["hot"] }
+libwildcard = { version = "0.2.1", default-features = false, features = ["hot"] }
 ```
 
 For local development, replace the version with `path = "path/to/libwildcard"`.
