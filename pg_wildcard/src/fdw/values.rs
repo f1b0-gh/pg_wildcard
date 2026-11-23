@@ -37,6 +37,7 @@ fn down<T: 'static>(a: &dyn Array) -> Result<&T, &'static str> {
         .downcast_ref::<T>()
         .ok_or("Arrow array/type mismatch")
 }
+#[cfg(test)]
 fn integer(a: &dyn Array, row: usize) -> Result<i128, &'static str> {
     Ok(match a.data_type() {
         DataType::Int8 => down::<Int8Array>(a)?.value(row) as i128,
@@ -98,7 +99,288 @@ pub fn validate_schema(
     }
     Ok(())
 }
-pub fn input(a: &dyn Array, row: usize, target: Target) -> Result<Option<Value<'_>>, &'static str> {
+/// Typed Arrow handles share buffers, never row data. The executor retains the
+/// BudgetedBatch until every prepared handle is dropped (see PreparedBatch).
+/// No references point from this object into its owner.
+pub struct PreparedColumn {
+    array: PreparedArray,
+    target: Target,
+    len: usize,
+    nul_free: bool,
+}
+
+enum PreparedArray {
+    Null,
+    Utf8(StringArray),
+    LargeUtf8(LargeStringArray),
+    Binary(BinaryArray),
+    LargeBinary(LargeBinaryArray),
+    FixedBinary(FixedSizeBinaryArray),
+    Bool(BooleanArray),
+    I8(Int8Array),
+    I16(Int16Array),
+    I32(Int32Array),
+    I64(Int64Array),
+    U8(UInt8Array),
+    U16(UInt16Array),
+    U32(UInt32Array),
+    U64(UInt64Array),
+    F32(Float32Array),
+    F64(Float64Array),
+    Date(Date32Array),
+    Seconds(TimestampSecondArray),
+    Millis(TimestampMillisecondArray),
+    Micros(TimestampMicrosecondArray),
+    Nanos(TimestampNanosecondArray),
+}
+
+impl PreparedColumn {
+    pub fn new(a: &dyn Array, target: Target) -> Result<Self, &'static str> {
+        if !supported(a.data_type(), target) {
+            return Err("unsupported Arrow/PostgreSQL type pairing");
+        }
+        let mut nul_free = false;
+        // Only the offsets covered by this slice matter. A NUL anywhere in that
+        // region selects exact per-value checks; it does not reject the batch
+        // (the NUL may belong to another row or to a physical NULL payload).
+        // Empty/all-null columns need no payload inspection at all.
+        macro_rules! bytes {
+            ($ty:ty, $variant:ident) => {{
+                let array = down::<$ty>(a)?;
+                if target == Target::Text && array.null_count() < array.len() {
+                    let offsets = array.value_offsets();
+                    nul_free = !array.value_data()
+                        [offsets[0] as usize..offsets[array.len()] as usize]
+                        .contains(&0);
+                }
+                PreparedArray::$variant(array.clone())
+            }};
+        }
+        macro_rules! typed {
+            ($ty:ty, $variant:ident) => {
+                PreparedArray::$variant(down::<$ty>(a)?.clone())
+            };
+        }
+        let array = match a.data_type() {
+            DataType::Null => PreparedArray::Null,
+            DataType::Utf8 => bytes!(StringArray, Utf8),
+            DataType::LargeUtf8 => bytes!(LargeStringArray, LargeUtf8),
+            DataType::Binary => bytes!(BinaryArray, Binary),
+            DataType::LargeBinary => bytes!(LargeBinaryArray, LargeBinary),
+            DataType::FixedSizeBinary(_) => {
+                let array = down::<FixedSizeBinaryArray>(a)?;
+                // FixedSizeBinaryArray::slice slices its value buffer as well.
+                if target == Target::Text && array.null_count() < array.len() {
+                    nul_free = !array.value_data().contains(&0);
+                }
+                PreparedArray::FixedBinary(array.clone())
+            }
+            DataType::Boolean => typed!(BooleanArray, Bool),
+            DataType::Int8 => typed!(Int8Array, I8),
+            DataType::Int16 => typed!(Int16Array, I16),
+            DataType::Int32 => typed!(Int32Array, I32),
+            DataType::Int64 => typed!(Int64Array, I64),
+            DataType::UInt8 => typed!(UInt8Array, U8),
+            DataType::UInt16 => typed!(UInt16Array, U16),
+            DataType::UInt32 => typed!(UInt32Array, U32),
+            DataType::UInt64 => typed!(UInt64Array, U64),
+            DataType::Float32 => typed!(Float32Array, F32),
+            DataType::Float64 => typed!(Float64Array, F64),
+            DataType::Date32 => typed!(Date32Array, Date),
+            DataType::Timestamp(TimeUnit::Second, _) => typed!(TimestampSecondArray, Seconds),
+            DataType::Timestamp(TimeUnit::Millisecond, _) => {
+                typed!(TimestampMillisecondArray, Millis)
+            }
+            DataType::Timestamp(TimeUnit::Microsecond, _) => {
+                typed!(TimestampMicrosecondArray, Micros)
+            }
+            DataType::Timestamp(TimeUnit::Nanosecond, _) => typed!(TimestampNanosecondArray, Nanos),
+            _ => return Err("unsupported Arrow/PostgreSQL type pairing"),
+        };
+        // Arrow checks UTF-8 and every offset's character boundary before
+        // exposing str values. A valid aggregate buffer alone is insufficient:
+        // two Binary rows may split one multibyte codepoint. Its validator also
+        // scans the whole retained buffer, so only try full-coverage columns.
+        // Failure is an optimization miss, never a batch error: invalid bytes
+        // may belong to a NULL or to a row the executor will not consume.
+        macro_rules! promote {
+            ($array:ident, $text:ty, $text_variant:ident, $fallback:ident) => {{
+                let offsets = $array.value_offsets();
+                if target == Target::Text
+                    && $array.null_count() < $array.len()
+                    && offsets[0] == 0
+                    && offsets[$array.len()] as usize == $array.value_data().len()
+                {
+                    match <$text>::try_from_binary($array.clone()) {
+                        Ok(text) => PreparedArray::$text_variant(text),
+                        Err(_) => PreparedArray::$fallback($array),
+                    }
+                } else {
+                    PreparedArray::$fallback($array)
+                }
+            }};
+        }
+        let array = match array {
+            PreparedArray::Binary(array) => promote!(array, StringArray, Utf8, Binary),
+            PreparedArray::LargeBinary(array) => {
+                promote!(array, LargeStringArray, LargeUtf8, LargeBinary)
+            }
+            other => other,
+        };
+        Ok(Self {
+            array,
+            target,
+            len: a.len(),
+            nul_free,
+        })
+    }
+
+    pub fn input(&self, row: usize) -> Result<Option<Value<'_>>, &'static str> {
+        if row >= self.len {
+            return Err("Arrow row is out of bounds");
+        }
+        // Dispatch once to the typed handle. In particular, validity checks do
+        // not dispatch through dyn Array and no row performs a downcast.
+        macro_rules! read {
+            ($a:ident, $value:expr) => {{
+                if $a.is_null(row) {
+                    return Ok(None);
+                }
+                $value
+            }};
+        }
+        let value = match &self.array {
+            PreparedArray::Null => return Ok(None),
+            PreparedArray::Utf8(a) => read!(a, self.text(a.value(row))?),
+            PreparedArray::LargeUtf8(a) => read!(a, self.text(a.value(row))?),
+            PreparedArray::Binary(a) => read!(a, self.binary(a.value(row))?),
+            PreparedArray::LargeBinary(a) => read!(a, self.binary(a.value(row))?),
+            PreparedArray::FixedBinary(a) => read!(a, self.binary(a.value(row))?),
+            PreparedArray::Bool(a) => read!(a, Value::Bool(a.value(row))),
+            PreparedArray::I8(a) => read!(a, self.integer(a.value(row) as i128)?),
+            PreparedArray::I16(a) => read!(a, self.integer(a.value(row) as i128)?),
+            PreparedArray::I32(a) => read!(a, self.integer(a.value(row) as i128)?),
+            PreparedArray::I64(a) => read!(a, self.integer(a.value(row) as i128)?),
+            PreparedArray::U8(a) => read!(
+                a,
+                if self.target == Target::Bool {
+                    match a.value(row) {
+                        0 => Value::Bool(false),
+                        1 => Value::Bool(true),
+                        _ => {
+                            return Err(
+                                "non-boolean UInt8 cannot be represented as PostgreSQL boolean",
+                            );
+                        }
+                    }
+                } else {
+                    self.integer(a.value(row) as i128)?
+                }
+            ),
+            PreparedArray::U16(a) => read!(a, self.integer(a.value(row) as i128)?),
+            PreparedArray::U32(a) => read!(a, self.integer(a.value(row) as i128)?),
+            PreparedArray::U64(a) => read!(a, self.integer(a.value(row) as i128)?),
+            PreparedArray::F32(a) => read!(
+                a,
+                if self.target == Target::Float32 {
+                    Value::Float32(a.value(row))
+                } else {
+                    Value::Float64(a.value(row) as f64)
+                }
+            ),
+            PreparedArray::F64(a) => read!(a, Value::Float64(a.value(row))),
+            PreparedArray::Date(a) => read!(a, date(a.value(row))?),
+            PreparedArray::Seconds(a) => {
+                read!(a, self.timestamp(a.value(row).checked_mul(1_000_000))?)
+            }
+            PreparedArray::Millis(a) => read!(a, self.timestamp(a.value(row).checked_mul(1000))?),
+            PreparedArray::Micros(a) => read!(a, self.timestamp(Some(a.value(row)))?),
+            PreparedArray::Nanos(a) => read!(a, {
+                let ns = a.value(row);
+                if ns % 1000 != 0 {
+                    return Err("nanosecond timestamp would lose PostgreSQL precision");
+                }
+                self.timestamp(Some(ns / 1000))?
+            }),
+        };
+        Ok(Some(value))
+    }
+
+    fn check_bytes(&self, bytes: &[u8]) -> Result<(), &'static str> {
+        if bytes.len() > 1024 * 1024 {
+            return Err("FDW field exceeds 1 MiB limit");
+        }
+        if self.target == Target::Text && !self.nul_free && bytes.contains(&0) {
+            return Err("NUL bytes cannot be represented as PostgreSQL text; use bytea");
+        }
+        Ok(())
+    }
+
+    fn text<'a>(&self, text: &'a str) -> Result<Value<'a>, &'static str> {
+        self.check_bytes(text.as_bytes())?;
+        // StringArray's safe construction/IPC decoding already validated UTF-8.
+        Ok(if self.target == Target::Bytes {
+            Value::Bytes(text.as_bytes())
+        } else {
+            Value::Text(text)
+        })
+    }
+
+    fn binary<'a>(&self, bytes: &'a [u8]) -> Result<Value<'a>, &'static str> {
+        self.check_bytes(bytes)?;
+        Ok(if self.target == Target::Bytes {
+            Value::Bytes(bytes)
+        } else {
+            Value::Text(
+                std::str::from_utf8(bytes).map_err(
+                    |_| "invalid UTF-8 cannot be represented as PostgreSQL text; use bytea",
+                )?,
+            )
+        })
+    }
+
+    fn integer(&self, value: i128) -> Result<Value<'_>, &'static str> {
+        const OVERFLOW: &str = "Arrow integer overflows PostgreSQL column";
+        Ok(match self.target {
+            Target::Int16 => Value::Int16(i16::try_from(value).map_err(|_| OVERFLOW)?),
+            Target::Int32 => Value::Int32(i32::try_from(value).map_err(|_| OVERFLOW)?),
+            _ => Value::Int64(i64::try_from(value).map_err(|_| OVERFLOW)?),
+        })
+    }
+
+    fn timestamp(&self, micros: Option<i64>) -> Result<Value<'_>, &'static str> {
+        let dt = chrono::DateTime::from_timestamp_micros(
+            micros.ok_or("timestamp exceeds supported range")?,
+        )
+        .ok_or("timestamp exceeds supported range")?;
+        if dt.timestamp() < -62_135_596_800 {
+            return Err("BC timestamps are unsupported");
+        }
+        Ok(Value::Input(
+            dt.format(if self.target == Target::TimestampTz {
+                "%Y-%m-%d %H:%M:%S%.6f+00"
+            } else {
+                "%Y-%m-%d %H:%M:%S%.6f"
+            })
+            .to_string(),
+        ))
+    }
+}
+
+fn date(days: i32) -> Result<Value<'static>, &'static str> {
+    let date = chrono::NaiveDate::from_ymd_opt(1970, 1, 1)
+        .ok_or("invalid epoch")?
+        .checked_add_signed(chrono::Duration::days(days as i64))
+        .ok_or("Arrow date exceeds supported date range")?;
+    if date < chrono::NaiveDate::from_ymd_opt(1, 1, 1).ok_or("invalid epoch")? {
+        return Err("BC dates are unsupported");
+    }
+    Ok(Value::Input(date.format("%Y-%m-%d").to_string()))
+}
+
+// Retain the original checked decoder only as an independent regression oracle.
+#[cfg(test)]
+fn input(a: &dyn Array, row: usize, target: Target) -> Result<Option<Value<'_>>, &'static str> {
     if !supported(a.data_type(), target) {
         return Err("unsupported Arrow/PostgreSQL type pairing");
     }
@@ -219,6 +501,303 @@ pub fn input(a: &dyn Array, row: usize, target: Target) -> Result<Option<Value<'
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // These cases catch incorrect offset scans, eager rejection of NULs in
+    // other/null rows, lost Arrow ownership, and skipped binary UTF-8 checks.
+    #[test]
+    fn binary_text_promotes_ascii_and_unicode_without_copying_payload() {
+        macro_rules! check {
+            ($binary:ty, $utf8:ident) => {{
+                let (prepared, ascii_ptr, unicode_ptr) = {
+                    let source = <$binary>::from(vec![
+                        Some(b"ascii".as_slice()),
+                        Some("évidence".as_bytes()),
+                        None,
+                        Some(b"bad\0".as_slice()),
+                        Some(b"".as_slice()),
+                    ]);
+                    (
+                        PreparedColumn::new(&source, Target::Text).unwrap(),
+                        source.value(0).as_ptr(),
+                        source.value(1).as_ptr(),
+                    )
+                };
+                // Promotion is the optimization contract: subsequent rows use
+                // Arrow's validated string accessor without UTF-8 rescanning.
+                assert!(matches!(&prepared.array, PreparedArray::$utf8(_)));
+                let Some(Value::Text(ascii)) = prepared.input(0).unwrap() else {
+                    panic!("expected text")
+                };
+                let Some(Value::Text(unicode)) = prepared.input(1).unwrap() else {
+                    panic!("expected text")
+                };
+                assert_eq!(ascii, "ascii");
+                assert_eq!(unicode, "évidence");
+                assert_eq!(ascii.as_ptr(), ascii_ptr);
+                assert_eq!(unicode.as_ptr(), unicode_ptr);
+                assert_eq!(prepared.input(2), Ok(None));
+                assert_eq!(
+                    prepared.input(3),
+                    Err("NUL bytes cannot be represented as PostgreSQL text; use bytea")
+                );
+                assert_eq!(prepared.input(4), Ok(Some(Value::Text(""))));
+            }};
+        }
+        check!(BinaryArray, Utf8);
+        check!(LargeBinaryArray, LargeUtf8);
+    }
+
+    #[test]
+    fn binary_text_split_codepoints_keep_per_value_errors() {
+        macro_rules! check {
+            ($binary:ty, $fallback:ident) => {{
+                let source = <$binary>::from(vec![b"\xc3".as_slice(), b"\xa9", b"ok"]);
+                assert!(std::str::from_utf8(source.value_data()).is_ok());
+                let prepared = PreparedColumn::new(&source, Target::Text).unwrap();
+                assert!(matches!(&prepared.array, PreparedArray::$fallback(_)));
+                for row in 0..2 {
+                    assert_eq!(
+                        prepared.input(row),
+                        Err("invalid UTF-8 cannot be represented as PostgreSQL text; use bytea")
+                    );
+                }
+                assert_eq!(prepared.input(2), Ok(Some(Value::Text("ok"))));
+            }};
+        }
+        check!(BinaryArray, Binary);
+        check!(LargeBinaryArray, LargeBinary);
+    }
+
+    #[test]
+    fn binary_text_invalid_null_payload_keeps_other_rows_valid() {
+        macro_rules! check {
+            ($binary:ty, $fallback:ident) => {{
+                let validity =
+                    <$binary>::from(vec![Some(b"a".as_slice()), None, Some(b"b".as_slice())])
+                        .nulls()
+                        .cloned();
+                let source = <$binary>::from(vec![b"first".as_slice(), b"\xff", b"last"]);
+                let source = <$binary>::from(
+                    source
+                        .to_data()
+                        .into_builder()
+                        .nulls(validity)
+                        .build()
+                        .unwrap(),
+                );
+                let prepared = PreparedColumn::new(&source, Target::Text).unwrap();
+                assert!(matches!(&prepared.array, PreparedArray::$fallback(_)));
+                assert_eq!(prepared.input(0), Ok(Some(Value::Text("first"))));
+                assert_eq!(prepared.input(1), Ok(None));
+                assert_eq!(prepared.input(2), Ok(Some(Value::Text("last"))));
+            }};
+        }
+        check!(BinaryArray, Binary);
+        check!(LargeBinaryArray, LargeBinary);
+    }
+
+    #[test]
+    fn binary_text_promotion_skips_uncovered_buffers_bytea_and_all_nulls() {
+        macro_rules! check {
+            ($binary:ty, $fallback:ident) => {{
+                let source =
+                    <$binary>::from(vec![b"prefix".as_slice(), "évidence".as_bytes(), b"suffix"]);
+                for slice in [source.slice(1, 1), source.slice(0, 2)] {
+                    let prepared = PreparedColumn::new(&slice, Target::Text).unwrap();
+                    assert!(matches!(&prepared.array, PreparedArray::$fallback(_)));
+                    for row in 0..slice.len() {
+                        assert_eq!(prepared.input(row), input(&slice, row, Target::Text));
+                    }
+                }
+                let bytes = PreparedColumn::new(&source, Target::Bytes).unwrap();
+                assert!(matches!(&bytes.array, PreparedArray::$fallback(_)));
+                assert_eq!(
+                    bytes.input(1),
+                    Ok(Some(Value::Bytes("évidence".as_bytes())))
+                );
+                let source = <$binary>::from(vec![None::<&[u8]>]);
+                let nulls = PreparedColumn::new(&source, Target::Text).unwrap();
+                assert!(matches!(&nulls.array, PreparedArray::$fallback(_)));
+                assert_eq!(nulls.input(0), Ok(None));
+            }};
+        }
+        check!(BinaryArray, Binary);
+        check!(LargeBinaryArray, LargeBinary);
+    }
+
+    #[test]
+    fn prepared_null_payloads_do_not_poison_other_rows() {
+        let validity = StringArray::from(vec![Some("a"), None, Some("b")])
+            .nulls()
+            .cloned();
+        let source = StringArray::from(vec!["first", "hidden\0", "last"]);
+        let source = StringArray::from(
+            source
+                .to_data()
+                .into_builder()
+                .nulls(validity)
+                .build()
+                .unwrap(),
+        );
+        let prepared = PreparedColumn::new(&source, Target::Text).unwrap();
+        assert_eq!(prepared.input(0), Ok(Some(Value::Text("first"))));
+        assert_eq!(prepared.input(1), Ok(None));
+        assert_eq!(prepared.input(2), Ok(Some(Value::Text("last"))));
+        let sliced = PreparedColumn::new(&source.slice(2, 1), Target::Text).unwrap();
+        assert_eq!(sliced.input(0), Ok(Some(Value::Text("last"))));
+        let all_null = PreparedColumn::new(&source.slice(1, 1), Target::Text).unwrap();
+        assert_eq!(all_null.input(0), Ok(None));
+    }
+
+    #[test]
+    fn prepared_columns_match_checked_conversion_for_every_supported_pairing() {
+        use std::sync::Arc;
+        let huge = "x".repeat(1024 * 1024 + 1);
+        let arrays: Vec<ArrayRef> = vec![
+            Arc::new(Int8Array::from(vec![Some(i8::MIN), None, Some(i8::MAX)])),
+            Arc::new(Int16Array::from(vec![i16::MIN, 0, i16::MAX])),
+            Arc::new(Int32Array::from(vec![i32::MIN, 0, i32::MAX])),
+            Arc::new(Int64Array::from(vec![i64::MIN, 0, i64::MAX])),
+            Arc::new(UInt8Array::from(vec![0, 1, 2])),
+            Arc::new(UInt16Array::from(vec![0, 1, u16::MAX])),
+            Arc::new(UInt32Array::from(vec![0, 1, u32::MAX])),
+            Arc::new(UInt64Array::from(vec![0, 1, u64::MAX])),
+            Arc::new(Float32Array::from(vec![
+                0.,
+                f32::INFINITY,
+                f32::NEG_INFINITY,
+            ])),
+            Arc::new(Float64Array::from(vec![
+                0.,
+                f64::INFINITY,
+                f64::NEG_INFINITY,
+            ])),
+            Arc::new(BooleanArray::from(vec![Some(true), None, Some(false)])),
+            Arc::new(StringArray::from(vec![
+                Some("évidence"),
+                None,
+                Some("bad\0"),
+            ])),
+            Arc::new(StringArray::from(vec!["", &huge[..1024 * 1024], &huge])),
+            Arc::new(LargeStringArray::from(vec![
+                "",
+                &huge[..1024 * 1024],
+                &huge,
+            ])),
+            Arc::new(BinaryArray::from(vec![b"ok".as_slice(), b"\xff", b"\0"])),
+            Arc::new(BinaryArray::from(vec![
+                b"".as_slice(),
+                &huge.as_bytes()[..1024 * 1024],
+                huge.as_bytes(),
+            ])),
+            Arc::new(LargeBinaryArray::from(vec![
+                b"".as_slice(),
+                &huge.as_bytes()[..1024 * 1024],
+                huge.as_bytes(),
+            ])),
+            Arc::new(
+                FixedSizeBinaryArray::try_from_iter(
+                    [b"ok".as_slice(), b"\xffx", b"\0x"].into_iter(),
+                )
+                .unwrap(),
+            ),
+            Arc::new(NullArray::new(3)),
+            Arc::new(Date32Array::from(vec![0, i32::MIN, i32::MAX])),
+            Arc::new(TimestampSecondArray::from(vec![0, i64::MIN, i64::MAX])),
+            Arc::new(TimestampMillisecondArray::from(vec![0, i64::MIN, i64::MAX])),
+            Arc::new(TimestampMicrosecondArray::from(vec![0, -1, i64::MAX]).with_timezone("UTC")),
+            Arc::new(TimestampNanosecondArray::from(vec![0, 1, -1000])),
+            Arc::new(TimestampSecondArray::from(vec![0]).with_timezone("Europe/Paris")),
+        ];
+        for array in arrays {
+            for array in [
+                array.clone(),
+                array.slice(1.min(array.len()), array.len().saturating_sub(1)),
+            ] {
+                for target in [
+                    Target::Text,
+                    Target::Bytes,
+                    Target::Bool,
+                    Target::Int16,
+                    Target::Int32,
+                    Target::Int64,
+                    Target::Float32,
+                    Target::Float64,
+                    Target::Date,
+                    Target::Timestamp,
+                    Target::TimestampTz,
+                ] {
+                    let prepared = PreparedColumn::new(array.as_ref(), target);
+                    if !supported(array.data_type(), target) {
+                        assert!(prepared.is_err());
+                        continue;
+                    }
+                    let prepared = prepared.unwrap();
+                    for row in 0..=array.len() {
+                        assert_eq!(
+                            prepared.input(row),
+                            input(array.as_ref(), row, target),
+                            "{:?} {target:?} row {row}",
+                            array.data_type()
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn prepared_slices_keep_owned_buffers_and_validate_only_the_selected_row() {
+        let prepared = {
+            let source = StringArray::from(vec![
+                Some("outside\0"),
+                Some("évidence"),
+                None,
+                Some("bad\0"),
+                Some("tail"),
+            ]);
+            PreparedColumn::new(&source.slice(1, 4), Target::Text).unwrap()
+        };
+        assert_eq!(prepared.input(0), Ok(Some(Value::Text("évidence"))));
+        assert_eq!(prepared.input(1), Ok(None));
+        assert_eq!(
+            prepared.input(2),
+            Err("NUL bytes cannot be represented as PostgreSQL text; use bytea")
+        );
+        assert_eq!(prepared.input(3), Ok(Some(Value::Text("tail"))));
+        assert_eq!(prepared.input(4), Err("Arrow row is out of bounds"));
+        let empty = StringArray::from(vec!["outside\0"]).slice(1, 0);
+        assert!(
+            PreparedColumn::new(&empty, Target::Text)
+                .unwrap()
+                .input(0)
+                .is_err()
+        );
+    }
+
+    #[test]
+    fn prepared_binary_and_null_columns_preserve_validation() {
+        let binary = LargeBinaryArray::from(vec![
+            Some(b"outside\0".as_slice()),
+            Some(b"ok".as_slice()),
+            Some(b"\xff".as_slice()),
+            None,
+        ]);
+        let text = PreparedColumn::new(&binary.slice(1, 3), Target::Text).unwrap();
+        assert_eq!(text.input(0), Ok(Some(Value::Text("ok"))));
+        assert_eq!(
+            text.input(1),
+            Err("invalid UTF-8 cannot be represented as PostgreSQL text; use bytea")
+        );
+        assert_eq!(text.input(2), Ok(None));
+        let bytes = PreparedColumn::new(&binary, Target::Bytes).unwrap();
+        assert_eq!(bytes.input(0), Ok(Some(Value::Bytes(b"outside\0"))));
+        assert_eq!(bytes.input(2), Ok(Some(Value::Bytes(b"\xff"))));
+        assert!(PreparedColumn::new(&Float64Array::from(vec![None]), Target::Int64).is_err());
+        let nulls = PreparedColumn::new(&NullArray::new(1), Target::Text).unwrap();
+        assert_eq!(nulls.input(0), Ok(None));
+        assert_eq!(nulls.input(1), Err("Arrow row is out of bounds"));
+    }
 
     #[test]
     fn text_and_bytes_borrow_arrow_storage() {
