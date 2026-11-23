@@ -76,6 +76,7 @@ jobs:
           python3 -m unittest discover -s tests/ci -v
           python3 -m unittest discover -s tests/operations -v
           python3 -m unittest discover -s tests/benchmarks -p 'test_*.py' -v
+          python3 -B tests/benchmarks/results/2026-11-23/fdw-overhead/test_report_overhead.py
       - name: Committed artifact size policy
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
