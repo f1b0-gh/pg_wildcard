@@ -1,2 +1,0 @@
-[ perf record: Woken up 50 times to write data ]
-[ perf record: Captured and wrote 13.499 MB /workspace/.local/perf-review/fdw/cpu/million.perf.data (849 samples) ]

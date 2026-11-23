@@ -7,7 +7,7 @@ license.workspace = true
 rust-version.workspace = true
 repository = "https://github.com/f1b0-gh/pg_wildcard"
 readme = "README.md"
-exclude = [".local/**", "target/**", "*.log"]
+exclude = [".local/**", "target/**", "*.log", "tests/benchmarks/**"]
 
 [lib]
 crate-type = ["cdylib", "lib"]

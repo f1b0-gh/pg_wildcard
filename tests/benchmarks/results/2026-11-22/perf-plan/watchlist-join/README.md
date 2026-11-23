@@ -1,6 +1,11 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Opt-in native watchlist candidate join
 
+Complete raw evidence and the original hash manifests are preserved in the
+[checksummed release archive](../../../../ARTIFACTS.md). From the repository root,
+run `python3 tools/verify_benchmark_artifacts.py` to verify this historical run.
+
+
 The production `watchlist_plan` / `wc_ch_watchlist_plan` API can select an explicit
 raw-view rule-anchor join. It finds candidate rules from required byte trigrams
 and retains the existing exact `match()` check. Staged needles remain the default

@@ -1,7 +1,0 @@
-{
-  "status": "complete",
-  "owned_schema": "wc_tuning_93670faac9c84e4d8b1fc3dacab609f6",
-  "servers": 6,
-  "original_error": "unterminated SELECT version remained in psql buffer, causing DROP SCHEMA syntax error",
-  "recovery": "fresh psql session dropped only the recorded owned schema and servers"
-}

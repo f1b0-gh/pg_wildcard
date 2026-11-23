@@ -29,9 +29,11 @@ Typed equality, tenant and time predicates may still narrow the source rows;
 they are filters alongside the wildcard search, not additional wildcard targets.
 
 See [sweep reproduction](../../libwildcard/tests/benchmarks/README.md),
-[FDW profiling](FDW.md), and [committed measurements](results/2026-11-22/).
-Detailed experiments and private engine state belong in `.local/`; only the
-requested sanitized raw measurements, settings and their summaries are committed.
+[FDW profiling](FDW.md), and [measurement summaries](results/2026-11-22/).
+Settings, summaries, harnesses and provenance remain in Git; complete raw evidence
+lives in checksummed release assets. [Verify and inspect the evidence](ARTIFACTS.md)
+with `python3 tools/verify_benchmark_artifacts.py` from the repository root.
+Detailed experiments and private engine state belong in `.local/`.
 
 ## Measured performance
 

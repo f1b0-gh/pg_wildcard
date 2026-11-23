@@ -1,7 +1,0 @@
-{
-  "case": "1MiB per-batch budget rejects the genuine 1KiB-column Arrow workload",
-  "exit_status": 3,
-  "stderr": "ERROR:  wildcard_fdw: Antalya Data: configured resource limit exceeded",
-  "expected_failure": true,
-  "transaction": "Uncommitted option change rolls back on psql connection close; no persistent configuration mutation."
-}

@@ -1,7 +1,0 @@
-{
-  "strategy": "raw_rule_anchor_join",
-  "max_value_bytes_before_fallback": 256,
-  "maximum_source_keys": 255,
-  "index_side": "current active watchlist, not document storage",
-  "status": "unqualified local prototype"
-}

@@ -1,5 +1,10 @@
 # Watchlist helper-alias correctness fix
 
+Complete raw evidence and the original hash manifests are preserved in the
+[checksummed release archive](../../../../ARTIFACTS.md). From the repository root,
+run `python3 tools/verify_benchmark_artifacts.py` to verify this historical run.
+
+
 When ClickHouse prefers column names to aliases, a hidden source column named
 `_wc0_value` could supply the candidate keys while the exact matcher checked the
 real value. For example, raw `v = 'abc'`, hidden `_wc0_value = 'xyz'` and a rule

@@ -1,2 +1,0 @@
-[ perf record: Woken up 541 times to write data ]
-[ perf record: Captured and wrote 57.675 MB /workspace/.local/perf/fdw/flames/baseline/smalltext/cpu.perf.data (3636 samples) ]

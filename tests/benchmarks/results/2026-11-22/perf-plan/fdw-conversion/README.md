@@ -1,6 +1,11 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Batch-scoped Arrow conversion experiment
 
+Complete raw evidence and the original hash manifests are preserved in the
+[checksummed release archive](../../../../ARTIFACTS.md). From the repository root,
+run `python3 tools/verify_benchmark_artifacts.py` to verify this historical run.
+
+
 Five fresh interleaved baseline/prepared release-binary rounds, each with an
 excluded warmup. Both variants use `in_band` and the same 16 MiB batch allowance.
 All clients use persistent connections. `direct` consumes every Arrow
@@ -37,14 +42,14 @@ its fourth read at 16 MiB. A separate 32 MiB direct-only diagnostic completed
 40 reads, two with charged batches above 16 MiB; the maximum was 17,142,712 bytes.
 That larger-budget probe is not a latency substitute or a production FDW change.
 The `in_band` 16 MiB stability probe completed 40 reads, with a largest charged
-batch of 8,668,568 bytes. See [resource-refusal.json](resource-refusal.json).
+batch of 8,668,568 bytes. See [resource-refusal.json](../../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/perf-plan/fdw-conversion/resource-refusal.json`).
 This experiment does not establish reliable wide-row `flush_first` delivery.
 
 The optimization decision and its rationale are in [decision.json](decision.json).
 The host is shared and busy; ranges and unchanged-route variation are retained.
 These are warm observations with uncontrolled filesystem caches, not cold tests.
 Native server time, producer waits, decode, terminal confirmation and backend
-execution overlap. [stages.json](stages.json) exposes them as diagnostics, not
+execution overlap. [stages.json](../../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/perf-plan/fdw-conversion/stages.json`) exposes them as diagnostics, not
 additive exclusive stages. TIMING OFF intentionally omits per-row conversion
 timers. First-batch time is not network time to first byte.
 
@@ -68,13 +73,13 @@ Raw DWARF memory dumps remain private; their hashes are retained for provenance.
 The first symbolization left extension frames unresolved. The same recordings
 were processed again using stable symbol directories and the exact saved binary
 for each variant; no query was replayed. All eight sample totals stayed unchanged.
-[Symbolization provenance](flames/symbolization.json) records the mappings,
+[Symbolization provenance](../../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/perf-plan/fdw-conversion/flames/symbolization.json`) records the mappings,
 postprocessor hash and remaining unresolved frames. The
 [CPU attribution table](flames/cpu-attribution.md) describes overlapping stack
 categories and their limits. Original unresolved derivatives remain private.
 
 The conversion prototype was rejected and removed. Its
-[patch](rejected-prototype.patch) is retained for reproduction and review,
+[patch](../../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/perf-plan/fdw-conversion/rejected-prototype.patch`) is retained for reproduction and review,
 not as an enabled optimization. Untimed full-value controls precede direct-client
 timings on every connection; measured direct runs consume every batch and check
 row counts. Every measured COPY validates every field and the complete unique

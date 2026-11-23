@@ -1,5 +1,0 @@
-{
-  "typed_error": "wildcard_fdw: Antalya Data: configured resource limit exceeded",
-  "source_log_sha256": "ef1361eccb4dd9bb65f83abbcc64db6e014cc3c1063b14d7805c7799cc99ade9",
-  "source": "typed error extracted from original private worker stderr; no credentials or endpoint copied"
-}

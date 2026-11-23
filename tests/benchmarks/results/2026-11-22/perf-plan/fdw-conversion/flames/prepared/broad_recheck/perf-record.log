@@ -1,2 +1,0 @@
-[ perf record: Woken up 602 times to write data ]
-[ perf record: Captured and wrote 56.880 MB /workspace/.local/perf/fdw/flames/prepared/broad_recheck/cpu.perf.data (3584 samples) ]

@@ -1,5 +1,0 @@
-{
-  "source_removed_and_verified": true,
-  "installed_benchmark_binary_sha256": "6c23575ef8e61df9fef3e257783714f706afb904e0f7daab77544f68c08ba036",
-  "reason": "pgrx verification installs a test build; restore the measured baseline atomically before remaining controls"
-}

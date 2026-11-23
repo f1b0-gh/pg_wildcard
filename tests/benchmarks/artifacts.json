@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "original_result_files": 1200,
+  "source_commit": "0ef4fc1837399278597d381c4741ff4df7edb027",
+  "url": "https://github.com/f1b0-gh/pg_wildcard/releases/download/benchmark-evidence-2026-11-23/benchmark-evidence-0ef4fc183739.tar.gz",
+  "sha256": "32b4aaf727f590ad141cc081ba60c61298f3147d050bf2e591eb1fa869a3c398",
+  "size": 22651402,
+  "tar_size": 39383040,
+  "files": 1202,
+  "unpacked_size": 38152164,
+  "verifiers": [
+    "tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/verify.py",
+    "tests/benchmarks/results/2026-11-22/perf-plan/fdw-tuning/verify.py",
+    "tests/benchmarks/results/2026-11-23/antalya-0.1.1/verify.py"
+  ],
+  "legacy_reproduction": true
+}

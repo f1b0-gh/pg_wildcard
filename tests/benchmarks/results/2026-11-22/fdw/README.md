@@ -1,6 +1,11 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Native FDW profiling — 2026-11-22
 
+Complete raw evidence and the original hash manifests are preserved in the
+[checksummed release archive](../../../ARTIFACTS.md). From the repository root,
+run `python3 tools/verify_benchmark_artifacts.py` to verify this historical run.
+
+
 384 successful, terminal-confirmed operations correlate by query ID with genuine Antalya `system.query_log`. PostgreSQL 18.6 uses the published `antalya-rs =0.1.0` client and native Antalya 26.8.34.20001. Both Rust paths are release builds. The native endpoint is local Docker-bridge HTTP; this is not a WAN/TLS benchmark. The native server has 4 CPUs / 8 GiB; PostgreSQL has no container-specific CPU/RAM cap. Exact machine/build/binary metadata is in [environment.json](environment.json).
 
 Review correction: the summary CSV/JSON were regenerated from the unchanged raw
@@ -42,7 +47,7 @@ Twelve supplementary controls delivered the complete binary COPY result through 
 
 The direct process reference includes process/client initialization and its sampling lifecycle, consuming/dropping Arrow batches. The inner COPY clock includes psql initialization, PG protocol serialization and container-local result consumption. Outer Docker/Python medians were 989.3/2052.6 ms (narrow/broad), separately retained. These different routes/formats and nonidentical initialization costs cannot be subtracted into an exclusive network or serialization cost. This is not a persistent-connection pool benchmark. Native server medians inside internal COPY were 189/1543 ms and overlap delivery/backpressure.
 
-The earlier host-forwarded controls measured 717.9/1561.5 ms including Docker result forwarding and host consumption. They ran in a different window; the broad host-forwarded median being lower does not establish that forwarding helps. Small samples and run-to-run variability limit such attribution. See [internal raw records](wire-internal/raw-copy.jsonl), [internal summary](wire-internal/summary.json), [internal settings](wire-internal/settings.json), and [forwarded control records](wire/raw-copy.jsonl).
+The earlier host-forwarded controls measured 717.9/1561.5 ms including Docker result forwarding and host consumption. They ran in a different window; the broad host-forwarded median being lower does not establish that forwarding helps. Small samples and run-to-run variability limit such attribution. See [internal raw records](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/fdw/wire-internal/raw-copy.jsonl`), [internal summary](wire-internal/summary.json), [internal settings](wire-internal/settings.json), and [forwarded control records](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/fdw/wire/raw-copy.jsonl`).
 
 All twelve controls passed the exact 19-byte COPY header, 2-byte EOF trailer, deterministic payload length, successful psql exit, and uniquely tagged native query-log row count. COPY bytes exclude PG message/TCP headers. Internal first complete COPY-header offsets were 113.1/128.3 ms (narrow/broad), not HTTP TTFB. The public [wire harness](../../../fdw_wire.py) preserves both clock boundaries.
 
@@ -56,11 +61,11 @@ A supplemental fresh backend ran `candidate_columns='url', candidate_mode='auto'
 | Automatic, warm | 78.291 | 0.003 | 0 | 1 | 73.199 |
 | Manual exact | 87.646 | 0 | 0 | 0 | 70.723 |
 
-Automatic selection conservatively retained exact SQL with `insufficient_mark_reduction`; this fixture does not demonstrate a beneficial candidate selection. Both observed probes were cached for the second execution. Cold preparation is 38% of the measured execution, including 63.451 ms nested terminal confirmation; these clocks are not additive. One sequence demonstrates cache behavior, not a robust latency distribution. The three direct controls executed the actual selected SQL retained in ANALYZE, identical across these cases, rather than a non-ANALYZE estimate. All six data query IDs correlate to native QueryFinish records. See [raw plans/counters](adaptive/raw-adaptive.json), [summary](adaptive/summary.json), and [adaptive harness](../../../fdw_adaptive.py).
+Automatic selection conservatively retained exact SQL with `insufficient_mark_reduction`; this fixture does not demonstrate a beneficial candidate selection. Both observed probes were cached for the second execution. Cold preparation is 38% of the measured execution, including 63.451 ms nested terminal confirmation; these clocks are not additive. One sequence demonstrates cache behavior, not a robust latency distribution. The three direct controls executed the actual selected SQL retained in ANALYZE, identical across these cases, rather than a non-ANALYZE estimate. All six data query IDs correlate to native QueryFinish records. See [raw plans/counters](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/fdw/adaptive/raw-adaptive.json`), [summary](adaptive/summary.json), and [adaptive harness](../../../fdw_adaptive.py).
 
 ## Timing instrumentation changes the workload
 
-`pg_test_timing` measured **1,388.94 ns per timing loop** ([raw calibration](cpu/pg-test-timing.log)). One-million-row narrow scans took about 6 seconds with TIMING ON, versus 381.2 ms OFF (three-sample median). Broad wildcard scans were 6.33 seconds ON (two samples) versus 916.4 ms OFF (three-sample median). ON rows remain diagnostic records, not production-throughput evidence. Their per-row conversion clocks also include measurement overhead. A zero conversion counter in OFF rows means timing is disabled, not that conversion costs zero.
+`pg_test_timing` measured **1,388.94 ns per timing loop** ([raw calibration](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/fdw/cpu/pg-test-timing.log`)). One-million-row narrow scans took about 6 seconds with TIMING ON, versus 381.2 ms OFF (three-sample median). Broad wildcard scans were 6.33 seconds ON (two samples) versus 916.4 ms OFF (three-sample median). ON rows remain diagnostic records, not production-throughput evidence. Their per-row conversion clocks also include measurement overhead. A zero conversion counter in OFF rows means timing is disabled, not that conversion costs zero.
 
 ## Client and executor clocks
 
@@ -71,7 +76,7 @@ Example OFF broad-wildcard pair; times are milliseconds. These clocks overlap an
 | direct_antalya_rs | 121.134 | 6.609 | 64.944 | 30.356 | 18.623 | — | — |
 | postgres | 575.91 | 13.409 | 49.752 | 34.792 | 28.584 | 38.31 | 428.554 |
 
-True HTTP TTFB, separately timed local recheck CPU, and simultaneous shared-client retained-byte peaks are not exposed by the published API / PostgreSQL callbacks used here. They are not inferred by subtracting overlapping clocks. Complete per-operation clocks, wire bytes, generated SQL, EXPLAIN and server counters are retained in each `raw.jsonl`; [summary.csv](summary.csv) and [summary.json](summary.json) aggregate them.
+True HTTP TTFB, separately timed local recheck CPU, and simultaneous shared-client retained-byte peaks are not exposed by the published API / PostgreSQL callbacks used here. They are not inferred by subtracting overlapping clocks. Complete per-operation clocks, wire bytes, generated SQL, EXPLAIN and server counters are retained in each `raw.jsonl`; [summary.csv](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/fdw/summary.csv`) and [summary.json](summary.json) aggregate them.
 
 ## Concurrency and budgets
 
@@ -90,7 +95,7 @@ RSS/HWM/threads are sampled from `/proc` every 10 ms, so short peaks can be miss
 
 **The proposed `backend RSS <= batch budget` acceptance condition is false.** With a 1 MiB batch limit the three-small-column OFF scan retained an observed individual batch of 103224 bytes, while backend RSS peaked at 26.691 MiB. The 1/4/16 MiB budgets were all above these small batches; this is not a stress test of the shared 64 MiB client budget. The true-wide fixture reached 2150840 charged bytes in one batch under the 16 MiB limit.
 
-`batch_bytes` bounds each returned batch charge / pending-read reservation. The client separately shares a 64 MiB retained-byte budget. Current, queued and pending-send batches, decode buffers, PostgreSQL tuple copies, code mappings and allocators have different owners. The measured peak is one individual `BudgetedBatch`, not a simultaneous aggregate and not an RSS limit. All observed individual charges respected the configured limit. A separate [negative control](budget-rejection.json) configured 1 MiB for the genuine 1 KiB-column fixture and correctly failed with a resource-limit error; its option change was rolled back.
+`batch_bytes` bounds each returned batch charge / pending-read reservation. The client separately shares a 64 MiB retained-byte budget. Current, queued and pending-send batches, decode buffers, PostgreSQL tuple copies, code mappings and allocators have different owners. The measured peak is one individual `BudgetedBatch`, not a simultaneous aggregate and not an RSS limit. All observed individual charges respected the configured limit. A separate [negative control](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/fdw/budget-rejection.json`) configured 1 MiB for the genuine 1 KiB-column fixture and correctly failed with a resource-limit error; its option change was rolled back.
 
 ## Terminal policies
 
@@ -113,7 +118,7 @@ These two-repetition selective measurements use TIMING ON for only 125 returned 
 
 ## Actual CPU profile
 
-[Flame graph](cpu/flamegraph.svg), [folded samples](cpu/flamegraph.folded), [demangled perf script](cpu/perf-demangled.script), [perf report](cpu/perf-report-demangled.txt), and [five EXPLAIN records](cpu/perf-explain.json) come from five sequential million-row broad-wildcard scans, TIMING OFF, `in_band`. A task-owned profiler sidecar shared only the owned PG PID namespace and used scoped PERFMON/SYS_PTRACE capabilities; host perf sysctls were unchanged.
+[Flame graph](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/fdw/cpu/flamegraph.svg`), [folded samples](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/fdw/cpu/flamegraph.folded`), [demangled perf script](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/fdw/cpu/perf-demangled.script`), [perf report](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/fdw/cpu/perf-report-demangled.txt`), and [five EXPLAIN records](../../../ARTIFACTS.md#reading-the-raw-evidence) (archive path: `2026-11-22/fdw/cpu/perf-explain.json`) come from five sequential million-row broad-wildcard scans, TIMING OFF, `in_band`. A task-owned profiler sidecar shared only the owned PG PID namespace and used scoped PERFMON/SYS_PTRACE capabilities; host perf sysctls were unchanged.
 
 `perf record` collected **849 cycles:u samples, zero lost**. The perf report attributes 42.47% inclusive weighted user-space cycles to `iterate_foreign_scan_inner`, including 35.00% in the memory-context conversion region and 20.79% in `values::input`. The `wc_match` wrapper is 29.42% inclusive. These nested percentages are not additive. The flame graph widths use sample counts; the perf report weights event periods. CPU samples do not measure blocked network wait.
 
