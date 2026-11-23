@@ -44,6 +44,13 @@ Both settings are session-configurable; zero disables retention. Random eviction
 avoids the clear-all cliff when a join cycles through more patterns than fit.
 Changes apply on the next matching or diagnostics call.
 
+For `wc_match`, `wc_like` and `wc_regex`, literal pattern/view/flag arguments
+also get a hint in the executor's function context. Repeated rows skip argument
+decoding, view parsing and pattern-key lookup while the matcher remains cached.
+The hint is weak: eviction or disabling the cache releases the compiled matcher.
+Parameters in generic prepared plans and joined patterns use the ordinary
+bounded lookup, so changed parameters and rescans retain their usual semantics.
+
 ```sql
 SET pg_wildcard.matcher_cache_entries = 1024;
 SET pg_wildcard.matcher_cache_kb = '64MB';
@@ -51,7 +58,7 @@ SELECT * FROM wc_matcher_cache_stats();
 -- entries, charged_bytes, hits, misses, evictions (all bigint)
 ```
 
-Counters are cumulative within the current backend. Diagnostics are volatile and
+Counters include constant call-site hits and are cumulative within the current backend. Diagnostics are volatile and
 parallel-unsafe; parallel workers have separate caches. Charged memory excludes
 compilation/search temporaries and caller-held references; it is not an RSS cap.
 See [memory accounting](semantics.md) for library scratch-cache limits.

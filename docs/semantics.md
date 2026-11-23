@@ -81,10 +81,19 @@ are backend-local and survive limit changes. Its charge includes the engine's ap
 report, gram-plan vector capacities, matcher storage, the scratch allowance,
 pattern-key bytes and an entry metadata allowance. Entries that exceed the
 budget still execute but are not cached. Cache eviction releases its own
-references; caller-held references can outlive eviction. A new compilation can
+references; caller-held references can outlive eviction. SQL call sites hold only
+weak hints, so prepared plans do not pin compiled matchers after eviction. Their
+small hint/context metadata is executor-owned and released on context reset or
+deletion, outside the compiled-cache accounting. A new compilation can
 overlap retained entries before its charge is known. This accounting excludes
 allocator overhead, caller-owned values and temporary work, and is not a
 process RSS limit.
+
+The SQL text matcher wrappers preserve PostgreSQL's text types and pgrx error
+guards. In UTF8 databases, ordinary and short text values are borrowed directly;
+compressed, external and expanded varlenas pass through guarded detoasting.
+Other server encodings retain pgrx's existing text validation. Pattern and view
+decoding is deferred until a cache lookup needs those arguments.
 
 Direct `Matcher::is_match` calls do not impose a raw-value size limit. Callers
 must bound those values separately. The raw view borrows its input; transformed
