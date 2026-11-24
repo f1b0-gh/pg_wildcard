@@ -3,16 +3,16 @@
 
 PostgreSQL extension for wildcard security-string searches, indicator handling,
 ClickHouse/Antalya SQL generation, Arrow FDW scans and conservative lake pruning.
-The canonical matcher and query generator are provided by `libwildcard 0.2.1`;
-the current checkout uses the published `antalya-rs 0.1.1` transport. The existing
-`pg_wildcard 0.2.1` registry archive still pins client 0.1.0; the client update
-requires a new extension release.
+The canonical matcher and query generator are provided by `libwildcard 0.2.2`;
+release 0.2.2 uses the qualified `antalya-rs 0.1.1` transport.
 
 ## Performance qualification
 
 The repository's [current matrix](https://github.com/f1b0-gh/pg_wildcard/blob/main/README.md#measured-performance)
 compares native Antalya, direct client, PostgreSQL and Elasticsearch sweeps,
-then separately measures paired FDW changes. The 2026-11-23 requalification
+including opt-in native batching and staging qualified on 2026-11-24. Those
+routes do not add automatic parallel execution to the FDW. The separate
+2026-11-23 FDW requalification
 uses client 0.1.1 and the planned PostgreSQL 18.6 stack. It does not demonstrate
 a consistent FDW optimization gain: results vary by workload, with paired ranges
 crossing zero. Local measurements are not a general speed guarantee.
@@ -42,11 +42,11 @@ CREATE EXTENSION pg_wildcard;
 SELECT wc_match('https://example.org/admin', '*/admin', 'raw');
 ```
 
-To upgrade an existing 0.2.0 installation, install the 0.2.1 shared library and
+To upgrade an existing 0.2.0 or 0.2.1 installation, install the 0.2.2 shared library and
 SQL files, reconnect so the backend loads the new library, then run:
 
 ```sql
-ALTER EXTENSION pg_wildcard UPDATE TO '0.2.1';
+ALTER EXTENSION pg_wildcard UPDATE TO '0.2.2';
 ```
 
 SQL signatures are unchanged. The update records the new extension version.

@@ -5,7 +5,7 @@ Use the standalone package from crates.io:
 
 ```toml
 [dependencies]
-libwildcard = { version = "0.2.1", default-features = false, features = ["hot"] }
+libwildcard = { version = "0.2.2", default-features = false, features = ["hot"] }
 ```
 
 For local development, replace the version with `path = "path/to/libwildcard"`.
@@ -103,6 +103,42 @@ added overhead, not competitiveness with Elasticsearch's wildcard index.
 Extraction bounds do not bound total query memory or promise a speedup. Optional
 `GramFileCounts` only rank already-proven required fragments.
 
+## Opt-in selective staging
+
+`antalya::staged_literal_sweep` generates a candidate SELECT and at most eight
+250-rule exact queries over a caller-named staging table. This API is available
+since 0.2.2. It adds no client,
+runtime or thread dependency and leaves existing sweep defaults unchanged.
+
+Admission is deliberately narrow: at most 2,000 raw-view regexes representing
+printable ASCII literals of 3–64 bytes, with unqualified source columns. A shared
+literal prefix or positional character mask is a necessary condition, not an
+exact match. Other views, anchors, case folding and unsupported shapes return
+`None`; the caller must retain the complete ordinary sweep. Invalid identifiers,
+regexes and query budgets can return errors. Source filters remain trusted SQL.
+
+The caller materializes the complete candidate SELECT without deduplication or
+truncation. Each batch still performs exact per-rule checks, preserving duplicate
+rules, duplicate source rows and projection order. The staged queries omit the
+source byte-index predicate: a Memory table has no corresponding index, and
+evaluating that predicate again can dominate the useful matching work. The
+candidate gate and exact checks make this omission sound.
+
+Use `StagingBudget::allows` with explicit row, raw-value-byte and selectivity
+limits over the same immutable source snapshot. Refusal means running the
+complete existing sweep. Count before acquisition when possible; checking only
+after CREATE has already paid the materialization cost. These counts do not
+bound RSS, metadata, projected columns or worker memory. Enforce engine/process
+limits during acquisition and execution, cap aggregate concurrency, and own a
+unique staging name. On success, failure or cancellation, cancel and join workers
+before dropping their table. Mutable sources require a consistent snapshot;
+the library cannot supply one.
+
+This is a measured opt-in execution technique, not an automatic PostgreSQL FDW
+optimization. A low-selectivity gate can make staging slower. The maintained
+[benchmark runner](../tests/benchmarks/README.md#selective-staging-and-bounded-parallelism)
+includes acquisition, admission, exact checks and cleanup in its clock.
+
 ## Watchlist needle selection
 
 `antalya::watchlist_needles(pattern, view)` selects up to three necessary ASCII
@@ -159,3 +195,25 @@ Applications should validate this provenance against the intended corpus before
 loading the CSV into `GramFileCounts`. These statistics never authorize file
 pruning. Library callers can emit the same files with
 `lake::export_gram_frequencies` without changing the Puffin format.
+
+### Concurrency, memory and errors
+
+The planner is synchronous Rust SQL generation; it creates no threads and calls
+no PostgreSQL APIs. Its public result is `Result<Option<StagedLiteralPlan>,
+ChError>`: typed errors describe invalid inputs or exceeded query budgets,
+while `None` requests the complete existing fallback. The staging and dispatch
+modules contain no `unwrap()`, `expect()` or explicit panic. Domain errors retain
+their typed causes through `thiserror` and `?`.
+
+Planning bounds rules, literal lengths and generated SQL/AST size, and reserves
+collections from known sizes. These bounds do not imply a process-wide memory
+cap. The benchmark executor allows at most four active or queued batch tasks,
+splits the engine query-memory allowance between workers, bounds returned pairs,
+and cancels and joins workers before cleanup on errors. Its 64 MiB admission
+limit counts raw values only; projected columns, allocator overhead, result
+buffers and engine working memory need separate limits. Callers implementing
+the recipe must preserve these resource and lifetime contracts.
+
+Test assertions and deterministic fixture generators may use `unwrap()`;
+benchmark helpers also render errors as strings. Those conveniences are not the
+production planner's error contract.

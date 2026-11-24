@@ -1,0 +1,3 @@
+-- SPDX-License-Identifier: Apache-2.0
+-- SQL signatures and catalog objects are unchanged in 0.2.2.
+-- Install the new shared library and reconnect before upgrading.

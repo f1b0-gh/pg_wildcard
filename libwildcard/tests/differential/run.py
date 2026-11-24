@@ -107,6 +107,10 @@ for case in spec.get("shared_gate_cases", []):
             rows(sql+" SETTINGS force_data_skipping_indices='wc_gate_ngrams'")
 print("indexed gates: exact pairs with/without skipping; ASCII forced-index check passed")
 
+if "staged_sweep" in spec:
+    from staged_sweep import check as check_staged_sweep
+    check_staged_sweep(spec["staged_sweep"], q, rows, fail)
+
 if "byte_dispatch" in spec:
     from byte_dispatch import check as check_byte_dispatch
     check_byte_dispatch(spec["byte_dispatch"], q, rows, fail)

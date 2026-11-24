@@ -39,33 +39,70 @@ experiments and private engine state belong in `.local/`.
 
 ## Current requalification
 
-The [current performance matrix](../../README.md#measured-performance) replaces
-the older headline measurements. The 2026-11-23 run uses canonical
-`libwildcard 0.2.1`, current `pg_wildcard 0.2.1` sources and published
-`antalya-rs 0.1.1`. The registry extension archive still pins client 0.1.0;
-this candidate has not been released.
+The [single current performance table](../../README.md#measured-performance)
+uses a fresh 2026-11-24 cohort for all eight routes. Canonical `libwildcard` has
+an additive opt-in staged SQL planner available since 0.2.2. Measurements used
+the qualified source before the version-only release bump. The PostgreSQL and
+direct routes use `antalya-rs 0.1.1`, also shipped by extension release 0.2.2.
 
 ### Sweep protocol
 
 - Shared and unrelated literal workloads each contain one million documents,
-  1,000 wildcard rules and exactly 10,000 row/indicator/view pairs. All six
-  routes have one excluded warmup and six measured repetitions in rotating
-  order, with one sweep at a time. Full-value controls establish exact results.
+  1,000 wildcard rules and exactly 10,000 row/indicator/view pairs. All eight
+  routes have one excluded warmup and seven measured repetitions in rotating
+  order, with one client sweep at a time. The source and original query fields
+  are unchanged from the frozen reference. Full source hashes, exact result
+  multisets and all-indicator canaries are checked.
 - Antalya 26.8.34.20001 and Elasticsearch 9.5.6 each have four CPUs and 8 GiB;
-  Elasticsearch has a 4 GiB heap. PostgreSQL remains 18.6 with pgrx 0.19.4.
-  Native queries use `max_threads=4`, `max_block_size=8192`; Arrow uses
-  `flush_first` and no compression. Elasticsearch search concurrency is 1 or 4.
+  Elasticsearch has a 4 GiB heap. PostgreSQL is 18.6 with pgrx 0.19.4. The ordinary
+  native query permits four threads; parallel routes permit four simultaneous
+  one-thread queries in disjoint 250-rule batches. `max_block_size=8192` is fixed.
+  Arrow uses `flush_first` without compression. Elastic search concurrency is 1 or 4.
 - Native/direct disable result and condition caches; Elasticsearch disables
-  request/query caches. PG inherits fixture settings: all recorded PG queries
-  have two condition-cache misses and no hits. Text-index and filesystem caches
-  remain uncontrolled.
-- PostgreSQL requests use `EXPLAIN ANALYZE` with row timing off; the table reports
-  the complete request clock. Executor medians are separately recorded:
-  1,973.769 ms for shared literals and 2,618.015 ms for unrelated literals.
-  Binary COPY includes complete delivery and consumption. Generated pair
-  queries do not add a local `wc_*` predicate.
-- Ingestion timings use unequal default fsync acknowledgment durability and
-  do not establish a cross-engine ingestion ranking.
+  request/query caches. PG inherits fixture settings: each recorded PG query
+  has two condition-cache misses and no hits. Text-index and filesystem caches
+  remain uncontrolled. Four-CPU quotas do not reserve host CPUs.
+- PostgreSQL uses the unchanged, previously qualified `current-011` FDW binary
+  in a fresh PostgreSQL 18.6 container. Only its canonical handler is registered;
+  these generated pair queries invoke no local `wc_*` function. This is a real
+  sweep-route check, not a fresh qualification of the entire extension package.
+  Direct execution likewise retains the qualified 0.1.1 worker. Binary hashes
+  and the handler bootstrap are recorded in local provenance.
+- The PostgreSQL EXPLAIN row reports the complete request with row timing off;
+  binary COPY includes complete delivery and consumption. A full COPY precheck
+  validates the exact SQL before backend timing. Every result-returning route
+  checks the full pair multiset after its measured clock.
+- Ingestion uses unequal default fsync acknowledgment durability. Its measurements
+  do not establish a cross-engine ingestion ranking and are outside query clocks.
+
+### Selective result and dense controls
+
+The acceptance rule was fixed before timing: at least 10% lower median latency
+than four indexed batches on each selective corpus, with at least six of seven
+corresponding rounds faster. Both pass: **33.453% / 50.567% lower medians**, with
+**6/7 / 7/7** faster rounds. These are local engineering criteria, not confidence
+intervals or guarantees for arbitrary patterns and distributions. Staging also
+has lower medians than the four-search Elastic route in these two fixtures;
+this does not establish a general Elasticsearch ranking.
+
+The maintained benchmark executor admits 10,000 candidates (1%) containing 290,000 / 340,000
+raw-value bytes. Every staged sweep includes the count/byte preflight, CREATE,
+population check, four exact queries and DROP: eight correlated QueryFinish
+records. The preflight is new timed work relative to the exploratory prototype.
+Median summed query CPU falls from **2,184 to 1,021 ms** for shared literals and from
+**3,800 to 1,464 ms** for unrelated literals. Both staged sweeps read 2.05M logical
+rows, including the two source scans, accounting and four candidate rechecks.
+Shared indexed batches read only 1.32M rows, yet use more CPU: row count alone
+misses the cost of repeated byte-index predicates and matching expressions.
+
+Separate dense controls preserve rule results and value lengths while making
+all one million source rows pass the cheap gate. Each has three repetitions
+and a warmup for both native routes. Staging is refused every time before CREATE;
+there are five requests: preflight plus four indexed batches. Reference → guarded
+medians are **819.888 → 836.910 ms** and **1,463.906 → 1,452.278 ms**. The preflight
+server clock alone is **56 ms [47–59] / 81 ms [78–93]**. The slight unrelated
+median decrease is variability, not evidence that a refused staging plan saves
+work; total query CPU rises in both controls. Refusal still incurs preflight cost.
 
 ### Paired FDW protocol
 
@@ -76,7 +113,20 @@ projection (32,768). Broad recheck preserves the local `wc_match` filter.
 Settings are `in_band`, uncompressed Arrow, a 16 MiB batch budget,
 `max_threads=2` and `max_block_size=1024`.
 
-The root README reports the optimization comparison at fixed client 0.1.1.
+This separate **2026-11-23** study is retained as historical FDW evidence.
+At fixed client 0.1.1, current FDW versus predecessor gives these median paired
+latency reductions % [minimum, maximum]:
+
+| Workload | PostgreSQL executor | Complete binary COPY |
+|---|---:|---:|
+| Narrow | 5.47 [-8.26, 27.26] | -0.68 [-32.21, 27.41] |
+| Short text | -3.24 [-18.77, 4.49] | -4.96 [-15.55, 43.17] |
+| Wide, 1 KiB | -15.50 [-33.54, 6.99] | -1.26 [-7.50, 5.84] |
+| Broad recheck | 2.36 [-83.83, 15.44] | 3.98 [-25.96, 30.73] |
+
+**No consistent FDW optimization gain is demonstrated:** every range crosses
+zero and some workloads have slower medians.
+
 The following comparison holds current FDW code fixed to measure the client
 update. Values are **median round-paired reduction % [minimum, maximum]**.
 Positive means lower latency; negative means slower. These are medians of
@@ -97,20 +147,108 @@ that build verifies packaging and was not substituted into the timing cohorts.
 
 ### Evidence and limits
 
-These are local shared-machine observations. No builds or tests ran during
-timing, but unrelated host activity and filesystem caches were uncontrolled.
-An independent recalculation verified the aggregates; the measurements have
-not been independently reproduced in a controlled benchmark environment.
+These are local shared-machine observations. This task ran no builds or tests
+during timing; unrelated host activity and filesystem caches were uncontrolled.
+An independent recalculation verified counts, hashes and aggregates. The
+measurements have not been independently reproduced in a controlled environment.
 Overlapping clocks and route medians must not be subtracted to infer isolated
-FDW overhead. The results do not establish a consistent optimization gain.
+FDW overhead. Preparation counters are not exclusive CPU attribution.
 
-Local evidence is retained under `.local/final-matrix-20261123/`: source and
-binary hashes, raw samples, exact-value controls, native QueryFinish records,
-verification scripts, final matrix and fixture-restoration receipt. The checks
-cover 432 FDW records, 72 full-value controls and 84 sweep records, including
-warmups. Seven intentionally corrupted evidence cases are rejected by the
-verifier. This evidence is not included in the archived release assets below;
-those downloads cannot verify the new tables.
+Fresh evidence remains under `.local/staged-promotion/`: frozen specifications,
+source/binary fingerprints, protocol and acceptance rule, full raw records,
+correlated native profiles, verification scripts, qualification logs and cleanup
+receipt. The final cohort contains 144 million-document sweeps including warmups
+and dense controls, plus 16 small smoke sweeps. None is censored. The smoke exposed
+an observer database-attribution bug, fixed and regression-tested before any
+full-corpus timing; the interrupted setup supplied no timing sample. Temporary
+fixtures, private state and superseded builds are removed after verification.
+
+Historical `.local/final-matrix-20261123/` evidence covers the paired FDW study:
+432 FDW records, 72 full-value controls and 84 earlier sweep records, including
+warmups. Its verifier rejects seven intentionally corrupted cases. Neither local
+campaign is included in the archived assets below; those downloads cannot verify
+the current README table.
+
+## Selective staging and bounded parallelism
+
+The current generator emits `parallel_dispatch` and, for admitted literal
+families, `staged_dispatch` from the canonical library API. With
+`--layout byte_dispatch --concurrency 1`, explicitly select `native_parallel`
+or `native_staged` in `--routes`. Neither is a default route. Ordinary `native`
+runs one query with four engine threads; the parallel routes run up to four
+250-rule queries with one engine thread each. They retain the same pair multiset.
+This is application scheduling over Antalya, not threading inside the FDW.
+
+`native_staged` times the complete lifecycle: candidate count and raw-value-byte
+preflight, fresh Memory table creation, population verification, exact queries
+and synchronous DROP. Its explicit admission policy is at most 100,000 rows,
+64 MiB of raw values and 10% of the immutable source. A refused gate runs the
+indexed parallel sweep before creating any table; its preflight cost still
+counts. These thresholds are operator policy, not a proven optimal crossover.
+The experiment qualifies 1% and 100% candidate populations, not every intermediate
+selectivity. Do not truncate a candidate set to make it fit.
+
+Four requests are admitted at a time, and completed replies are consumed before
+admitting further work. Per-query memory is divided across workers; aggregate
+pair limits, bounded HTTP replies and fixture container limits also apply.
+Raw-value bytes do not measure RSS or all projected data. The library creates no
+threads and owns no server state. This runner requires an exclusively owned,
+immutable fixture database; a production executor must provide snapshot,
+namespace, cancellation and cleanup guarantees itself.
+
+The 60-second sweep limit is a sample censoring threshold. Each acquisition or
+worker query receives the remaining execution budget, but HTTP transport allows
+an additional 30 seconds and cancellation/join/cleanup can extend wall time.
+Timed-out sweeps are not successful samples. Workers are cancelled and joined
+before dropping their table; the parent retries owned cleanup on failure.
+
+The native isolation regression requires an explicitly selected owned fixture:
+`WILDCARD_BENCHMARK_STATE=.local/perf/antalya.json python3 -m unittest discover -s tests/benchmarks -p test_process_isolation.py`.
+It checks process attribution from another database and cancellation isolation.
+Use the `system.processes.current_database` column: `database` can resolve to
+the observer's `database()` function and silently misattribute running queries.
+
+Why this can help: the ordinary engine already uses multiple threads, but
+combined query planning and rule work need not split evenly across them. Batching
+rules exposes more independent work. Staging shares a smaller candidate population
+across batches. This runner scans the source twice for a cheap necessary condition:
+preflight and acquisition.
+The Memory table has no text index, so the staged renderer omits the redundant
+byte-index predicate while preserving exact rule checks. With a dense gate,
+materialization and repeated candidate processing can outweigh any saving.
+
+The preceding local exploration separates several mechanisms. A single native
+query already had four read/transform branches in `EXPLAIN PIPELINE`; increasing
+`max_threads` from one to four improved latency by 1.55× / 1.63× on shared /
+unrelated rules. Running the **same four queries** serially or concurrently gave
+2.49× / 2.56× improvements with unchanged logical row-read counts. These controls
+demonstrate existing engine parallelism and a scheduling benefit; they are not
+fresh samples in the README comparison.
+
+Splitting rules also changes the work. The dispatch builder excludes trigram
+postings with more than 64 members and greedily groups remaining rules. A fragment
+that is too common in 1,000 rules can become useful in a 250-rule batch. Conversely,
+each batch can revisit source granules. Shuffling the same source rows raised
+shared-rule four-batch reads from 1.32M to 4M and removed an apparent benefit from
+using eight batches. Four data partitions retained all 1,000 rules in each query
+and replicated expensive expression preparation. These observations explain why
+adding tasks or partitioning data is not automatically faster.
+
+In the selective prototype, omitting the redundant index predicate on Memory
+reduced summed query CPU from roughly 8–10 seconds to below one second. The
+final prototype reduced CPU as well as elapsed time; it did not simply increase
+core utilization. Deliberately admitting every source row reversed the gain:
+unconditionally staged runs were 5.46× / 7.77× slower than indexed rule batches.
+That counterexample motivated explicit admission and the timed fallback control.
+The raw exploratory evidence remains in `.local/perf/parallel-sweeps-20261124/`
+and `.local/perf/parallel-techniques-20261124/`; it is not a published artifact.
+
+Summed CPU and logical reads support these explanations but do not assign every
+millisecond to a function. Parse, analysis and plan counters overlap; they must
+not be added as exclusive CPU costs. Query peaks are not concurrent process RSS.
+The FDW currently registers ordinary scan callbacks, not parallel foreign-scan
+worker callbacks. Remote engine parallelism is independent of that PostgreSQL
+interface, and native orchestration gains do not establish a faster FDW route.
 
 ## Archived measurements
 
@@ -230,7 +368,8 @@ python3 tests/benchmarks/compare_routes.py .local/comparison.json \
   --native-state .local/perf/antalya.json --elastic-state .local/perf/elasticsearch.json \
   --pg-container OWNED_PG --direct-worker tests/transport/target/release/examples/sweep_route \
   --layout byte_dispatch --ingest-durability defaults \
-  --out .local/perf/comparison --repeats 6 --concurrency 1
+  --routes native,native_parallel,native_staged,direct,pg_backend,pg_copy,elastic_wildcard,elastic_wildcard_4 \
+  --out .local/perf/comparison --repeats 7 --concurrency 1
 ```
 
 PostgreSQL backend samples consume tuples with `TIMING OFF`; full COPY samples

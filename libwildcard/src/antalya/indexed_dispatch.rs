@@ -356,6 +356,31 @@ pub fn sweep_byte_dispatch(
     options: SweepOptions,
     frequencies: Option<&GramFileCounts>,
 ) -> Result<ByteDispatchPlan, ChError> {
+    sweep_byte_dispatch_with_gate(
+        source,
+        select,
+        cols,
+        items,
+        filter,
+        options,
+        frequencies,
+        true,
+    )
+}
+
+// Staged relations have no byte index. Omit only the necessary index predicate;
+// dispatch coverage, exact rechecks, validation and fallback stay shared.
+#[allow(clippy::too_many_arguments)]
+pub(super) fn sweep_byte_dispatch_with_gate(
+    source: &str,
+    select: &[&str],
+    cols: &ViewColumns,
+    items: &[SweepItem],
+    filter: Option<&str>,
+    options: SweepOptions,
+    frequencies: Option<&GramFileCounts>,
+    use_index_gate: bool,
+) -> Result<ByteDispatchPlan, ChError> {
     let fallback = |reason| {
         Ok(ByteDispatchPlan {
             sweep: dense_fallback(source, select, cols, items, filter, options)?.into(),
@@ -391,7 +416,7 @@ pub fn sweep_byte_dispatch(
     let mut needles = Vec::with_capacity(items.len());
     let mut gate_keys = BTreeSet::new();
     let mut conjunctions = BTreeSet::new();
-    let mut index_gate = true;
+    let mut index_gate = use_index_gate;
     for item in items {
         let _ = predicate(
             &value,

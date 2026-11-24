@@ -62,7 +62,7 @@ Add the published library to your application, selecting only the features you n
 
 ```toml
 [dependencies]
-libwildcard = { version = "0.2.1", features = ["hot"] }
+libwildcard = { version = "0.2.2", features = ["hot"] }
 ```
 
 ```rust
@@ -73,14 +73,12 @@ assert!(matcher.is_match(b"GET /%77p-ADMIN/a.PHP"));
 ```
 
 Both [`libwildcard`](https://crates.io/crates/libwildcard) and
-[`pg_wildcard`](https://crates.io/crates/pg_wildcard) are published as **0.2.1**.
+[`pg_wildcard`](https://crates.io/crates/pg_wildcard) are published as **0.2.2**.
 
 ## PostgreSQL
 
-The extension targets PostgreSQL **18.6** with pgrx **0.19.4**. The
-current checkout uses `antalya-rs =0.1.1`. The published `pg_wildcard 0.2.1`
-archive still uses `antalya-rs =0.1.0`; the qualified client update is not yet
-released. See the [build guide](docs/build.md) for prerequisites and installation.
+The extension targets PostgreSQL **18.6** with pgrx **0.19.4**. Release 0.2.2
+uses the qualified `antalya-rs =0.1.1` client. See the [build guide](docs/build.md) for prerequisites and installation.
 
 After installing and creating the extension:
 
@@ -97,75 +95,74 @@ not establish FDW compatibility. See the [FDW guide](docs/fdw.md).
 
 ## Measured performance
 
-The **2026-11-23 requalification** uses `libwildcard 0.2.1` and the current
-`pg_wildcard 0.2.1` sources with `antalya-rs 0.1.1`. These are local-machine
-observations, with uncontrolled host activity and filesystem caches. They have
+The **2026-11-24 comparison** remeasures all eight routes together using the
+qualified source candidate for 0.2.2 (before the version-only release bump). These are local shared-machine observations; unrelated host
+activity, text-index caches and filesystem caches remain uncontrolled. They have
 not been independently reproduced in a controlled benchmark environment.
 
 ### Complete sweeps
 
 **One million documents, 1,000 wildcard rules, 10,000 exact row/indicator/view
-pairs.** Every route returns the same pairs. URL-shaped fields contain either
-shared literals (`*evil0000.example*`, `*evil0001.example*`) or unrelated literals
-(`*e220a8397b1dcdaf*`, etc.). These are substring searches.
+pairs.** URL-shaped fields contain either shared literals (`*evil0000.example*`,
+`*evil0001.example*`) or unrelated literals (`*e220a8397b1dcdaf*`, etc.). These are
+substring searches. The source, rules and original queries match the frozen
+reference; no historical medians are mixed into this table.
 
-Six measured repetitions follow one excluded warmup, with rotating route order.
+Seven measured repetitions follow one excluded warmup, with rotating route order.
 Times are **median [minimum, maximum] milliseconds**.
 
 | Route | Shared literals | Unrelated literals |
 |---|---:|---:|
-| Native Antalya HTTP, byte index | 1,092.595 [1,024.274, 1,271.077] | 1,819.531 [1,261.818, 2,339.980] |
-| Direct `antalya-rs 0.1.1` | 1,931.827 [1,885.563, 2,052.146] | 2,728.737 [1,869.048, 3,040.210] |
-| PostgreSQL EXPLAIN request through FDW | 1,977.298 [1,845.909, 2,044.811] | 2,626.485 [1,790.449, 2,775.892] |
-| Complete PostgreSQL binary COPY through FDW | 1,721.042 [1,650.506, 1,899.233] | 2,451.364 [1,979.624, 3,352.971] |
-| Elasticsearch wildcard, 1 concurrent search | 2,467.283 [1,913.265, 2,782.272] | 2,262.281 [1,962.713, 2,926.844] |
-| Elasticsearch wildcard, up to 4 concurrent searches | 646.618 [488.583, 761.040] | 1,167.470 [465.480, 1,244.821] |
+| Native Antalya HTTP, byte index, 1 query / 4 threads | 2,007.328 [1,660.970, 2,147.936] | 1,997.496 [1,687.351, 2,205.600] |
+| Native Antalya, 4 indexed batches / 1 thread each (opt-in) | 940.077 [847.289, 1,127.050] | 1,466.480 [1,289.097, 1,804.884] |
+| Native Antalya, selective staging + 4 batches (opt-in) | 625.592 [526.265, 1,227.035] | 724.931 [634.044, 1,076.017] |
+| Direct `antalya-rs 0.1.1` | 2,768.350 [2,051.879, 2,922.438] | 2,457.666 [2,013.494, 3,102.955] |
+| PostgreSQL EXPLAIN request through FDW | 2,764.748 [2,649.116, 3,028.674] | 2,836.696 [2,641.858, 2,881.849] |
+| Complete PostgreSQL binary COPY through FDW | 2,385.819 [2,293.513, 3,134.124] | 2,430.472 [2,290.985, 2,790.017] |
+| Elasticsearch wildcard, 1 concurrent search | 3,529.313 [2,364.557, 5,690.472] | 3,920.632 [2,562.465, 4,955.963] |
+| Elasticsearch wildcard, up to 4 concurrent searches | 1,116.308 [786.087, 1,699.909] | 990.876 [867.078, 1,153.049] |
 
-Elasticsearch's four-search mode has the lowest median in both fixtures.
-Its `_msearch` concurrency counts rule searches; Antalya executes one combined
-query with `max_threads=4`. These settings do not establish equivalent CPU use
-or multicore scaling. The generated pair queries have no local `wc_*` recheck;
-subtracting route medians does not isolate FDW overhead.
+Selective staging has the lowest median in both fixtures in this run. Against
+four indexed batches, its median latency falls **33.5% / 50.6%**, with **6/7 and
+7/7** corresponding rounds faster. The clock includes candidate preflight, fresh
+materialization, population verification, exact checks and synchronous cleanup.
+One shared-literal round is slower; the observed ranges are not confidence intervals.
 
-### Paired FDW follow-up
+The new [staging API](libwildcard/INTEGRATION.md#opt-in-selective-staging)
+is opt-in and available since 0.2.2. It
+shares a small candidate set and removes the redundant byte-index predicate on
+the Memory table while retaining exact checks. Dense controls refuse staging
+before materialization and pay the preflight cost. This is a conditional strategy,
+not a default routing change.
 
-A separate comparison holds `antalya-rs 0.1.1` fixed and measures the FDW
-optimizations against their predecessor. Six rounds balance all orders of the
-three variants used to separate the client update from the FDW changes.
-Each cell is the **median paired latency reduction % [minimum, maximum]**;
-positive means faster, negative means slower. Ranges are observed extrema,
-not confidence intervals.
-
-| Workload | PostgreSQL executor | Complete binary COPY |
-|---|---:|---:|
-| Narrow | 5.47 [-8.26, 27.26] | -0.68 [-32.21, 27.41] |
-| Short text | -3.24 [-18.77, 4.49] | -4.96 [-15.55, 43.17] |
-| Wide, 1 KiB | -15.50 [-33.54, 6.99] | -1.26 [-7.50, 5.84] |
-| Broad recheck | 2.36 [-83.83, 15.44] | 3.98 [-25.96, 30.73] |
-
-**No consistent FDW optimization gain is demonstrated.** Every paired range
-crosses zero, and some workloads have slower medians. Broad recheck retains
-the local `wc_match` filter over one million rows; the unchanged direct client
-serves as a variability control, not evidence of an FDW improvement.
+PostgreSQL rows use the existing FDW path and the original combined query.
+Elasticsearch concurrency counts rule searches; the batched native routes permit
+four one-thread queries. These settings do not establish identical CPU use.
+Generated pair queries have no local `wc_*` recheck, and subtracting route medians
+does not isolate FDW overhead. The separate
+[2026-11-23 paired FDW study](tests/benchmarks/README.md#paired-fdw-protocol)
+did not demonstrate a consistent FDW optimization gain.
 
 ### Qualification and scope
 
-The retained stack is PostgreSQL 18.6 / pgrx 0.19.4, Antalya 26.8.34.20001 and
-Elasticsearch 9.5.6. Both data engines have four CPUs and 8 GiB; Elasticsearch
-has a 4 GiB heap. Arrow is uncompressed. Sweep and FDW workloads use different
-query settings and timing boundaries; their latencies are not interchangeable.
+The stack is PostgreSQL 18.6 / pgrx 0.19.4, Antalya 26.8.34.20001 and Elasticsearch
+9.5.6. Both data engines have four CPUs and 8 GiB; Elasticsearch has a 4 GiB heap.
+Arrow is uncompressed. PostgreSQL EXPLAIN request and full binary COPY clocks
+remain distinct. The FDW binary is unchanged and was qualified separately on
+2026-11-23; this run verifies its complete sweep route.
 
-Correctness checks passed: 212 all-feature library tests, 38 transport tests,
-50 FDW harness tests, 86 PostgreSQL tests, native integration, differential
-seeds and Iceberg/Puffin coverage. Package and license checks passed. One existing
-manual library benchmark remains ignored; other PostgreSQL majors were not
-requalified.
+All **144 million-document sweeps**, including warmups and dense controls, passed
+their result checks with no censored samples. Returning routes check the complete
+pair multiset; PostgreSQL EXPLAIN consumes the same SQL validated by full COPY.
+The library passed 217 all-feature tests, three differential seeds on each of
+chDB and native Antalya, formatting, strict Clippy, package and license checks.
+The benchmark harness passed 74 portable tests and the native cancellation/isolation
+regression. One existing manual library benchmark remains ignored.
 
-See the [benchmark guide](tests/benchmarks/README.md#current-requalification)
-for settings, client-update comparisons and evidence availability. Earlier
-[sweeps](tests/benchmarks/results/2026-11-22/perf-plan/byte-dispatch/) and
-[FDW flamegraphs](tests/benchmarks/results/2026-11-23/fdw-overhead/) remain
-historical results; their timings and gains do not describe this candidate.
+See the [benchmark guide](tests/benchmarks/README.md#current-requalification) for
+settings, the mechanism, counterexamples and evidence availability. Raw results
+and independent recalculation remain local; the older downloadable evidence
+archives do not verify this new table.
 
 ## Documentation
 
