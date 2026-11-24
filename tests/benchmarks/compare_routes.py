@@ -31,8 +31,8 @@ from route_workers import DirectWorker, PgWorker
 ROOT=Path(__file__).resolve().parents[2]
 module_spec=importlib.util.spec_from_file_location('sweeps',ROOT/'libwildcard/tests/benchmarks/sweeps.py')
 sweeps=importlib.util.module_from_spec(module_spec);module_spec.loader.exec_module(sweeps)
-ROUTES=('native','indexed','direct','pg_backend','pg_copy','elastic_wildcard','elastic_keyword','elastic_wildcard_4')
-DEFAULT_ROUTES=tuple(route for route in ROUTES if route not in ('elastic_keyword','elastic_wildcard_4'))
+ROUTES=('native','indexed','direct','pg_backend','pg_copy','elastic_wildcard','elastic_keyword','elastic_wildcard_4','native_parallel','native_staged')
+DEFAULT_ROUTES=tuple(route for route in ROUTES if route not in ('elastic_keyword','elastic_wildcard_4','native_parallel','native_staged'))
 
 
 def emit(out, **record):
@@ -186,7 +186,7 @@ def cohorts(route, workers, action, expected, out, warmup, repeat, observe=None)
 
 
 def cancel_native_queries(engine):
-    engine.query("KILL QUERY WHERE query_id != currentQueryID() AND (startsWith(query_id,"+sweeps.literal(engine.prefix)+") OR (database="+sweeps.literal(engine.database)+" AND (startsWith(query_id,'comparison-direct-') OR startsWith(query_id,'wildcard-')))) SYNC",logging=False)
+    engine.query("KILL QUERY WHERE query_id != currentQueryID() AND (startsWith(query_id,"+sweeps.literal(engine.prefix)+") OR (current_database="+sweeps.literal(engine.database)+" AND (startsWith(query_id,'comparison-direct-') OR startsWith(query_id,'wildcard-')))) SYNC",logging=False)
 
 
 def pg_precontrol(workers, sql, expected, canary_sql, canary_expected, cancel):
@@ -226,6 +226,14 @@ def main():
     if byte_layout and ('indexed' in routes or 'elastic_keyword' in routes):
         raise ValueError('byte_dispatch layout uses one shared indexed source and the Elastic wildcard mapping')
     if set(routes)-set(ROUTES) or args.concurrency not in (1,4,8,32):raise ValueError('invalid routes/concurrency')
+    parallel_routes=set(routes)&{'native_parallel','native_staged'}
+    if parallel_routes:
+        import native_parallel
+        if not byte_layout or args.concurrency!=1:
+            raise ValueError('parallel routes require byte_dispatch and one client sweep')
+        native_parallel._queries(spec['parallel_dispatch']['queries'])
+        if 'native_staged' in routes and spec.get('staged_dispatch') is None:
+            raise ValueError('staged route requires an admitted canonical plan')
     schedule(routes,args.repeats)
     if args.out.exists():raise ValueError('fresh result directory required')
     args.out.mkdir(parents=True);out=args.out
@@ -249,6 +257,16 @@ def main():
         canary_expected=[(row,int(hit[0]),str(hit[1])) for row,hits in enumerate(spec['template_hits']) for hit in hits]
         verify_pairs([tuple(p) for p in native_run(engine,canary_queries)['pairs']],canary_expected)
         emit(out,kind='canary',route='native',pairs=len(canary_expected),all_indicators=len({p[1] for p in canary_expected}),timed=False)
+        for route in sorted(parallel_routes):
+            parallel=dict(spec['parallel_dispatch'],queries=[q.replace('FROM bench\n','FROM canary\n') for q in spec['parallel_dispatch']['queries']])
+            staged=spec['staged_dispatch'] if route=='native_staged' else None
+            if staged:
+                staged=dict(staged,candidate_select=staged['candidate_select'].replace('FROM bench\n','FROM canary\n'))
+            # This all-positive canary exercises admission refusal as well as
+            # completeness. Engine differential tests execute admitted staging.
+            result=native_parallel.run(engine,parallel,source_rows=len(spec['templates']),staged=staged)
+            verify_pairs([tuple(p) for p in result['pairs']],canary_expected)
+            emit(out,kind='canary',route=route,pairs=len(canary_expected),staging_refused=result['staging_refused'],timed=False)
         (out/'queries.json').write_text(json.dumps({'native':queries,'indexed':indexed},indent=2)+'\n')
         for label,sqls in [('native',queries)]+([('indexed',indexed)] if index_ready else []):
             plans=[engine.query('EXPLAIN indexes=1 '+q) for q in sqls]
@@ -306,6 +324,7 @@ def main():
                   'elastic_msearch_max_concurrent_searches':args.elastic_searches,
                   'elastic_fixture':{k:v for k,v in json.loads(args.elastic_state.read_text()).items() if k in ('image','cpus','memory_bytes','heap_bytes','version')} if elastic else None,
                   'native_max_threads_per_query':4,
+                  'parallel_routes':{'max_workers':4,'threads_per_worker':1,'max_candidate_rows':100000,'max_candidate_value_bytes':64<<20,'max_selectivity_per_mille':100,'preflight_timed':True} if parallel_routes else None,
                   'layout':args.layout,'ingest_durability':args.ingest_durability if byte_layout else 'legacy_defaults',
                   'elastic_route_concurrency':{r:4 if r=='elastic_wildcard_4' else args.elastic_searches for r in routes if r.startswith('elastic_')},
                   'direct_setup':[{'process_ms':w.setup_ms,**w.ready} for w in direct],
@@ -332,7 +351,9 @@ def main():
                         'heap_bytes':sum(n['jvm']['mem']['heap_used_in_bytes'] for n in nodes),
                         'cpu_ms':sum(n['process']['cpu']['total_in_millis'] for n in nodes)}
             params={'query_id':'comparison-monitor-'+uuid.uuid4().hex,'log_queries':0,'max_execution_time':1,'default_format':'JSONCompact'}
-            sql="SELECT count(),sum(memory_usage) FROM system.processes WHERE query_id!=currentQueryID() AND (database="+sweeps.literal(engine.database)+" OR position(query,"+sweeps.literal(engine.database+'.bench')+")>0)"
+            # `database` resolves to the observer's database() function. The
+            # per-query system.processes column is `current_database`.
+            sql="SELECT count(),sum(memory_usage) FROM system.processes WHERE query_id!=currentQueryID() AND (current_database="+sweeps.literal(engine.database)+" OR startsWith(query_id,"+sweeps.literal(engine.prefix)+") OR position(query,"+sweeps.literal(engine.database+'.bench')+")>0)"
             request=urllib.request.Request(private['url']+'/?'+urllib.parse.urlencode(params),data=sql.encode(),headers={'Authorization':'Bearer '+private['token']})
             with engine.opener.open(request,timeout=2) as response:
                 raw=response.read(65537)
@@ -343,6 +364,9 @@ def main():
         for warmup,repeat,route in schedule(routes,args.repeats):
             if route in disabled:continue
             def action(worker):
+                if route in parallel_routes:
+                    return native_parallel.run(engine,spec['parallel_dispatch'],source_rows=spec['rows'],
+                                               staged=spec['staged_dispatch'] if route=='native_staged' else None)
                 if route in ('native','indexed'):return native_run(engine,indexed if route=='indexed' else queries)
                 if route=='direct':return direct[worker].request(engine.database,queries)
                 if route.startswith('elastic_'):return elastic_run(elastic,indexes['wildcard' if route=='elastic_wildcard_4' else route[8:]],spec,4 if route=='elastic_wildcard_4' else args.elastic_searches)
@@ -360,6 +384,7 @@ def main():
                 # Finish cancellation before another timed variant. The database
                 # and opaque ID belong only to this invocation.
                 cancel_native_queries(engine)
+                if route in parallel_routes:native_parallel.cleanup(engine)
                 if route=='direct':
                     for worker in direct:worker.close()
                     direct=[]

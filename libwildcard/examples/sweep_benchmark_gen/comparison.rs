@@ -2,8 +2,8 @@
 //! Versioned comparison fixtures. Never infer the oracle from generated SQL.
 use libwildcard::antalya::{
     SweepItem, SweepOptions, ViewColumns, WatchlistStrategy, byte_gram_index_ddl, predicate,
-    sweep_byte_dispatch, sweep_queries_with_options, view_columns_ddl, watchlist_insert_sql,
-    watchlist_mv, watchlist_needles, watchlist_plan, watchlist_table_ddl,
+    staged_literal_sweep, sweep_byte_dispatch, sweep_queries_with_options, view_columns_ddl,
+    watchlist_insert_sql, watchlist_mv, watchlist_needles, watchlist_plan, watchlist_table_ddl,
 };
 use libwildcard::core::{
     GramQuery, View, grams,
@@ -208,6 +208,40 @@ pub fn build(variant: &str, count: usize, rows: usize) -> Result<Value, String> 
         None,
     )
     .map_err(|e| e.to_string())?;
+    // Runtime-free plans used by the explicit bounded parallel benchmark routes.
+    let staged = staged_literal_sweep(
+        "bench",
+        "wc_staged",
+        &["id"],
+        &cols,
+        &items,
+        None,
+        SweepOptions::default(),
+    )
+    .map_err(|e| e.to_string())?;
+    let parallel = if items.len() <= 2000 {
+        items
+            .chunks(250)
+            .map(|batch| {
+                sweep_byte_dispatch(
+                    "bench",
+                    &["id"],
+                    &cols,
+                    batch,
+                    None,
+                    SweepOptions::default(),
+                    None,
+                )
+                .map(|p| p.sweep.queries)
+            })
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e| e.to_string())?
+            .into_iter()
+            .flatten()
+            .collect::<Vec<_>>()
+    } else {
+        Vec::new()
+    };
     let views: Vec<_> = views.into_iter().collect();
     let patterns: Vec<_> = items.iter().enumerate().map(|(n,i)| {
         let mut p = json!({"id":i.id,"view":i.view.name(),"regex":i.regex,"elastic_wildcard":elastic[n],"needles":watchlist_needles(&i.regex,i.view).unwrap(),"required_grams":required_grams(&matchers[n].plan)});
@@ -262,6 +296,8 @@ pub fn build(variant: &str, count: usize, rows: usize) -> Result<Value, String> 
             "patterns":patterns,"pattern_sha256":sha256_hex(&pattern_bytes),
             "elastic_supported":variant!="mixed","elastic_exclusion":if variant=="mixed" {Some("mixed views and RE2 alternation are native/Rust qualification only")} else {None},
             "queries":plan.queries,"indexed_queries":indexed.queries,"index_ddl":view_columns_ddl("bench","v",&views).map_err(|e|e.to_string())?,
+            "parallel_dispatch":{"queries":parallel, "max_workers":4},
+            "staged_dispatch":staged.map(|p| json!({"candidate_select":p.candidate_select, "queries":p.queries, "table":"wc_staged", "gate":format!("{:?}",p.gate)})),
             "byte_dispatch":{"queries":dispatch.sweep.queries,
                 "index_ddl":byte_gram_index_ddl("bench","v_byte_grams","v").map_err(|e|e.to_string())?,
                 "strategy":dispatch.sweep.strategy.name(),"groups":dispatch.dispatch_groups,

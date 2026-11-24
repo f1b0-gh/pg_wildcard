@@ -13,10 +13,12 @@ use crate::core::pattern::Piece;
 use thiserror::Error;
 mod adaptive;
 mod indexed_dispatch;
+mod staged;
 pub use indexed_dispatch::{
     ByteDispatchFallback, ByteDispatchGate, ByteDispatchPlan, ByteDispatchStrategy,
     ByteDispatchSweepPlan, byte_gram_index_ddl, sweep_byte_dispatch,
 };
+pub use staged::{LiteralGate, StagedLiteralPlan, StagingBudget, staged_literal_sweep};
 pub mod identities;
 mod lake_filter;
 pub use lake_filter::{

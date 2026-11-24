@@ -6,8 +6,8 @@
 
 use libwildcard::antalya::{
     SweepItem, SweepOptions, ViewColumns, WatchlistStrategy, byte_gram_index_ddl,
-    candidate_predicate, column_predicate, sweep_byte_dispatch, sweep_queries,
-    sweep_queries_with_options, watchlist_insert_sql, watchlist_mv, watchlist_plan,
+    candidate_predicate, column_predicate, staged_literal_sweep, sweep_byte_dispatch,
+    sweep_queries, sweep_queries_with_options, watchlist_insert_sql, watchlist_mv, watchlist_plan,
     watchlist_table_ddl,
 };
 use libwildcard::core::View;
@@ -30,6 +30,92 @@ impl Rng {
 
 fn hex(b: &[u8]) -> String {
     b.iter().map(|x| format!("{x:02X}")).collect()
+}
+
+fn staged_cases(values: &[Vec<u8>]) -> serde_json::Value {
+    let mut cases = Vec::new();
+    for (name, literals, column, filtered) in [
+        (
+            "prefix",
+            (0..300).map(|i| format!("abc{i:04}x")).collect::<Vec<_>>(),
+            "v",
+            false,
+        ),
+        (
+            "mask",
+            vec!["a'b];x".into(), "z]y';x".into()],
+            "_wc_dispatch0_value",
+            true,
+        ),
+        (
+            "hex",
+            vec!["0123456789abcdef".into(), "fedcba9876543210".into()],
+            "v",
+            false,
+        ),
+    ] {
+        let mut items: Vec<_> = literals
+            .iter()
+            .enumerate()
+            .map(|(i, literal)| SweepItem {
+                id: if i < 2 { i64::MIN } else { i as i64 },
+                view: View::Raw,
+                regex: regex::escape(literal),
+            })
+            .collect();
+        items.push(items[0].clone());
+        let mut data = values.to_vec();
+        data.extend(literals.iter().map(|v| v.as_bytes().to_vec()));
+        if name == "mask" {
+            // Passes the positional gate, but neither exact literal. Repeat so
+            // at least one survives the modulo source filter for every seed.
+            data.extend([b"a]b';x".to_vec(), b"a]b';x".to_vec()]);
+        }
+        data.push([b"\xff".as_slice(), literals[0].as_bytes(), b"\0".as_slice()].concat());
+        data.push([vec![b'x'; 100_000], literals[0].as_bytes().to_vec()].concat());
+        data.push(
+            format!(
+                "{} {} {}",
+                literals[0],
+                literals[literals.len() - 1],
+                literals[0]
+            )
+            .into_bytes(),
+        );
+        let selected = if name == "prefix" {
+            vec!["id", "indicator_id", "view", "id"]
+        } else {
+            vec!["id"]
+        };
+        let plan = staged_literal_sweep(
+            "staged_source",
+            "staged_candidates",
+            &selected,
+            &ViewColumns::new(column).unwrap(),
+            &items,
+            filtered.then_some("id % 2 = 0 OR id % 3 = 0 -- trailing comment"),
+            SweepOptions::default(),
+        )
+        .unwrap()
+        .unwrap();
+        let mut expected = Vec::new();
+        for item in &items {
+            let matcher = Matcher::regex(&item.regex, item.view, false).unwrap();
+            for (id, value) in data.iter().enumerate() {
+                if (!filtered || id % 2 == 0 || id % 3 == 0) && matcher.is_match(value) {
+                    let mut row: Vec<_> = selected.iter().map(|_| json!(id)).collect();
+                    row.extend([json!(item.id), json!("raw")]);
+                    expected.push(json!(row));
+                }
+            }
+        }
+        cases.push(
+            json!({"name":name, "column":column, "candidate_select":plan.candidate_select,
+            "queries":plan.queries, "values_hex":data.iter().map(|v|hex(v)).collect::<Vec<_>>(),
+            "expected":expected}),
+        );
+    }
+    json!(cases)
 }
 
 fn byte_dispatch_cases(values: &[Vec<u8>]) -> serde_json::Value {
@@ -803,6 +889,7 @@ fn main() {
         "sweep": {"queries": sweeps, "expected": expected_hits},
         "shared_gate_cases": shared_gate_cases(&values),
         "byte_dispatch": byte_dispatch_cases(&values),
+        "staged_sweep": staged_cases(&values),
         "watchlist_join": watchlist_join_cases(&values, &items),
         "watchlist": {"table_ddl": watchlist_table_ddl("watch").unwrap(), "items": watch_items, "inserts": watch_inserts, "mv": mv},
     });

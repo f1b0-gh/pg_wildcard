@@ -29,20 +29,18 @@ cargo package --locked --manifest-path libwildcard/Cargo.toml --all-features
 The default output directory is `libwildcard/target`. `CARGO_TARGET_DIR` overrides
 it. The package is self-contained: it has its own manifest, lockfile, toolchain,
 license, sources and tests. Building the extracted source package requires no
-parent workspace or sibling checkout. The crates.io library package is `libwildcard 0.2.1`.
+parent workspace or sibling checkout. The crates.io library package is `libwildcard 0.2.2`.
 
 Use `hot` for SQL generation, `puffin` for index codecs and `cold` for all modules
 and `wc-lake`. See [consumer integration](../libwildcard/INTEGRATION.md).
 
 ## Crates.io packages
 
-`libwildcard 0.2.1` is the standalone Rust library; select `hot`, `puffin` or `cold`
-as needed. `pg_wildcard 0.2.1` is the PostgreSQL extension source package and depends
+`libwildcard 0.2.2` is the standalone Rust library; select `hot`, `puffin` or `cold`
+as needed. `pg_wildcard 0.2.2` is the PostgreSQL extension source package and depends
 directly on that library. Compatibility wrappers remain private re-exports.
 
-The current checkout uses `antalya-rs 0.1.1`. The published `pg_wildcard 0.2.1`
-archive still pins `antalya-rs 0.1.0`; the client update requires a new extension
-release. `libwildcard` has no client dependency.
+Release 0.2.2 uses the qualified `antalya-rs 0.1.1` client. `libwildcard` has no client dependency.
 
 The extension is installed with cargo-pgrx from its extracted source package,
 not with `cargo install pg_wildcard`. It includes its control file, test fixtures,
@@ -78,8 +76,8 @@ as a non-root user. In the intended database, enable the extension explicitly:
 CREATE EXTENSION pg_wildcard;
 ```
 
-For an existing 0.2.0 installation, install the new library and SQL files, then
-reconnect and run `ALTER EXTENSION pg_wildcard UPDATE TO '0.2.1'`. The upgrade
+For an existing 0.2.0 or 0.2.1 installation, install the new library and SQL files, then
+reconnect and run `ALTER EXTENSION pg_wildcard UPDATE TO '0.2.2'`. The upgrade
 script preserves the SQL API; existing sessions must reconnect to load the new
 shared library.
 
