@@ -250,6 +250,214 @@ The FDW currently registers ordinary scan callbacks, not parallel foreign-scan
 worker callbacks. Remote engine parallelism is independent of that PostgreSQL
 interface, and native orchestration gains do not establish a faster FDW route.
 
+## Rust client parallel sweeps
+
+`client_parallel.py` runs the canonical single, parallel and staged plans through
+both the native HTTP runner and a persistent published `antalya-rs 0.1.1` client.
+It changes neither the standalone library dependencies nor the FDW default.
+Data reads compare `FlushFirst` and `InBand`; staged commands compare
+`FlushFirst` and `ObserveFirst`. In-band reads require Antalya's framed terminal
+success and row-count proof. Unsupported endpoints fail rather than silently
+falling back. Commands retain query-log proof because this SDK does not accept
+in-band command execution.
+
+The Rust executor admits at most four queries, shares a 64 MiB decoded-batch
+lease budget across client clones, and caps aggregate results at 100,000 pairs.
+It has one Tokio worker thread and persistent HTTP pools. Returned pairs own
+additional memory; neither the lease budget nor candidate raw bytes are process
+RSS caps. Staging uses the same 100,000-row / 64 MiB / 10% admission policy as the
+native runner. Error and timeout paths cancel admitted executions, join peers,
+and confirm termination before DROP. Unknown cleanup stops the worker and
+removes only the owned fixture.
+
+Qualification checks exact single/parallel/staged results, empty admission,
+dense refusal before CREATE with every rule represented, observed overlap of
+four active server queries across two waves, peer failure, deadline cancellation,
+worker reuse, and absence of active work and staging tables. The runner separates
+observer query IDs from work IDs, correlates every main and SDK control request
+with server query logs, and performs server-log observation and exact validation outside
+the sweep clock. A 10 ms OS-resource sampler runs during each sweep. A failed sample aborts the cohort; it is not silently discarded.
+
+Client phase metrics overlap: body wait includes server response time; terminal
+wait includes its control requests; summed concurrent execution times exceed the
+sweep wall clock. Native JSON and SDK Arrow use different wire formats, so their
+latency difference is not isolated SDK overhead. The runner retains both Rust
+internal sweep time and full IPC/JSON roundtrip time. Client CPU includes output
+serialization, RSS is sampled, and the high-water mark covers the process lifetime.
+
+### Focused client results, 2026-11-24
+
+Both selective corpora have one million documents, 1,000 rules and 10,000 exact
+pairs. This separate cohort uses one warmup plus seven repetitions in rotating
+order, published client 0.1.1, a release worker with fat LTO / one codegen unit,
+and Antalya 26.8.34.20001 with four CPUs and 8 GiB. No task-owned builds or tests
+run during timing; other host activity and caches remain uncontrolled. Values
+are median [minimum, maximum] milliseconds for complete internal sweeps. Setup,
+exact validation and observer requests are outside these clocks; staging includes
+preflight, CREATE, population verification, exact reads and synchronous DROP.
+
+| Route | Shared literals | Unrelated literals |
+|---|---:|---:|
+| Native JSON, single | 2,330.6 [1,959.4, 2,748.7] | 2,515.0 [2,196.5, 2,724.3] |
+| Rust single, FlushFirst | 2,672.2 [2,395.8, 2,773.2] | 3,394.8 [2,581.0, 3,717.5] |
+| Rust single, InBand | 2,216.2 [2,003.2, 2,308.5] | 2,599.9 [2,160.8, 2,823.6] |
+| Native JSON, four batches | 975.5 [896.0, 1,037.5] | 1,827.1 [1,417.6, 2,210.8] |
+| Rust four batches, FlushFirst | 1,874.7 [718.7, 2,209.1] | 2,984.9 [2,549.5, 3,349.8] |
+| Rust four batches, InBand | 935.5 [789.7, 1,096.7] | 1,721.4 [1,193.0, 1,837.5] |
+| Native JSON, staged | 737.7 [538.0, 998.7] | 1,183.5 [1,041.5, 1,356.3] |
+| Rust staged, FlushFirst | 928.4 [702.1, 1,092.8] | 1,279.3 [1,090.7, 1,491.3] |
+| Rust staged, InBand reads + FlushFirst commands | 665.0 [560.8, 733.6] | 971.0 [749.4, 1,108.9] |
+| Rust staged, InBand reads + ObserveFirst commands | 728.7 [538.5, 1,212.7] | 1,003.6 [780.0, 1,173.5] |
+
+The predeclared engineering criterion is at least 10% lower median and at least
+six of seven corresponding rounds faster on **both** selective corpora. The
+combined staged/InBand route beats single-query FlushFirst by **75.1% / 71.4%**,
+with **7/7** faster rounds in each. Keeping staging fixed, InBand reads improve
+medians by **28.4% / 24.1%**, again **7/7**. Keeping InBand fixed, staging improves
+on four indexed batches by **28.9% / 43.6%**, also **7/7**. Full worker IPC/JSON
+roundtrip medians are 707.7 / 1,027.2 ms for the selected route, versus
+2,699.0 / 3,441.7 ms for single-query FlushFirst; internal timing does not account
+for that additional delivery cost. On the full roundtrip clock, the combined
+route wins 7/7 rounds against the single-query baseline in both corpora; with
+staging fixed, the InBand policy wins 6/7 shared and 7/7 unrelated rounds.
+
+Two isolated policy comparisons fail the consistency criterion: InBand single
+wins only 5/7 unrelated rounds, and InBand parallel wins only 5/7 shared rounds,
+despite lower medians. ObserveFirst commands have 9.6% / 3.4% **higher** medians
+than FlushFirst commands with the same InBand staged reads, winning only 3/7 /
+4/7 rounds. They are not promoted. The ranges describe this run, not confidence
+intervals or a guarantee for other corpora.
+
+The main-query CPU supports the staging explanation: with InBand held fixed,
+median summed server CPU falls from 1,966 / 3,595 ms for indexed batches to
+811 / 1,118 ms for staging. Staging reads 2.05M logical rows in either fixture;
+the indexed batches read 1.32M / 3.85M. The shared case again shows why fewer
+logical reads alone do not explain the gain: the predicates and work per row
+also change. Candidate populations are 10,000 rows (1%), with 290,000 / 340,000
+raw-value bytes.
+
+Client CPU medians for the selected staged route are 30 ms in each corpus.
+Summed Arrow decode medians are below 1 ms, versus about 6–20 ms for the single
+and parallel client routes. Successful InBand reads issue no terminal control
+queries; staged CREATE/DROP retain log proof. Each FlushFirst staged sweep uses
+16 control requests and eight flushes; InBand staged uses four and two. The
+ObserveFirst command variant uses six and two: it adds observations without
+avoiding either flush here. With staging fixed, median summed
+terminal time falls from 663 / 699 ms to 138 / 137 ms, and summed control-query
+server CPU from 185 / 194 ms to 44 / 46 ms. These overlapping sums explain the
+mechanism but must not be added to, or subtracted from, wall-clock latency.
+
+These results support using existing bounded orchestration and completion-policy
+APIs. They do not identify a Rust thread, allocation or Arrow decoder bottleneck
+that warrants an SDK rewrite for this workload. Broader client tuning needs
+separate wide-result, TLS and concurrent-consumer profiles. The production FDW
+already exposes a terminal-policy option, but these measurements exercise the
+new benchmark executor, not a changed PostgreSQL path.
+
+Dense controls use one warmup plus three repetitions per route. All one million
+rows pass the cheap gate; every staged request refuses materialization before
+CREATE and executes the original indexed batches. Native fallback medians are
+1,206 / 1,543 ms versus 912 / 1,326 ms without preflight. Rust FlushFirst gives
+2,194 / 2,526 versus 2,079 / 2,297 ms. InBand fallback medians happen to be lower
+(829 / 1,183 versus 1,009 / 1,223 ms) despite doing the same batches plus preflight;
+with three noisy repetitions this is not evidence of a dense-workload benefit.
+These controls qualify refusal and exactness, not an optimal admission threshold.
+
+All **216 million-document sweeps**, including warmups and dense controls, pass
+exact result and complete operation/control-log checks with no censored samples.
+Eight small release-smoke sweeps and the three-policy failure qualifications are
+separate. Independent recalculation checks oracle hashes, route/round counts,
+paired improvements and full IPC results. Lifecycle analysis uses query IDs and
+client execution kinds: the raw server `kind` is a SQL-prefix heuristic and can
+label a comment-prefixed SELECT as `command`. Evidence remains in
+`.local/client-parallel-20261124/`: frozen specs, source/binary fingerprints,
+release settings, full raw JSONL, per-route summaries, client phase metrics,
+correlated server profiles, independent verifiers and local test logs. It is not
+part of the published historical evidence assets. PostgreSQL and Elasticsearch
+were not remeasured for this focused experiment.
+
+Before the full campaign, a small smoke stopped on an active-query check whose
+output retained only a count. Subsequent probes did not reproduce it. Observer
+queries shared the work prefix; they now have separate IDs, and failures include
+active query identities. This removes that attribution ambiguity but does not
+prove the original query was an observer. The strict cleanup check remains;
+the failed fixture was removed and a fresh release qualification passed before
+any full-corpus sample was collected.
+
+### Why completion policy matters
+
+In SDK 0.1.1, `FlushFirst` issues one log flush before looking for terminal
+query-log evidence. A complete HTTP body can arrive before the server queues its
+`QueryFinish` record. If the flush wins that race, it cannot publish the missing
+record; subsequent observations use backoff and wait for normal log publication.
+The fixture's automatic flush interval is 1,000 ms. This is a wait for proof,
+not evidence that Arrow decoding or a Rust lock consumed that time.
+
+`InBand` changes where successful completion is proven. Its framed response
+includes explicit terminal status and a row count, avoiding query-log polling
+for successful data reads. It does not skip the success check. Staged CREATE and
+DROP still require log-based confirmation, so they retain a possible wait even
+when all data reads use in-band proof. `ObserveFirst` can avoid a flush if evidence
+is already visible, but adds an observation otherwise; it is a separate measured
+choice, not an assumed improvement.
+
+Batching and staging address different costs. Four independent rule batches
+expose server work concurrently; a selective staging table avoids repeating the
+same source-index and candidate work. The Rust client can drive this concurrency
+with async tasks on one runtime worker. Additional Rust worker threads would only
+help a demonstrated client CPU bottleneck; request concurrency alone does not
+establish one. This experiment covers small pair results over HTTP, not wide
+Arrow columns, TLS costs or PostgreSQL conversion.
+
+### Reproduce the client experiment
+
+Use the pinned locally cached Antalya image from `fixtures.py`. Build all workers
+before timing; run the protocol on an otherwise idle host when possible. Outputs
+must be fresh directories. The complete generator specification includes the
+single, parallel and staged plans; the runner selects `byte_dispatch` itself.
+
+```sh
+mkdir -p .local/client-parallel
+CARGO_TARGET_DIR="$PWD/.local/client-parallel/target" \
+  CARGO_PROFILE_RELEASE_LTO=fat CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+  CARGO_PROFILE_RELEASE_DEBUG=1 \
+  cargo build --locked --manifest-path tests/transport/Cargo.toml \
+    --release --features production --example sweep_client
+for family in shared unrelated; do
+  cargo run --locked -q --manifest-path libwildcard/Cargo.toml --features hot \
+    --example sweep_benchmark_gen -- --comparison "$family" --indicators 1000 \
+    --rows 1000000 > ".local/client-parallel/$family-spec.json"
+done
+python3 tests/benchmarks/fixtures.py start --engine antalya \
+  --state .local/client-parallel/native.private.json
+python3 tests/benchmarks/client_parallel.py .local/client-parallel/shared-spec.json \
+  --native-state .local/client-parallel/native.private.json \
+  --worker .local/client-parallel/target/release/examples/sweep_client \
+  --out .local/client-parallel/qualification --rows 10000 --repeats 1 --qualify
+for family in shared unrelated; do
+  python3 tests/benchmarks/client_parallel.py ".local/client-parallel/$family-spec.json" \
+    --native-state .local/client-parallel/native.private.json \
+    --worker .local/client-parallel/target/release/examples/sweep_client \
+    --out ".local/client-parallel/$family" --repeats 7
+done
+python3 tests/benchmarks/fixtures.py stop \
+  --state .local/client-parallel/native.private.json
+```
+
+A failure removes the owned fixture itself; recreate it before retrying into a
+fresh output directory. Keep raw JSONL, frozen specifications and settings with
+any reported summary. Do not substitute small qualification timings for the
+million-document cohort. Dense controls use copies of the generated specifications, changing only
+`benign_prefix` to `https://evil0-benign/xxxxxxx` for shared literals and
+`0123456789abcdef/benign/xxxx` for unrelated literals. These preserve value lengths
+and exact rule hits while making every source row pass the cheap gate. Run each
+copy with `--repeats 3` and
+`--routes native_parallel,flush_first_parallel,in_band_parallel,native_staged,flush_first_staged,in_band_staged,in_band_observe_staged`
+before stopping the fixture. Check `staging_refused` and absence of CREATE in every
+staged sample. Reusing the selective source does not test refusal. This focused
+experiment does not refresh PostgreSQL or Elasticsearch measurements in the root
+README table.
+
 ## Archived measurements
 
 These runs retain their original versions, settings and conclusions. They are

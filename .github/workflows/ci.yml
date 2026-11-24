@@ -178,7 +178,7 @@ jobs:
       - name: Shared-client JSON and Arrow transport regressions
         run: |
           cargo fmt --manifest-path tests/transport/Cargo.toml -- --check
-          cargo test --locked --manifest-path tests/transport/Cargo.toml --all-features
+          cargo test --locked --manifest-path tests/transport/Cargo.toml --all-features --all-targets
           cargo clippy --locked --manifest-path tests/transport/Cargo.toml --all-features --all-targets -- -D warnings
       - name: PostgreSQL-independent FDW transport regressions
         run: |

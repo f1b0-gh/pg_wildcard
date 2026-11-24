@@ -143,6 +143,11 @@ does not isolate FDW overhead. The separate
 [2026-11-23 paired FDW study](tests/benchmarks/README.md#paired-fdw-protocol)
 did not demonstrate a consistent FDW optimization gain.
 
+A separate [Rust client experiment](tests/benchmarks/README.md#rust-client-parallel-sweeps)
+qualifies bounded batching, selective staging and completion policies through
+`antalya-rs` itself, with phase metrics explaining the gains. Its focused results
+are kept separate from this complete eight-route cohort.
+
 ### Qualification and scope
 
 The stack is PostgreSQL 18.6 / pgrx 0.19.4, Antalya 26.8.34.20001 and Elasticsearch

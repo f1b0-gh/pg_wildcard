@@ -109,7 +109,7 @@ checkout is required:
 
 ```sh
 cargo test --locked -p wildcard-core -p wildcard-ch -p wildcard-puffin -p wildcard-lake
-cargo test --locked --manifest-path tests/transport/Cargo.toml --all-features
+cargo test --locked --manifest-path tests/transport/Cargo.toml --all-features --all-targets
 cargo test --locked --manifest-path tests/fdw/harness/Cargo.toml
 ```
 
