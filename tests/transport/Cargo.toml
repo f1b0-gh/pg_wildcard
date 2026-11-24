@@ -51,3 +51,7 @@ required-features = ["production"]
 [[example]]
 name = "fdw_warm"
 required-features = ["production"]
+
+[[example]]
+name = "sweep_client"
+required-features = ["production"]
