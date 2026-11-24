@@ -60,7 +60,7 @@ class Engine:
             result = str(self.session.query(sql, 'JSONCompact'))
             return json.loads(result)['data'] if result.strip() else []
         params = dict(self.settings, database=database or self.database, default_format='JSONCompact',
-                      query_id=query_id or self.prefix + uuid.uuid4().hex,
+                      query_id=query_id or (self.prefix if logging else 'wc-observer-') + uuid.uuid4().hex,
                       log_queries=int(logging), max_execution_time=self.timeout_seconds)
         request = urllib.request.Request(self.state['url'] + '/?' + urllib.parse.urlencode(params),
                   data=sql.encode(), headers={'Authorization':'Bearer '+self.state['token']})
