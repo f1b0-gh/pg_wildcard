@@ -520,7 +520,7 @@ unsafe extern "C-unwind" fn get_foreign_paths(
             std::ptr::null_mut(),
             std::ptr::null_mut(),
         );
-        #[cfg(feature = "pg18")]
+        #[cfg(any(feature = "pg18", feature = "pg19"))]
         let path = pg_sys::create_foreignscan_path(
             root,
             baserel,
@@ -889,12 +889,17 @@ unsafe extern "C-unwind" fn iterate_foreign_scan(
             // ExecInitNode attaches instrumentation after BeginForeignScan.
             // Inspect it here, including after rescans, and retain only a bool.
             // auto_explain or another hook may intentionally enable this too.
-            s.row_timing = (*node)
-                .ss
-                .ps
-                .instrument
-                .as_ref()
-                .is_some_and(|instrument| instrument.need_timer);
+            s.row_timing = (*node).ss.ps.instrument.as_ref().is_some_and(|instrument| {
+                // PostgreSQL 19 wraps the timing options in NodeInstrumentation.
+                #[cfg(feature = "pg19")]
+                {
+                    instrument.instr.need_timer
+                }
+                #[cfg(not(feature = "pg19"))]
+                {
+                    instrument.need_timer
+                }
+            });
             s.stream = Some(
                 s.session
                     .start_selected(&s.sql, s.candidate_sql.as_deref(), s.settings.as_deref())

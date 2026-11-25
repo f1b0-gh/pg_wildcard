@@ -84,7 +84,10 @@ unsafe fn re2match_oid() -> pg_sys::Oid {
         let cache = pg_sys::SysCacheIdentifier::ZEXTENSIONOID;
         #[cfg(not(feature = "pg17"))]
         let cache = pg_sys::SysCacheIdentifier::EXTENSIONOID;
-        let tuple = pg_sys::SearchSysCache1(cache as i32, pg_sys::Datum::from(extension));
+        // PostgreSQL 19 uses a signed syscache identifier already.
+        #[cfg(not(feature = "pg19"))]
+        let cache = cache as i32;
+        let tuple = pg_sys::SearchSysCache1(cache, pg_sys::Datum::from(extension));
         if tuple.is_null() {
             return pg_sys::InvalidOid;
         }
