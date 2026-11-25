@@ -15,7 +15,7 @@ The library needs no PostgreSQL or network client:
 
 ```toml
 [dependencies]
-libwildcard = { version = "0.2.2", features = ["hot"] }
+libwildcard = { version = "0.2.3", features = ["hot"] }
 ```
 
 ```rust
@@ -27,7 +27,7 @@ assert!(matcher.is_match(b"GET /%77p-ADMIN/a.PHP"));
 
 See [library integration](libwildcard/INTEGRATION.md) for features and
 [installation](docs/build.md) for the PostgreSQL extension and `wc-lake` CLI.
-Both packages are at **0.2.2**; the extension uses `antalya-rs 0.1.1`.
+Both packages are at **0.2.3**; the extension uses `antalya-rs 0.1.1`.
 
 ## Measured performance
 

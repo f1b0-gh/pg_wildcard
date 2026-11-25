@@ -54,6 +54,10 @@ Wildcard indexes occupy their own Puffin files, separate from deletion vectors
 or other statistics. The execution engine applies Iceberg deletes. Indexing and
 query planning do not execute SQL, manage a server or establish permissions.
 
+The [single performance table](https://github.com/f1b0-gh/pg_wildcard/blob/main/README.md#measured-performance)
+compares native Antalya, antalya-rs, PostgreSQL and Elasticsearch sweeps with
+shared-host measurement limits and exact-result checks.
+
 ## Build
 
 Rust 1.99.1 is pinned for this package. Its lockfile resolves Arrow/Parquet to
@@ -68,7 +72,7 @@ cargo package --locked --all-features
 cargo build --locked --features cold --bin wc-lake
 ```
 
-Use `libwildcard = "0.2.2"` from crates.io, or build its self-contained source
+Use `libwildcard = "0.2.3"` from crates.io, or build its self-contained source
 package. See [consumer integration](INTEGRATION.md) and [tests](tests/README.md).
 
 ## Optional hot-storage helpers

@@ -201,7 +201,7 @@ dependencies = [
 
 [[package]]
 name = "libwildcard"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "idna",
  "lz4_flex",
@@ -453,7 +453,7 @@ dependencies = [
 
 [[package]]
 name = "wildcard-puffin"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "libwildcard",
 ]

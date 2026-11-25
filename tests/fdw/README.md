@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # FDW qualification
 
-Build with the pinned pgrx 0.19.4 / PostgreSQL 18.6 toolchain and the published
+Build with the pinned pgrx 0.19.4 / PostgreSQL 18.6 or 19.0 toolchain and the published
 `antalya-rs` 0.1.1 crate. The FDW consumes Arrow using shared bearer authentication.
 The native-engine commands below additionally need a sibling `antalya-rs` source
 checkout for `scripts/fixture.py`; it is not used as a Cargo dependency.
@@ -19,6 +19,9 @@ cargo pgrx test pg18 -p pg_wildcard --no-default-features --features pg18 --carg
 cargo pgrx install -p pg_wildcard --no-default-features --features pg18 --pg-config "$PGRX_PG_CONFIG_PATH" --cargo=--locked
 python3 ../antalya-rs/scripts/fixture.py python3 tests/fdw/antalya.py
 ```
+
+For PostgreSQL 19.0, select its binaries and use `pg19` in the pgrx commands;
+keep `--no-default-features`. Both targets run the same FDW tests below.
 
 The disposable fixture supplies ANTALYA_TEST_URL and ANTALYA_TEST_TOKEN in the
 child environment, validates actual JWT expiry/audience/signature failures,
@@ -66,7 +69,7 @@ The native suite forces evaluation of columns that deliberately throw or sleep:
 unused columns are correctly omitted by projection. Normal LIMIT/cursor close
 and rescans now drain and confirm; cancellation remains an explicit abort.
 
-The PostgreSQL 18.6 planner regressions run against an installed extension with no native
+The PostgreSQL 18.6/19.0 planner regressions run against an installed extension with no native
 server. Use a C.UTF-8 database with ICU support:
 
 ```bash

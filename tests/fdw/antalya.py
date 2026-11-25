@@ -67,6 +67,16 @@ try:
     foreign('identity', 'principal text', '(SELECT currentUser() principal)')
     check(pg('SELECT principal FROM identity') == 'fixture', 'bearer executes as the expected fixture principal')
     check(pg('SELECT count(*),sum(id) FROM events') == '1000|499500', 'ordinary Arrow scan and terminal completion')
+    for timing in ('ON', 'OFF'):
+        plan = json.loads(pg(f'EXPLAIN (ANALYZE, TIMING {timing}, FORMAT JSON) SELECT * FROM events'))[0]['Plan']
+        check(plan['Node Type'] == 'Foreign Scan' and plan['Actual Rows'] == 1000,
+              f'TIMING {timing} consumes every row')
+        check(plan['FDW row timing enabled'] is (timing == 'ON'),
+              f'TIMING {timing} selects the PostgreSQL instrumentation flag')
+        check((plan['FDW row conversion'] > 0) if timing == 'ON' else (plan['FDW row conversion'] == 0),
+              f'TIMING {timing} controls per-row conversion clocks')
+        check(plan['FDW remote rows'] == 1000 and plan['FDW metrics complete'] is True,
+              f'TIMING {timing} retains terminal confirmation')
     pg('CREATE TABLE local_events AS SELECT * FROM events')
     for predicate in ["wc_match(url, '*evil.example/*')", "wc_like(url, '%/1%')", "wc_regex(url, 'evil') AND id>=33", "url LIKE '%good%' AND id<500", 'id IS NOT NULL']:
         query = f"SELECT coalesce(string_agg(id::text, ',' ORDER BY id),'') FROM {{table}} WHERE {predicate}"

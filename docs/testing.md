@@ -120,8 +120,8 @@ See [transport checks](../tests/transport/README.md) and
 
 ## PostgreSQL
 
-The qualification target is PostgreSQL **18.6**, with pgrx **0.19.4** and the
-`pg18` feature. Initialize pgrx against that installation as described in
+The qualification targets are PostgreSQL **18.6** and **19.0**, with pgrx
+**0.19.4**. The default feature remains `pg18`. Initialize pgrx against that installation as described in
 [build setup](build.md), then run as a non-root user:
 
 ```sh
@@ -130,6 +130,10 @@ cargo pgrx install -p pg_wildcard --no-default-features --features pg18 --pg-con
 cargo build --locked --manifest-path libwildcard/Cargo.toml --features cold --bin wc-lake
 PATH="$PGBIN:$PATH" python3 tests/fdw/run.py libwildcard/target/debug/wc-lake
 ```
+
+To qualify PostgreSQL 19.0, use its `pg_config`/`PGBIN` and substitute `pg19`
+for `pg18` in the commands above. Always pass `--no-default-features` when
+selecting `pg19`; pgrx requires exactly one PostgreSQL major feature.
 
 The chDB HTTP shim returns real Arrow values but simulates query-log completion.
 Native authentication and terminal completion need the separate
@@ -182,9 +186,9 @@ Do not require the manual PostgreSQL job as an automatic pull-request check;
 it is only created when its qualification workflow is dispatched.
 
 The manual [PostgreSQL qualification workflow](../.github/workflows/postgres.yml)
-runs the extension and FDW integration tests on PostgreSQL 14–18. Its PostgreSQL
-18 lane requires 18.6 and fails if the package source no longer provides it;
-14–17 lanes use available minor releases as compatibility checks. These manual
+runs the extension and FDW integration tests on PostgreSQL 14–19. Its PostgreSQL
+18 and 19 lanes require 18.6 and 19.0 respectively, and fail if the package
+source no longer provides them; 14–17 lanes use available minor releases as compatibility checks. These manual
 runs are additional evidence, not part of the automatic CI result. Native Docker
 fixtures and real DNS-stall tests remain separate qualification work.
 

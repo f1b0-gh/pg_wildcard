@@ -7,7 +7,7 @@
 |---|---|
 | Rust | 1.99.1, pinned in both workspaces |
 | Arrow / Parquet | 59.3.3 in the retained lockfiles |
-| PostgreSQL extension | PostgreSQL 18.6, pgrx 0.19.4, C compiler, Clang/libclang and server headers |
+| PostgreSQL extension | PostgreSQL 18.6 or 19.0, pgrx 0.19.4, C compiler, Clang/libclang, ICU and server headers |
 | Remote FDW transport | Published `antalya-rs` 0.1.1 using Arrow 59.3.3 |
 | Python integration tests | Python 3.12 and the dependencies in the [testing guide](testing.md) |
 
@@ -29,18 +29,18 @@ cargo package --locked --manifest-path libwildcard/Cargo.toml --all-features
 The default output directory is `libwildcard/target`. `CARGO_TARGET_DIR` overrides
 it. The package is self-contained: it has its own manifest, lockfile, toolchain,
 license, sources and tests. Building the extracted source package requires no
-parent workspace or sibling checkout. The crates.io library package is `libwildcard 0.2.2`.
+parent workspace or sibling checkout. The crates.io library package is `libwildcard 0.2.3`.
 
 Use `hot` for SQL generation, `puffin` for index codecs and `cold` for all modules
 and `wc-lake`. See [consumer integration](../libwildcard/INTEGRATION.md).
 
 ## Crates.io packages
 
-`libwildcard 0.2.2` is the standalone Rust library; select `hot`, `puffin` or `cold`
-as needed. `pg_wildcard 0.2.2` is the PostgreSQL extension source package and depends
+`libwildcard 0.2.3` is the standalone Rust library; select `hot`, `puffin` or `cold`
+as needed. `pg_wildcard 0.2.3` is the PostgreSQL extension source package and depends
 directly on that library. Compatibility wrappers remain private re-exports.
 
-Release 0.2.2 uses the qualified `antalya-rs 0.1.1` client. `libwildcard` has no client dependency.
+Release 0.2.3 uses the qualified `antalya-rs 0.1.1` client. `libwildcard` has no client dependency.
 
 The extension is installed with cargo-pgrx from its extracted source package,
 not with `cargo install pg_wildcard`. It includes its control file, test fixtures,
@@ -68,7 +68,18 @@ cargo pgrx install -p pg_wildcard --no-default-features --features pg18 \
   --pg-config "$PGRX_PG_CONFIG_PATH" --cargo=--locked
 ```
 
-Check that the reported server version is 18.6. The installation user needs
+PostgreSQL 18 remains the default Cargo feature. For PostgreSQL 19.0, select its
+own binaries and feature explicitly:
+
+```sh
+export PGRX_PG_CONFIG_PATH=/path/to/postgresql-19.0/bin/pg_config
+export PGBIN="$("$PGRX_PG_CONFIG_PATH" --bindir)"
+cargo pgrx init --pg19 "$PGRX_PG_CONFIG_PATH"
+cargo pgrx install -p pg_wildcard --no-default-features --features pg19 \
+  --pg-config "$PGRX_PG_CONFIG_PATH" --cargo=--locked
+```
+
+Check that the server and `pg_config` belong to the selected PostgreSQL version. The installation user needs
 permission to write PostgreSQL's extension directories. Run PostgreSQL tests
 as a non-root user. In the intended database, enable the extension explicitly:
 
@@ -76,12 +87,14 @@ as a non-root user. In the intended database, enable the extension explicitly:
 CREATE EXTENSION pg_wildcard;
 ```
 
-For an existing 0.2.0 or 0.2.1 installation, install the new library and SQL files, then
-reconnect and run `ALTER EXTENSION pg_wildcard UPDATE TO '0.2.2'`. The upgrade
+For an existing 0.2.0, 0.2.1 or 0.2.2 installation, install the new library and SQL files, then
+reconnect and run `ALTER EXTENSION pg_wildcard UPDATE TO '0.2.3'`. The upgrade
 script preserves the SQL API; existing sessions must reconnect to load the new
 shared library.
 
 The extension also declares PostgreSQL 14–17 features for compatibility checks.
+The README performance table retains its measured PostgreSQL 18.6 version;
+PostgreSQL 19 qualification does not supply new timing results.
 Each server major requires a separate build and test run; the presence of a
 feature or CI matrix entry is not proof of a successful deployment.
 The qualification matrix also exercises FDW planner-private strings on each

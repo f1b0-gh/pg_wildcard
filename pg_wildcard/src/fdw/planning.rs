@@ -208,11 +208,11 @@ pub(super) unsafe fn byte_collation(oid: pg_sys::Oid) -> bool {
     if oid == pg_sys::C_COLLATION_OID {
         return true;
     }
-    #[cfg(feature = "pg18")]
+    #[cfg(any(feature = "pg18", feature = "pg19"))]
     // SAFETY: PostgreSQL owns and caches the locale for this planner collation.
     unsafe {
         (*pg_sys::pg_newlocale_from_collation(oid)).collate_is_c
     }
-    #[cfg(not(feature = "pg18"))]
+    #[cfg(not(any(feature = "pg18", feature = "pg19")))]
     false
 }

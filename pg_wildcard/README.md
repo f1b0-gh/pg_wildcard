@@ -3,29 +3,22 @@
 
 PostgreSQL extension for wildcard security-string searches, indicator handling,
 ClickHouse/Antalya SQL generation, Arrow FDW scans and conservative lake pruning.
-The canonical matcher and query generator are provided by `libwildcard 0.2.2`;
-release 0.2.2 uses the qualified `antalya-rs 0.1.1` transport.
+The canonical matcher and query generator are provided by `libwildcard 0.2.3`;
+release 0.2.3 uses the qualified `antalya-rs 0.1.1` transport.
 
 ## Performance qualification
 
-The repository's [current matrix](https://github.com/f1b0-gh/pg_wildcard/blob/main/README.md#measured-performance)
-compares native Antalya, direct client, PostgreSQL and Elasticsearch sweeps,
-including opt-in native batching and staging qualified on 2026-11-24. Those
-routes do not add automatic parallel execution to the FDW. The separate
-2026-11-23 FDW requalification
-uses client 0.1.1 and the planned PostgreSQL 18.6 stack. It does not demonstrate
-a consistent FDW optimization gain: results vary by workload, with paired ranges
-crossing zero. Local measurements are not a general speed guarantee.
-
-See the [benchmark guide](https://github.com/f1b0-gh/pg_wildcard/blob/main/tests/benchmarks/README.md#current-requalification)
-for settings, exact-result checks and evidence availability. Earlier measurements
-and flamegraphs remain historical evidence, separate from this candidate.
+The repository's [single performance table](https://github.com/f1b0-gh/pg_wildcard/blob/main/README.md#measured-performance)
+compares nine native Antalya, antalya-rs, PostgreSQL and Elasticsearch routes.
+Opt-in batching and staging run outside the FDW; the FDW does not parallelize
+queries automatically. See the [benchmark protocol](https://github.com/f1b0-gh/pg_wildcard/blob/main/tests/benchmarks/README.md#current-requalification)
+for exact-result checks and shared-host measurement limits.
 
 ## Build and install
 
 This crate supplies extension source. It requires Rust 1.99.1, cargo-pgrx 0.19.4,
-PostgreSQL server headers, a C compiler and Clang/libclang. PostgreSQL 18.6 is the
-qualified target. From an extracted `pg_wildcard` crate directory:
+PostgreSQL server headers, a C compiler, Clang/libclang and ICU headers. PostgreSQL 18.6 and 19.0 are
+qualified targets; `pg18` remains the default feature. From an extracted `pg_wildcard` crate directory:
 
 ```sh
 export PGRX_PG_CONFIG_PATH=/path/to/postgresql-18.6/bin/pg_config
@@ -33,6 +26,9 @@ cargo pgrx init --pg18 "$PGRX_PG_CONFIG_PATH"
 cargo pgrx install --no-default-features --features pg18 \
   --pg-config "$PGRX_PG_CONFIG_PATH" --cargo=--locked
 ```
+
+For PostgreSQL 19.0, select its `pg_config` and replace `pg18` with `pg19` in
+both commands, retaining `--no-default-features`.
 
 The installation user must be allowed to write PostgreSQL's extension directories.
 Then enable the extension in the intended database:
@@ -42,11 +38,11 @@ CREATE EXTENSION pg_wildcard;
 SELECT wc_match('https://example.org/admin', '*/admin', 'raw');
 ```
 
-To upgrade an existing 0.2.0 or 0.2.1 installation, install the 0.2.2 shared library and
+To upgrade an existing 0.2.0, 0.2.1 or 0.2.2 installation, install the 0.2.3 shared library and
 SQL files, reconnect so the backend loads the new library, then run:
 
 ```sql
-ALTER EXTENSION pg_wildcard UPDATE TO '0.2.2';
+ALTER EXTENSION pg_wildcard UPDATE TO '0.2.3';
 ```
 
 SQL signatures are unchanged. The update records the new extension version.
