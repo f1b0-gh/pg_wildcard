@@ -31,8 +31,8 @@ from route_workers import DirectWorker, PgWorker
 ROOT=Path(__file__).resolve().parents[2]
 module_spec=importlib.util.spec_from_file_location('sweeps',ROOT/'libwildcard/tests/benchmarks/sweeps.py')
 sweeps=importlib.util.module_from_spec(module_spec);module_spec.loader.exec_module(sweeps)
-ROUTES=('native','indexed','direct','pg_backend','pg_copy','elastic_wildcard','elastic_keyword','elastic_wildcard_4','native_parallel','native_staged')
-DEFAULT_ROUTES=tuple(route for route in ROUTES if route not in ('elastic_keyword','elastic_wildcard_4','native_parallel','native_staged'))
+ROUTES=('native','indexed','direct','pg_backend','pg_copy','elastic_wildcard','elastic_keyword','elastic_wildcard_4','native_parallel','native_staged','direct_single','direct_staged')
+DEFAULT_ROUTES=tuple(route for route in ROUTES if route not in ('elastic_keyword','elastic_wildcard_4','native_parallel','native_staged','direct_single','direct_staged'))
 
 
 def emit(out, **record):
@@ -144,6 +144,41 @@ def native_run(engine,queries):
     return {'request_ms':elapsed,'pairs':pairs,'query_ids':ids,'source_queries':len(queries)}
 
 
+def close_worker(worker):
+    try:worker.close()
+    except Exception as error:
+        try:
+            if worker.process.poll() is None:worker.process.kill()
+            worker.process.wait(timeout=5)
+        except Exception as reap_error:error.add_note('Reaping failed: '+type(reap_error).__name__)
+        raise
+
+
+def client_profiles(engine,begin,end,result):
+    from client_parallel import profiles
+    ids={e['query_id'] for e in result['executions']}
+    controls=sum(e['control_requests'] for e in result['executions'])
+    for _ in range(20):
+        rows=profiles(engine,begin,end)
+        main=[p for p in rows if p['query_id'] in ids]
+        control=[p for p in rows if p['query_id'].startswith('antalya-probe-')]
+        if (len(main)==len(ids) and {p['query_id'] for p in main}==ids
+                and len(control)==controls and len({p['query_id'] for p in control})==controls):
+            return main,control
+        if len(control)>controls:raise RuntimeError('foreign control traffic in owned fixture')
+        time.sleep(.1)
+    raise RuntimeError('incomplete client operation/control query logs')
+
+
+def direct_timing(result, clock):
+    if 'error' in result or not result.get('cleanup_confirmed',True):
+        raise RuntimeError('direct execution failed; abort and discard owned fixture')
+    result['client_request_ms']=result['request_ms']
+    if clock=='delivery':result['request_ms']=result['worker_roundtrip_ms']
+    if result['request_ms']>60000:raise TimeoutError('direct sweep delivery deadline')
+    return result
+
+
 def foreign_nodes(plan):
     if plan.get('Node Type')=='Foreign Scan':yield plan
     for child in plan.get('Plans',[]):yield from foreign_nodes(child)
@@ -208,6 +243,9 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('spec',type=Path);parser.add_argument('--native-state',type=Path,required=True)
     parser.add_argument('--elastic-state',type=Path);parser.add_argument('--pg-container')
+    parser.add_argument('--sweep-worker','--staged-worker',dest='staged_worker',type=Path)
+    parser.add_argument('--direct-clock',choices=('internal','delivery'),default='internal')
+    parser.add_argument('--fail-fast',action='store_true',help='Abort the cohort on any failed sample or PG precheck')
     parser.add_argument('--direct-worker',type=Path);parser.add_argument('--out',type=Path,required=True)
     parser.add_argument('--routes');parser.add_argument('--repeats',type=int,default=5)
     parser.add_argument('--concurrency',type=int,default=1)
@@ -234,11 +272,16 @@ def main():
         native_parallel._queries(spec['parallel_dispatch']['queries'])
         if 'native_staged' in routes and spec.get('staged_dispatch') is None:
             raise ValueError('staged route requires an admitted canonical plan')
+    client_routes=set(routes)&{'direct_single','direct_staged'}
+    if client_routes:
+        if not byte_layout or args.concurrency!=1 or not args.staged_worker or ('direct_staged' in routes and not spec.get('staged_dispatch')):
+            raise ValueError('direct staging requires byte_dispatch, one sweep, a staged worker and canonical plan')
+        from client_parallel import Worker as StagedWorker, plan as staged_plan, assert_clean, server_time
     schedule(routes,args.repeats)
     if args.out.exists():raise ValueError('fresh result directory required')
     args.out.mkdir(parents=True);out=args.out
     (out/'spec.json').write_text(json.dumps(spec,sort_keys=True)+'\n')
-    engine=None;elastic=None;indexes={};direct=[];pg=[];admin=None;schema=None
+    engine=None;elastic=None;indexes={};direct=[];single_worker=None;staged_worker=None;pg=[];admin=None;schema=None
     pg_setup=[];precontrol_failure=None
     private=json.loads(args.native_state.read_text());pg_state={'schema':None}
     try:
@@ -288,6 +331,23 @@ def main():
                 direct.append(DirectWorker(args.direct_worker.resolve(),private,out/f'direct-{i}.private.log'))
                 verify_pairs([tuple(p) for p in direct[-1].request(engine.database,canary_queries)['pairs']],canary_expected)
             emit(out,kind='canary',route='direct',pairs=len(canary_expected),timed=False)
+        if 'direct_single' in routes:
+            single_worker=StagedWorker(args.staged_worker.resolve(),private,out/'single.private.log',extra_args=('flush_first',))
+            result=direct_timing(single_worker.request_plan(staged_plan(engine,dict(spec,queries=canary_queries),'flush_first_single')),args.direct_clock)
+            verify_pairs([tuple(p) for p in result['pairs']],canary_expected)
+            assert_clean(engine)
+            emit(out,kind='canary',route='direct_single',pairs=len(canary_expected),timed=False)
+        if 'direct_staged' in routes:
+            staged_worker=StagedWorker(args.staged_worker.resolve(),private,out/'staged.private.log',extra_args=('in_band',))
+            canary_spec=dict(spec,rows=len(spec['templates']),
+                parallel_dispatch=dict(spec['parallel_dispatch'],queries=[q.replace('FROM bench\n','FROM canary\n') for q in spec['parallel_dispatch']['queries']]),
+                staged_dispatch=dict(spec['staged_dispatch'],candidate_select=spec['staged_dispatch']['candidate_select'].replace('FROM bench\n','FROM canary\n')))
+            result=direct_timing(staged_worker.request_plan(staged_plan(engine,canary_spec,'in_band_staged')),args.direct_clock)
+            verify_pairs([tuple(p) for p in result['pairs']],canary_expected)
+            if not result['staging_refused'] or any(e['kind']=='create' for e in result['executions']):
+                raise ValueError('dense canary must refuse staging before CREATE')
+            assert_clean(engine)
+            emit(out,kind='canary',route='direct_staged',pairs=len(canary_expected),staging_refused=True,timed=False)
         pgsql=None
         if any(r.startswith('pg_') for r in routes):
             if not args.pg_container:raise ValueError('owned PG container required')
@@ -310,6 +370,7 @@ def main():
                 precontrol_failure['routes']=[r for r in routes if r.startswith('pg_')]
                 emit(out,kind='precontrol_failure',timed=False,**precontrol_failure)
                 pg=[]
+                if args.fail_fast:raise RuntimeError('PG precheck failed; aborting matched cohort')
             else:
                 emit(out,kind='canary',route='postgres',pairs=len(canary_expected),timed=False)
         versions={'postgres':None,'elastic':None}
@@ -328,11 +389,16 @@ def main():
                   'layout':args.layout,'ingest_durability':args.ingest_durability if byte_layout else 'legacy_defaults',
                   'elastic_route_concurrency':{r:4 if r=='elastic_wildcard_4' else args.elastic_searches for r in routes if r.startswith('elastic_')},
                   'direct_setup':[{'process_ms':w.setup_ms,**w.ready} for w in direct],
+                  'single_setup':single_worker.ready if single_worker else None,
+                  'staged_setup':staged_worker.ready if staged_worker else None,
+                  'staged_worker_sha256':hashlib.sha256(args.staged_worker.read_bytes()).hexdigest() if client_routes else None,
+                  'direct_clock':args.direct_clock,'fail_fast':args.fail_fast,
                   'pg_setup':pg_setup,
                   'precontrol_failure':precontrol_failure,
                   'timer':'request through complete consumption; exact validation/hash after timing; PG backend executor separate from EXPLAIN request; direct/PG sessions reused',
                   'cache':'one untimed warmup; native/direct query result and condition caches disabled; PG inherits the fixture cache policy (inspect native query profiles); Elastic request/query caches disabled; text-index and filesystem caches uncontrolled',
-                  'failures':'60s per server query; sweeps completed after60s are rejected even on the last response. HTTP idle/client deadlines bound overdue work; cancellation is confirmed before the next variant. First failure censors remaining samples of that route.'}
+                  'failures':('Any failure aborts the matched cohort.' if args.fail_fast else '60s per server query; sweeps completed after60s are rejected even on the last response. HTTP idle/client deadlines bound overdue work; cancellation is confirmed before the next variant. First failure censors remaining samples of that route.'),
+                  'client_route_failure':'Always abort; confirm cleanup or remove owned native fixture.'}
         elastic_dsl=[{'id':p['id'],'view':p['view'],'query':{'wildcard':{'v':{'value':p['elastic_wildcard'],'case_insensitive':False}}}} for p in spec['patterns']] if spec['elastic_supported'] else []
         (out/'elastic-dsl.json').write_text(json.dumps(elastic_dsl,indent=2)+'\n')
         (out/'settings.json').write_text(json.dumps(metadata,indent=2)+'\n')
@@ -343,7 +409,8 @@ def main():
             return {row[0] for row in engine.query("SELECT query_id FROM system.query_log WHERE type='QueryFinish' AND startsWith(query_id,'wildcard-') AND position(query,"+sweeps.literal(engine.database+'.bench')+")>0",logging=False)}
         pg_seen=pg_finishes() if pg else set()
         def observe(route):
-            processes=[process_status(w.process.pid) for w in direct] if route=='direct' else []
+            clients=direct if route=='direct' else ([staged_worker] if route=='direct_staged' else ([single_worker] if route=='direct_single' else []))
+            processes=[process_status(w.process.pid) for w in clients]
             if route.startswith('elastic_'):
                 monitor=Client(json.loads(args.elastic_state.read_text()),2)
                 nodes=monitor.request('GET','/_nodes/stats/indices,process,jvm')['nodes'].values()
@@ -368,7 +435,9 @@ def main():
                     return native_parallel.run(engine,spec['parallel_dispatch'],source_rows=spec['rows'],
                                                staged=spec['staged_dispatch'] if route=='native_staged' else None)
                 if route in ('native','indexed'):return native_run(engine,indexed if route=='indexed' else queries)
-                if route=='direct':return direct[worker].request(engine.database,queries)
+                if route=='direct':return direct_timing(direct[worker].request(engine.database,queries),args.direct_clock)
+                if route=='direct_single':return direct_timing(single_worker.request_plan(staged_plan(engine,spec,'flush_first_single')),args.direct_clock)
+                if route=='direct_staged':return direct_timing(staged_worker.request_plan(staged_plan(engine,spec,'in_band_staged')),args.direct_clock)
                 if route.startswith('elastic_'):return elastic_run(elastic,indexes['wildcard' if route=='elastic_wildcard_4' else route[8:]],spec,4 if route=='elastic_wildcard_4' else args.elastic_searches)
                 result=pg[worker].request(pgsql,backend=route=='pg_backend')
                 if route=='pg_backend':
@@ -377,10 +446,15 @@ def main():
                     result['query_ids']=[n['FDW last query ID'] for n in nodes]
                     result['oracle']='identical SQL full COPY validated before measurements; executor consumes rows without wire delivery'
                 return result
+            begin=server_time(engine) if route in client_routes else None
             record=cohorts(route,args.concurrency,action,expected,out,warmup,repeat,lambda:observe(route))
+            end=server_time(engine) if route in client_routes else None
             # Persist measured evidence before query-log control requests.
             (out/'pending.json').write_text(json.dumps(record)+'\n')
             if any('error' in r for r in record['results']):
+                if args.fail_fast or route in client_routes:
+                    emit(out,kind='failed_cohort',**record)
+                    raise RuntimeError('failed sample; aborting matched cohort and discarding owned fixture')
                 # Finish cancellation before another timed variant. The database
                 # and opaque ID belong only to this invocation.
                 cancel_native_queries(engine)
@@ -406,10 +480,13 @@ def main():
                 if 'error' in result:
                     result['error']=sweeps.redact(result['error'],private);disabled.add(route);continue
                 qids=result.get('query_ids',[e['query_id'] for e in result.get('executions',[])])
-                result['profiles']=[engine.profile(q) for q in qids]
+                if route in client_routes:
+                    result['profiles'],result['control_profiles']=client_profiles(engine,begin,end,result)
+                else:result['profiles']=[engine.profile(q) for q in qids]
             if route=='pg_copy' and not any('error' in r for r in record['results']):
                 if len(fresh_pg)!=len(queries)*args.concurrency:raise ValueError('COPY native query correlation differs')
                 record['query_ids']=fresh_pg;record['profiles']=[engine.profile(q) for q in fresh_pg]
+            if client_routes:assert_clean(engine)
             record['host_load']=list(os.getloadavg());all_records.append(record)
             emit(out,kind='cohort',**record);(out/'pending.json').unlink()
         summary=[]
@@ -425,8 +502,8 @@ def main():
             raise OracleMismatch('a route violated the exact pair oracle; see raw records')
     finally:
         primary_error=sys.exc_info()[0];cleanup_errors=[]
-        for worker in direct+pg:
-            try:worker.close()
+        for worker in direct+([single_worker] if single_worker else [])+([staged_worker] if staged_worker else [])+pg:
+            try:close_worker(worker)
             except Exception as error:cleanup_errors.append(type(error).__name__)
         if admin:
             try:
@@ -442,7 +519,17 @@ def main():
                 try:elastic.request('DELETE','/'+index)
                 except Exception as error:cleanup_errors.append(type(error).__name__)
         if engine:
+            if client_routes:
+                try:cancel_native_queries(engine)
+                except Exception as error:cleanup_errors.append(type(error).__name__)
             try:engine.close()
+            except Exception as error:cleanup_errors.append(type(error).__name__)
+        if client_routes and (primary_error or cleanup_errors):
+            # stop verifies ownership and removes the native server even if a
+            # sibling PG fixture still holds its network; the campaign owner
+            # must then remove PG and retry remaining network/state cleanup.
+            import fixtures
+            try:fixtures.stop(args.native_state)
             except Exception as error:cleanup_errors.append(type(error).__name__)
         if cleanup_errors:
             emit(out,kind='cleanup_failure',errors=cleanup_errors)

@@ -40,71 +40,78 @@ experiments and private engine state belong in `.local/`.
 ## Current requalification
 
 The [single current performance table](../../README.md#measured-performance)
-uses a fresh 2026-11-24 cohort for all eight routes. Canonical `libwildcard` has
-an additive opt-in staged SQL planner available since 0.2.2. Measurements used
-the qualified source before the version-only release bump. The PostgreSQL and
-direct routes use `antalya-rs 0.1.1`, also shipped by extension release 0.2.2.
+uses a fresh 2026-11-24 nine-route cohort. It includes the promoted staged Rust
+executor alongside native SQL, the original-query PostgreSQL paths, and
+Elasticsearch. No latency values from the preceding eight-route or client-only
+studies are substituted into this table. The table rounds milliseconds; exact
+median/minimum/maximum values remain in the local summaries.
 
 ### Sweep protocol
 
-- Shared and unrelated literal workloads each contain one million documents,
-  1,000 wildcard rules and exactly 10,000 row/indicator/view pairs. All eight
-  routes have one excluded warmup and seven measured repetitions in rotating
-  order, with one client sweep at a time. The source and original query fields
-  are unchanged from the frozen reference. Full source hashes, exact result
-  multisets and all-indicator canaries are checked.
+- Shared/unrelated literal fixtures each contain one million documents, 1,000
+  rules and exactly 10,000 row/indicator/view pairs. Frozen source data, oracle
+  and canonical query plans are unchanged. Each route has one warmup and seven
+  measured repetitions in rotating order, with one sweep at a time.
 - Antalya 26.8.34.20001 and Elasticsearch 9.5.6 each have four CPUs and 8 GiB;
-  Elasticsearch has a 4 GiB heap. PostgreSQL is 18.6 with pgrx 0.19.4. The ordinary
-  native query permits four threads; parallel routes permit four simultaneous
-  one-thread queries in disjoint 250-rule batches. `max_block_size=8192` is fixed.
-  Arrow uses `flush_first` without compression. Elastic search concurrency is 1 or 4.
-- Native/direct disable result and condition caches; Elasticsearch disables
-  request/query caches. PG inherits fixture settings: each recorded PG query
-  has two condition-cache misses and no hits. Text-index and filesystem caches
-  remain uncontrolled. Four-CPU quotas do not reserve host CPUs.
-- PostgreSQL uses the unchanged, previously qualified `current-011` FDW binary
-  in a fresh PostgreSQL 18.6 container. Only its canonical handler is registered;
-  these generated pair queries invoke no local `wc_*` function. This is a real
-  sweep-route check, not a fresh qualification of the entire extension package.
-  Direct execution likewise retains the qualified 0.1.1 worker. Binary hashes
-  and the handler bootstrap are recorded in local provenance.
-- The PostgreSQL EXPLAIN row reports the complete request with row timing off;
-  binary COPY includes complete delivery and consumption. A full COPY precheck
-  validates the exact SQL before backend timing. Every result-returning route
-  checks the full pair multiset after its measured clock.
-- Ingestion uses unequal default fsync acknowledgment durability. Its measurements
-  do not establish a cross-engine ingestion ranking and are outside query clocks.
+  Elasticsearch has a 4 GiB heap. PostgreSQL is 18.6 with pgrx 0.19.4. CPU quotas
+  do not reserve host CPUs. No task-owned build or test runs overlap timing;
+  other host activity, text-index caches and filesystem caches are uncontrolled.
+- Both Rust rows use the same release `sweep_client` binary and published
+  `antalya-rs 0.1.1`, with fat LTO, one codegen unit and debug level 1. Single
+  execution uses FlushFirst; staged execution uses InBand reads and FlushFirst
+  commands. Both have one Tokio worker and persistent clients. Their reported
+  clock includes pipe transfer and complete JSON reply decoding; the internal
+  client clock is retained separately as `client_request_ms`.
+- Single native/Rust queries set `max_threads=4`; four-batch queries set it to 1
+  each. Block size is 8,192. Native and Rust result/condition caches are disabled;
+  PostgreSQL inherits fixture cache settings. Elastic request/query caches are
+  disabled and its two rows permit one or four concurrent searches.
+- All staged clocks include candidate count/byte preflight, fresh materialization,
+  population verification, exact reads and synchronous DROP. The admission policy
+  remains 100,000 rows, 64 MiB of raw values and 10% of the immutable source.
+  The selective fixtures admit 10,000 rows (1%). Dense controls use one warmup
+  plus three repeats of native parallel, native staged and Rust staged routes;
+  staging refuses all one million candidates before CREATE.
+- PostgreSQL retains the qualified `current-011` FDW binary. Its hash and handler
+  bootstrap are recorded; these pair queries invoke no local `wc_*` functions.
+  Backend timing is the complete EXPLAIN request with tuple timing off; COPY
+  includes complete binary delivery. Identical-SQL COPY prechecks validate exact
+  pairs before backend timing. This is not a new full-extension qualification.
+- Every result-delivering sweep validates the complete pair multiset after timing.
+  Backend samples check executor row counts and rely on identical-SQL COPY proof.
+  Main QueryFinish records are correlated for native, Rust and PostgreSQL paths;
+  both Rust routes additionally require every SDK control-query record. OS/server
+  sampling overlaps timing; query-log collection and exact validation do not.
+  `--fail-fast` aborts the matched campaign on any failed sample or PG precheck.
 
-### Selective result and dense controls
+### Evidence and reproduction
 
-The acceptance rule was fixed before timing: at least 10% lower median latency
-than four indexed batches on each selective corpus, with at least six of seven
-corresponding rounds faster. Both pass: **33.453% / 50.567% lower medians**, with
-**6/7 / 7/7** faster rounds. These are local engineering criteria, not confidence
-intervals or guarantees for arbitrary patterns and distributions. Staging also
-has lower medians than the four-search Elastic route in these two fixtures;
-this does not establish a general Elasticsearch ranking.
+All **168 million-document sweeps** pass: 144 selective samples including
+warmups, plus 24 dense controls. The 18 nine-route smoke sweeps and separate
+three-policy client safety qualification are not performance-table samples.
+Independent recalculation checks route order, counts, oracle hashes, both Rust
+clocks, staged admission/refusal, query/control identities and summaries. Local
+checks cover 84 Python tests (the opt-in database-isolation test also run against
+the owned fixture). Rust worker/manifest/lockfile hashes match the previously
+qualified 49-test and strict-Clippy source; the release binary is rebuilt.
 
-The maintained benchmark executor admits 10,000 candidates (1%) containing 290,000 / 340,000
-raw-value bytes. Every staged sweep includes the count/byte preflight, CREATE,
-population check, four exact queries and DROP: eight correlated QueryFinish
-records. The preflight is new timed work relative to the exploratory prototype.
-Median summed query CPU falls from **2,184 to 1,021 ms** for shared literals and from
-**3,800 to 1,464 ms** for unrelated literals. Both staged sweeps read 2.05M logical
-rows, including the two source scans, accounting and four candidate rechecks.
-Shared indexed batches read only 1.32M rows, yet use more CPU: row count alone
-misses the cost of repeated byte-index predicates and matching expressions.
+Evidence is under `.local/unified-comparison-20261124/`: frozen specs, source and
+binary fingerprints, settings, full raw records, summaries, independent verifier,
+local check logs and cleanup receipt. It is not included in the older published
+benchmark assets. Temporary engines, credentials and build cache are removed
+after verification. Ingestion uses unequal engine-default acknowledgment
+durability, stays outside query clocks and establishes no ingestion ranking.
 
-Separate dense controls preserve rule results and value lengths while making
-all one million source rows pass the cheap gate. Each has three repetitions
-and a warmup for both native routes. Staging is refused every time before CREATE;
-there are five requests: preflight plus four indexed batches. Reference → guarded
-medians are **819.888 → 836.910 ms** and **1,463.906 → 1,452.278 ms**. The preflight
-server clock alone is **56 ms [47–59] / 81 ms [78–93]**. The slight unrelated
-median decrease is variability, not evidence that a refused staging plan saves
-work; total query CPU rises in both controls. Refusal still incurs preflight cost.
+Use the [matched runner command](#comparable-workload-matrix) below. The
+`direct_single` and `direct_staged` routes require the same `--sweep-worker`,
+`--layout byte_dispatch` and one client sweep. Use `--direct-clock delivery` for
+both rows and `--fail-fast` for a complete comparison. The older `direct` route
+and default internal clock remain available only for historical reproduction.
+A fatal client failure stops the owned native fixture; remove a sibling PostgreSQL
+fixture before retrying cleanup of their shared network. Never reuse a fixture
+whose cleanup could not be confirmed.
 
-### Paired FDW protocol
+## Paired FDW protocol
 
 Six rounds cover all six orders of current FDW/client 0.1.0, predecessor
 FDW/client 0.1.1 and current FDW/client 0.1.1. Each workload and route has one
@@ -154,7 +161,7 @@ measurements have not been independently reproduced in a controlled environment.
 Overlapping clocks and route medians must not be subtracted to infer isolated
 FDW overhead. Preparation counters are not exclusive CPU attribution.
 
-Fresh evidence remains under `.local/staged-promotion/`: frozen specifications,
+Earlier native-staging evidence remains under `.local/staged-promotion/`: frozen specifications,
 source/binary fingerprints, protocol and acceptance rule, full raw records,
 correlated native profiles, verification scripts, qualification logs and cleanup
 receipt. The final cohort contains 144 million-document sweeps including warmups
@@ -165,9 +172,9 @@ fixtures, private state and superseded builds are removed after verification.
 
 Historical `.local/final-matrix-20261123/` evidence covers the paired FDW study:
 432 FDW records, 72 full-value controls and 84 earlier sweep records, including
-warmups. Its verifier rejects seven intentionally corrupted cases. Neither local
-campaign is included in the archived assets below; those downloads cannot verify
-the current README table.
+warmups. Its verifier rejects seven intentionally corrupted cases. These earlier local
+campaigns are not included in the archived assets below and do not supply the
+current nine-route README table.
 
 ## Selective staging and bounded parallelism
 
@@ -286,6 +293,9 @@ internal sweep time and full IPC/JSON roundtrip time. Client CPU includes output
 serialization, RSS is sampled, and the high-water mark covers the process lifetime.
 
 ### Focused client results, 2026-11-24
+
+This earlier client-only study explains policy and staging effects. The current
+cross-engine comparison is the [nine-route README table](../../README.md#measured-performance).
 
 Both selective corpora have one million documents, 1,000 rules and 10,000 exact
 pairs. This separate cohort uses one warmup plus seven repetitions in rotating
@@ -570,13 +580,16 @@ control, and label it separately from eligible application fields.
 cargo run --release --locked --manifest-path libwildcard/Cargo.toml --features hot \
   --example sweep_benchmark_gen -- --comparison unrelated --indicators 1000 \
   --rows 1000000 > .local/comparison.json
-cargo build --release --locked --manifest-path tests/transport/Cargo.toml \
-  --features production --example sweep_route
+CARGO_TARGET_DIR="$PWD/.local/perf/client-target" \
+  CARGO_PROFILE_RELEASE_LTO=fat CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+  CARGO_PROFILE_RELEASE_DEBUG=1 \
+  cargo build --release --locked --manifest-path tests/transport/Cargo.toml \
+    --features production --example sweep_client
 python3 tests/benchmarks/compare_routes.py .local/comparison.json \
   --native-state .local/perf/antalya.json --elastic-state .local/perf/elasticsearch.json \
-  --pg-container OWNED_PG --direct-worker tests/transport/target/release/examples/sweep_route \
-  --layout byte_dispatch --ingest-durability defaults \
-  --routes native,native_parallel,native_staged,direct,pg_backend,pg_copy,elastic_wildcard,elastic_wildcard_4 \
+  --pg-container OWNED_PG --sweep-worker .local/perf/client-target/release/examples/sweep_client \
+  --layout byte_dispatch --ingest-durability defaults --direct-clock delivery --fail-fast \
+  --routes native,native_parallel,native_staged,direct_single,direct_staged,pg_backend,pg_copy,elastic_wildcard,elastic_wildcard_4 \
   --out .local/perf/comparison --repeats 7 --concurrency 1
 ```
 
@@ -586,8 +599,9 @@ local file. COPY fields are decoded and compared after timing. Full COPY and
 EXPLAIN clocks remain separate, and all-indicator canaries exercise batches
 whose indicators are absent from a 1% source sample. Native query-log reads and
 query memory are separate from client overlap, backend RSS and container limits.
-Timeouts/resource failures are censored records, never successful samples.
-If the PostgreSQL full-result precheck times out, both requested PostgreSQL
+With `--fail-fast`, any sample or precheck failure aborts the campaign. Without
+that flag, legacy routes retain censored records, never successful samples.
+In that legacy mode, if the PostgreSQL full-result precheck times out, both PostgreSQL
 routes are censored before timing. The runner records `precontrol_failure`,
 closes their sessions and confirms cancellation of owned native queries before
 continuing other routes. Result mismatches and unexpected precheck errors remain

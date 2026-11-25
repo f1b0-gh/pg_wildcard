@@ -39,4 +39,22 @@ class ProcessIsolationTests(unittest.TestCase):
             self.assertEqual(other.result(),[[0]],'cancellation disturbed another database')
 
 
+class ObserverIdentityTests(unittest.TestCase):
+    def test_nonlogged_observers_use_separate_ids_and_preserve_explicit_ids(self):
+        from unittest.mock import MagicMock
+        from urllib.parse import parse_qs,urlparse
+        engine=sweeps.Engine.__new__(sweeps.Engine)
+        engine.state={'url':'http://127.0.0.1','token':'fixture'}
+        engine.settings={};engine.database='wc_benchmark_'+'a'*32
+        engine.prefix=engine.database+'_';engine.timeout_seconds=10
+        engine.opener=MagicMock()
+        engine.opener.open.return_value.__enter__.return_value.read.return_value=b'{"data":[]}'
+        engine.query('SELECT 1',logging=False)
+        engine.query('SELECT 1')
+        engine.query('SELECT 1',query_id='explicit',logging=False)
+        ids=[parse_qs(urlparse(call.args[0].full_url).query)['query_id'][0] for call in engine.opener.open.call_args_list]
+        self.assertTrue(ids[0].startswith('wc-observer-'))
+        self.assertTrue(ids[1].startswith(engine.prefix))
+        self.assertEqual(ids[2],'explicit')
+
 if __name__=='__main__':unittest.main()
