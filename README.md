@@ -47,8 +47,8 @@ materialization, exact checks and cleanup.
 | Native Antalya, single query / 4 threads | 1,896 [1,815, 2,196] | 2,105 [1,833, 2,452] |
 | Native Antalya, 4 indexed batches / 1 thread each | 777 [711, 1,028] | 1,251 [1,097, 1,553] |
 | Native Antalya, selective staging + 4 batches | 613 [508, 1,421] | 721 [626, 1,065] |
-| Rust client, single query, FlushFirst | 2,337 [2,010, 2,733] | 2,765 [2,323, 3,169] |
-| Rust client, selective staging + 4 batches, InBand reads | 647 [527, 1,350] | 742 [589, 2,552] |
+| antalya-rs, single query, FlushFirst | 2,337 [2,010, 2,733] | 2,765 [2,323, 3,169] |
+| antalya-rs, selective staging + 4 batches, InBand reads | 647 [527, 1,350] | 742 [589, 2,552] |
 | PostgreSQL FDW, EXPLAIN request | 2,778 [2,615, 3,057] | 2,734 [2,259, 2,835] |
 | PostgreSQL FDW, complete binary COPY | 2,483 [2,265, 3,254] | 2,368 [2,246, 3,095] |
 | Elasticsearch wildcard, 1 concurrent search | 5,271 [2,790, 10,840] | 3,980 [2,342, 7,822] |
